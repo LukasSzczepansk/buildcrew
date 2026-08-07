@@ -105,6 +105,12 @@ export default async function LandingPage() {
             <Link href="/signup" className="hover:text-neutral-600 dark:hover:text-neutral-200">
               Rejestracja
             </Link>
+            <Link href="/regulamin" className="hover:text-neutral-600 dark:hover:text-neutral-200">
+              Regulamin
+            </Link>
+            <Link href="/polityka-prywatnosci" className="hover:text-neutral-600 dark:hover:text-neutral-200">
+              Polityka prywatności
+            </Link>
           </div>
         </div>
       </footer>

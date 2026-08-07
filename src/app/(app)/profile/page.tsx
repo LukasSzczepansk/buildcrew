@@ -89,7 +89,7 @@ export default async function ProfilePage() {
           discordUsername: privateContact?.discordUsername ?? "",
         }}
       />
-      <AccountSecurity />
+      <AccountSecurity hasPassword={user.hasPassword} />
     </div>
   );
 }

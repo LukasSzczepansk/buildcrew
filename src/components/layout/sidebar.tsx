@@ -99,6 +99,10 @@ export function Sidebar({ username, avatarEmoji, admin = false }: { username: st
             Wyloguj się
           </Button>
         </form>
+        <div className="flex items-center justify-center gap-3 px-2 pt-1 text-[11px] text-neutral-400">
+          <Link href="/regulamin" className="hover:text-neutral-600 dark:hover:text-neutral-200">Regulamin</Link>
+          <Link href="/polityka-prywatnosci" className="hover:text-neutral-600 dark:hover:text-neutral-200">Prywatność</Link>
+        </div>
       </div>
     </aside>
   );

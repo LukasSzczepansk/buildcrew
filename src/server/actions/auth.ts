@@ -84,6 +84,7 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
   const parsed = signupSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
+    acceptTerms: formData.get("acceptTerms"),
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Błędne dane." };
 
@@ -94,7 +95,13 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
   const passwordHash = await hashPassword(parsed.data.password);
   let inserted: { id: string }[];
   try {
-    inserted = await db.insert(users).values({ email, passwordHash }).returning({ id: users.id });
+    const acceptedAt = new Date();
+    inserted = await db.insert(users).values({
+      email,
+      passwordHash,
+      termsAcceptedAt: acceptedAt,
+      privacyAcceptedAt: acceptedAt,
+    }).returning({ id: users.id });
   } catch (error) {
     if (isUniqueViolation(error)) return { error: "Konto z tym adresem e-mail już istnieje." };
     throw error;

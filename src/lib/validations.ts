@@ -35,6 +35,7 @@ const linkedinUrl = httpUrl.refine((value) => {
 export const signupSchema = z.object({
   email: z.string().trim().email("Podaj poprawny adres e-mail."),
   password: z.string().min(12, "Hasło musi mieć co najmniej 12 znaków.").max(128, "Hasło jest zbyt długie."),
+  acceptTerms: z.string().refine((value) => value === "on", "Zaakceptuj Regulamin i Politykę prywatności."),
 });
 
 export const loginSchema = z.object({

@@ -16,11 +16,15 @@ if (strict) {
   required("NEXT_PUBLIC_APP_URL");
   required("RESEND_API_KEY");
   required("EMAIL_FROM");
+  required("GOOGLE_CLIENT_ID");
+  required("GOOGLE_CLIENT_SECRET");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   if (appUrl && !appUrl.startsWith("https://")) errors.push("NEXT_PUBLIC_APP_URL w produkcji musi zaczynać się od https://");
   if ((process.env.ADMIN_EMAILS || "").includes("admin@buildcrew.local")) errors.push("Usuń demo admin@buildcrew.local z ADMIN_EMAILS przed produkcją.");
   if (process.env.ALLOW_ADMIN_EMAIL_BOOTSTRAP === "true") errors.push("ALLOW_ADMIN_EMAIL_BOOTSTRAP musi być false w produkcji po nadaniu roli ADMIN w bazie.");
   if (process.env.ALLOW_DEMO_SEED === "true") errors.push("ALLOW_DEMO_SEED nie może być true w produkcji.");
+  if (!process.env.PUBLIC_CONTACT_EMAIL?.trim()) warnings.push("PUBLIC_CONTACT_EMAIL brak: strona prawna użyje domyślnego kontakt@buildcreww.pl.");
+  if (!process.env.LEGAL_OPERATOR_NAME?.trim()) warnings.push("LEGAL_OPERATOR_NAME brak: przed publicznym startem uzupełnij dane usługodawcy/administratora.");
 } else {
   if (!process.env.RESEND_API_KEY) warnings.push("RESEND_API_KEY brak: w development linki/kody e-mail będą wypisywane w terminalu.");
 }

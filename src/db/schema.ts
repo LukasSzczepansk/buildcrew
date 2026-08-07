@@ -29,9 +29,11 @@ export type SystemRole = (typeof systemRoleEnum)[number];
 export const users = pgTable("users", {
   id: uuidPk(),
   email: text("email").notNull(),
-  passwordHash: text("password_hash").notNull(),
+  passwordHash: text("password_hash"),
   systemRole: text("system_role").$type<SystemRole>().notNull().default("USER"),
   emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+  termsAcceptedAt: timestamp("terms_accepted_at", { withTimezone: true }),
+  privacyAcceptedAt: timestamp("privacy_accepted_at", { withTimezone: true }),
   passwordChangedAt: timestamp("password_changed_at", { withTimezone: true }),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   isSuspended: boolean("is_suspended").notNull().default(false),
@@ -39,6 +41,17 @@ export const users = pgTable("users", {
   suspendedReason: text("suspended_reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [uniqueIndex("users_email_idx").on(t.email)]);
+
+export const authAccounts = pgTable("auth_accounts", {
+  id: uuidPk(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  provider: text("provider").notNull(),
+  providerAccountId: text("provider_account_id").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("auth_accounts_provider_account_idx").on(t.provider, t.providerAccountId),
+  uniqueIndex("auth_accounts_user_provider_idx").on(t.userId, t.provider),
+]);
 
 export const sessions = pgTable("sessions", {
   id: uuidPk(),

@@ -14,7 +14,8 @@ export async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
 }
 
-export async function verifyPassword(password: string, hash: string) {
+export async function verifyPassword(password: string, hash: string | null | undefined) {
+  if (!hash) return false;
   return bcrypt.compare(password, hash);
 }
 
@@ -80,6 +81,7 @@ export type CurrentUser = {
   isSuspended: boolean;
   emailVerified: boolean;
   systemRole: SystemRole;
+  hasPassword: boolean;
 };
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -94,6 +96,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
       email: users.email,
       systemRole: users.systemRole,
       emailVerifiedAt: users.emailVerifiedAt,
+      passwordHash: users.passwordHash,
       expiresAt: sessions.expiresAt,
       username: profiles.username,
       onboardingCompleted: profiles.onboardingCompleted,
@@ -130,6 +133,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     isSuspended: row.isSuspended,
     emailVerified: Boolean(row.emailVerifiedAt),
     systemRole: row.systemRole,
+    hasPassword: Boolean(row.passwordHash),
   };
 }
 
