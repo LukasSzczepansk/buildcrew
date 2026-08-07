@@ -20,7 +20,8 @@ function secureCookieOptions() {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
-    path: "/api/auth/google",
+    // __Host- cookies are accepted by browsers only with Path=/ and no Domain.
+    path: "/",
     maxAge: OAUTH_TTL_SECONDS,
   };
 }
