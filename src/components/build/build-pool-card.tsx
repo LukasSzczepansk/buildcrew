@@ -3,6 +3,7 @@
 import * as React from "react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { Users2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -17,21 +18,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { COMMITMENT_LABELS, GOAL_LABELS, LEVEL_LABELS, ROLE_LABELS } from "@/lib/constants";
-import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
-import { sendBuildProposal } from "@/server/actions/crews";
-import { inviteToCrew } from "@/server/actions/crews";
+import { COMMITMENT_LABELS, LEVEL_LABELS, ROLE_LABELS } from "@/lib/constants";
+import type { Commitment, Level, RoleType } from "@/db/schema";
+import { inviteToCrew, sendBuildProposal } from "@/server/actions/crews";
 
 export type BuildPoolPerson = {
   userId: string;
   username: string;
   avatarEmoji: string;
-  role: RoleType | null;
-  level: Level | null;
-  weeklyHours: Commitment | null;
-  skills: string[];
-  interests: string[];
-  goals: Goal[];
+  headline: string;
+  role: RoleType;
+  level: Level;
+  weeklyHours: Commitment;
+  technologies: string[];
+  wantsToBuild: string;
+  avoids: string | null;
+  preferredCrewSize: number;
+  description: string | null;
   reasons: string[];
 };
 
@@ -61,47 +64,37 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
         <Avatar emoji={person.avatarEmoji} />
         <div className="min-w-0">
           <p className="truncate font-semibold">{person.username}</p>
-          <p className="text-sm text-neutral-500">{person.role ? ROLE_LABELS[person.role] : "Builder"}</p>
+          <p className="text-sm text-neutral-500">{ROLE_LABELS[person.role]}</p>
         </div>
       </Link>
 
-      {person.skills.length > 0 && (
+      <h3 className="mt-4 font-semibold leading-snug">{person.headline}</h3>
+      <p className="mt-2 line-clamp-3 text-sm text-neutral-600 dark:text-neutral-300">{person.wantsToBuild}</p>
+
+      {person.technologies.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {person.skills.slice(0, 4).map((s) => (
-            <Badge key={s} variant="outline">
-              {s}
-            </Badge>
+          {person.technologies.slice(0, 5).map((technology) => (
+            <Badge key={technology} variant="outline">{technology}</Badge>
           ))}
         </div>
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-neutral-400">
-        {person.level && <span>{LEVEL_LABELS[person.level]}</span>}
-        {person.weeklyHours && (
-          <>
-            <span>·</span>
-            <span>{COMMITMENT_LABELS[person.weeklyHours]}</span>
-          </>
-        )}
+        <span>{LEVEL_LABELS[person.level]}</span>
+        <span>·</span>
+        <span>{COMMITMENT_LABELS[person.weeklyHours]}</span>
+        <span>·</span>
+        <span className="inline-flex items-center gap-1"><Users2 className="h-3.5 w-3.5" /> ekipa {person.preferredCrewSize} os.</span>
       </div>
 
-      {person.interests.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {person.interests.slice(0, 3).map((i) => (
-            <Badge key={i} variant="secondary">
-              {i}
-            </Badge>
-          ))}
-        </div>
-      )}
+      {person.description ? <p className="mt-3 text-xs text-neutral-500">{person.description}</p> : null}
+      {person.avoids ? <p className="mt-2 text-xs text-neutral-400"><span className="font-medium">Nie szuka:</span> {person.avoids}</p> : null}
 
       {person.reasons.length > 0 && (
         <div className="mt-4 flex-1 rounded-xl bg-violet-50/60 p-3 dark:bg-violet-500/5">
           <p className="mb-1 text-xs font-semibold text-violet-700 dark:text-violet-300">Pasujecie, bo:</p>
           <ul className="space-y-0.5 text-xs text-violet-700/80 dark:text-violet-300/80">
-            {person.reasons.map((r, i) => (
-              <li key={i}>✓ {r}</li>
-            ))}
+            {person.reasons.map((reason, index) => <li key={index}>✓ {reason}</li>)}
           </ul>
         </div>
       )}
@@ -123,12 +116,10 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
             placeholder="Cześć! Widzę, że też szukasz ekipy…"
             maxLength={300}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(event) => setMessage(event.target.value)}
           />
           <DialogFooter>
-            <Button onClick={handleSend} disabled={pending}>
-              {pending ? "Wysyłanie…" : "Wyślij propozycję"}
-            </Button>
+            <Button onClick={handleSend} disabled={pending}>{pending ? "Wysyłanie…" : "Wyślij propozycję"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

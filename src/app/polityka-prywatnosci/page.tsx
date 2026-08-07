@@ -30,7 +30,7 @@ export default function PrivacyPage() {
           <li>dane konta, w tym adres e-mail, informacje o weryfikacji oraz dane związane z metodą logowania;</li>
           <li>dane profilu, takie jak nazwa użytkownika, rola, poziom doświadczenia, bio, umiejętności, zainteresowania i linki podane przez użytkownika;</li>
           <li>prywatne dane kontaktowe podane w profilu, które są ujawniane wyłącznie w przewidzianych przez serwis relacjach;</li>
-          <li>treści i aktywność w serwisie, m.in. projekty, zgłoszenia, zaproszenia, ekipy, pytania, odpowiedzi, zgłoszenia moderacyjne i powiązane metadane;</li>
+          <li>treści i aktywność w serwisie, m.in. projekty, zgłoszenia Build Pool, zaproszenia, relacje znajomych, ekipy, prywatne wiadomości 1:1, pytania, odpowiedzi, zgłoszenia moderacyjne i powiązane metadane;</li>
           <li>dane techniczne i bezpieczeństwa, takie jak identyfikatory sesji, adres IP, informacje o przeglądarce, zdarzenia bezpieczeństwa i dane potrzebne do limitowania nadużyć;</li>
           <li>jeżeli używane jest logowanie Google — identyfikator konta Google oraz zweryfikowany adres e-mail otrzymany w ramach autoryzacji.</li>
         </ul>
@@ -71,11 +71,16 @@ export default function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Publiczność profilu i prywatny kontakt">
+      <LegalSection title="6. Publiczność profilu, znajomi i prywatna komunikacja">
         <p>
           Dane profilu i treści oznaczone jako publiczne mogą być widoczne dla innych użytkowników zgodnie z funkcjami platformy.
           Prywatne dane kontaktowe, takie jak nazwa użytkownika Discord, nie powinny być ujawniane publicznie i są udostępniane wyłącznie
           po spełnieniu warunków relacji przewidzianych w BuildCrew.
+        </p>
+        <p>
+          Prywatne wiadomości 1:1 są przeznaczone dla uczestników danej rozmowy i są przechowywane w bazie danych w celu dostarczenia
+          wiadomości, pokazania historii rozmowy i statusu odczytu. Usunięcie relacji znajomych albo zablokowanie użytkownika może również
+          spowodować usunięcie powiązanej rozmowy zgodnie z działaniem serwisu.
         </p>
       </LegalSection>
 

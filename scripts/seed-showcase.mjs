@@ -469,6 +469,16 @@ const buildProposals = [
   ["78000000-0000-4000-8000-000000000002", builders[11].id, builders[0].id, "Mam prosty pomysł SaaS i backend. Szukam kogoś, kto chce dowieźć frontend w małym scope.", "PENDING"],
 ];
 
+const buildPoolListings = [
+  ["79000000-0000-4000-8000-000000000001", builders[0].id, "Frontend dev szuka małego SaaS do dowiezienia", "FRONTEND", ["Next.js", "TypeScript", "Tailwind CSS"], "Chcę zbudować prosty produkt z wyraźnym MVP: dashboard, narzędzie productivity albo creator tool. Najlepiej coś, co da się pokazać pierwszym użytkownikom w 3–4 tygodnie.", "Nie szukam wielomiesięcznego projektu bez konkretnego zakresu.", "5-10", 3, "BUILDING", "Lubię krótkie iteracje, code review i dopracowany frontend."],
+  ["79000000-0000-4000-8000-000000000002", builders[1].id, "Backend + baza: dołączę do produktu z konkretnym problemem", "BACKEND", ["Node.js", "PostgreSQL", "Docker"], "Najchętniej API, automatyzacja albo fintech. Mogę ogarnąć model danych, auth, integracje i deployment.", "Bez rozbudowanego mikroserwisowego setupu na start.", "3-5", 2, "EXPERIENCED", "Szukam jednej lub dwóch osób, które chcą szybko przejść od pomysłu do działającej wersji."],
+  ["79000000-0000-4000-8000-000000000003", builders[2].id, "UX/UI do ekipy budującej użyteczne MVP", "UI_UX", ["Figma", "UI Design", "Design Systems"], "Chcę zaprojektować flow produktu od pierwszego szkicu po testowalny interfejs. Najbardziej interesują mnie edukacja, zdrowie i productivity.", "Nie interesuje mnie samo robienie landing page bez pracy nad produktem.", "3-5", 3, "BUILDING", "Mogę prowadzić szybkie prototypy i testy użyteczności."],
+  ["79000000-0000-4000-8000-000000000004", builders[5].id, "Zbudujmy praktyczne AI zamiast kolejnego wrappera", "AI_ML", ["Python", "RAG", "FastAPI", "pgvector"], "Szukam pomysłu, gdzie AI rozwiązuje konkretny workflow: wyszukiwanie, ekstrakcja dokumentów, automatyzacja albo asystent oparty o własne dane.", "Nie chcę robić projektu opartego wyłącznie na jednym promptcie bez własnej wartości.", "5-10", 3, "BUILDING", "Mogę wziąć część AI/backend i przygotować pierwszą ewaluację jakości."],
+  ["79000000-0000-4000-8000-000000000005", builders[6].id, "React Native / Expo — szukam małej aplikacji mobilnej", "MOBILE", ["React Native", "Expo", "TypeScript"], "Chcę zbudować apkę, którą da się naprawdę zainstalować i przetestować. Fitness, zdrowie, travel albo proste narzędzie użytkowe.", "Bez ogromnego scope i dziesiątek ekranów w pierwszej wersji.", "3-5", 3, "BUILDING", "Najbardziej zależy mi na publicznym MVP i pracy z realnym feedbackiem."],
+  ["79000000-0000-4000-8000-000000000006", builders[7].id, "Product person szuka technicznej ekipy do walidacji pomysłu", "PRODUCT", ["Product Discovery", "User Research", "Analytics"], "Chcę wspólnie znaleźć problem, zrobić kilka rozmów z użytkownikami i zbudować minimalną wersję do sprawdzenia jednej hipotezy.", "Nie chcę zaczynać od wielkiej roadmapy ani monetyzacji bez walidacji.", "3-5", 3, "EXPERIENCED", "Mogę prowadzić discovery, scope MVP i pierwsze testy z użytkownikami."],
+  ["79000000-0000-4000-8000-000000000007", builders[13].id, "Full-stack na szybkie MVP — mogę dowozić regularnie", "FULLSTACK", ["Next.js", "TypeScript", "PostgreSQL", "Drizzle ORM"], "Szukam 1–2 osób do produktu webowego, który można rozwijać co tydzień. SaaS, developer tools albo automatyzacja brzmią najlepiej.", "Nie szukam projektu, w którym przez miesiąc tylko planujemy.", "10+", 3, "BUILDING", "Mogę postawić bazę, backend, frontend i pierwsze wdrożenie."],
+];
+
 function allShowcaseIds() {
   return builders.map((b) => b.id);
 }
@@ -547,6 +557,15 @@ async function seed() {
           [builder.id, interest],
         );
       }
+    }
+
+    for (const [id, userId, headline, role, technologies, wantsToBuild, avoids, weeklyHours, preferredCrewSize, level, description] of buildPoolListings) {
+      await client.query(
+        `insert into build_pool_listings
+          (id, user_id, headline, role, technologies, wants_to_build, avoids, weekly_hours, preferred_crew_size, level, description, status, created_at, updated_at)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'ACTIVE',now() - interval '2 days',now())`,
+        [id, userId, headline, role, technologies, wantsToBuild, avoids, weeklyHours, preferredCrewSize, level, description],
+      );
     }
 
     for (let i = 0; i < projects.length; i += 1) {
@@ -632,7 +651,7 @@ async function seed() {
     }
 
     await client.query("commit");
-    console.log("✅ Dodano: 14 profili, 9 projektów, 10 pytań, 12 odpowiedzi, 7 aplikacji i 2 ekipy Build Pool.");
+    console.log("✅ Dodano: 14 profili, 7 aktywnych zgłoszeń Build Pool, 9 projektów, 10 pytań, 12 odpowiedzi, 7 aplikacji i 2 ekipy.");
     console.log("ℹ️ Konta są syntetyczne i mają adresy w domenie .invalid; nie da się na nie wysyłać prawdziwej poczty.");
     console.log("ℹ️ Skrypt jest idempotentny: ponowne uruchomienie odświeża tylko własne dane showcase.");
   } catch (error) {

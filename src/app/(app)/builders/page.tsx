@@ -30,7 +30,7 @@ export default async function BuildersPage({
 
   return (
     <div>
-      <Topbar title="Builderzy" subtitle="Ludzie otwarci na współpracę przy projektach." />
+      <Topbar title="Builderzy" subtitle="Katalog profili społeczności — niezależnie od tego, czy ktoś jest teraz aktywny w Build Pool." />
 
       <FilterBar
         filters={[

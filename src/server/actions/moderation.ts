@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { blocks, reports, users } from "@/db/schema";
+import { blocks, conversations, friendRequests, friendships, reports, users } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
 import { enforceUserRateLimit } from "@/lib/security";
 import { reportSchema, uuidSchema } from "@/lib/validations";
@@ -19,10 +19,19 @@ export async function blockUser(blockedId: string) {
   const target = await db.select({ id: users.id }).from(users).where(eq(users.id, blockedId)).limit(1);
   if (!target[0]) return { error: "Użytkownik nie istnieje." };
 
-  await db.insert(blocks).values({ blockerId: user.id, blockedId }).onConflictDoNothing();
+  const [low, high] = [user.id, blockedId].sort();
+  const pairKey = `${low}:${high}`;
+  await db.transaction(async (tx) => {
+    await tx.insert(blocks).values({ blockerId: user.id, blockedId }).onConflictDoNothing();
+    await tx.delete(friendships).where(and(eq(friendships.userLowId, low), eq(friendships.userHighId, high)));
+    await tx.delete(conversations).where(and(eq(conversations.userLowId, low), eq(conversations.userHighId, high)));
+    await tx.update(friendRequests).set({ status: "CANCELLED", updatedAt: new Date() }).where(and(eq(friendRequests.pairKey, pairKey), eq(friendRequests.status, "PENDING")));
+  });
   revalidatePath("/builders");
   revalidatePath("/build");
   revalidatePath("/projects");
+  revalidatePath("/friends");
+  revalidatePath("/messages");
   return { success: true };
 }
 

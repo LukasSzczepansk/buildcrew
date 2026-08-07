@@ -32,7 +32,8 @@ export default function TermsPage() {
       <LegalSection title="2. Zakres usługi">
         <p>
           BuildCrew umożliwia w szczególności utworzenie profilu, publikowanie i wyszukiwanie projektów, zgłaszanie się do ról,
-          zapraszanie innych użytkowników, tworzenie ekip w Build Pool, zadawanie pytań i udzielanie odpowiedzi oraz ujawnienie
+          publikowanie aktywnego zgłoszenia w Build Pool, zapraszanie innych użytkowników, tworzenie ekip, dodawanie znajomych,
+          prowadzenie prywatnych rozmów 1:1 pomiędzy zaakceptowanymi znajomymi, zadawanie pytań i udzielanie odpowiedzi oraz ujawnienie
           prywatnego kontaktu po zaakceptowaniu relacji projektowej lub zespołowej.
         </p>
         <p>
@@ -57,7 +58,7 @@ export default function TermsPage() {
         <p>Użytkownik zobowiązuje się korzystać z serwisu zgodnie z prawem, dobrymi obyczajami i celem platformy. W szczególności zabronione jest:</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>publikowanie treści bezprawnych, oszukańczych, wprowadzających w błąd lub naruszających prawa innych osób;</li>
-          <li>nękanie, grożenie, dyskryminowanie, spamowanie lub masowe wysyłanie niechcianych zaproszeń i zgłoszeń;</li>
+          <li>nękanie, grożenie, dyskryminowanie, spamowanie lub masowe wysyłanie niechcianych zaproszeń, zgłoszeń albo prywatnych wiadomości;</li>
           <li>wyłudzanie pieniędzy, danych dostępowych, kodów, dokumentów lub innych poufnych informacji;</li>
           <li>używanie serwisu do dystrybucji złośliwego oprogramowania, automatycznych ataków lub prób uzyskania nieuprawnionego dostępu;</li>
           <li>obchodzenie zabezpieczeń, limitów, blokad i mechanizmów moderacji;</li>

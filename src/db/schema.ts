@@ -284,6 +284,36 @@ export const crewInvites = pgTable("crew_invites", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [uniqueIndex("crew_invites_pending_unique_idx").on(t.crewId, t.inviteeId).where(sql`${t.status} = 'PENDING'`)]);
 
+
+export const buildPoolListingStatusEnum = ["ACTIVE", "PAUSED", "CLOSED"] as const;
+export type BuildPoolListingStatus = (typeof buildPoolListingStatusEnum)[number];
+
+/**
+ * An explicit "I am available to build now" card. This intentionally lives
+ * outside profiles so Builderzy stays a directory while Build Pool only shows
+ * people who have actively opted in.
+ */
+export const buildPoolListings = pgTable("build_pool_listings", {
+  id: uuidPk(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  headline: text("headline").notNull(),
+  role: text("role").$type<RoleType>().notNull(),
+  technologies: text("technologies").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
+  wantsToBuild: text("wants_to_build").notNull(),
+  avoids: text("avoids"),
+  weeklyHours: text("weekly_hours").$type<Commitment>().notNull(),
+  preferredCrewSize: integer("preferred_crew_size").notNull().default(3),
+  level: text("level").$type<Level>().notNull(),
+  description: text("description"),
+  status: text("status").$type<BuildPoolListingStatus>().notNull().default("ACTIVE"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("build_pool_listings_user_idx").on(t.userId),
+  index("build_pool_listings_status_idx").on(t.status, t.updatedAt),
+  check("build_pool_listings_crew_size_check", sql`${t.preferredCrewSize} between 2 and 4`),
+]);
+
 // "Zbudujmy coś razem" proposal between two people with no crew yet.
 export const buildProposals = pgTable("build_proposals", {
   id: uuidPk(),
@@ -293,6 +323,68 @@ export const buildProposals = pgTable("build_proposals", {
   status: text("status").$type<ApplicationStatus>().notNull().default("PENDING"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [uniqueIndex("build_proposals_pending_unique_idx").on(t.senderId, t.receiverId).where(sql`${t.status} = 'PENDING'`)]);
+
+
+// ---------------------------------------------------------------------------
+// Friends & 1:1 messaging
+// ---------------------------------------------------------------------------
+
+export const friendRequestStatusEnum = ["PENDING", "ACCEPTED", "REJECTED", "CANCELLED"] as const;
+export type FriendRequestStatus = (typeof friendRequestStatusEnum)[number];
+
+export const friendRequests = pgTable("friend_requests", {
+  id: uuidPk(),
+  senderId: uuid("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  receiverId: uuid("receiver_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  pairKey: text("pair_key").notNull(),
+  status: text("status").$type<FriendRequestStatus>().notNull().default("PENDING"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("friend_requests_pending_pair_idx").on(t.pairKey).where(sql`${t.status} = 'PENDING'`),
+  index("friend_requests_receiver_status_idx").on(t.receiverId, t.status),
+  index("friend_requests_sender_status_idx").on(t.senderId, t.status),
+  check("friend_requests_not_self_check", sql`${t.senderId} <> ${t.receiverId}`),
+]);
+
+export const friendships = pgTable("friendships", {
+  id: uuidPk(),
+  userLowId: uuid("user_low_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userHighId: uuid("user_high_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("friendships_pair_idx").on(t.userLowId, t.userHighId),
+  index("friendships_low_idx").on(t.userLowId),
+  index("friendships_high_idx").on(t.userHighId),
+  check("friendships_not_self_check", sql`${t.userLowId} <> ${t.userHighId}`),
+]);
+
+export const conversations = pgTable("conversations", {
+  id: uuidPk(),
+  userLowId: uuid("user_low_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userHighId: uuid("user_high_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("conversations_pair_idx").on(t.userLowId, t.userHighId),
+  index("conversations_low_idx").on(t.userLowId),
+  index("conversations_high_idx").on(t.userHighId),
+  index("conversations_updated_idx").on(t.updatedAt),
+  check("conversations_not_self_check", sql`${t.userLowId} <> ${t.userHighId}`),
+]);
+
+export const messages = pgTable("messages", {
+  id: uuidPk(),
+  conversationId: uuid("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
+  senderId: uuid("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  readAt: timestamp("read_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("messages_conversation_created_idx").on(t.conversationId, t.createdAt),
+  index("messages_conversation_read_idx").on(t.conversationId, t.readAt),
+  index("messages_sender_idx").on(t.senderId),
+]);
 
 // ---------------------------------------------------------------------------
 // Help / Q&A
@@ -336,6 +428,8 @@ export const notificationTypeEnum = [
   "BUILD_PROPOSAL_ACCEPTED",
   "QUESTION_ANSWERED",
   "ANSWER_MARKED_HELPFUL",
+  "FRIEND_REQUEST",
+  "FRIEND_ACCEPTED",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
 

@@ -163,3 +163,21 @@ export const reportSchema = z.object({
   reason: z.enum(reportReasonEnum),
   description: z.string().trim().max(500).optional().or(z.literal("")),
 });
+
+export const buildPoolListingSchema = z.object({
+  headline: z.string().trim().min(4, "Dodaj krótki nagłówek.").max(80, "Nagłówek może mieć maks. 80 znaków."),
+  role: z.enum(roleTypeEnum),
+  technologies: z.array(z.string().trim().min(1).max(40)).min(1, "Dodaj przynajmniej jedną technologię.").max(10, "Maksymalnie 10 technologii."),
+  wantsToBuild: z.string().trim().min(10, "Napisz trochę więcej o tym, co chcesz budować.").max(500),
+  avoids: z.string().trim().max(300).optional().or(z.literal("")),
+  weeklyHours: z.enum(commitmentEnum),
+  preferredCrewSize: z.coerce.number().int().min(2).max(4),
+  level: z.enum(levelEnum),
+  description: z.string().trim().max(400).optional().or(z.literal("")),
+});
+
+export const buildPoolListingStatusSchema = z.enum(["ACTIVE", "PAUSED", "CLOSED"]);
+
+export const messageSchema = z.object({
+  body: z.string().trim().min(1, "Wiadomość nie może być pusta.").max(800, "Wiadomość może mieć maks. 800 znaków."),
+});

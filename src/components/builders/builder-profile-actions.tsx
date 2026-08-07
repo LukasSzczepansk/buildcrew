@@ -29,15 +29,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReportDialog } from "@/components/moderation/report-dialog";
+import { FriendRelationActions, type FriendRelationState } from "@/components/friends/friend-relation-actions";
 import { inviteToProject } from "@/server/actions/projects";
 import { blockUser } from "@/server/actions/moderation";
 
 export function BuilderProfileActions({
   targetUserId,
   myProjects,
+  friendState,
 }: {
   targetUserId: string;
   myProjects: { id: string; name: string }[];
+  friendState: FriendRelationState;
 }) {
   const [inviteOpen, setInviteOpen] = React.useState(false);
   const [reportOpen, setReportOpen] = React.useState(false);
@@ -67,6 +70,8 @@ export function BuilderProfileActions({
 
   return (
     <Card className="flex flex-col gap-2 p-4">
+      <FriendRelationActions targetUserId={targetUserId} state={friendState} />
+
       {myProjects.length > 0 && (
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
           <DialogTrigger asChild>

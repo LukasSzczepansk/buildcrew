@@ -7,10 +7,12 @@ import {
   HelpCircle,
   Home,
   LogOut,
+  MessageCircle,
   Plus,
   ShieldCheck,
   Sparkles,
   User,
+  UserRoundCheck,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,11 +25,13 @@ const NAV_ITEMS = [
   { href: "/projects", label: "Projekty", icon: Hammer },
   { href: "/builders", label: "Builderzy", icon: Users },
   { href: "/build", label: "Build Pool", icon: Sparkles },
+  { href: "/friends", label: "Znajomi", icon: UserRoundCheck },
+  { href: "/messages", label: "Wiadomości", icon: MessageCircle },
   { href: "/help", label: "Pomoc", icon: HelpCircle },
   { href: "/profile", label: "Profil", icon: User },
 ];
 
-export function Sidebar({ username, avatarEmoji, admin = false }: { username: string; avatarEmoji: string; admin?: boolean }) {
+export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages = 0 }: { username: string; avatarEmoji: string; admin?: boolean; unreadMessages?: number }) {
   const pathname = usePathname();
 
   return (
@@ -53,7 +57,10 @@ export function Sidebar({ username, avatarEmoji, admin = false }: { username: st
               )}
             >
               <Icon className="h-4.5 w-4.5" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.href === "/messages" && unreadMessages > 0 ? (
+                <span className="rounded-full bg-violet-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">{unreadMessages > 99 ? "99+" : unreadMessages}</span>
+              ) : null}
             </Link>
           );
         })}

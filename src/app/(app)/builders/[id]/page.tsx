@@ -19,6 +19,7 @@ import { getRevealedContact } from "@/server/data/contact";
 import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
 import { BuilderProfileActions } from "@/components/builders/builder-profile-actions";
 import { isBlockedEitherWay } from "@/server/data/moderation";
+import { getFriendshipState } from "@/server/data/friends";
 import type { RoleType } from "@/db/schema";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -46,7 +47,9 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
     ...memberProjects.filter((p) => p.ownerId !== id).map((p) => ({ ...p, relation: "Członek zespołu" })),
   ];
 
-  const myOwnedProjects = user.id !== id ? await listProjectsForOwner(user.id) : [];
+  const [myOwnedProjects, friendState] = user.id !== id
+    ? await Promise.all([listProjectsForOwner(user.id), getFriendshipState(user.id, id)])
+    : [[], { kind: "NONE" as const }];
 
   return (
     <div>
@@ -131,7 +134,11 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
 
         <div className="flex flex-col gap-6">
           {user.id !== id && (
-            <BuilderProfileActions targetUserId={id} myProjects={myOwnedProjects.map((p) => ({ id: p.id, name: p.name }))} />
+            <BuilderProfileActions
+              targetUserId={id}
+              myProjects={myOwnedProjects.map((p) => ({ id: p.id, name: p.name }))}
+              friendState={friendState}
+            />
           )}
 
           {user.id !== id && contact && (

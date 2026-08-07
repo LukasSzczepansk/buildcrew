@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { buildProposals, crewInvites, crewMembers, crews, profiles, users } from "@/db/schema";
+import { buildPoolListings, buildProposals, crewInvites, crewMembers, crews, profiles, users } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
 import { logEvent } from "@/lib/analytics";
 import { enforceUserRateLimit } from "@/lib/security";
@@ -32,6 +32,8 @@ export async function sendBuildProposal(receiverId: string, message: string) {
     .from(users).leftJoin(profiles, eq(profiles.userId, users.id)).where(eq(users.id, receiverId)).limit(1);
   const receiver = receiverRows[0];
   if (!receiver || receiver.isSuspended || receiver.systemRole === "ADMIN" || !receiver.onboardingCompleted) return { error: "Ta osoba nie jest dostępna." };
+  const activeListing = await db.select({ id: buildPoolListings.id }).from(buildPoolListings).where(and(eq(buildPoolListings.userId, receiverId), eq(buildPoolListings.status, "ACTIVE"))).limit(1);
+  if (!activeListing[0]) return { error: "Ta osoba nie ma już aktywnego zgłoszenia w Build Pool." };
   if (await isBlockedEitherWay(user.id, receiverId)) return { error: "Nie można wysłać propozycji tej osobie." };
 
   try {
@@ -102,6 +104,7 @@ export async function respondToBuildProposal(proposalId: string, decision: "ACCE
     const [crew] = await tx.insert(crews).values({ createdBy: proposal.senderId, status: "FORMING" }).returning();
     await tx.insert(crewMembers).values([{ crewId: crew.id, userId: proposal.senderId }, { crewId: crew.id, userId: proposal.receiverId }]);
     await tx.update(buildProposals).set({ status: "ACCEPTED" }).where(and(eq(buildProposals.id, proposalId), eq(buildProposals.status, "PENDING")));
+    await tx.update(buildPoolListings).set({ status: "PAUSED", updatedAt: new Date() }).where(inArray(buildPoolListings.userId, [proposal.senderId, proposal.receiverId]));
     return { proposal, crewId: crew.id } as const;
   });
 
@@ -133,6 +136,8 @@ export async function inviteToCrew(crewId: string, inviteeId: string, message: s
     .from(users).leftJoin(profiles, eq(profiles.userId, users.id)).where(eq(users.id, inviteeId)).limit(1);
   const invitee = inviteeRows[0];
   if (!invitee || invitee.isSuspended || invitee.systemRole === "ADMIN" || !invitee.onboardingCompleted) return { error: "Ta osoba nie jest dostępna." };
+  const activeListing = await db.select({ id: buildPoolListings.id }).from(buildPoolListings).where(and(eq(buildPoolListings.userId, inviteeId), eq(buildPoolListings.status, "ACTIVE"))).limit(1);
+  if (!activeListing[0]) return { error: "Ta osoba nie ma już aktywnego zgłoszenia w Build Pool." };
 
   const crewRows = await db.select().from(crews).where(eq(crews.id, crewId)).limit(1);
   const crew = crewRows[0];
@@ -186,6 +191,7 @@ export async function respondToCrewInvite(inviteId: string, decision: "ACCEPTED"
     if (members.length >= MAX_CREW_SIZE) return { error: "Ta ekipa jest już pełna." } as const;
     await tx.insert(crewMembers).values({ crewId: invite.crewId, userId: user.id }).onConflictDoNothing();
     await tx.update(crewInvites).set({ status: "ACCEPTED" }).where(and(eq(crewInvites.id, inviteId), eq(crewInvites.status, "PENDING")));
+    await tx.update(buildPoolListings).set({ status: "PAUSED", updatedAt: new Date() }).where(eq(buildPoolListings.userId, user.id));
     return { invite } as const;
   });
 
