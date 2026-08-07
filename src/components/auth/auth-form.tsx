@@ -41,10 +41,10 @@ export function AuthForm({
 
       <>
           <Button asChild variant="outline" className="w-full" size="lg">
-            <Link href={`/api/auth/google?intent=${mode}`}>
+            <a href={`/api/auth/google?intent=${mode}`}>
               <GoogleIcon />
               {mode === "signup" ? "Załóż konto przez Google" : "Kontynuuj z Google"}
-            </Link>
+            </a>
           </Button>
           {mode === "signup" && (
             <p className="-mt-2 text-center text-xs leading-5 text-neutral-500">
