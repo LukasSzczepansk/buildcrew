@@ -22,7 +22,6 @@ function GoogleIcon() {
 export function AuthForm({
   mode,
   action,
-  googleEnabled,
   externalError,
 }: {
   mode: "login" | "signup";
@@ -40,8 +39,7 @@ export function AuthForm({
         </p>
       )}
 
-      {googleEnabled && (
-        <>
+      <>
           <Button asChild variant="outline" className="w-full" size="lg">
             <Link href={`/api/auth/google?intent=${mode}`}>
               <GoogleIcon />
@@ -61,8 +59,7 @@ export function AuthForm({
             lub e-mail i hasło
             <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
           </div>
-        </>
-      )}
+      </>
 
       <form action={formAction} className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
