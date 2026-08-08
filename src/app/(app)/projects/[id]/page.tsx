@@ -49,7 +49,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
       <div className="mb-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-950 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
         <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
-        <p><span className="font-semibold">Bezpieczna współpraca:</span> BuildCrew nie pośredniczy w płatnościach ani zatrudnieniu. Nie wysyłaj pieniędzy, haseł, kodów 2FA ani sekretów API osobom poznanym na platformie.</p>
+        <p><span className="font-semibold">Bezpieczna współpraca:</span> BuildCrew służy do szukania współtwórców, a nie wykonawców płatnych zleceń. Nie wysyłaj pieniędzy, haseł, kodów 2FA ani sekretów API osobom poznanym na platformie.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -78,7 +78,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
             {project.ownerContribution && (
               <div className="mt-6 rounded-xl bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-400">Co robi właściciel</p>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-400">Co wnosi autor pomysłu</p>
                 <p>{project.ownerContribution}</p>
               </div>
             )}
@@ -107,7 +107,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                       {isOwner ? (
                         <Badge variant={role.open > 0 ? "success" : "secondary"}>{role.open > 0 ? "Otwarte" : "Obsadzone"}</Badge>
                       ) : alreadyMember ? (
-                        <Badge variant="success">Jesteś w zespole</Badge>
+                        <Badge variant="success">Jesteś w ekipie</Badge>
                       ) : role.open > 0 && myProfile ? (
                         <ApplyDialog
                           projectId={project.id}
@@ -165,7 +165,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </Card>
 
           <Card className="p-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Właściciel</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Autor pomysłu</p>
             {ownerProfile && (
               <Link href={`/builders/${ownerProfile.userId}`} className="flex items-center gap-3">
                 <Avatar emoji={ownerProfile.avatarEmoji} size="sm" />
@@ -178,14 +178,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </Card>
 
           <Card className="p-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Zespół</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Ekipa</p>
             <div className="flex flex-col gap-3">
               {project.members.map((m) => (
                 <Link key={m.userId} href={`/builders/${m.userId}`} className="flex items-center gap-3">
                   <Avatar emoji={m.profile?.avatarEmoji ?? "🙂"} size="sm" />
                   <div>
                     <p className="text-sm font-medium">{m.profile?.username ?? "Builder"}</p>
-                    <p className="text-xs text-neutral-500">{m.isOwner ? "Właściciel" : m.roleType ? ROLE_LABELS[m.roleType] : "Członek"}</p>
+                    <p className="text-xs text-neutral-500">{m.isOwner ? "Autor pomysłu" : m.roleType ? ROLE_LABELS[m.roleType] : "Członek"}</p>
                   </div>
                 </Link>
               ))}
@@ -199,7 +199,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           )}
           {!isOwner && isMember && (
             <Card className="p-6">
-              <p className="text-sm text-neutral-500">Jesteś w tym zespole — sprawdź profil właściciela, aby znaleźć kontakt.</p>
+              <p className="text-sm text-neutral-500">Jesteś w tej ekipie — sprawdź profil autora pomysłu, aby znaleźć kontakt.</p>
             </Card>
           )}
         </div>

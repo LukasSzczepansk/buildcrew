@@ -13,6 +13,7 @@ import { getBuildPoolListingForUser, listActiveBuildPoolListings } from "@/serve
 import { computeMatch } from "@/lib/matching";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 import { Card } from "@/components/ui/card";
+import { Sparkles, Users } from "lucide-react";
 
 export const metadata: Metadata = { title: "Build Pool — BuildCrew" };
 
@@ -71,10 +72,16 @@ export default async function BuildPoolPage({
 
   return (
     <div>
-      <Topbar title="Build Pool" subtitle="Aktywne ogłoszenia osób, które właśnie teraz chcą coś wspólnie zbudować." />
+      <Topbar title="Znajdź mi ekipę" subtitle="Build Pool pokazuje osoby, które są teraz otwarte na wspólne budowanie — nawet bez gotowego pomysłu." />
 
-      <Card className="mb-5 p-4 text-sm text-neutral-600 dark:text-neutral-300">
-        <span className="font-semibold text-neutral-900 dark:text-white">Builderzy</span> to katalog wszystkich profili. <span className="font-semibold text-neutral-900 dark:text-white">Build Pool</span> pokazuje tylko osoby, które świadomie wystawiły aktywne zgłoszenie i są gotowe zebrać ekipę.
+      <Card className="mb-5 border-violet-200 bg-violet-50/60 p-5 dark:border-violet-500/20 dark:bg-violet-500/5">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"><Users className="h-4 w-4" /></span>
+          <div>
+            <p className="font-semibold text-neutral-900 dark:text-white">Nie potrzebujesz projektu, żeby zacząć.</p>
+            <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">Wystaw siebie, powiedz czego chcesz spróbować i znajdź ludzi o podobnym celu. Dopasowanie bierze pod uwagę rolę, zainteresowania, czas, cel i poziom.</p>
+          </div>
+        </div>
       </Card>
 
       <BuildPoolListingManager
@@ -108,6 +115,16 @@ export default async function BuildPoolPage({
         ]}
       />
 
+      {ranked.length > 0 ? (
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="flex items-center gap-2 font-semibold tracking-tight"><Sparkles className="h-4 w-4 text-violet-600" /> Najlepsze dopasowania</h2>
+            <p className="text-xs text-neutral-400">Najpierw pokazujemy osoby, z którymi macie najwięcej wspólnych punktów.</p>
+          </div>
+          <span className="text-xs text-neutral-400">{ranked.length} aktywnych</span>
+        </div>
+      ) : null}
+
       {ranked.length === 0 ? (
         <EmptyState
           className="mt-6"
@@ -135,6 +152,7 @@ export default async function BuildPoolPage({
                 preferredCrewSize: item.preferredCrewSize,
                 description: item.description,
                 reasons: item.reasons,
+                matchScore: item.score,
               }}
             />
           ))}

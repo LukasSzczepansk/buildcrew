@@ -44,7 +44,7 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
       <div className="mt-4 flex-1">
         {project.openRoles.length > 0 ? (
           <div>
-            <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-neutral-400">Szukamy</p>
+            <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-neutral-400">Szukamy do ekipy</p>
             <div className="flex flex-wrap gap-1.5">
               {project.openRoles.map((r, i) => (
                 <Badge key={i}>{ROLE_LABELS[r.roleType]}</Badge>
@@ -52,7 +52,7 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
             </div>
           </div>
         ) : (
-          <p className="text-xs text-neutral-400">Zespół obecnie kompletny</p>
+          <p className="text-xs text-neutral-400">Ekipa jest obecnie kompletna</p>
         )}
       </div>
 

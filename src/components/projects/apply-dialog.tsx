@@ -41,7 +41,7 @@ export function ApplyDialog({
       toast.error(res.error);
       return;
     }
-    toast.success("Zgłoszenie wysłane!");
+    toast.success("Twoja chęć dołączenia została wysłana!");
     setOpen(false);
     setMessage("");
   }
@@ -53,8 +53,8 @@ export function ApplyDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Aplikuj na rolę: {ROLE_LABELS[roleType]}</DialogTitle>
-          <DialogDescription>Właściciel zobaczy Twój profil i wiadomość poniżej.</DialogDescription>
+          <DialogTitle>Dołącz jako {ROLE_LABELS[roleType]}</DialogTitle>
+          <DialogDescription>To nie rozmowa o pracę. Autor pomysłu zobaczy Twój profil i krótką wiadomość o tym, co chcesz wnieść do wspólnego projektu.</DialogDescription>
         </DialogHeader>
 
         <div className="rounded-xl bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
@@ -80,14 +80,14 @@ export function ApplyDialog({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium">Dlaczego chcesz dołączyć?</label>
-          <Textarea placeholder="Napisz kilka słów…" maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} />
+          <label className="text-sm font-medium">Co chciałbyś wnieść do projektu?</label>
+          <Textarea placeholder="Np. Mogę ogarnąć frontend i chciałbym razem dowieźć pierwsze MVP…" maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} />
           <p className="text-right text-xs text-neutral-400">{message.length}/500</p>
         </div>
 
         <DialogFooter>
           <Button onClick={handleSubmit} disabled={pending}>
-            {pending ? "Wysyłanie…" : "Wyślij zgłoszenie"}
+            {pending ? "Wysyłanie…" : "Wyślij chęć dołączenia"}
           </Button>
         </DialogFooter>
       </DialogContent>
