@@ -136,7 +136,7 @@ export async function applyToProject(projectId: string, input: z.infer<typeof ap
   }
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(project.ownerId, "PROJECT_APPLICATION", `${profileRows[0]?.username ?? "Ktoś"} zgłasza się do projektu ${project.name}`, `Rola: ${ROLE_LABELS[role.roleType]}`, `/projects/${projectId}/applications`);
+  await createNotification(project.ownerId, "PROJECT_APPLICATION", `${profileRows[0]?.username ?? "Ktoś"} chce dołączyć do ${project.name}`, `Rola: ${ROLE_LABELS[role.roleType]}${parsed.data.message ? ` · ${parsed.data.message.slice(0, 120)}` : ""}`, `/projects/${projectId}/applications`, { actorId: user.id, entityType: "project", entityId: projectId, emailPreference: "emailProjectApplications" });
   await logEvent("project_application_sent", user.id, { projectId, roleId: role.id });
   revalidatePath(`/projects/${projectId}`);
   return { success: true };
@@ -175,7 +175,7 @@ export async function respondToApplication(applicationId: string, decision: "ACC
     await logEvent("project_application_accepted", user.id, { projectId: row.project.id, applicantId: row.application.applicantId });
     await logEvent("contact_revealed", user.id, { withUserId: row.application.applicantId });
   }
-  await createNotification(row.application.applicantId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Zostałeś przyjęty do projektu ${row.project.name}! 🎉` : `Twoje zgłoszenie do ${row.project.name} nie zostało przyjęte.`, decision === "ACCEPTED" ? "Możecie teraz wymienić kontakt." : undefined, `/projects/${row.project.id}`);
+  await createNotification(row.application.applicantId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Dołączasz do ekipy ${row.project.name}! 🎉` : `Twoje zgłoszenie do ${row.project.name} nie zostało przyjęte.`, decision === "ACCEPTED" ? "Możecie teraz wymienić kontakt i zacząć budować razem." : undefined, `/projects/${row.project.id}`, { actorId: user.id, entityType: "project", entityId: row.project.id, emailPreference: decision === "ACCEPTED" ? "emailProjectAccepted" : undefined });
   revalidatePath(`/projects/${row.project.id}`);
   revalidatePath(`/projects/${row.project.id}/applications`);
   return { success: true };
@@ -216,7 +216,7 @@ export async function inviteToProject(projectId: string, inviteeId: string, role
     if (isUniqueViolation(error)) return { error: "Ta osoba ma już oczekujące zaproszenie do tego projektu." };
     throw error;
   }
-  await createNotification(validatedInviteeId, "PROJECT_INVITE", `Zaproszenie do projektu ${project.name}`, validatedMessage || undefined, "/invitations");
+  await createNotification(validatedInviteeId, "PROJECT_INVITE", `Zaproszenie do projektu ${project.name}`, validatedMessage || undefined, "/invitations", { actorId: user.id, entityType: "project", entityId: project.id, emailPreference: "emailProjectApplications" });
   await logEvent("builder_invite_sent", user.id, { projectId: validatedProjectId, inviteeId: validatedInviteeId });
   revalidatePath(`/projects/${validatedProjectId}`);
   return { success: true };

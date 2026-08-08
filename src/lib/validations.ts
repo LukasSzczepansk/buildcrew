@@ -7,6 +7,10 @@ import {
   lookingForEnum,
   reportReasonEnum,
   roleTypeEnum,
+  showcaseCategoryEnum,
+  showcaseReactionEnum,
+  showcaseStatusEnum,
+  showcaseWouldUseEnum,
   stageEnum,
 } from "@/db/schema";
 
@@ -180,4 +184,55 @@ export const buildPoolListingStatusSchema = z.enum(["ACTIVE", "PAUSED", "CLOSED"
 
 export const messageSchema = z.object({
   body: z.string().trim().min(1, "Wiadomość nie może być pusta.").max(800, "Wiadomość może mieć maks. 800 znaków."),
+});
+
+
+export const showcaseCreateSchema = z.object({
+  projectId: z.string().uuid().optional().or(z.literal("")),
+  challengeId: z.string().uuid().optional().or(z.literal("")),
+  title: z.string().trim().min(2, "Podaj nazwę projektu.").max(80),
+  tagline: z.string().trim().min(4, "Dodaj krótki opis.").max(140),
+  description: z.string().trim().min(20, "Opisz projekt trochę szerzej.").max(2500),
+  screenshotUrl: httpUrl.optional().or(z.literal("")),
+  liveUrl: httpUrl.optional().or(z.literal("")),
+  githubUrl: githubUrl.optional().or(z.literal("")),
+  category: z.enum(showcaseCategoryEnum),
+  status: z.enum(showcaseStatusEnum),
+  lookingForCollaborators: z.boolean().default(false),
+  lookingForText: z.string().trim().max(240).optional().or(z.literal("")),
+});
+
+export const showcaseReactionSchema = z.enum(showcaseReactionEnum);
+
+export const showcaseFeedbackSchema = z.object({
+  liked: z.string().trim().max(700).optional().or(z.literal("")),
+  improve: z.string().trim().max(700).optional().or(z.literal("")),
+  wouldUse: z.enum(showcaseWouldUseEnum),
+}).refine((data) => Boolean(data.liked || data.improve), {
+  message: "Napisz przynajmniej jedną rzecz, która Ci się podoba albo którą warto poprawić.",
+});
+
+export const challengeCreateSchema = z.object({
+  title: z.string().trim().min(3).max(100),
+  prompt: z.string().trim().min(10).max(240),
+  description: z.string().trim().max(1500).optional().or(z.literal("")),
+  category: z.string().trim().max(60).optional().or(z.literal("")),
+  startsAt: z.coerce.date(),
+  endsAt: z.coerce.date(),
+}).refine((data) => data.endsAt > data.startsAt, { message: "Data zakończenia musi być późniejsza niż start." });
+
+export const challengeJoinSchema = z.object({
+  challengeId: z.string().uuid(),
+  mode: z.enum(["HAS_CREW", "FIND_CREW"]),
+  crewId: z.string().uuid().optional().or(z.literal("")),
+});
+
+export const notificationPreferencesSchema = z.object({
+  emailProjectApplications: z.boolean(),
+  emailProjectAccepted: z.boolean(),
+  emailBuildPool: z.boolean(),
+  emailCrew: z.boolean(),
+  emailChallenge: z.boolean(),
+  emailShowcaseFeedback: z.boolean(),
+  emailMessages: z.boolean(),
 });

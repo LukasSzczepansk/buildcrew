@@ -20,6 +20,7 @@ import { listProjectsForMember, listProjectsForOwner } from "@/server/data/proje
 import { BuilderProfileActions } from "@/components/builders/builder-profile-actions";
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import { getFriendshipState } from "@/server/data/friends";
+import { getBuilderBadges, listShowcaseForUser } from "@/server/data/showcase";
 import type { RoleType } from "@/db/schema";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -37,10 +38,12 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
   const profile = await getProfileByUserId(id);
   if (!profile) notFound();
 
-  const [ownedProjects, memberProjects, contact] = await Promise.all([
+  const [ownedProjects, memberProjects, contact, showcaseEntries, badges] = await Promise.all([
     listProjectsForOwner(id),
     listProjectsForMember(id),
     user.id !== id ? getRevealedContact(user.id, id) : Promise.resolve(null),
+    listShowcaseForUser(id),
+    getBuilderBadges(id),
   ]);
   const projects = [
     ...ownedProjects.map((p) => ({ ...p, relation: "Właściciel" })),
@@ -62,6 +65,7 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               <div>
                 <h1 className="text-2xl font-bold tracking-tight">{profile.username}</h1>
                 <p className="text-neutral-500">{profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder"}</p>
+                {badges.length ? <div className="mt-2 flex flex-wrap gap-1.5">{badges.map((badge) => <Badge key={badge.key} variant="outline">{badge.emoji} {badge.label}</Badge>)}</div> : null}
               </div>
             </div>
 
@@ -117,6 +121,20 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
             </div>
           </Card>
 
+
+          {showcaseEntries.length > 0 && (
+            <Card className="mt-6 p-6">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Co faktycznie zbudował</p>
+              <div className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
+                {showcaseEntries.map((entry) => (
+                  <Link key={entry.id} href={`/showcase/${entry.id}`} className="flex items-center justify-between py-3 text-sm hover:text-violet-600">
+                    <span className="font-medium">{entry.title}</span>
+                    <span className="text-neutral-400">🚀 {entry.reactionCounts.POTENTIAL} · 💬 {entry.feedbackCount}</span>
+                  </Link>
+                ))}
+              </div>
+            </Card>
+          )}
           {projects.length > 0 && (
             <Card className="mt-6 p-6">
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Projekty</p>

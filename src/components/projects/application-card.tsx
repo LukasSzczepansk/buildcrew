@@ -17,6 +17,8 @@ export type ApplicationCardData = {
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   message: string | null;
   role: { roleType: RoleType };
+  matchScore: number;
+  reasons: string[];
   applicant: {
     userId: string;
     username: string;
@@ -53,7 +55,7 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
           <Link href={`/builders/${application.applicant.userId}`} className="font-medium hover:underline">
             {application.applicant.username}
           </Link>
-          <p className="text-sm text-neutral-500">Rola: {ROLE_LABELS[application.role.roleType]}</p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-2"><p className="text-sm text-neutral-500">Rola: {ROLE_LABELS[application.role.roleType]}</p><Badge>{application.matchScore}% dopasowania</Badge></div>
           <div className="mt-1 flex flex-wrap gap-1.5">
             {application.applicant.skills.slice(0, 4).map((s) => (
               <Badge key={s} variant="outline">
@@ -65,6 +67,7 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
             {application.applicant.level ? LEVEL_LABELS[application.applicant.level] : ""}
             {application.applicant.weeklyHours ? ` · ${COMMITMENT_LABELS[application.applicant.weeklyHours]}` : ""}
           </p>
+          {application.reasons.length ? <p className="mt-2 text-xs text-violet-600 dark:text-violet-400">✓ {application.reasons.slice(0, 3).join(" · ")}</p> : null}
           {application.message && <p className="mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-300">&ldquo;{application.message}&rdquo;</p>}
         </div>
       </div>

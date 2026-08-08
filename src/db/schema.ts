@@ -320,6 +320,7 @@ export const buildProposals = pgTable("build_proposals", {
   senderId: uuid("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   receiverId: uuid("receiver_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   message: text("message"),
+  challengeId: uuid("challenge_id"),
   status: text("status").$type<ApplicationStatus>().notNull().default("PENDING"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [uniqueIndex("build_proposals_pending_unique_idx").on(t.senderId, t.receiverId).where(sql`${t.status} = 'PENDING'`)]);
@@ -414,6 +415,112 @@ export const answers = pgTable("answers", {
 });
 
 // ---------------------------------------------------------------------------
+// Showcase & Build Challenges
+// ---------------------------------------------------------------------------
+
+export const challengeStatusEnum = ["OPEN", "BUILDING", "VOTING", "CLOSED"] as const;
+export type ChallengeStatus = (typeof challengeStatusEnum)[number];
+
+export const buildChallenges = pgTable("build_challenges", {
+  id: uuidPk(),
+  title: text("title").notNull(),
+  prompt: text("prompt").notNull(),
+  description: text("description"),
+  category: text("category"),
+  status: text("status").$type<ChallengeStatus>().notNull().default("OPEN"),
+  startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+  endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+  createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("build_challenges_status_idx").on(t.status, t.endsAt)]);
+
+export const challengeParticipationModeEnum = ["HAS_CREW", "FIND_CREW"] as const;
+export type ChallengeParticipationMode = (typeof challengeParticipationModeEnum)[number];
+
+export const challengeParticipants = pgTable("challenge_participants", {
+  challengeId: uuid("challenge_id").notNull().references(() => buildChallenges.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  mode: text("mode").$type<ChallengeParticipationMode>().notNull(),
+  crewId: uuid("crew_id").references(() => crews.id, { onDelete: "set null" }),
+  role: text("role").$type<RoleType>(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.challengeId, t.userId] }),
+  index("challenge_participants_challenge_idx").on(t.challengeId, t.mode),
+]);
+
+export const showcaseCategoryEnum = ["AI", "WEB", "MOBILE", "GAMES", "EDUCATION", "SAAS", "DEVTOOLS", "OTHER"] as const;
+export type ShowcaseCategory = (typeof showcaseCategoryEnum)[number];
+export const showcaseStatusEnum = ["MVP", "LIVE", "EXPERIMENT"] as const;
+export type ShowcaseStatus = (typeof showcaseStatusEnum)[number];
+
+export const showcaseEntries = pgTable("showcase_entries", {
+  id: uuidPk(),
+  creatorId: uuid("creator_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
+  crewId: uuid("crew_id").references(() => crews.id, { onDelete: "set null" }),
+  challengeId: uuid("challenge_id").references(() => buildChallenges.id, { onDelete: "set null" }),
+  title: text("title").notNull(),
+  tagline: text("tagline").notNull(),
+  description: text("description").notNull(),
+  screenshotUrl: text("screenshot_url"),
+  liveUrl: text("live_url"),
+  githubUrl: text("github_url"),
+  category: text("category").$type<ShowcaseCategory>().notNull().default("OTHER"),
+  status: text("status").$type<ShowcaseStatus>().notNull().default("MVP"),
+  lookingForCollaborators: boolean("looking_for_collaborators").notNull().default(false),
+  lookingForText: text("looking_for_text"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("showcase_entries_created_idx").on(t.createdAt),
+  index("showcase_entries_category_idx").on(t.category, t.createdAt),
+  index("showcase_entries_challenge_idx").on(t.challengeId),
+]);
+
+export const showcaseReactionEnum = ["APPLAUSE", "IDEA", "POTENTIAL"] as const;
+export type ShowcaseReaction = (typeof showcaseReactionEnum)[number];
+
+export const showcaseReactions = pgTable("showcase_reactions", {
+  entryId: uuid("entry_id").notNull().references(() => showcaseEntries.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  reaction: text("reaction").$type<ShowcaseReaction>().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.entryId, t.userId, t.reaction] }),
+  index("showcase_reactions_entry_idx").on(t.entryId, t.createdAt),
+]);
+
+export const showcaseWouldUseEnum = ["YES", "MAYBE", "NO"] as const;
+export type ShowcaseWouldUse = (typeof showcaseWouldUseEnum)[number];
+
+export const showcaseFeedback = pgTable("showcase_feedback", {
+  id: uuidPk(),
+  entryId: uuid("entry_id").notNull().references(() => showcaseEntries.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  liked: text("liked"),
+  improve: text("improve"),
+  wouldUse: text("would_use").$type<ShowcaseWouldUse>().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("showcase_feedback_entry_user_idx").on(t.entryId, t.userId),
+  index("showcase_feedback_entry_idx").on(t.entryId, t.createdAt),
+]);
+
+export const notificationPreferences = pgTable("notification_preferences", {
+  userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  emailProjectApplications: boolean("email_project_applications").notNull().default(true),
+  emailProjectAccepted: boolean("email_project_accepted").notNull().default(true),
+  emailBuildPool: boolean("email_build_pool").notNull().default(true),
+  emailCrew: boolean("email_crew").notNull().default(true),
+  emailChallenge: boolean("email_challenge").notNull().default(true),
+  emailShowcaseFeedback: boolean("email_showcase_feedback").notNull().default(false),
+  emailMessages: boolean("email_messages").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
 // Notifications
 // ---------------------------------------------------------------------------
 
@@ -430,19 +537,31 @@ export const notificationTypeEnum = [
   "ANSWER_MARKED_HELPFUL",
   "FRIEND_REQUEST",
   "FRIEND_ACCEPTED",
+  "SHOWCASE_REACTION",
+  "SHOWCASE_FEEDBACK",
+  "CHALLENGE_MATCH",
+  "CHALLENGE_UPDATE",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
 
 export const notifications = pgTable("notifications", {
   id: uuidPk(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
   type: text("type").$type<NotificationType>().notNull(),
+  entityType: text("entity_type"),
+  entityId: text("entity_id"),
   title: text("title").notNull(),
   body: text("body"),
   link: text("link"),
   isRead: boolean("is_read").notNull().default(false),
+  readAt: timestamp("read_at", { withTimezone: true }),
+  emailSentAt: timestamp("email_sent_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index("notifications_user_idx").on(t.userId)]);
+}, (t) => [
+  index("notifications_user_idx").on(t.userId, t.createdAt),
+  index("notifications_unread_idx").on(t.userId, t.isRead, t.createdAt),
+]);
 
 // ---------------------------------------------------------------------------
 // Trust & safety

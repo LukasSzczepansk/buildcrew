@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Flag, FolderKanban, LayoutDashboard, MessageSquareText, Users } from "lucide-react";
+import { Activity, Flag, FolderKanban, LayoutDashboard, MessageSquareText, Trophy, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/admin", label: "Przegląd", icon: LayoutDashboard, exact: true },
   { href: "/admin/users", label: "Użytkownicy", icon: Users },
   { href: "/admin/projects", label: "Projekty", icon: FolderKanban },
+  { href: "/admin/challenges", label: "Challenges", icon: Trophy },
   { href: "/admin/reports", label: "Zgłoszenia", icon: Flag },
   { href: "/admin/content", label: "Treści", icon: MessageSquareText },
   { href: "/admin/activity", label: "Aktywność", icon: Activity },

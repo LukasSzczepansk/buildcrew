@@ -5,6 +5,7 @@ import { ExternalLink, HelpCircle, LogOut, Rocket } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { ProfileEditForm } from "@/components/profile/profile-edit-form";
 import { AccountSecurity } from "@/components/profile/account-security";
+import { NotificationPreferencesForm } from "@/components/profile/notification-preferences-form";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ import { LEVEL_LABELS, ROLE_LABELS } from "@/lib/constants";
 import { countHelpfulAnswersForUser } from "@/server/data/help";
 import { getPrivateContact, getProfileByUserId } from "@/server/data/profiles";
 import { listProjectsForMember } from "@/server/data/projects";
+import { getNotificationPreferences } from "@/server/data/notifications";
+import { getBuilderBadges, listShowcaseForUser } from "@/server/data/showcase";
 import { logoutAction } from "@/server/actions/auth";
 
 export const metadata: Metadata = { title: "Profil — BuildCrew" };
@@ -22,11 +25,14 @@ export default async function ProfilePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [profile, privateContact, helpfulCount, projects] = await Promise.all([
+  const [profile, privateContact, helpfulCount, projects, notificationPrefs, showcaseEntries, badges] = await Promise.all([
     getProfileByUserId(user.id),
     getPrivateContact(user.id),
     countHelpfulAnswersForUser(user.id),
     listProjectsForMember(user.id),
+    getNotificationPreferences(user.id),
+    listShowcaseForUser(user.id),
+    getBuilderBadges(user.id),
   ]);
 
   if (!profile || !profile.role || !profile.level || !profile.weeklyHours) redirect("/onboarding");
@@ -53,6 +59,7 @@ export default async function ProfilePage() {
               <Badge variant="secondary">{LEVEL_LABELS[profile.level]}</Badge>
             </div>
             <p className="mt-1 text-sm text-neutral-500">{profile.bio || "Dodaj krótkie bio, żeby inni wiedzieli, co chcesz budować."}</p>
+            {badges.length ? <div className="mt-2 flex flex-wrap gap-1.5">{badges.map((badge) => <Badge key={badge.key} variant="outline">{badge.emoji} {badge.label}</Badge>)}</div> : null}
           </div>
           <Button asChild variant="outline" size="sm" className="hidden sm:flex">
             <Link href={`/builders/${user.id}`}>
@@ -89,6 +96,8 @@ export default async function ProfilePage() {
           discordUsername: privateContact?.discordUsername ?? "",
         }}
       />
+      {showcaseEntries.length ? <Card className="mt-6 p-5"><div className="flex items-center justify-between"><h2 className="font-semibold">Projekty w Showcase</h2><Button asChild variant="outline" size="sm"><Link href="/showcase/new">Pokaż kolejny</Link></Button></div><div className="mt-3 divide-y divide-neutral-100 dark:divide-neutral-800">{showcaseEntries.map((entry) => <Link key={entry.id} href={`/showcase/${entry.id}`} className="flex items-center justify-between py-3 text-sm hover:text-violet-600"><span className="font-medium">{entry.title}</span><span className="text-neutral-400">🚀 {entry.reactionCounts.POTENTIAL} · 💬 {entry.feedbackCount}</span></Link>)}</div></Card> : null}
+      <div className="mt-6"><NotificationPreferencesForm initial={{ emailProjectApplications: notificationPrefs.emailProjectApplications, emailProjectAccepted: notificationPrefs.emailProjectAccepted, emailBuildPool: notificationPrefs.emailBuildPool, emailCrew: notificationPrefs.emailCrew, emailChallenge: notificationPrefs.emailChallenge, emailShowcaseFeedback: notificationPrefs.emailShowcaseFeedback, emailMessages: notificationPrefs.emailMessages }} /></div>
       <AccountSecurity hasPassword={user.hasPassword} />
     </div>
   );

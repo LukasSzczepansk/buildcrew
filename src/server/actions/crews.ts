@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { buildPoolListings, buildProposals, crewInvites, crewMembers, crews, profiles, users } from "@/db/schema";
+import { buildChallenges, buildPoolListings, buildProposals, challengeParticipants, crewInvites, crewMembers, crews, profiles, users } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
 import { logEvent } from "@/lib/analytics";
 import { enforceUserRateLimit } from "@/lib/security";
@@ -18,7 +18,7 @@ function isUniqueViolation(error: unknown) {
   return Boolean(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "23505");
 }
 
-export async function sendBuildProposal(receiverId: string, message: string) {
+export async function sendBuildProposal(receiverId: string, message: string, challengeId?: string) {
   const parsed = buildProposalSchema.safeParse({ receiverId, message });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Nieprawidłowe dane." };
   receiverId = parsed.data.receiverId;
@@ -28,12 +28,22 @@ export async function sendBuildProposal(receiverId: string, message: string) {
   const rateError = await enforceUserRateLimit("action:build-proposal", user.id, 20, 24 * 60 * 60);
   if (rateError) return { error: rateError };
   if (user.id === receiverId) return { error: "Nie możesz zaprosić samego siebie." };
+  if (challengeId && !uuidSchema.safeParse(challengeId).success) return { error: "Nieprawidłowy challenge." };
   const receiverRows = await db.select({ id: users.id, isSuspended: users.isSuspended, systemRole: users.systemRole, onboardingCompleted: profiles.onboardingCompleted })
     .from(users).leftJoin(profiles, eq(profiles.userId, users.id)).where(eq(users.id, receiverId)).limit(1);
   const receiver = receiverRows[0];
   if (!receiver || receiver.isSuspended || receiver.systemRole === "ADMIN" || !receiver.onboardingCompleted) return { error: "Ta osoba nie jest dostępna." };
-  const activeListing = await db.select({ id: buildPoolListings.id }).from(buildPoolListings).where(and(eq(buildPoolListings.userId, receiverId), eq(buildPoolListings.status, "ACTIVE"))).limit(1);
-  if (!activeListing[0]) return { error: "Ta osoba nie ma już aktywnego zgłoszenia w Build Pool." };
+  if (challengeId) {
+    const [challengeRows, participantRows] = await Promise.all([
+      db.select({ id: buildChallenges.id, status: buildChallenges.status }).from(buildChallenges).where(eq(buildChallenges.id, challengeId)).limit(1),
+      db.select({ userId: challengeParticipants.userId }).from(challengeParticipants).where(and(eq(challengeParticipants.challengeId, challengeId), inArray(challengeParticipants.userId, [user.id, receiverId]))),
+    ]);
+    if (!challengeRows[0] || !["OPEN", "BUILDING"].includes(challengeRows[0].status)) return { error: "Ten challenge nie przyjmuje już nowych ekip." };
+    if (participantRows.length !== 2) return { error: "Obie osoby muszą być zapisane do tego challenge." };
+  } else {
+    const activeListing = await db.select({ id: buildPoolListings.id }).from(buildPoolListings).where(and(eq(buildPoolListings.userId, receiverId), eq(buildPoolListings.status, "ACTIVE"))).limit(1);
+    if (!activeListing[0]) return { error: "Ta osoba nie ma już aktywnego zgłoszenia w Build Pool." };
+  }
   if (await isBlockedEitherWay(user.id, receiverId)) return { error: "Nie można wysłać propozycji tej osobie." };
 
   try {
@@ -58,7 +68,7 @@ export async function sendBuildProposal(receiverId: string, message: string) {
       )).limit(1);
       if (existing.length) return { error: "Między Wami jest już oczekująca propozycja." } as const;
 
-      await tx.insert(buildProposals).values({ senderId: user.id, receiverId, message: message.trim().slice(0, 300) || null });
+      await tx.insert(buildProposals).values({ senderId: user.id, receiverId, message: message.trim().slice(0, 300) || null, challengeId: challengeId ?? null });
       return { success: true } as const;
     });
     if ("error" in outcome) return outcome;
@@ -68,7 +78,7 @@ export async function sendBuildProposal(receiverId: string, message: string) {
   }
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(receiverId, "BUILD_PROPOSAL", `${profileRows[0]?.username ?? "Ktoś"} chce zbudować coś z Tobą razem`, message || undefined, "/invitations");
+  await createNotification(receiverId, challengeId ? "CHALLENGE_MATCH" : "BUILD_PROPOSAL", `${profileRows[0]?.username ?? "Ktoś"} chce zbudować coś z Tobą razem`, message || (challengeId ? "Propozycja wspólnej ekipy do Build Challenge." : undefined), "/invitations", { actorId: user.id, entityType: challengeId ? "challenge" : "build_proposal", entityId: challengeId ?? undefined, emailPreference: "emailBuildPool" });
   await logEvent("crew_invite_sent", user.id, { receiverId, type: "build_proposal" });
   revalidatePath("/build");
   return { success: true };
@@ -105,6 +115,9 @@ export async function respondToBuildProposal(proposalId: string, decision: "ACCE
     await tx.insert(crewMembers).values([{ crewId: crew.id, userId: proposal.senderId }, { crewId: crew.id, userId: proposal.receiverId }]);
     await tx.update(buildProposals).set({ status: "ACCEPTED" }).where(and(eq(buildProposals.id, proposalId), eq(buildProposals.status, "PENDING")));
     await tx.update(buildPoolListings).set({ status: "PAUSED", updatedAt: new Date() }).where(inArray(buildPoolListings.userId, [proposal.senderId, proposal.receiverId]));
+    if (proposal.challengeId) {
+      await tx.update(challengeParticipants).set({ crewId: crew.id, mode: "HAS_CREW" }).where(and(eq(challengeParticipants.challengeId, proposal.challengeId), inArray(challengeParticipants.userId, [proposal.senderId, proposal.receiverId])));
+    }
     return { proposal, crewId: crew.id } as const;
   });
 
@@ -112,7 +125,7 @@ export async function respondToBuildProposal(proposalId: string, decision: "ACCE
   if (decision === "ACCEPTED" && outcome.crewId) {
     await logEvent("crew_created", user.id, { crewId: outcome.crewId, members: [outcome.proposal.senderId, outcome.proposal.receiverId] });
     await logEvent("contact_revealed", user.id, { withUserId: outcome.proposal.senderId });
-    await createNotification(outcome.proposal.senderId, "CREW_INVITE_ACCEPTED", "Twoja propozycja została zaakceptowana! Macie nową ekipę 🎉", undefined, `/crews/${outcome.crewId}`);
+    await createNotification(outcome.proposal.senderId, "CREW_INVITE_ACCEPTED", "Twoja propozycja została zaakceptowana! Macie nową ekipę 🎉", outcome.proposal.challengeId ? "Możecie teraz wspólnie budować projekt w Build Challenge." : undefined, `/crews/${outcome.crewId}`, { actorId: user.id, entityType: "crew", entityId: outcome.crewId, emailPreference: "emailCrew" });
     revalidatePath("/build");
     return { success: true, crewId: outcome.crewId };
   }
@@ -157,7 +170,7 @@ export async function inviteToCrew(crewId: string, inviteeId: string, message: s
   }
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(inviteeId, "CREW_INVITE", `${profileRows[0]?.username ?? "Ktoś"} zaprasza Cię do swojej ekipy`, message || undefined, "/invitations");
+  await createNotification(inviteeId, "CREW_INVITE", `${profileRows[0]?.username ?? "Ktoś"} zaprasza Cię do swojej ekipy`, message || undefined, "/invitations", { actorId: user.id, entityType: "crew", entityId: crewId, emailPreference: "emailCrew" });
   await logEvent("crew_invite_sent", user.id, { crewId, inviteeId, type: "crew_invite" });
   revalidatePath(`/crews/${crewId}`);
   return { success: true };
@@ -198,7 +211,7 @@ export async function respondToCrewInvite(inviteId: string, decision: "ACCEPTED"
   if ("error" in outcome) return outcome;
   if (decision === "ACCEPTED") {
     await logEvent("contact_revealed", user.id, { crewId: outcome.invite.crewId });
-    await createNotification(outcome.invite.inviterId, "CREW_INVITE_ACCEPTED", "Zaproszenie do ekipy zostało zaakceptowane! 🎉", undefined, `/crews/${outcome.invite.crewId}`);
+    await createNotification(outcome.invite.inviterId, "CREW_INVITE_ACCEPTED", "Zaproszenie do ekipy zostało zaakceptowane! 🎉", undefined, `/crews/${outcome.invite.crewId}`, { actorId: user.id, entityType: "crew", entityId: outcome.invite.crewId, emailPreference: "emailCrew" });
   }
   revalidatePath(`/crews/${outcome.invite.crewId}`);
   return { success: true };

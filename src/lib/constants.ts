@@ -1,4 +1,4 @@
-import type { Character, Commitment, Goal, Level, LookingFor, RoleType, Stage } from "@/db/schema";
+import type { Character, ChallengeStatus, Commitment, Goal, Level, LookingFor, RoleType, ShowcaseCategory, ShowcaseReaction, ShowcaseStatus, Stage } from "@/db/schema";
 
 export const ROLE_LABELS: Record<RoleType, string> = {
   FRONTEND: "Frontend",
@@ -152,4 +152,35 @@ export const REPORT_REASON_LABELS: Record<string, string> = {
   harassment: "Nękanie",
   inappropriate: "Nieodpowiednie treści",
   other: "Inne",
+};
+
+
+export const SHOWCASE_CATEGORY_LABELS: Record<ShowcaseCategory, string> = {
+  AI: "AI",
+  WEB: "Web",
+  MOBILE: "Mobile",
+  GAMES: "Gry",
+  EDUCATION: "Edukacja",
+  SAAS: "SaaS",
+  DEVTOOLS: "DevTools",
+  OTHER: "Inne",
+};
+
+export const SHOWCASE_STATUS_LABELS: Record<ShowcaseStatus, string> = {
+  MVP: "MVP",
+  LIVE: "Działający produkt",
+  EXPERIMENT: "Eksperyment",
+};
+
+export const SHOWCASE_REACTION_LABELS: Record<ShowcaseReaction, string> = {
+  APPLAUSE: "Dobra robota",
+  IDEA: "Ciekawy pomysł",
+  POTENTIAL: "Ma potencjał",
+};
+
+export const CHALLENGE_STATUS_LABELS: Record<ChallengeStatus, string> = {
+  OPEN: "Zapisy",
+  BUILDING: "Budujemy",
+  VOTING: "Głosowanie",
+  CLOSED: "Zakończony",
 };

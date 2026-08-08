@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Hammer, HelpCircle, Home, MessageCircle, Sparkles, User, UserRoundCheck, Users } from "lucide-react";
+import { Hammer, HelpCircle, Home, MessageCircle, Sparkles, Trophy, User, UserRoundCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/projects", label: "Projekty", icon: Hammer },
   { href: "/builders", label: "Builderzy", icon: Users },
   { href: "/build", label: "Build Pool", icon: Sparkles },
+  { href: "/showcase", label: "Showcase", icon: Trophy },
   { href: "/friends", label: "Znajomi", icon: UserRoundCheck },
   { href: "/messages", label: "Wiadomości", icon: MessageCircle },
   { href: "/help", label: "Pomoc", icon: HelpCircle },

@@ -31,7 +31,7 @@ export default async function ProjectApplicationsPage({ params }: { params: Prom
 
   return (
     <div>
-      <Topbar title={`Zgłoszenia — ${project.name}`} subtitle="Przejrzyj osoby, które chcą dołączyć do projektu." />
+      <Topbar title={`Zgłoszenia — ${project.name}`} subtitle={`${applications.filter((application) => application.status === "PENDING").length} osób czeka na decyzję. Zobacz, co mogą wnieść do ekipy.`} />
 
       {applications.length === 0 ? (
         <EmptyState
@@ -43,25 +43,35 @@ export default async function ProjectApplicationsPage({ params }: { params: Prom
         />
       ) : (
         <div className="flex flex-col gap-4">
-          {applications.map((a) => (
-            <ApplicationCard
+          {applications.map((a) => {
+            const applicantSkills = skillsByApplicant.get(a.applicant.userId) ?? [];
+            const overlap = applicantSkills.filter((skill) => project.technologies.includes(skill));
+            let matchScore = Math.min(30, overlap.length * 10);
+            const reasons: string[] = [];
+            if (overlap.length) reasons.push(`Zna ${overlap.slice(0, 3).join(", ")}`);
+            if (a.applicant.role === a.role.roleType || a.applicant.role === "FULLSTACK") { matchScore += 40; reasons.push("Rola pasuje do otwartego miejsca"); }
+            if (a.role.preferredLevel && a.applicant.level === a.role.preferredLevel) { matchScore += 15; reasons.push("Pasuje poziom doświadczenia"); }
+            if (project.commitment && a.applicant.weeklyHours === project.commitment) { matchScore += 15; reasons.push("Podobna dostępność"); }
+            return <ApplicationCard
               key={a.id}
               application={{
                 id: a.id,
                 status: a.status,
                 message: a.message,
                 role: { roleType: a.role.roleType as RoleType },
+                matchScore: Math.min(100, matchScore),
+                reasons,
                 applicant: {
                   userId: a.applicant.userId,
                   username: a.applicant.username,
                   avatarEmoji: a.applicant.avatarEmoji,
                   level: a.applicant.level,
                   weeklyHours: a.applicant.weeklyHours,
-                  skills: [],
+                  skills: applicantSkills,
                 },
               }}
-            />
-          ))}
+            />;
+          })}
         </div>
       )}
     </div>

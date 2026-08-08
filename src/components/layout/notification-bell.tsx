@@ -85,6 +85,9 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
             ))
           )}
         </div>
+        <div className="border-t border-neutral-100 p-2 dark:border-neutral-800">
+          <Link href="/notifications" onClick={() => setOpen(false)} className="block rounded-lg px-3 py-2 text-center text-xs font-medium text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-500/10">Zobacz wszystkie powiadomienia</Link>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
