@@ -39,13 +39,13 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-hidden border-r border-neutral-200 bg-white px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950 lg:flex">
-      <Link href="/dashboard" className="mb-5 flex items-center gap-2 px-2 text-lg font-bold tracking-tight">
+    <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950 lg:flex">
+      <Link href="/dashboard" className="mb-3 flex items-center gap-2 px-2 text-lg font-bold tracking-tight">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white">🛠️</span>
         BuildCrew
       </Link>
 
-      <nav className="flex flex-col gap-0.5">
+      <nav className="flex flex-col gap-0">
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;
@@ -54,7 +54,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors",
                 active
                   ? "bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"
                   : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",
@@ -73,7 +73,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
           <Link
             href="/admin"
             className={cn(
-              "mt-2 flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+              "mt-1 flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors",
               pathname.startsWith("/admin")
                 ? "bg-neutral-950 text-white dark:bg-white dark:text-neutral-950"
                 : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",
@@ -84,10 +84,10 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
           </Link>
         ) : null}
 
-      <div className="min-h-3 flex-1" />
+      <div className="min-h-2 flex-1" />
 
       {isAiContestActive() ? (
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-left transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10">
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-2 rounded-2xl border border-amber-200 bg-amber-50 p-2.5 text-left transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10">
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">🏆 {AI_CONTEST.shortTitle}</p>
@@ -98,17 +98,23 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
         </a>
       ) : null}
 
-      <Button asChild variant="outline" className="mb-2 w-full gap-2">
+      <Button asChild variant="outline" className="mb-1.5 h-9 w-full gap-2">
         <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer"><MessageCircle className="h-4 w-4" /> Discord BuildCrew</a>
       </Button>
 
-      <Button asChild className="mb-3 w-full gap-2">
+      <div className="mb-1.5 flex items-center justify-center gap-3 px-2 py-1 text-[11px] text-neutral-400">
+        <Link href="/regulamin" className="hover:text-neutral-600 dark:hover:text-neutral-200">Regulamin</Link>
+        <span aria-hidden="true">•</span>
+        <Link href="/polityka-prywatnosci" className="hover:text-neutral-600 dark:hover:text-neutral-200">Prywatność</Link>
+      </div>
+
+      <Button asChild className="mb-2 h-9 w-full gap-2">
         <Link href="/projects/new">
           <Plus className="h-4 w-4" /> Dodaj projekt
         </Link>
       </Button>
 
-      <div className="mb-4 space-y-1.5">
+      <div className="mb-2 space-y-1">
         <Link
           href="/profile"
           className="flex items-center gap-3 rounded-xl border border-neutral-200 p-2.5 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
@@ -126,10 +132,6 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
             Wyloguj się
           </Button>
         </form>
-        <div className="flex items-center justify-center gap-3 px-2 pt-1 text-[11px] text-neutral-400">
-          <Link href="/regulamin" className="hover:text-neutral-600 dark:hover:text-neutral-200">Regulamin</Link>
-          <Link href="/polityka-prywatnosci" className="hover:text-neutral-600 dark:hover:text-neutral-200">Prywatność</Link>
-        </div>
       </div>
     </aside>
   );
