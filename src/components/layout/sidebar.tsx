@@ -90,8 +90,8 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
         <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-left transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">🏆 Konkurs AI · {AI_CONTEST.prize}</p>
-              <p className="mt-1 text-[11px] leading-4 text-amber-800/75 dark:text-amber-200/70">Do {AI_CONTEST.deadlineLabel}. Zgłoszenia na Discordzie.</p>
+              <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">🏆 {AI_CONTEST.shortTitle}</p>
+              <p className="mt-1 text-[11px] leading-4 text-amber-800/75 dark:text-amber-200/70">Do {AI_CONTEST.deadlineLabel}. Szczegóły na Discordzie.</p>
             </div>
             <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-300" />
           </div>

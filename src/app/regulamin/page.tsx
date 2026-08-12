@@ -40,6 +40,15 @@ export default function TermsPage() {
         </p>
         <p>Operator jest osobą fizyczną nieprowadzącą działalności gospodarczej.</p>
         <p>
+          Elektronicznym punktem kontaktowym w sprawach dotyczących działania Serwisu, zgłoszeń treści oraz kontaktu z
+          właściwymi organami — w zakresie, w jakim obowiązek taki wynika z przepisów, w tym z Aktu o usługach cyfrowych
+          (DSA) — jest adres {" "}
+          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+            {operator.email}
+          </a>
+          . Punkt kontaktowy obsługuje komunikację w języku polskim i angielskim.
+        </p>
+        <p>
           Korzystanie z BuildCrew jest obecnie bezpłatne. BuildCrew nie oferuje obecnie płatnych kont, subskrypcji ani
           pośrednictwa w płatnościach pomiędzy użytkownikami.
         </p>
@@ -64,6 +73,7 @@ export default function TermsPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>utworzenie i prowadzenie profilu użytkownika;</li>
           <li>publikowanie, wyszukiwanie i rozwijanie projektów;</li>
+          <li>udostępnianie wybranych projektów przez publiczne linki dostępne także bez logowania oraz generowanie kart podglądu do udostępniania;</li>
           <li>zgłaszanie się do ról w projektach oraz zapraszanie innych użytkowników;</li>
           <li>publikowanie aktywnego zgłoszenia w Build Pool i odpowiadanie na takie zgłoszenia;</li>
           <li>tworzenie ekip (Crew) i zarządzanie członkostwem w ekipie;</li>
@@ -220,9 +230,12 @@ export default function TermsPage() {
           czy chce rozpocząć współpracę z proponowaną osobą.
         </p>
         <p>
-          Dla konkretnego Challenge mogą zostać opublikowane dodatkowe zasady dotyczące m.in. czasu trwania, tematu,
-          sposobu zgłoszenia projektu, kryteriów wyróżnienia lub nagród. Takie zasady uzupełniają Regulamin. Jeżeli nie
-          wskazano inaczej, udział w Challenge nie gwarantuje otrzymania nagrody, finansowania ani dalszego wsparcia.
+          Dla konkretnego Challenge mogą zostać opublikowane dodatkowe zasady dotyczące m.in. czasu trwania, tematu i
+          sposobu zgłoszenia projektu. Jeżeli dane wydarzenie ma charakter konkursu albo przewiduje nagrody, przed
+          rozpoczęciem przyjmowania zgłoszeń zostaną udostępnione odrębne zasady określające co najmniej organizatora,
+          warunki udziału, termin, sposób zgłoszenia, kryteria wyboru, zasady dotyczące nagrody oraz tryb reklamacyjny.
+          Sam komunikat promujący wydarzenie w BuildCrew lub na Discordzie nie stanowi przyrzeczenia nagrody ani pełnego
+          regulaminu konkursu.
         </p>
       </LegalSection>
 
@@ -234,7 +247,9 @@ export default function TermsPage() {
         <p>
           Użytkownicy mogą dobrowolnie publikować lub udostępniać linki do zewnętrznych profili i usług, w szczególności
           GitHub, Discord oraz portfolio. Po przejściu do zewnętrznego serwisu użytkownik korzysta z niego na zasadach
-          określonych przez jego dostawcę. Operator nie odpowiada za działania użytkowników podejmowane poza BuildCrew.
+          określonych przez jego dostawcę. Link do oficjalnego serwera Discord BuildCrew prowadzi do usługi prowadzonej
+          przez niezależnego dostawcę; zasady korzystania z Discorda i przetwarzania danych przez Discord określa ten
+          dostawca. Operator nie odpowiada za działania użytkowników podejmowane poza BuildCrew.
         </p>
       </LegalSection>
 
@@ -259,8 +274,9 @@ export default function TermsPage() {
       <LegalSection title="12. Zgłaszanie treści nielegalnych i naruszeń">
         <p>
           Użytkownik lub inna osoba może zgłosić treść, konto lub zachowanie, które jego zdaniem narusza Regulamin, jest
-          nielegalne albo narusza prawa zgłaszającego lub osoby trzeciej. Zgłoszenia można przekazywać przez funkcje dostępne
-          w BuildCrew lub na adres {" "}
+          nielegalne albo narusza prawa zgłaszającego lub osoby trzeciej. Mechanizm ten pełni również funkcję zgłaszania
+          potencjalnie nielegalnych treści w zakresie, w jakim odpowiednie obowiązki DSA mają zastosowanie do BuildCrew.
+          Zgłoszenia można przekazywać przez funkcje dostępne w BuildCrew lub na adres {" "}
           <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>

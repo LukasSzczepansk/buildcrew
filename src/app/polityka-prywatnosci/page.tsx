@@ -147,6 +147,7 @@ export default function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>adres IP;</li>
           <li>data i czas połączenia;</li>
+          <li>data ostatniej aktywności konta używana do prezentowania przybliżonego statusu, np. „aktywny dziś” albo „aktywny w tym tygodniu”;</li>
           <li>informacje o urządzeniu i przeglądarce;</li>
           <li>logi serwerowe i informacje dotyczące błędów;</li>
           <li>identyfikatory sesji;</li>
@@ -180,6 +181,11 @@ export default function PrivacyPage() {
           <li>
             <strong>Bezpieczeństwo i przeciwdziałanie nadużyciom</strong> — na podstawie prawnie uzasadnionego interesu
             Administratora polegającego na ochronie użytkowników, kont i infrastruktury, art. 6 ust. 1 lit. f RODO.
+          </li>
+          <li>
+            <strong>Prezentowanie przybliżonego statusu aktywności</strong> — w celu ograniczenia kontaktowania się z
+            nieaktywnymi kontami i poprawy jakości dopasowań, na podstawie prawnie uzasadnionego interesu Administratora,
+            art. 6 ust. 1 lit. f RODO.
           </li>
           <li>
             <strong>Moderacja, obsługa zgłoszeń i egzekwowanie Regulaminu</strong> — na podstawie wykonania umowy,
@@ -224,11 +230,24 @@ export default function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Publiczność danych, Showcase i komunikacja prywatna">
+      <LegalSection title="7. Publiczne treści, publiczne linki i komunikacja prywatna">
         <p>
-          Niektóre informacje zamieszczone przez użytkownika mogą być publiczne lub widoczne dla innych użytkowników zgodnie
-          z funkcją, w której zostały opublikowane. Dotyczy to w szczególności danych profilu, projektów, Build Pool, pytań,
-          odpowiedzi, Showcase, informacji o twórcach, linków, reakcji i wybranych elementów feedbacku.
+          Część informacji publikowanych w BuildCrew jest przeznaczona do udostępniania innym użytkownikom, a wybrane
+          treści mogą być dostępne także dla osób niezalogowanych. Dotyczy to w szczególności projektów udostępnionych
+          publicznym linkiem oraz treści publikowanych w Showcase. Publiczna strona projektu może zawierać m.in. nazwę,
+          opis, technologie, etap projektu, informacje o wolnych rolach, nazwę wyświetlaną lub avatar twórcy oraz informacje
+          o członkach ekipy w zakresie prezentowanym przez daną funkcję.
+        </p>
+        <p>
+          BuildCrew może generować kartę podglądu publicznego projektu do udostępnienia w zewnętrznych serwisach. Po
+          wklejeniu publicznego linku np. na Discordzie, Facebooku lub w innym serwisie zewnętrzny dostawca może pobrać i
+          czasowo zapisać publicznie dostępne dane oraz obraz podglądu zgodnie z własnymi zasadami. Usunięcie lub zmiana
+          treści w BuildCrew nie musi powodować natychmiastowego usunięcia kopii podglądu zapisanej przez zewnętrzny serwis.
+        </p>
+        <p>
+          W celu ograniczenia kontaktowania się z nieaktywnymi kontami BuildCrew może prezentować innym użytkownikom
+          przybliżony status aktywności, np. „aktywny dziś”, „aktywny w tym tygodniu” lub informację o mniejszej aktywności.
+          Dokładna data i godzina ostatniej aktywności nie jest prezentowana jako publiczny znacznik czasu.
         </p>
         <p>
           Użytkownik powinien uważać, aby w publicznych częściach BuildCrew nie umieszczać informacji, których nie chce
@@ -243,30 +262,35 @@ export default function PrivacyPage() {
 
       <LegalSection title="8. Odbiorcy danych i dostawcy techniczni">
         <p>
-          Dane mogą być udostępniane lub powierzane podmiotom świadczącym usługi niezbędne do działania BuildCrew, wyłącznie
-          w zakresie potrzebnym do realizacji danego celu. W aktualnej architekturze BuildCrew mogą to być w szczególności:
+          BuildCrew korzysta obecnie z zewnętrznych dostawców niezbędnych do działania Serwisu. W zależności od funkcji i
+          konfiguracji dane mogą być powierzane lub udostępniane w niezbędnym zakresie następującym kategoriom odbiorców:
         </p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><strong>Vercel</strong> — hosting aplikacji i infrastruktura związana z jej udostępnianiem;</li>
+          <li><strong>Vercel</strong> — hosting i infrastruktura służąca do udostępniania aplikacji;</li>
           <li><strong>Neon</strong> — infrastruktura bazy danych PostgreSQL;</li>
-          <li><strong>Resend</strong> — dostarczanie wiadomości e-mail związanych z działaniem konta i wybranymi powiadomieniami;</li>
-          <li><strong>Google</strong> — uwierzytelnianie, jeżeli użytkownik wybierze logowanie Google;</li>
-          <li>inni dostawcy techniczni, jeżeli staną się niezbędni do bezpieczeństwa, utrzymania lub rozwoju Serwisu.</li>
+          <li><strong>Resend</strong> — dostarczanie wiadomości e-mail związanych z kontem i wybranymi powiadomieniami;</li>
+          <li><strong>Google</strong> — uwierzytelnianie, jeżeli użytkownik dobrowolnie wybierze logowanie Google;</li>
+          <li>dostawcy infrastruktury i podwykonawcy powyższych podmiotów w zakresie wynikającym z ich aktualnych warunków świadczenia usług.</li>
         </ul>
         <p>
-          Dostawcy mogą przetwarzać m.in. dane techniczne, identyfikatory, adres e-mail, treść wiadomości transakcyjnej albo
-          dane przechowywane w infrastrukturze w zakresie wynikającym z rodzaju świadczonej usługi.
+          Zakres danych zależy od używanej funkcji i może obejmować m.in. dane techniczne, adres IP, identyfikatory, adres
+          e-mail, treść wiadomości transakcyjnej oraz dane przechowywane w bazie lub infrastrukturze hostingowej.
         </p>
       </LegalSection>
 
       <LegalSection title="9. Przekazywanie danych poza Europejski Obszar Gospodarczy">
         <p>
-          Niektórzy dostawcy technologii mogą przetwarzać dane poza Europejskim Obszarem Gospodarczym. Jeżeli w związku z
-          korzystaniem z danego dostawcy dochodzi do przekazania danych do państwa trzeciego, przekazanie powinno następować
-          z zastosowaniem mechanizmu przewidzianego przez rozdział V RODO, np. decyzji Komisji Europejskiej stwierdzającej
-          odpowiedni stopień ochrony albo odpowiednich zabezpieczeń, takich jak standardowe klauzule umowne, gdy są wymagane.
+          Część dostawców technologii lub ich podwykonawców może przetwarzać dane poza Europejskim Obszarem Gospodarczym,
+          w szczególności w Stanach Zjednoczonych. W takim przypadku Administrator korzysta z mechanizmów przewidzianych w
+          rozdziale V RODO odpowiednich dla danego transferu. Może to obejmować decyzję Komisji Europejskiej stwierdzającą
+          odpowiedni stopień ochrony — w tym EU-U.S. Data Privacy Framework, gdy dany odbiorca jest objęty ważną
+          certyfikacją — albo odpowiednie zabezpieczenia, takie jak standardowe klauzule umowne Komisji Europejskiej.
         </p>
-        <p>Szczegółowe informacje dotyczące konkretnego transferu można uzyskać, kontaktując się z Administratorem.</p>
+        <p>
+          Informację o mechanizmie mającym zastosowanie do konkretnego odbiorcy oraz, gdy przepisy tego wymagają, możliwość
+          uzyskania kopii odpowiednich zabezpieczeń można uzyskać, kontaktując się z Administratorem. Zakres i miejsce
+          przetwarzania mogą ulegać zmianie wraz ze zmianą infrastruktury lub podwykonawców dostawców.
+        </p>
       </LegalSection>
 
       <LegalSection title="10. Okres przechowywania danych">
@@ -380,11 +404,19 @@ export default function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="17. Linki do innych serwisów">
+      <LegalSection title="17. Discord i linki do innych serwisów">
         <p>
           BuildCrew umożliwia użytkownikom publikowanie linków między innymi do GitHub, Discord, portfolio i działających
-          wersji projektów. Po kliknięciu takiego linku użytkownik przechodzi do zewnętrznego serwisu, którego zasady
-          prywatności są niezależne od BuildCrew. Administrator nie kontroluje sposobu przetwarzania danych przez te serwisy.
+          wersji projektów oraz może zawierać link do oficjalnego serwera społeczności BuildCrew na Discordzie. Po kliknięciu
+          takiego linku użytkownik przechodzi do zewnętrznego serwisu, który działa na własnych zasadach i może być odrębnym
+          administratorem danych w zakresie swojej usługi.
+        </p>
+        <p>
+          Samo wejście na serwer Discord przez link z BuildCrew nie powoduje przekazania BuildCrew hasła ani prywatnej
+          historii konta Discord. BuildCrew może natomiast przechowywać identyfikator lub nazwę Discord, jeżeli użytkownik
+          dobrowolnie poda ją w profilu. Jeżeli na Discordzie organizowane są wydarzenia społecznościowe, szczegóły zasad
+          udziału są publikowane osobno. Jeżeli wydarzenie będzie wymagało zebrania dodatkowych danych przez Operatora,
+          uczestnik zostanie poinformowany o zakresie i celu ich przetwarzania przed ich zebraniem.
         </p>
       </LegalSection>
 

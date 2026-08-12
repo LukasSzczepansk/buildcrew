@@ -58,7 +58,7 @@ export default async function DashboardPage() {
         <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mt-5 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"><Trophy className="h-4 w-4" /></span>
-            <div><p className="text-sm font-semibold">Konkurs: projekt z AI · {AI_CONTEST.prize}</p><p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-300">Masz czas do {AI_CONTEST.deadlineLabel}. Szczegóły, zasady i zgłoszenia znajdziesz na Discordzie BuildCrew.</p></div>
+            <div><p className="text-sm font-semibold">{AI_CONTEST.title} na Discordzie</p><p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-300">Trwa do {AI_CONTEST.deadlineLabel}. Aktualne szczegóły i zasady znajdziesz na serwerze BuildCrew.</p></div>
           </div>
           <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-amber-900 dark:text-amber-200"><MessageCircle className="h-4 w-4" /> Discord <ExternalLink className="h-3.5 w-3.5" /></span>
         </a>

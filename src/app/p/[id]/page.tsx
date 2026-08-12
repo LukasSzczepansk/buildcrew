@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { ShareProjectButton } from "@/components/projects/share-project-button";
 import { getCurrentUser } from "@/lib/auth";
 import { activityLabel, getActivityState } from "@/lib/activity";
-import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
+import { DISCORD_INVITE_URL } from "@/lib/community";
 import { absoluteUrl } from "@/lib/email";
 import { COMMITMENT_LABELS, LEVEL_LABELS, ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
 import { getProjectById } from "@/server/data/projects";
@@ -77,15 +77,13 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
       </header>
 
       <main className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-12">
-        {isAiContestActive() ? (
-          <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-6 flex flex-col gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">🏆 {AI_CONTEST.title} · nagroda {AI_CONTEST.prize}</p>
-              <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-200/70">Do {AI_CONTEST.deadlineLabel}. Szczegóły i zgłoszenia na Discordzie BuildCrew.</p>
-            </div>
-            <span className="flex items-center gap-1 text-sm font-semibold text-amber-900 dark:text-amber-200">Wejdź na Discord <ExternalLink className="h-3.5 w-3.5" /></span>
-          </a>
-        ) : null}
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-6 flex flex-col gap-2 rounded-2xl border border-violet-200 bg-violet-50 p-4 transition hover:border-violet-300 dark:border-violet-500/20 dark:bg-violet-500/10 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-violet-900 dark:text-violet-200">💬 Discord BuildCrew</p>
+            <p className="mt-0.5 text-xs text-violet-800/80 dark:text-violet-200/70">Poznaj społeczność, szukaj osób do ekipy i śledź aktualne wydarzenia BuildCrew.</p>
+          </div>
+          <span className="flex items-center gap-1 text-sm font-semibold text-violet-900 dark:text-violet-200">Wejdź na Discord <ExternalLink className="h-3.5 w-3.5" /></span>
+        </a>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           <div className="space-y-6">

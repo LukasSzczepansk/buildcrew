@@ -28,8 +28,8 @@ export default async function LandingPage() {
             <div className="flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"><Trophy className="h-5 w-5" /></span>
               <div>
-                <p className="font-semibold">{AI_CONTEST.title} — wygraj {AI_CONTEST.prize}</p>
-                <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">Zrób projekt wykorzystujący AI do {AI_CONTEST.deadlineLabel}. Szczegóły konkursu i zgłoszenia są na Discordzie BuildCrew.</p>
+                <p className="font-semibold">{AI_CONTEST.title} na Discordzie BuildCrew</p>
+                <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">Trwa do {AI_CONTEST.deadlineLabel}. Dołącz do społeczności i sprawdź aktualne szczegóły oraz zasady na serwerze.</p>
               </div>
             </div>
             <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-violet-700 dark:text-violet-300">Dołącz na Discord <ExternalLink className="h-3.5 w-3.5" /></span>
