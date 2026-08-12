@@ -23,11 +23,13 @@ export function AuthForm({
   mode,
   action,
   externalError,
+  nextPath,
 }: {
   mode: "login" | "signup";
   action: (prev: AuthFormState, formData: FormData) => Promise<AuthFormState>;
   googleEnabled?: boolean;
   externalError?: string;
+  nextPath?: string;
 }) {
   const [state, formAction, pending] = useActionState<AuthFormState, FormData>(action, {});
 
@@ -41,7 +43,7 @@ export function AuthForm({
 
       <>
           <Button asChild variant="outline" className="w-full" size="lg">
-            <a href={`/api/auth/google?intent=${mode}`}>
+            <a href={`/api/auth/google?intent=${mode}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`}>
               <GoogleIcon />
               {mode === "signup" ? "Załóż konto przez Google" : "Kontynuuj z Google"}
             </a>
@@ -62,6 +64,7 @@ export function AuthForm({
       </>
 
       <form action={formAction} className="flex flex-col gap-5">
+        {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">E-mail</Label>
           <Input id="email" name="email" type="email" placeholder="ty@przyklad.pl" required autoComplete="email" />
@@ -117,12 +120,12 @@ export function AuthForm({
           {mode === "signup" ? (
             <>
               Masz już konto?{" "}
-              <Link href="/login" className="font-medium text-violet-600 hover:underline dark:text-violet-400">Zaloguj się</Link>
+              <Link href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login"} className="font-medium text-violet-600 hover:underline dark:text-violet-400">Zaloguj się</Link>
             </>
           ) : (
             <>
               Nie masz konta?{" "}
-              <Link href="/signup" className="font-medium text-violet-600 hover:underline dark:text-violet-400">Zarejestruj się</Link>
+              <Link href={nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"} className="font-medium text-violet-600 hover:underline dark:text-violet-400">Zarejestruj się</Link>
             </>
           )}
         </p>

@@ -20,6 +20,18 @@ import { getProfileByUserId } from "@/server/data/profiles";
 
 export type ShowcaseTab = "popular" | "new" | "week" | "month";
 
+const DEMO_USER_ID_PREFIX = "74000000-";
+
+function safeShowcaseScreenshot(value: string | null | undefined) {
+  if (!value) return null;
+  if (/^\/showcase-demo\/[a-z0-9-]+\.svg$/i.test(value)) return value;
+  return safeHttpUrl(value);
+}
+
+function isDemoShowcaseCreator(userId: string) {
+  return userId.startsWith(DEMO_USER_ID_PREFIX);
+}
+
 function reactionValue(reaction: ShowcaseReaction) {
   if (reaction === "POTENTIAL") return 3;
   if (reaction === "IDEA") return 2;
@@ -77,7 +89,8 @@ async function enrichEntries(rows: (typeof showcaseEntries.$inferSelect)[], view
 
     return {
       ...row,
-      screenshotUrl: safeHttpUrl(row.screenshotUrl),
+      screenshotUrl: safeShowcaseScreenshot(row.screenshotUrl),
+      isDemo: isDemoShowcaseCreator(row.creatorId),
       liveUrl: safeHttpUrl(row.liveUrl),
       githubUrl: safeHttpUrl(row.githubUrl),
       creator: creators.get(row.creatorId) ?? null,
@@ -150,9 +163,9 @@ export async function getBuilderBadges(userId: string) {
   if (entries.some((entry) => entry.challengeId)) badges.push({ key: "challenge-builder", label: "Challenge Builder", emoji: "🏁" });
   if (entries.some((entry) => entry.reactionCounts.POTENTIAL >= 5)) badges.push({ key: "community-pick", label: "Community Pick", emoji: "💡" });
 
-  const userRows = await db.select({ createdAt: users.createdAt }).from(users).where(eq(users.id, userId)).limit(1);
-  if (userRows[0]) {
-    const rankRows = await db.select({ count: sql<number>`count(*)::int` }).from(users).where(sql`${users.createdAt} <= ${userRows[0].createdAt}`);
+  const userRows = await db.select({ createdAt: users.createdAt, email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
+  if (userRows[0] && !userRows[0].email.toLowerCase().endsWith(".invalid")) {
+    const rankRows = await db.select({ count: sql<number>`count(*)::int` }).from(users).where(sql`${users.createdAt} <= ${userRows[0].createdAt} and lower(${users.email}) not like '%.invalid'`);
     if ((rankRows[0]?.count ?? 999) <= 100) badges.unshift({ key: "founding", label: "Founding Builder", emoji: "🟣" });
   }
   return badges;

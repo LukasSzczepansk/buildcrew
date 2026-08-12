@@ -4,11 +4,14 @@ import bcrypt from "bcryptjs";
 import { and, eq, lt } from "drizzle-orm";
 import { db } from "@/db";
 import { profiles, sessions, users, type SystemRole } from "@/db/schema";
+import { safeInternalRedirect } from "@/lib/redirects";
 import { randomToken, sha256 } from "@/lib/security";
 
 const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-buildcrew_session" : "buildcrew_session";
 const ADMIN_CHALLENGE_COOKIE = process.env.NODE_ENV === "production" ? "__Host-buildcrew_admin_challenge" : "buildcrew_admin_challenge";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
+const ACTIVITY_TOUCH_MS = 1000 * 60 * 15;
+const POST_AUTH_REDIRECT_COOKIE = process.env.NODE_ENV === "production" ? "__Host-buildcrew_post_auth" : "buildcrew_post_auth";
 
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
@@ -34,6 +37,33 @@ export async function createSessionForUser(userId: string) {
     path: "/",
     expires: expiresAt,
   });
+}
+
+
+export async function setPostAuthRedirect(path: string | null | undefined) {
+  if (!path) return;
+  const safePath = safeInternalRedirect(path, "");
+  if (!safePath) return;
+  const cookieStore = await cookies();
+  cookieStore.set(POST_AUTH_REDIRECT_COOKIE, safePath, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60,
+  });
+}
+
+export async function getPostAuthRedirect(fallback = "") {
+  const cookieStore = await cookies();
+  return safeInternalRedirect(cookieStore.get(POST_AUTH_REDIRECT_COOKIE)?.value, fallback);
+}
+
+export async function consumePostAuthRedirect(fallback = "/dashboard") {
+  const cookieStore = await cookies();
+  const value = cookieStore.get(POST_AUTH_REDIRECT_COOKIE)?.value;
+  cookieStore.delete(POST_AUTH_REDIRECT_COOKIE);
+  return safeInternalRedirect(value, fallback);
 }
 
 export async function destroySession() {
@@ -102,6 +132,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
       onboardingCompleted: profiles.onboardingCompleted,
       avatarEmoji: profiles.avatarEmoji,
       isSuspended: users.isSuspended,
+      lastActiveAt: users.lastActiveAt,
     })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
@@ -112,8 +143,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const row = rows[0];
   if (!row) {
     // getCurrentUser() is also called while rendering Server Components.
-    // Next.js does not allow mutating cookies during render, so this helper
-    // must stay read-only. A stale cookie will be overwritten on the next
+    // We do not mutate cookies here. A stale cookie will be overwritten on the next
     // successful login or removed by an explicit logout action.
     return null;
   }
@@ -122,6 +152,11 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     // Expired sessions are removed by db:maintenance; suspended users are
     // treated as logged out immediately because we return null here.
     return null;
+  }
+
+  const now = new Date();
+  if (!row.lastActiveAt || now.getTime() - row.lastActiveAt.getTime() >= ACTIVITY_TOUCH_MS) {
+    await db.update(users).set({ lastActiveAt: now }).where(eq(users.id, row.userId));
   }
 
   return {

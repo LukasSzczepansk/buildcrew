@@ -3,12 +3,14 @@ import "server-only";
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
 import { absoluteUrl } from "@/lib/email";
+import { safeInternalRedirect } from "@/lib/redirects";
 
 export type GoogleAuthIntent = "login" | "signup";
 
 const STATE_COOKIE = process.env.NODE_ENV === "production" ? "__Host-buildcrew_google_state" : "buildcrew_google_state";
 const VERIFIER_COOKIE = process.env.NODE_ENV === "production" ? "__Host-buildcrew_google_verifier" : "buildcrew_google_verifier";
 const INTENT_COOKIE = process.env.NODE_ENV === "production" ? "__Host-buildcrew_google_intent" : "buildcrew_google_intent";
+const NEXT_COOKIE = process.env.NODE_ENV === "production" ? "__Host-buildcrew_google_next" : "buildcrew_google_next";
 const OAUTH_TTL_SECONDS = 10 * 60;
 
 function base64UrlSha256(value: string) {
@@ -34,7 +36,7 @@ export function googleRedirectUri() {
   return absoluteUrl("/api/auth/google/callback");
 }
 
-export async function createGoogleAuthorizationUrl(intent: GoogleAuthIntent) {
+export async function createGoogleAuthorizationUrl(intent: GoogleAuthIntent, nextPath?: string | null) {
   const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
   if (!clientId || !process.env.GOOGLE_CLIENT_SECRET?.trim()) {
     throw new Error("Google OAuth is not configured");
@@ -49,6 +51,9 @@ export async function createGoogleAuthorizationUrl(intent: GoogleAuthIntent) {
   cookieStore.set(STATE_COOKIE, state, options);
   cookieStore.set(VERIFIER_COOKIE, verifier, options);
   cookieStore.set(INTENT_COOKIE, intent, options);
+  const safeNext = nextPath ? safeInternalRedirect(nextPath, "") : "";
+  if (safeNext) cookieStore.set(NEXT_COOKIE, safeNext, options);
+  else cookieStore.delete(NEXT_COOKIE);
 
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", clientId);
@@ -69,10 +74,12 @@ export async function consumeGoogleOAuthContext(receivedState: string | null) {
   const expectedState = cookieStore.get(STATE_COOKIE)?.value ?? null;
   const verifier = cookieStore.get(VERIFIER_COOKIE)?.value ?? null;
   const rawIntent = cookieStore.get(INTENT_COOKIE)?.value;
+  const rawNext = cookieStore.get(NEXT_COOKIE)?.value;
 
   cookieStore.delete(STATE_COOKIE);
   cookieStore.delete(VERIFIER_COOKIE);
   cookieStore.delete(INTENT_COOKIE);
+  cookieStore.delete(NEXT_COOKIE);
 
   if (!receivedState || !expectedState || !verifier) return null;
   const received = Buffer.from(receivedState);
@@ -82,6 +89,7 @@ export async function consumeGoogleOAuthContext(receivedState: string | null) {
   return {
     verifier,
     intent: rawIntent === "signup" ? "signup" as const : "login" as const,
+    nextPath: rawNext ? safeInternalRedirect(rawNext, "") : "",
   };
 }
 

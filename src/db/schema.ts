@@ -36,6 +36,7 @@ export const users = pgTable("users", {
   privacyAcceptedAt: timestamp("privacy_accepted_at", { withTimezone: true }),
   passwordChangedAt: timestamp("password_changed_at", { withTimezone: true }),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+  lastActiveAt: timestamp("last_active_at", { withTimezone: true }),
   isSuspended: boolean("is_suspended").notNull().default(false),
   suspendedAt: timestamp("suspended_at", { withTimezone: true }),
   suspendedReason: text("suspended_reason"),

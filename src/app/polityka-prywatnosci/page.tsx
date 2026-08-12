@@ -1,143 +1,432 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/legal/legal-page";
-import { getLegalConfig, LEGAL_EFFECTIVE_DATE } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Polityka prywatności — BuildCrew",
   description: "Informacje o przetwarzaniu danych osobowych w BuildCrew.",
 };
 
+const EFFECTIVE_DATE = "12 sierpnia 2026 r.";
+
+function getOperator() {
+  return {
+    name: process.env.LEGAL_OPERATOR_NAME?.trim() || "Łukasz Szczepański",
+    address: process.env.LEGAL_OPERATOR_ADDRESS?.trim() || "ul. Hetmańska 16, Rzeszów",
+    email: process.env.PUBLIC_CONTACT_EMAIL?.trim() || "slangtest.contact@gmail.com",
+  };
+}
+
 export default function PrivacyPage() {
-  const legal = getLegalConfig();
+  const operator = getOperator();
 
   return (
     <LegalPage
       title="Polityka prywatności BuildCrew"
-      subtitle={`Obowiązuje od ${LEGAL_EFFECTIVE_DATE}. Dokument opisuje, jakie dane są przetwarzane podczas korzystania z BuildCrew i w jakich celach.`}
+      subtitle={`Wersja z dnia ${EFFECTIVE_DATE}. Dokument opisuje, jakie dane są przetwarzane podczas korzystania z BuildCrew, w jakich celach i jakie prawa przysługują użytkownikowi.`}
     >
       <LegalSection title="1. Administrator danych">
         <p>
-          Administratorem danych osobowych związanych z korzystaniem z BuildCrew jest <strong>{legal.operatorName}</strong>
-          {legal.operatorAddress ? <> z adresem: <strong>{legal.operatorAddress}</strong></> : null}. W sprawach dotyczących prywatności
-          można skontaktować się pod adresem{" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${legal.contactEmail}`}>{legal.contactEmail}</a>.
+          Administratorem danych osobowych przetwarzanych w związku z działaniem BuildCrew jest <strong>{operator.name}</strong>,
+          adres: <strong>{operator.address}</strong>, e-mail: {" "}
+          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+            {operator.email}
+          </a>
+          , dalej „Administrator”.
+        </p>
+        <p>W sprawach dotyczących danych osobowych można kontaktować się z Administratorem pod powyższym adresem e-mail.</p>
+      </LegalSection>
+
+      <LegalSection title="2. Zakres Polityki">
+        <p>
+          Niniejsza Polityka prywatności opisuje zasady przetwarzania danych osobowych osób korzystających z platformy
+          BuildCrew. BuildCrew jest obecnie bezpłatną platformą służącą do nawiązywania kontaktów pomiędzy osobami
+          zainteresowanymi wspólnym tworzeniem projektów cyfrowych.
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Jakie dane przetwarzamy">
-        <p>W zależności od sposobu korzystania z BuildCrew możemy przetwarzać następujące kategorie danych:</p>
+      <LegalSection title="3. Jakie dane mogą być przetwarzane">
+        <p>W zależności od sposobu korzystania z BuildCrew Administrator może przetwarzać następujące kategorie danych:</p>
+
+        <p><strong>A. Dane konta i logowania</strong></p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>dane konta, w tym adres e-mail, informacje o weryfikacji oraz dane związane z metodą logowania;</li>
-          <li>dane profilu, takie jak nazwa użytkownika, rola, poziom doświadczenia, bio, umiejętności, zainteresowania i linki podane przez użytkownika;</li>
-          <li>prywatne dane kontaktowe podane w profilu, które są ujawniane wyłącznie w przewidzianych przez serwis relacjach;</li>
-          <li>treści i aktywność w serwisie, m.in. projekty, zgłoszenia Build Pool, zaproszenia, relacje znajomych, ekipy, prywatne wiadomości 1:1, pytania, odpowiedzi, zgłoszenia moderacyjne i powiązane metadane;</li>
-          <li>dane techniczne i bezpieczeństwa, takie jak identyfikatory sesji, adres IP, informacje o przeglądarce, zdarzenia bezpieczeństwa i dane potrzebne do limitowania nadużyć;</li>
-          <li>jeżeli używane jest logowanie Google — identyfikator konta Google oraz zweryfikowany adres e-mail otrzymany w ramach autoryzacji.</li>
+          <li>adres e-mail;</li>
+          <li>identyfikator konta oraz informacje o jego statusie;</li>
+          <li>informacje o weryfikacji adresu e-mail;</li>
+          <li>bezpiecznie przetwarzane dane uwierzytelniające, identyfikatory sesji i dane związane z logowaniem;</li>
+          <li>informacje związane z wybraną metodą logowania.</li>
         </ul>
-        <p>BuildCrew nie potrzebuje hasła do konta Google i nie otrzymuje go od Google.</p>
+        <p>
+          Administrator nie ma dostępu do hasła użytkownika w jego jawnej postaci. Hasła i tokeny uwierzytelniające są
+          przetwarzane przy użyciu mechanizmów bezpieczeństwa przewidzianych przez system BuildCrew.
+        </p>
+
+        <p><strong>B. Dane otrzymywane przy logowaniu Google</strong></p>
+        <p>
+          Jeżeli użytkownik wybierze logowanie za pomocą konta Google, BuildCrew może otrzymać od Google informacje
+          udostępnione zgodnie z zakresem prezentowanym podczas procesu logowania, w szczególności identyfikator konta,
+          adres e-mail i informacje niezbędne do utworzenia lub rozpoznania konta BuildCrew. BuildCrew nie otrzymuje hasła
+          użytkownika do konta Google.
+        </p>
+
+        <p><strong>C. Dane profilu</strong></p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>nazwa użytkownika lub nazwa wyświetlana;</li>
+          <li>opis użytkownika, rola i poziom doświadczenia;</li>
+          <li>umiejętności, technologie, zainteresowania i cele;</li>
+          <li>informacje o dostępności i rodzaju poszukiwanej współpracy;</li>
+          <li>avatar lub inne oznaczenie profilu, jeżeli funkcja jest dostępna;</li>
+          <li>linki lub identyfikatory GitHub, Discord, portfolio albo innych usług podane dobrowolnie przez użytkownika;</li>
+          <li>inne informacje dobrowolnie umieszczone w profilu.</li>
+        </ul>
+
+        <p><strong>D. Dane dotyczące projektów, ekip i Build Pool</strong></p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>utworzone projekty, ich opisy i role;</li>
+          <li>zgłoszenia do projektów, zaproszenia i decyzje dotyczące zgłoszeń;</li>
+          <li>członkostwo w ekipach i zaproszenia do Crew;</li>
+          <li>informacje publikowane w Build Pool i propozycje wspólnego budowania;</li>
+          <li>relacje pomiędzy użytkownikami, w tym znajomi i blokady;</li>
+          <li>pytania, odpowiedzi oraz inne informacje związane z korzystaniem z funkcji społecznościowych.</li>
+        </ul>
+
+        <p><strong>E. Dane Showcase</strong></p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>nazwa, tagline i opis prezentowanego projektu;</li>
+          <li>screenshot lub adres materiału graficznego;</li>
+          <li>link do działającej wersji projektu albo repozytorium;</li>
+          <li>informacja o twórcy, ekipie i ewentualnym powiązaniu z projektem lub Build Challenge;</li>
+          <li>status, kategoria i informacja o poszukiwaniu współtwórców;</li>
+          <li>reakcje na Showcase oraz konstruktywny feedback;</li>
+          <li>odpowiedź na pytanie, czy użytkownik skorzystałby z prezentowanego projektu.</li>
+        </ul>
+        <p>
+          Użytkownik publikujący screenshot lub inne materiały powinien upewnić się, że nie zawierają danych osób trzecich,
+          których nie ma prawa ujawniać.
+        </p>
+
+        <p><strong>F. Dane Build Challenges i dopasowania</strong></p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>informacja o udziale w Challenge;</li>
+          <li>wybrany sposób udziału, np. z ekipą albo z prośbą o znalezienie ekipy;</li>
+          <li>powiązanie z Crew i projektem zgłoszonym do Challenge;</li>
+          <li>informacje używane do proponowania potencjalnych współtwórców, np. rola, zainteresowania, poziom i dostępność;</li>
+          <li>informacje o zaakceptowaniu albo odrzuceniu zaproszenia lub propozycji dopasowania.</li>
+        </ul>
+
+        <p><strong>G. Prywatne wiadomości</strong></p>
+        <p>
+          Jeżeli użytkownicy korzystają z prywatnych wiadomości, BuildCrew przetwarza treść wiadomości oraz informacje
+          techniczne niezbędne do ich dostarczenia, wyświetlenia historii i obsługi statusu odczytu. Treść wiadomości nie jest
+          przeznaczona do publicznego udostępniania.
+        </p>
+        <p>
+          Administrator może uzyskać dostęp do treści w zakresie koniecznym do zapewnienia działania usługi, rozwiązania
+          problemu technicznego, rozpatrzenia zgłoszenia, przeciwdziałania nadużyciom lub wykonania obowiązku prawnego.
+        </p>
+
+        <p><strong>H. Powiadomienia i preferencje</strong></p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>typ i treść powiadomienia;</li>
+          <li>użytkownik, którego dotyczy zdarzenie, oraz — jeżeli ma to zastosowanie — użytkownik inicjujący zdarzenie;</li>
+          <li>powiązanie powiadomienia z projektem, Crew, Showcase, Challenge lub inną funkcją;</li>
+          <li>status odczytu i czas utworzenia;</li>
+          <li>preferencje dotyczące otrzymywania wybranych wiadomości e-mail;</li>
+          <li>informacja techniczna o wysłaniu wiadomości e-mail, jeżeli jest potrzebna do działania systemu.</li>
+        </ul>
+
+        <p><strong>I. Dane dotyczące zgłoszeń i moderacji</strong></p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>treść zgłoszenia i dane osoby zgłaszającej;</li>
+          <li>informacje dotyczące zgłaszanego konta lub treści;</li>
+          <li>historia działań moderacyjnych, ostrzeżeń, ograniczeń i blokad;</li>
+          <li>korespondencja dotycząca wyjaśnienia lub zakwestionowania decyzji.</li>
+        </ul>
+
+        <p><strong>J. Dane techniczne i bezpieczeństwa</strong></p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>adres IP;</li>
+          <li>data i czas połączenia;</li>
+          <li>informacje o urządzeniu i przeglądarce;</li>
+          <li>logi serwerowe i informacje dotyczące błędów;</li>
+          <li>identyfikatory sesji;</li>
+          <li>informacje potrzebne do zabezpieczenia konta, limitowania nadużyć i ochrony Serwisu.</li>
+        </ul>
+
+        <p><strong>K. Korespondencja</strong></p>
+        <p>
+          Jeżeli użytkownik kontaktuje się z Administratorem, przetwarzane mogą być adres e-mail, treść wiadomości,
+          załączniki oraz inne informacje przekazane dobrowolnie w korespondencji.
+        </p>
       </LegalSection>
 
-      <LegalSection title="3. Cele i podstawy przetwarzania">
+      <LegalSection title="4. Cele i podstawy przetwarzania">
+        <p>Dane osobowe mogą być przetwarzane w następujących celach:</p>
         <ul className="list-disc space-y-2 pl-5">
-          <li><strong>Świadczenie usługi i obsługa konta</strong> — w celu wykonania umowy o korzystanie z BuildCrew.</li>
-          <li><strong>Uwierzytelnianie, bezpieczeństwo i przeciwdziałanie nadużyciom</strong> — w celu wykonania umowy oraz realizacji prawnie uzasadnionego interesu polegającego na ochronie użytkowników i infrastruktury.</li>
-          <li><strong>Moderacja, obsługa zgłoszeń i dochodzenie roszczeń</strong> — na podstawie prawnie uzasadnionego interesu oraz, gdy ma to zastosowanie, obowiązków prawnych.</li>
-          <li><strong>Wiadomości transakcyjne</strong>, np. weryfikacja e-maila, reset hasła i kod administratora — w celu obsługi i zabezpieczenia konta.</li>
-          <li><strong>Realizacja obowiązków prawnych</strong> — gdy przechowanie lub ujawnienie określonych danych jest wymagane przez przepisy.</li>
+          <li>
+            <strong>Utworzenie i prowadzenie konta oraz świadczenie funkcji BuildCrew</strong> — w celu zawarcia i wykonania
+            umowy o korzystanie z BuildCrew, na podstawie art. 6 ust. 1 lit. b RODO.
+          </li>
+          <li>
+            <strong>Realizacja funkcji społecznościowych</strong>, w tym profilu, projektów, Crew, Build Pool, znajomych,
+            wiadomości, Showcase, feedbacku i Build Challenges — na podstawie art. 6 ust. 1 lit. b RODO w zakresie
+            niezbędnym do świadczenia funkcji wybranych przez użytkownika.
+          </li>
+          <li>
+            <strong>Powiadomienia transakcyjne i wiadomości dotyczące konta</strong>, np. o zgłoszeniu do projektu,
+            zaproszeniu do Crew, odpowiedzi w Build Pool, zdarzeniu Challenge, weryfikacji e-maila lub resecie hasła — w
+            celu wykonania umowy i zapewnienia działania żądanych funkcji.
+          </li>
+          <li>
+            <strong>Bezpieczeństwo i przeciwdziałanie nadużyciom</strong> — na podstawie prawnie uzasadnionego interesu
+            Administratora polegającego na ochronie użytkowników, kont i infrastruktury, art. 6 ust. 1 lit. f RODO.
+          </li>
+          <li>
+            <strong>Moderacja, obsługa zgłoszeń i egzekwowanie Regulaminu</strong> — na podstawie wykonania umowy,
+            prawnie uzasadnionego interesu Administratora lub obowiązku prawnego, zależnie od konkretnej sytuacji.
+          </li>
+          <li>
+            <strong>Obsługa pytań i reklamacji</strong> — na podstawie art. 6 ust. 1 lit. b, c lub f RODO, zależnie od
+            charakteru sprawy.
+          </li>
+          <li>
+            <strong>Ustalenie, dochodzenie lub obrona przed roszczeniami</strong> — na podstawie prawnie uzasadnionego
+            interesu Administratora, art. 6 ust. 1 lit. f RODO.
+          </li>
+          <li>
+            <strong>Wykonanie obowiązków prawnych</strong> — na podstawie art. 6 ust. 1 lit. c RODO, jeżeli przepisy
+            wymagają przechowania, ujawnienia lub innego przetwarzania określonych danych.
+          </li>
         </ul>
-        <p>Jeżeli w przyszłości konkretna funkcja będzie wymagała zgody, zgoda będzie zbierana osobno i będzie można ją wycofać na zasadach wskazanych przy tej funkcji.</p>
-      </LegalSection>
-
-      <LegalSection title="4. Logowanie Google">
         <p>
-          Użytkownik może dobrowolnie wybrać logowanie Google, jeżeli ta opcja jest aktywna. BuildCrew wykorzystuje wtedy mechanizm
-          OAuth/OpenID Connect do potwierdzenia tożsamości. Z Google pobierany jest minimalny zestaw informacji potrzebny do logowania,
-          w szczególności unikalny identyfikator konta oraz zweryfikowany adres e-mail. BuildCrew nie przechowuje tokenu dostępowego
-          Google dłużej niż jest to potrzebne do zakończenia procesu logowania i nie wykorzystuje go do dostępu do Dysku, Gmaila,
-          Kalendarza ani innych danych użytkownika.
+          Jeżeli w przyszłości konkretna funkcja, komunikacja marketingowa, analityka lub technologia będzie wymagała zgody,
+          zgoda będzie zbierana osobno i będzie można ją wycofać na zasadach wskazanych przy tej funkcji.
         </p>
       </LegalSection>
 
-      <LegalSection title="5. Odbiorcy danych i dostawcy techniczni">
+      <LegalSection title="5. Czy podanie danych jest obowiązkowe">
         <p>
-          Dane mogą być przetwarzane przez podmioty zapewniające hosting aplikacji, bazę danych, dostarczanie wiadomości e-mail,
-          uwierzytelnianie, bezpieczeństwo i utrzymanie infrastruktury. Otrzymują one dane wyłącznie w zakresie koniecznym do świadczenia
-          swoich usług i na podstawie właściwych warunków umownych lub przepisów prawa.
-        </p>
-        <p>
-          Część dostawców może prowadzić działalność poza Europejskim Obszarem Gospodarczym. Jeżeli dochodzi do transferu danych poza
-          EOG, administrator stosuje mechanizmy wymagane przez prawo, takie jak decyzja stwierdzająca odpowiedni stopień ochrony lub
-          standardowe klauzule umowne, gdy są wymagane.
+          Podanie danych wymaganych podczas rejestracji jest dobrowolne, ale konieczne do utworzenia i korzystania z konta.
+          Podawanie dodatkowych informacji w profilu, linków do innych serwisów, udział w Showcase, Build Challenges i innych
+          funkcjach opcjonalnych jest dobrowolne, ale część danych może być konieczna do skorzystania z konkretnej funkcji.
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Publiczność profilu, znajomi i prywatna komunikacja">
+      <LegalSection title="6. Logowanie Google">
         <p>
-          Dane profilu i treści oznaczone jako publiczne mogą być widoczne dla innych użytkowników zgodnie z funkcjami platformy.
-          Prywatne dane kontaktowe, takie jak nazwa użytkownika Discord, nie powinny być ujawniane publicznie i są udostępniane wyłącznie
-          po spełnieniu warunków relacji przewidzianych w BuildCrew.
+          Użytkownik może dobrowolnie wybrać logowanie Google, jeżeli ta opcja jest aktywna. BuildCrew wykorzystuje wtedy
+          mechanizm OAuth/OpenID Connect do potwierdzenia tożsamości. Z Google pobierany jest minimalny zestaw informacji
+          potrzebny do logowania, w szczególności unikalny identyfikator konta i adres e-mail.
         </p>
         <p>
-          Prywatne wiadomości 1:1 są przeznaczone dla uczestników danej rozmowy i są przechowywane w bazie danych w celu dostarczenia
-          wiadomości, pokazania historii rozmowy i statusu odczytu. Usunięcie relacji znajomych albo zablokowanie użytkownika może również
-          spowodować usunięcie powiązanej rozmowy zgodnie z działaniem serwisu.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="7. Okres przechowywania">
-        <p>
-          Dane konta i profilu są co do zasady przechowywane przez okres korzystania z BuildCrew. Po usunięciu konta dane są usuwane lub
-          anonimizowane w zakresie przewidzianym przez funkcje serwisu, chyba że dalsze przechowanie określonych informacji jest konieczne
-          do wykonania obowiązku prawnego, zabezpieczenia roszczeń, przeciwdziałania nadużyciom lub utrzymania integralności kopii technicznych.
-        </p>
-        <p>
-          Tokeny weryfikacyjne i resetujące mają ograniczony okres ważności. Sesje również wygasają. Techniczne kopie zapasowe mogą być
-          przechowywane przez ograniczony czas zgodnie z cyklem retencji dostawcy infrastruktury.
+          BuildCrew nie przechowuje hasła do konta Google i nie wykorzystuje logowania Google do dostępu do Gmaila, Dysku,
+          Kalendarza ani innych danych użytkownika, które nie są potrzebne do procesu logowania.
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Pliki cookies i pamięć przeglądarki">
+      <LegalSection title="7. Publiczność danych, Showcase i komunikacja prywatna">
         <p>
-          BuildCrew używa mechanizmów niezbędnych do działania serwisu, w szczególności bezpiecznych cookies sesyjnych, cookies związanych
-          z logowaniem i zabezpieczeniami oraz lokalnej pamięci przeglądarki do zapamiętania ustawień interfejsu, np. motywu. Mechanizmy te
-          służą do logowania, bezpieczeństwa i działania funkcji, a nie do tworzenia reklamowego profilu użytkownika.
+          Niektóre informacje zamieszczone przez użytkownika mogą być publiczne lub widoczne dla innych użytkowników zgodnie
+          z funkcją, w której zostały opublikowane. Dotyczy to w szczególności danych profilu, projektów, Build Pool, pytań,
+          odpowiedzi, Showcase, informacji o twórcach, linków, reakcji i wybranych elementów feedbacku.
+        </p>
+        <p>
+          Użytkownik powinien uważać, aby w publicznych częściach BuildCrew nie umieszczać informacji, których nie chce
+          ujawniać innym osobom. Prywatne dane kontaktowe są udostępniane wyłącznie w zakresie wynikającym z funkcji Serwisu.
+        </p>
+        <p>
+          Prywatne wiadomości są przeznaczone dla uczestników danej rozmowy i nie są publikowane jako treści publiczne.
+          Zablokowanie użytkownika, usunięcie relacji lub konta może wpływać na możliwość dalszego prowadzenia rozmowy lub
+          sposób prezentowania jej historii zgodnie z aktualnym działaniem Serwisu.
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Prawa osoby, której dane dotyczą">
+      <LegalSection title="8. Odbiorcy danych i dostawcy techniczni">
         <p>
-          W granicach przewidzianych przez RODO użytkownik może żądać dostępu do danych, ich sprostowania, usunięcia, ograniczenia
-          przetwarzania, przeniesienia danych, a także wnieść sprzeciw wobec przetwarzania opartego na prawnie uzasadnionym interesie.
-          Jeżeli podstawą przetwarzania jest zgoda, można ją wycofać bez wpływu na zgodność z prawem wcześniejszego przetwarzania.
+          Dane mogą być udostępniane lub powierzane podmiotom świadczącym usługi niezbędne do działania BuildCrew, wyłącznie
+          w zakresie potrzebnym do realizacji danego celu. W aktualnej architekturze BuildCrew mogą to być w szczególności:
         </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li><strong>Vercel</strong> — hosting aplikacji i infrastruktura związana z jej udostępnianiem;</li>
+          <li><strong>Neon</strong> — infrastruktura bazy danych PostgreSQL;</li>
+          <li><strong>Resend</strong> — dostarczanie wiadomości e-mail związanych z działaniem konta i wybranymi powiadomieniami;</li>
+          <li><strong>Google</strong> — uwierzytelnianie, jeżeli użytkownik wybierze logowanie Google;</li>
+          <li>inni dostawcy techniczni, jeżeli staną się niezbędni do bezpieczeństwa, utrzymania lub rozwoju Serwisu.</li>
+        </ul>
         <p>
-          Żądania można kierować na{" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${legal.contactEmail}`}>{legal.contactEmail}</a>.
-          Użytkownik ma również prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych, jeżeli uważa, że jego dane są przetwarzane niezgodnie z prawem.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="10. Bezpieczeństwo">
-        <p>
-          BuildCrew stosuje środki techniczne i organizacyjne adekwatne do charakteru usługi, w tym haszowanie haseł i tokenów,
-          ograniczanie liczby prób, kontrolę dostępu po stronie serwera, bezpieczne cookies, szyfrowane połączenia w środowisku
-          produkcyjnym oraz mechanizmy ograniczające nadużycia. Żaden system internetowy nie daje jednak absolutnej gwarancji bezpieczeństwa.
+          Dostawcy mogą przetwarzać m.in. dane techniczne, identyfikatory, adres e-mail, treść wiadomości transakcyjnej albo
+          dane przechowywane w infrastrukturze w zakresie wynikającym z rodzaju świadczonej usługi.
         </p>
       </LegalSection>
 
-      <LegalSection title="11. Zautomatyzowane decyzje">
+      <LegalSection title="9. Przekazywanie danych poza Europejski Obszar Gospodarczy">
         <p>
-          BuildCrew nie podejmuje wobec użytkowników decyzji wywołujących skutki prawne wyłącznie w oparciu o zautomatyzowane
-          przetwarzanie. Mechanizmy dopasowania i filtrowania mogą porządkować treści na podstawie informacji profilowych, ale nie
-          zastępują decyzji użytkowników o rozpoczęciu współpracy.
+          Niektórzy dostawcy technologii mogą przetwarzać dane poza Europejskim Obszarem Gospodarczym. Jeżeli w związku z
+          korzystaniem z danego dostawcy dochodzi do przekazania danych do państwa trzeciego, przekazanie powinno następować
+          z zastosowaniem mechanizmu przewidzianego przez rozdział V RODO, np. decyzji Komisji Europejskiej stwierdzającej
+          odpowiedni stopień ochrony albo odpowiednich zabezpieczeń, takich jak standardowe klauzule umowne, gdy są wymagane.
+        </p>
+        <p>Szczegółowe informacje dotyczące konkretnego transferu można uzyskać, kontaktując się z Administratorem.</p>
+      </LegalSection>
+
+      <LegalSection title="10. Okres przechowywania danych">
+        <p>Dane konta i profilu są co do zasady przetwarzane przez czas istnienia konta.</p>
+        <p>
+          Dane dotyczące projektów, Crew, Build Pool, Showcase, Build Challenges, wiadomości, relacji i aktywności są
+          przechowywane przez okres potrzebny do świadczenia funkcji, z których użytkownik korzysta, lub do czasu ich usunięcia
+          zgodnie z funkcjami Serwisu.
+        </p>
+        <p>
+          Powiadomienia i informacje o ich odczytaniu mogą być przechowywane przez okres potrzebny do zapewnienia historii
+          powiadomień i prawidłowego działania funkcji. Dane o preferencjach powiadomień są przechowywane do czasu zmiany
+          preferencji, usunięcia konta lub utraty potrzeby ich przetwarzania.
+        </p>
+        <p>
+          Dane dotyczące zgłoszeń, bezpieczeństwa i roszczeń mogą być przechowywane dłużej, jeżeli jest to konieczne do
+          rozpatrzenia sprawy, przeciwdziałania nadużyciom, wykonania obowiązku prawnego albo ustalenia, dochodzenia lub obrony
+          przed roszczeniami. Dane dotyczące roszczeń mogą być przechowywane do czasu upływu właściwego okresu przedawnienia.
+        </p>
+        <p>
+          Techniczne kopie zapasowe mogą zawierać usunięte informacje jeszcze przez ograniczony okres wynikający z cyklu
+          tworzenia i zastępowania kopii, pod warunkiem ich odpowiedniego zabezpieczenia.
         </p>
       </LegalSection>
 
-      <LegalSection title="12. Zmiany Polityki prywatności">
+      <LegalSection title="11. Usunięcie konta">
         <p>
-          Polityka może zostać zaktualizowana, jeżeli zmienią się funkcje BuildCrew, sposób przetwarzania danych, dostawcy techniczni lub
-          wymagania prawne. W przypadku istotnych zmian operator przekaże odpowiednią informację w serwisie lub pocztą elektroniczną,
-          jeżeli będzie to wymagane.
+          Użytkownik może usunąć swoje konto za pomocą funkcji dostępnej w ustawieniach BuildCrew. Usunięcie konta prowadzi
+          do usunięcia lub anonimizacji danych w zakresie, w jakim nie istnieje dalsza podstawa do ich przetwarzania.
+        </p>
+        <p>
+          Usunięcie konta nie oznacza konieczności natychmiastowego usunięcia każdej informacji z kopii bezpieczeństwa,
+          jeżeli jej oddzielne usunięcie nie jest technicznie możliwe lub wymagałoby niewspółmiernych działań, pod warunkiem
+          że kopie pozostają odpowiednio zabezpieczone i są usuwane zgodnie ze standardowym cyklem retencji.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="12. Prawa użytkownika">
+        <p>W przypadkach przewidzianych przez RODO użytkownik może żądać:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>dostępu do swoich danych i otrzymania ich kopii;</li>
+          <li>sprostowania nieprawidłowych danych;</li>
+          <li>usunięcia danych;</li>
+          <li>ograniczenia przetwarzania;</li>
+          <li>przeniesienia danych;</li>
+          <li>wniesienia sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie;</li>
+          <li>wycofania zgody, jeżeli określone przetwarzanie odbywa się na jej podstawie.</li>
+        </ul>
+        <p>
+          Żądanie można przesłać na adres {" "}
+          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+            {operator.email}
+          </a>
+          . Administrator może poprosić o informacje konieczne do potwierdzenia tożsamości osoby składającej żądanie, jeżeli
+          istnieją uzasadnione wątpliwości co do jej tożsamości.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="13. Prawo wniesienia skargi">
+        <p>
+          Osoba, która uważa, że jej dane są przetwarzane niezgodnie z przepisami, ma prawo wnieść skargę do właściwego organu
+          nadzorczego. W Polsce organem nadzorczym jest <strong>Prezes Urzędu Ochrony Danych Osobowych</strong>.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="14. Dopasowanie, rankingi i zautomatyzowane przetwarzanie">
+        <p>
+          BuildCrew może wykorzystywać informacje profilowe, takie jak rola, zainteresowania, dostępność, cele lub poziom
+          doświadczenia, do obliczania orientacyjnego dopasowania pomiędzy użytkownikami albo proponowania potencjalnych ekip.
+          BuildCrew może również porządkować treści Showcase na podstawie aktywności, reakcji, czasu publikacji i innych
+          kryteriów związanych z funkcją rankingu.
+        </p>
+        <p>
+          Mechanizmy te służą do sortowania i rekomendowania treści lub osób. Nie podejmują wobec użytkownika decyzji
+          wywołujących skutki prawne albo w podobny sposób istotnie na niego wpływających wyłącznie na podstawie
+          zautomatyzowanego przetwarzania. Ostateczna decyzja o nawiązaniu współpracy, zaakceptowaniu zgłoszenia lub utworzeniu
+          Crew należy do użytkowników.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="15. Powiadomienia i wiadomości e-mail">
+        <p>
+          BuildCrew może wysyłać wiadomości e-mail związane z bezpieczeństwem i obsługą konta oraz — zgodnie z preferencjami
+          użytkownika — wybranymi zdarzeniami społecznościowymi, takimi jak zgłoszenie do projektu, odpowiedź w Build Pool,
+          zaproszenie do Crew, zdarzenie Build Challenge lub feedback w Showcase.
+        </p>
+        <p>
+          Użytkownik może zarządzać częścią preferencji e-mailowych w Serwisie, jeżeli dana opcja jest dostępna. Wiadomości
+          niezbędne do bezpieczeństwa konta lub wykonania żądanej czynności mogą być wysyłane niezależnie od preferencji
+          dotyczących opcjonalnych powiadomień.
+        </p>
+        <p>
+          BuildCrew nie wysyła na podstawie samych ustawień transakcyjnych reklamowych wiadomości e-mail. Jeżeli w przyszłości
+          zostanie wprowadzona komunikacja marketingowa wymagająca zgody lub innej odrębnej podstawy, zostanie ona wdrożona
+          osobno.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="16. Pliki cookies i podobne technologie">
+        <p>BuildCrew może wykorzystywać cookies, pamięć lokalną przeglądarki lub podobne mechanizmy, jeżeli są potrzebne do:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>utrzymania sesji użytkownika i logowania;</li>
+          <li>zabezpieczenia procesu uwierzytelniania;</li>
+          <li>zapamiętania technicznych ustawień interfejsu, np. motywu;</li>
+          <li>prawidłowego działania funkcji Serwisu.</li>
+        </ul>
+        <p>
+          Jeżeli w przyszłości BuildCrew zacznie korzystać z technologii analitycznych, reklamowych lub innych technologii
+          wymagających zgody użytkownika, odpowiednia zgoda będzie pobierana przed ich użyciem w zakresie wymaganym przez
+          obowiązujące przepisy.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="17. Linki do innych serwisów">
+        <p>
+          BuildCrew umożliwia użytkownikom publikowanie linków między innymi do GitHub, Discord, portfolio i działających
+          wersji projektów. Po kliknięciu takiego linku użytkownik przechodzi do zewnętrznego serwisu, którego zasady
+          prywatności są niezależne od BuildCrew. Administrator nie kontroluje sposobu przetwarzania danych przez te serwisy.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="18. Treści demonstracyjne">
+        <p>
+          BuildCrew może zawierać wyraźnie oznaczone treści demonstracyjne, w tym przykładowe profile, projekty Showcase,
+          reakcje lub feedback. Dane demonstracyjne powinny być syntetyczne i nie reprezentować rzeczywistych osób ani ich
+          aktywności, chyba że przy konkretnej treści wyraźnie wskazano inaczej i istnieje odpowiednia podstawa do jej
+          publikacji.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="19. Bezpieczeństwo">
+        <p>
+          Administrator stosuje odpowiednie do charakteru Serwisu środki techniczne i organizacyjne mające na celu
+          zabezpieczenie danych przed nieuprawnionym dostępem, utratą, zmianą lub ujawnieniem. Obejmują one m.in. zabezpieczenia
+          po stronie serwera, mechanizmy sesji i uwierzytelniania, ograniczanie nadużyć oraz szyfrowane połączenia w środowisku
+          produkcyjnym. Żaden system internetowy nie gwarantuje jednak całkowitego wyeliminowania ryzyka.
+        </p>
+        <p>Użytkownik powinien chronić dane logowania i nie przekazywać innym osobom haseł, kodów ani innych sekretów.</p>
+      </LegalSection>
+
+      <LegalSection title="20. Zmiany Polityki prywatności i kontakt">
+        <p>
+          Polityka prywatności może być aktualizowana w szczególności w przypadku zmiany funkcjonalności BuildCrew, sposobu
+          przetwarzania danych, dostawców technologii, przepisów prawa lub konieczności doprecyzowania informacji przekazywanych
+          użytkownikom. Aktualna wersja Polityki będzie publikowana w BuildCrew.
+        </p>
+        <p>
+          Jeżeli zmiana istotnie wpływa na sposób przetwarzania danych użytkowników, Administrator przekaże odpowiednią
+          informację w Serwisie lub pocztą elektroniczną, gdy będzie to wymagane lub uzasadnione charakterem zmiany.
+        </p>
+        <p>
+          W sprawach związanych z prywatnością można kontaktować się z Administratorem pod adresem {" "}
+          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+            {operator.email}
+          </a>
+          . Zasady korzystania z Serwisu opisuje {" "}
+          <Link href="/regulamin" className="text-violet-600 hover:underline dark:text-violet-400">
+            Regulamin BuildCrew
+          </Link>
+          .
         </p>
       </LegalSection>
     </LegalPage>

@@ -18,13 +18,17 @@ import {
   destroySession,
   getAdminChallengeCookie,
   getCurrentUser,
+  getPostAuthRedirect,
   hashPassword,
   isAdmin,
   setAdminChallengeCookie,
+  setPostAuthRedirect,
+  consumePostAuthRedirect,
   verifyPassword,
 } from "@/lib/auth";
 import { absoluteUrl, sendTransactionalEmail } from "@/lib/email";
 import { checkRateLimit, getRequestIp, randomSixDigitCode, randomToken, sha256 } from "@/lib/security";
+import { safeInternalRedirect } from "@/lib/redirects";
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -46,13 +50,13 @@ function isUniqueViolation(error: unknown) {
   return Boolean(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "23505");
 }
 
-async function issueVerificationEmail(userId: string, email: string) {
+async function issueVerificationEmail(userId: string, email: string, nextPath?: string) {
   const token = randomToken(32);
   const tokenHash = sha256(token);
   const expiresAt = new Date(Date.now() + VERIFY_TTL_MS);
   await db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, userId));
   await db.insert(emailVerificationTokens).values({ userId, tokenHash, expiresAt });
-  const link = absoluteUrl(`/verify-email?token=${encodeURIComponent(token)}`);
+  const link = absoluteUrl(`/verify-email?token=${encodeURIComponent(token)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`);
   return sendTransactionalEmail({
     to: email,
     subject: "Potwierdź e-mail w BuildCrew",
@@ -77,6 +81,8 @@ async function issuePasswordResetEmail(userId: string, email: string) {
 }
 
 export async function signupAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
+  const rawNext = String(formData.get("next") ?? "").trim();
+  const nextPath = rawNext ? safeInternalRedirect(rawNext, "") : "";
   const ip = await getRequestIp();
   const limit = await checkRateLimit("auth:signup:ip", `ip:${ip}`, 5, 60 * 60);
   if (!limit.allowed) return { error: "Za dużo prób rejestracji. Spróbuj ponownie później." };
@@ -108,12 +114,16 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
   }
   const user = inserted[0];
   if (!user) return { error: "Nie udało się utworzyć konta." };
+  await db.update(users).set({ lastActiveAt: new Date() }).where(eq(users.id, user.id));
   await createSessionForUser(user.id);
-  await issueVerificationEmail(user.id, email);
+  if (nextPath) await setPostAuthRedirect(nextPath);
+  await issueVerificationEmail(user.id, email, nextPath || undefined);
   redirect("/verify-email?sent=1");
 }
 
 export async function loginAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
+  const rawNext = String(formData.get("next") ?? "").trim();
+  const nextPath = rawNext ? safeInternalRedirect(rawNext, "") : "";
   const parsed = loginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Błędne dane." };
 
@@ -134,7 +144,9 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
   if (user.isSuspended) return { error: "To konto zostało zawieszone przez administrację." };
 
   if (!user.emailVerifiedAt) {
+    await db.update(users).set({ lastActiveAt: new Date() }).where(eq(users.id, user.id));
     await createSessionForUser(user.id);
+    if (nextPath) await setPostAuthRedirect(nextPath);
     redirect("/verify-email");
   }
 
@@ -161,7 +173,8 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
     redirect("/admin-verify");
   }
 
-  await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
+  const loginAt = new Date();
+  await db.update(users).set({ lastLoginAt: loginAt, lastActiveAt: loginAt }).where(eq(users.id, user.id));
   await createSessionForUser(user.id);
 
   const profileRows = await db
@@ -170,7 +183,9 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
     .where(eq(profiles.userId, user.id))
     .limit(1);
 
-  redirect(profileRows[0]?.onboardingCompleted ? "/dashboard" : "/onboarding");
+  if (profileRows[0]?.onboardingCompleted) redirect(nextPath || "/dashboard");
+  if (nextPath) await setPostAuthRedirect(nextPath);
+  redirect("/onboarding");
 }
 
 export async function adminVerifyAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
@@ -204,7 +219,8 @@ export async function adminVerifyAction(_prev: AuthFormState, formData: FormData
 
   await db.delete(adminLoginChallenges).where(eq(adminLoginChallenges.id, challengeId));
   await clearAdminChallengeCookie();
-  await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, row.user.id));
+  const adminLoginAt = new Date();
+  await db.update(users).set({ lastLoginAt: adminLoginAt, lastActiveAt: adminLoginAt }).where(eq(users.id, row.user.id));
   await createSessionForUser(row.user.id);
   redirect("/admin");
 }
@@ -215,11 +231,14 @@ export async function resendVerificationAction(): Promise<AuthFormState> {
   if (user.emailVerified) return { success: "E-mail jest już potwierdzony." };
   const limit = await checkRateLimit("auth:verify:resend", `user:${user.id}`, 5, 60 * 60);
   if (!limit.allowed) return { error: "Za dużo wiadomości. Spróbuj ponownie później." };
-  const sent = await issueVerificationEmail(user.id, user.email);
+  const pendingNext = await getPostAuthRedirect("");
+  const sent = await issueVerificationEmail(user.id, user.email, pendingNext || undefined);
   return sent.ok ? { success: "Wysłaliśmy nowy link weryfikacyjny." } : { error: "Nie udało się wysłać wiadomości." };
 }
 
 export async function verifyEmailAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
+  const rawNext = String(formData.get("next") ?? "").trim();
+  const nextPath = rawNext ? safeInternalRedirect(rawNext, "") : "";
   const token = String(formData.get("token") ?? "");
   if (token.length < 20) return { error: "Nieprawidłowy link weryfikacyjny." };
   const tokenHash = sha256(token);
@@ -233,7 +252,13 @@ export async function verifyEmailAction(_prev: AuthFormState, formData: FormData
   await db.update(users).set({ emailVerifiedAt: new Date() }).where(eq(users.id, row.userId));
   await db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, row.userId));
   const current = await getCurrentUser();
-  redirect(current?.id === row.userId ? (current.onboardingCompleted ? "/dashboard" : "/onboarding") : "/login?verified=1");
+  if (!current || current.id !== row.userId) redirect(nextPath ? `/login?verified=1&next=${encodeURIComponent(nextPath)}` : "/login?verified=1");
+  if (!current.onboardingCompleted) {
+    if (nextPath) await setPostAuthRedirect(nextPath);
+    redirect("/onboarding");
+  }
+  if (nextPath) redirect(nextPath);
+  redirect(await consumePostAuthRedirect("/dashboard"));
 }
 
 export async function forgotPasswordAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {

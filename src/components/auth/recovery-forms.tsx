@@ -50,10 +50,11 @@ export function ResendVerificationForm() {
   return <form action={action} className="space-y-3"><StateMessage state={state}/><Button className="w-full" size="lg" disabled={pending}>{pending ? "Wysyłamy…" : "Wyślij link ponownie"}</Button></form>;
 }
 
-export function VerifyEmailForm({ token }: { token: string }) {
+export function VerifyEmailForm({ token, nextPath }: { token: string; nextPath?: string }) {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(verifyEmailAction, {});
   return <form action={action} className="space-y-5">
     <input type="hidden" name="token" value={token} />
+    {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
     <StateMessage state={state} />
     <Button className="w-full" size="lg" disabled={pending}>{pending ? "Potwierdzamy…" : "Potwierdź e-mail"}</Button>
   </form>;

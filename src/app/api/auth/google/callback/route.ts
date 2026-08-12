@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { adminLoginChallenges, authAccounts, profiles, users } from "@/db/schema";
-import { createSessionForUser, hashPassword, isAdmin, setAdminChallengeCookie } from "@/lib/auth";
+import { createSessionForUser, hashPassword, isAdmin, setAdminChallengeCookie, setPostAuthRedirect } from "@/lib/auth";
 import { absoluteUrl, sendTransactionalEmail } from "@/lib/email";
 import { consumeGoogleOAuthContext, exchangeGoogleCode, fetchGoogleUserInfo } from "@/lib/google-oauth";
 import { randomSixDigitCode } from "@/lib/security";
+import { withNext } from "@/lib/redirects";
 
 const ADMIN_MFA_TTL_MS = 10 * 60 * 1000;
 
@@ -20,15 +21,15 @@ export async function GET(request: NextRequest) {
   const context = await consumeGoogleOAuthContext(state);
   const fallback = context?.intent === "signup" ? "/signup" : "/login";
 
-  if (oauthError) return authRedirect(`${fallback}?google=access-denied`);
+  if (oauthError) return authRedirect(withNext(`${fallback}?google=access-denied`, context?.nextPath));
   if (!context || !code) return authRedirect(`${fallback}?google=state`);
 
   try {
     const accessToken = await exchangeGoogleCode(code, context.verifier);
-    if (!accessToken) return authRedirect(`${fallback}?google=failed`);
+    if (!accessToken) return authRedirect(withNext(`${fallback}?google=failed`, context.nextPath));
 
     const googleUser = await fetchGoogleUserInfo(accessToken);
-    if (!googleUser) return authRedirect(`${fallback}?google=unverified`);
+    if (!googleUser) return authRedirect(withNext(`${fallback}?google=unverified`, context.nextPath));
 
     const linkedRows = await db
       .select({ userId: authAccounts.userId })
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
       userId = existingRows[0]?.id ?? null;
 
       if (!userId && context.intent !== "signup") {
-        return authRedirect("/signup?google=account-missing");
+        return authRedirect(withNext("/signup?google=account-missing", context.nextPath));
       }
 
       if (!userId) {
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
         await db.update(users).set({ emailVerifiedAt: new Date() }).where(eq(users.id, userId));
       }
 
-      if (!userId) return authRedirect(`${fallback}?google=failed`);
+      if (!userId) return authRedirect(withNext(`${fallback}?google=failed`, context.nextPath));
 
       await db
         .insert(authAccounts)
@@ -86,14 +87,14 @@ export async function GET(request: NextRequest) {
         .limit(1);
 
       if (!linkedAfterInsert[0] || linkedAfterInsert[0].userId !== userId) {
-        return authRedirect(`${fallback}?google=conflict`);
+        return authRedirect(withNext(`${fallback}?google=conflict`, context.nextPath));
       }
     }
 
     const userRows = await db.select().from(users).where(eq(users.id, userId)).limit(1);
     const user = userRows[0];
-    if (!user) return authRedirect(`${fallback}?google=failed`);
-    if (user.isSuspended) return authRedirect("/login?google=suspended");
+    if (!user) return authRedirect(withNext(`${fallback}?google=failed`, context.nextPath));
+    if (user.isSuspended) return authRedirect(withNext("/login?google=suspended", context.nextPath));
 
     if (isAdmin(user.email, user.systemRole)) {
       const codeValue = randomSixDigitCode();
@@ -122,7 +123,8 @@ export async function GET(request: NextRequest) {
       return authRedirect("/admin-verify");
     }
 
-    await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
+    const loginAt = new Date();
+    await db.update(users).set({ lastLoginAt: loginAt, lastActiveAt: loginAt }).where(eq(users.id, user.id));
     await createSessionForUser(user.id);
 
     const profileRows = await db
@@ -131,9 +133,11 @@ export async function GET(request: NextRequest) {
       .where(eq(profiles.userId, user.id))
       .limit(1);
 
-    return authRedirect(profileRows[0]?.onboardingCompleted ? "/dashboard" : "/onboarding");
+    if (profileRows[0]?.onboardingCompleted) return authRedirect(context.nextPath || "/dashboard");
+    if (context.nextPath) await setPostAuthRedirect(context.nextPath);
+    return authRedirect("/onboarding");
   } catch (error) {
     console.error("Google OAuth callback failed", error);
-    return authRedirect(`${fallback}?google=failed`);
+    return authRedirect(withNext(`${fallback}?google=failed`, context?.nextPath));
   }
 }

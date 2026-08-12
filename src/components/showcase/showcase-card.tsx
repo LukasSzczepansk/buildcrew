@@ -34,6 +34,7 @@ export type ShowcaseCardData = {
   feedbackCount: number;
   wouldUsePercent: number | null;
   score: number;
+  isDemo: boolean;
 };
 
 const reactions: { key: ShowcaseReaction; emoji: string; label: string }[] = [
@@ -76,6 +77,7 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
         <div className="flex flex-wrap items-center gap-2">
           <Badge>{SHOWCASE_CATEGORY_LABELS[entry.category]}</Badge>
           <Badge variant="secondary">{SHOWCASE_STATUS_LABELS[entry.status]}</Badge>
+          {entry.isDemo ? <Badge variant="outline">Demo</Badge> : null}
           {entry.crewId ? <Badge variant="outline">🟣 Ekipa z BuildCrew</Badge> : null}
           {entry.challengeId ? <Badge variant="warning">🏁 Challenge</Badge> : null}
         </div>

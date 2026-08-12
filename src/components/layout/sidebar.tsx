@@ -7,6 +7,7 @@ import {
   HelpCircle,
   Home,
   LogOut,
+  ExternalLink,
   MessageCircle,
   Plus,
   ShieldCheck,
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/server/actions/auth";
+import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Start", icon: Home },
@@ -83,6 +85,22 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
         ) : null}
 
       <div className="min-h-3 flex-1" />
+
+      {isAiContestActive() ? (
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-left transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">🏆 Konkurs AI · {AI_CONTEST.prize}</p>
+              <p className="mt-1 text-[11px] leading-4 text-amber-800/75 dark:text-amber-200/70">Do {AI_CONTEST.deadlineLabel}. Zgłoszenia na Discordzie.</p>
+            </div>
+            <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-300" />
+          </div>
+        </a>
+      ) : null}
+
+      <Button asChild variant="outline" className="mb-2 w-full gap-2">
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer"><MessageCircle className="h-4 w-4" /> Discord BuildCrew</a>
+      </Button>
 
       <Button asChild className="mb-3 w-full gap-2">
         <Link href="/projects/new">

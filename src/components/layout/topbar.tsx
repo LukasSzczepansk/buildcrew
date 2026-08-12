@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { MessageCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { getCurrentUser } from "@/lib/auth";
 import { listNotifications } from "@/server/data/notifications";
+import { DISCORD_INVITE_URL } from "@/lib/community";
 
 export async function Topbar({
   title,
@@ -29,6 +30,9 @@ export async function Topbar({
           <Link href="/projects/new">
             <Plus className="h-4 w-4" /> Dodaj projekt
           </Link>
+        </Button>
+        <Button asChild variant="outline" size="sm" className="gap-1.5">
+          <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" aria-label="Discord BuildCrew"><MessageCircle className="h-4 w-4" /><span className="hidden md:inline">Discord</span></a>
         </Button>
         <ThemeToggle />
         <NotificationBell notifications={notifications} />

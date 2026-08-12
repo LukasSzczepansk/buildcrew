@@ -21,6 +21,7 @@ import { BuilderProfileActions } from "@/components/builders/builder-profile-act
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import { getFriendshipState } from "@/server/data/friends";
 import { getBuilderBadges, listShowcaseForUser } from "@/server/data/showcase";
+import { activityLabel, getActivityState } from "@/lib/activity";
 import type { RoleType } from "@/db/schema";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -50,6 +51,8 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
     ...memberProjects.filter((p) => p.ownerId !== id).map((p) => ({ ...p, relation: "Członek zespołu" })),
   ];
 
+  const activityState = getActivityState(profile.lastActiveAt);
+
   const [myOwnedProjects, friendState] = user.id !== id
     ? await Promise.all([listProjectsForOwner(user.id), getFriendshipState(user.id, id)])
     : [[], { kind: "NONE" as const }];
@@ -63,12 +66,13 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
             <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
               <Avatar emoji={profile.avatarEmoji} size="xl" />
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">{profile.username}</h1>
-                <p className="text-neutral-500">{profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder"}</p>
+                <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-bold tracking-tight">{profile.username}</h1>{profile.isDemo ? <Badge variant="outline">Demo</Badge> : null}</div>
+                <div className="mt-1 flex flex-wrap items-center gap-2"><p className="text-neutral-500">{profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder"}</p><Badge variant={activityState === "TODAY" ? "success" : "outline"}>{activityLabel(profile.lastActiveAt)}</Badge></div>
                 {badges.length ? <div className="mt-2 flex flex-wrap gap-1.5">{badges.map((badge) => <Badge key={badge.key} variant="outline">{badge.emoji} {badge.label}</Badge>)}</div> : null}
               </div>
             </div>
 
+            {profile.isDemo ? <div className="mt-5 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/60">Profil demonstracyjny używany do przykładowej zawartości Showcase.</div> : null}
             {profile.bio && <p className="mt-6 text-neutral-600 dark:text-neutral-300">{profile.bio}</p>}
 
             <div className="mt-6 grid gap-6 sm:grid-cols-2">

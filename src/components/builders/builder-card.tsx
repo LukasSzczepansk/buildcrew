@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { COMMITMENT_LABELS, LEVEL_LABELS, LOOKING_FOR_LABELS, ROLE_LABELS } from "@/lib/constants";
+import { activityLabel, getActivityState } from "@/lib/activity";
 import type { Commitment, Level, LookingFor, RoleType } from "@/db/schema";
 
 export type BuilderCardData = {
@@ -17,6 +18,8 @@ export type BuilderCardData = {
   skills: string[];
   interests: string[];
   lookingFor: LookingFor[];
+  isDemo?: boolean;
+  lastActiveAt?: Date | string | null;
 };
 
 export function BuilderCard({
@@ -33,6 +36,7 @@ export function BuilderCard({
   const openToBuild = builder.lookingFor.includes("OPEN_TO_BUILD");
   const wantsProject = builder.lookingFor.includes("WANTS_PROJECT");
   const hasProject = builder.lookingFor.includes("HAS_PROJECT");
+  const activityState = getActivityState(builder.lastActiveAt);
 
   return (
     <Card className="flex h-full flex-col p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
@@ -40,7 +44,7 @@ export function BuilderCard({
         <div className="flex min-w-0 items-center gap-3">
           <Avatar emoji={builder.avatarEmoji} />
           <div className="min-w-0">
-            <p className="truncate font-semibold">{builder.username}</p>
+            <div className="flex items-center gap-2"><p className="truncate font-semibold">{builder.username}</p>{builder.isDemo ? <Badge variant="outline">Demo</Badge> : null}</div>
             <p className="text-sm text-neutral-500">{builder.role ? ROLE_LABELS[builder.role] : "Builder"}</p>
           </div>
         </div>
@@ -52,6 +56,10 @@ export function BuilderCard({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
+        <Badge variant={activityState === "TODAY" ? "success" : "outline"}>
+          <span className={`mr-1 inline-block h-1.5 w-1.5 rounded-full ${activityState === "TODAY" ? "bg-emerald-500" : activityState === "THIS_WEEK" ? "bg-amber-400" : "bg-neutral-300 dark:bg-neutral-600"}`} />
+          {activityLabel(builder.lastActiveAt)}
+        </Badge>
         {openToBuild ? <Badge variant="success">Otwarty na pomysły</Badge> : null}
         {wantsProject ? <Badge variant="secondary">Chce dołączyć do projektu</Badge> : null}
         {hasProject ? <Badge variant="secondary">Ma własny pomysł</Badge> : null}

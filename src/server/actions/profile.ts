@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { profileInterests, profilePrivate, profileSkills, profiles } from "@/db/schema";
 import { emojiForSeed } from "@/lib/utils";
-import { getVerifiedCurrentUser } from "@/lib/auth";
+import { consumePostAuthRedirect, getVerifiedCurrentUser } from "@/lib/auth";
 import { enforceUserRateLimit } from "@/lib/security";
 import { logEvent } from "@/lib/analytics";
 import { onboardingSchema, profileEditSchema } from "@/lib/validations";
@@ -106,7 +106,7 @@ export async function completeOnboarding(
   }
 
   revalidatePath("/dashboard");
-  redirect("/dashboard");
+  redirect(await consumePostAuthRedirect("/dashboard"));
 }
 
 export async function updateProfile(input: z.infer<typeof profileEditSchema>): Promise<ProfileFormState> {

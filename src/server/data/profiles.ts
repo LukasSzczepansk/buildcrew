@@ -19,7 +19,7 @@ export type ProfileSummary = Awaited<ReturnType<typeof getProfileByUserId>>;
 export async function getProfileByUserId(userId: string) {
   if (!isUuid(userId)) return null;
   const rows = await db
-    .select({ profile: profiles })
+    .select({ profile: profiles, email: users.email, lastActiveAt: users.lastActiveAt, lastLoginAt: users.lastLoginAt })
     .from(profiles)
     .innerJoin(users, eq(users.id, profiles.userId))
     .where(and(eq(profiles.userId, userId), eq(users.isSuspended, false)))
@@ -42,6 +42,8 @@ export async function getProfileByUserId(userId: string) {
 
   return {
     ...row.profile,
+    lastActiveAt: row.lastActiveAt ?? row.lastLoginAt,
+    isDemo: row.email.toLowerCase().endsWith(".invalid"),
     githubUrl: safeHttpUrl(row.profile.githubUrl),
     portfolioUrl: safeHttpUrl(row.profile.portfolioUrl),
     linkedinUrl: safeHttpUrl(row.profile.linkedinUrl),
@@ -58,7 +60,7 @@ export async function getPrivateContact(userId: string) {
 
 export async function listBuilderProfiles(excludeUserId?: string) {
   const rows = await db
-    .select({ profile: profiles, email: users.email, systemRole: users.systemRole })
+    .select({ profile: profiles, email: users.email, systemRole: users.systemRole, lastActiveAt: users.lastActiveAt, lastLoginAt: users.lastLoginAt })
     .from(profiles)
     .innerJoin(users, eq(users.id, profiles.userId))
     .where(
@@ -101,6 +103,8 @@ export async function listBuilderProfiles(excludeUserId?: string) {
     .filter((r) => !blockedIds.has(r.profile.userId) && !isAdmin(r.email, r.systemRole))
     .map((r) => ({
       ...r.profile,
+      lastActiveAt: r.lastActiveAt ?? r.lastLoginAt,
+      isDemo: r.email.toLowerCase().endsWith(".invalid"),
       skills: skillMap.get(r.profile.userId) ?? [],
       interests: interestMap.get(r.profile.userId) ?? [],
     }));

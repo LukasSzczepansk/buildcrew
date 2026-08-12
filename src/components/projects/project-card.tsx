@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { COMMITMENT_LABELS, ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
 import type { Commitment, RoleType, Stage } from "@/db/schema";
+import { ShareProjectButton } from "@/components/projects/share-project-button";
 
 export type ProjectCardData = {
   id: string;
@@ -70,12 +71,18 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
           </div>
           {project.commitment && <span className="text-xs text-neutral-400">{COMMITMENT_LABELS[project.commitment]}</span>}
         </div>
-        <Link
-          href={`/projects/${project.id}`}
-          className="flex items-center gap-1 text-sm font-medium text-violet-600 hover:underline dark:text-violet-400"
-        >
-          Zobacz <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <ShareProjectButton projectId={project.id} projectName={project.name} compact />
+          <Link
+            href={`/projects/${project.id}`}
+            className="flex items-center gap-1 text-sm font-medium text-violet-600 hover:underline dark:text-violet-400"
+          >
+            Zobacz <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link href={`/p/${project.id}`} aria-label="Publiczna strona projektu" title="Publiczna strona projektu" className="text-neutral-400 hover:text-violet-600">
+            <ExternalLink className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </div>
     </Card>
   );

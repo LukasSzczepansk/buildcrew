@@ -12,7 +12,8 @@
     "db:studio": "drizzle-kit studio --config=drizzle.config.ts",
     "security:check": "node scripts/security-check.mjs",
     "db:maintenance": "node scripts/maintenance.mjs",
-    "admin:promote": "node scripts/promote-admin.mjs"
+    "admin:promote": "node scripts/promote-admin.mjs",
+    "showcase:seed-demo": "node scripts/seed-showcase-demo.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

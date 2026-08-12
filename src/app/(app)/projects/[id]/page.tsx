@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ShieldAlert } from "lucide-react";
+import { ExternalLink, ShieldAlert } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Topbar } from "@/components/layout/topbar";
 import { ApplyDialog } from "@/components/projects/apply-dialog";
+import { ShareProjectButton } from "@/components/projects/share-project-button";
 import {
   CHARACTER_LABELS,
   COMMITMENT_LABELS,
@@ -60,9 +61,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 <h1 className="text-2xl font-bold tracking-tight">{project.name}</h1>
                 <p className="mt-1 text-neutral-500">{project.tagline}</p>
               </div>
-              <Badge variant="secondary" className="whitespace-nowrap">
-                {STAGE_LABELS[project.stage]}
-              </Badge>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Badge variant="secondary" className="whitespace-nowrap">
+                  {STAGE_LABELS[project.stage]}
+                </Badge>
+                <ShareProjectButton projectId={project.id} projectName={project.name} compact />
+                <Button asChild variant="ghost" size="sm" className="gap-1.5">
+                  <Link href={`/p/${project.id}`} target="_blank">Publiczny link <ExternalLink className="h-3.5 w-3.5" /></Link>
+                </Button>
+              </div>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-1.5">

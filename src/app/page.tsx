@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Check, Hammer, Rocket, Search, Sparkles, Users, X } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, Hammer, MessageCircle, Rocket, Search, Sparkles, Trophy, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
+import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
 
 export default async function LandingPage() {
   const user = await getCurrentUser();
@@ -20,6 +21,21 @@ export default async function LandingPage() {
           <Button asChild><Link href="/signup">Znajdź ekipę</Link></Button>
         </div>
       </header>
+
+      {isAiContestActive() ? (
+        <div className="mx-auto max-w-6xl px-6 pb-2">
+          <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-violet-50 px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-sm dark:border-amber-500/20 dark:from-amber-500/10 dark:to-violet-500/10 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"><Trophy className="h-5 w-5" /></span>
+              <div>
+                <p className="font-semibold">{AI_CONTEST.title} — wygraj {AI_CONTEST.prize}</p>
+                <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">Zrób projekt wykorzystujący AI do {AI_CONTEST.deadlineLabel}. Szczegóły konkursu i zgłoszenia są na Discordzie BuildCrew.</p>
+              </div>
+            </div>
+            <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-violet-700 dark:text-violet-300">Dołącz na Discord <ExternalLink className="h-3.5 w-3.5" /></span>
+          </a>
+        </div>
+      ) : null}
 
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-100 via-white to-white dark:from-violet-500/10 dark:via-neutral-950 dark:to-neutral-950" />
@@ -126,6 +142,7 @@ export default async function LandingPage() {
           <div className="flex gap-4">
             <Link href="/login" className="hover:text-neutral-600 dark:hover:text-neutral-200">Logowanie</Link>
             <Link href="/signup" className="hover:text-neutral-600 dark:hover:text-neutral-200">Rejestracja</Link>
+            <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-violet-600"><MessageCircle className="h-3.5 w-3.5" /> Discord</a>
             <Link href="/regulamin" className="hover:text-neutral-600 dark:hover:text-neutral-200">Regulamin</Link>
             <Link href="/polityka-prywatnosci" className="hover:text-neutral-600 dark:hover:text-neutral-200">Polityka prywatności</Link>
           </div>

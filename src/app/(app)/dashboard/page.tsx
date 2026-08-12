@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Rocket, Search, Sparkles, Users } from "lucide-react";
+import { ArrowRight, ExternalLink, MessageCircle, Rocket, Search, Sparkles, Trophy, Users } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { ProjectCard } from "@/components/projects/project-card";
 import { BuilderCard } from "@/components/builders/builder-card";
 import { getCurrentUser } from "@/lib/auth";
 import { computeMatch } from "@/lib/matching";
+import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
 import { listProjects } from "@/server/data/projects";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
@@ -53,6 +54,16 @@ export default async function DashboardPage() {
         <Button asChild size="lg" className="shrink-0 gap-2"><Link href="/build"><Users className="h-4 w-4" /> Znajdź mi ekipę</Link></Button>
       </div>
 
+      {isAiContestActive() ? (
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mt-5 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"><Trophy className="h-4 w-4" /></span>
+            <div><p className="text-sm font-semibold">Konkurs: projekt z AI · {AI_CONTEST.prize}</p><p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-300">Masz czas do {AI_CONTEST.deadlineLabel}. Szczegóły, zasady i zgłoszenia znajdziesz na Discordzie BuildCrew.</p></div>
+          </div>
+          <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-amber-900 dark:text-amber-200"><MessageCircle className="h-4 w-4" /> Discord <ExternalLink className="h-3.5 w-3.5" /></span>
+        </a>
+      ) : null}
+
       <div className="mt-8 grid gap-5 sm:grid-cols-3">
         <BigActionCard emoji="💡" title="Mam pomysł" description="Znajdź współtwórców, nie wykonawców." cta="Dodaj projekt" href="/projects/new" />
         <BigActionCard emoji="🔎" title="Chcę dołączyć" description="Znajdź ekipę, której kierunek Ci odpowiada." cta="Przeglądaj projekty" href="/projects" />
@@ -74,7 +85,7 @@ export default async function DashboardPage() {
                 key={b.userId}
                 matchScore={match.score}
                 matchReasons={match.reasons}
-                builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor }}
+                builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, lastActiveAt: b.lastActiveAt }}
               />
             ))}
           </div>

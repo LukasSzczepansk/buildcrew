@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth/auth-form";
 import { getCurrentUser } from "@/lib/auth";
+import { safeInternalRedirect } from "@/lib/redirects";
 import { signupAction } from "@/server/actions/auth";
 
 export const metadata: Metadata = { title: "Załóż konto — BuildCrew" };
@@ -19,12 +20,15 @@ const GOOGLE_ERRORS: Record<string, string> = {
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ google?: string | string[] }>;
+  searchParams: Promise<{ google?: string | string[]; next?: string | string[] }>;
 }) {
-  const user = await getCurrentUser();
-  if (user) redirect(!user.emailVerified ? "/verify-email" : user.onboardingCompleted ? "/dashboard" : "/onboarding");
-
   const params = await searchParams;
+  const rawNext = Array.isArray(params.next) ? params.next[0] : params.next;
+  const nextPath = rawNext ? safeInternalRedirect(rawNext, "/dashboard") : undefined;
+
+  const user = await getCurrentUser();
+  if (user) redirect(!user.emailVerified ? "/verify-email" : user.onboardingCompleted ? (nextPath ?? "/dashboard") : "/onboarding");
+
   const googleCode = Array.isArray(params.google) ? params.google[0] : params.google;
   const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim());
 
@@ -37,6 +41,7 @@ export default async function SignupPage({
         action={signupAction}
         googleEnabled={googleEnabled}
         externalError={googleCode ? GOOGLE_ERRORS[googleCode] : undefined}
+        nextPath={nextPath}
       />
     </div>
   );

@@ -105,6 +105,7 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
                   skills: b.skills,
                   interests: b.interests,
                   lookingFor: b.lookingFor,
+                  lastActiveAt: b.lastActiveAt,
                 }}
               />
             ))}
