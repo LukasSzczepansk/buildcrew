@@ -3,7 +3,6 @@
 import * as React from "react";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Users2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,6 +32,10 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [pending, setPending] = React.useState(false);
+  const score = Math.min(100, Math.max(0, person.matchScore));
+  const strongMatch = score >= 70;
+  const technologies = person.technologies.slice(0, 5);
+  const remainingTechnologies = Math.max(0, person.technologies.length - technologies.length);
 
   async function handleSend() {
     setPending(true);
@@ -45,37 +48,46 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
   }
 
   return (
-    <article className="border-b border-[#d8d8d0] py-5 first:border-t dark:border-neutral-700">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_150px] lg:gap-8">
-        <div className="flex gap-3.5">
-          <Link href={`/builders/${person.userId}`} className="shrink-0"><Avatar emoji={person.avatarEmoji} className="h-10 w-10 text-lg" /></Link>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <Link href={`/builders/${person.userId}`} className="text-[15px] font-semibold hover:underline">{person.username}</Link>
-              <span className="text-[12px] text-neutral-500">{ROLE_LABELS[person.role]}</span>
-            </div>
-            <h3 className="mt-1.5 text-[14px] font-medium leading-5">{person.headline}</h3>
-            <p className="mt-1.5 max-w-3xl text-[12px] leading-5 text-neutral-600 dark:text-neutral-300">{person.wantsToBuild}</p>
+    <article className="group border-b border-[var(--bc-line)] transition-colors first:border-t hover:bg-black/[0.022] dark:hover:bg-white/[0.025]">
+      <div className="grid gap-4 py-6 sm:grid-cols-[52px_minmax(0,1fr)] sm:gap-x-4 lg:grid-cols-[52px_minmax(0,1fr)_104px_132px] lg:gap-x-6">
+        <Link href={`/builders/${person.userId}`} className="shrink-0 self-start" aria-label={`Profil ${person.username}`}>
+          <Avatar emoji={person.avatarEmoji} className="h-12 w-12 text-[21px] sm:h-[52px] sm:w-[52px]" />
+        </Link>
 
-            <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-500 dark:text-neutral-400">
-              <span>{LEVEL_LABELS[person.level]}</span>
-              <span>{COMMITMENT_LABELS[person.weeklyHours]}</span>
-              <span className="inline-flex items-center gap-1"><Users2 className="h-3 w-3" /> ekipa {person.preferredCrewSize} os.</span>
-              {person.technologies.length > 0 ? <span>{person.technologies.slice(0, 5).join(" · ")}</span> : null}
-            </div>
+        <div className="min-w-0">
+          <Link href={`/builders/${person.userId}`} className="text-[16px] font-semibold leading-[22px] tracking-[-0.012em] hover:underline">{person.username}</Link>
+          <p className="mt-0.5 text-[13px] leading-[18px] text-[var(--bc-muted)]">{ROLE_LABELS[person.role]}</p>
 
-            {person.reasons.length > 0 ? <p className="mt-2.5 max-w-3xl border-l-2 border-[#c8f169] pl-2.5 text-[11px] leading-5 text-neutral-500 dark:text-neutral-400">{person.reasons.slice(0, 2).join(" — ")}</p> : null}
-            {person.avoids ? <p className="mt-2 text-[11px] text-neutral-400">Nie szuka: {person.avoids}</p> : null}
+          <h3 className="mt-3 text-[14px] font-medium leading-5 text-[var(--bc-ink)]">{person.headline}</h3>
+          <p className="mt-1.5 max-w-[680px] text-[13px] leading-5 text-[var(--bc-muted)]">{person.wantsToBuild}</p>
+
+          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 text-[12px] leading-4 text-[var(--bc-muted)]">
+            <span>{LEVEL_LABELS[person.level]}</span>
+            <span>{COMMITMENT_LABELS[person.weeklyHours]}</span>
+            <span>Ekipa {person.preferredCrewSize} os.</span>
           </div>
+
+          {technologies.length > 0 ? (
+            <p className="mt-3 text-[13px] leading-5 text-[var(--bc-ink)]">{technologies.join(" · ")}{remainingTechnologies > 0 ? ` +${remainingTechnologies}` : ""}</p>
+          ) : null}
+
+          {person.reasons.length > 0 ? (
+            <div className="mt-3 max-w-[680px] text-[12px] leading-5">
+              <span className="font-medium text-[var(--bc-ink)]">Dlaczego warto porozmawiać: </span>
+              <span className="text-[var(--bc-muted)]">{person.reasons.slice(0, 2).join(" · ")}</span>
+            </div>
+          ) : null}
+          {person.avoids ? <p className="mt-2 text-[11px] text-[var(--bc-faint)]">Nie szuka: {person.avoids}</p> : null}
         </div>
 
-        <div className="flex items-center justify-between gap-3 pl-[54px] lg:flex-col lg:items-end lg:justify-between lg:pl-0">
-          <div className="text-left lg:text-right">
-            <p className="text-[18px] font-semibold tabular-nums tracking-[-0.02em]">{Math.min(100, Math.max(0, person.matchScore))}%</p>
-            <p className="text-[10px] text-neutral-400">dopasowania</p>
-          </div>
+        <div className="pl-16 sm:col-start-2 sm:pl-0 lg:col-start-3 lg:row-start-1 lg:text-right">
+          <p className={`text-[22px] font-semibold leading-7 tabular-nums tracking-[-0.025em] ${strongMatch ? "text-[#a6cf47] dark:text-[#c8f169]" : "text-[var(--bc-ink)]"}`}>{score}%</p>
+          <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">match</p>
+        </div>
+
+        <div className="flex items-start gap-3 pl-16 sm:col-start-2 sm:pl-0 lg:col-start-4 lg:row-start-1 lg:justify-end">
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button size="sm">{myCrewId ? "Zaproś do ekipy" : "Napisz"}</Button></DialogTrigger>
+            <DialogTrigger asChild><Button size="sm">{myCrewId ? "Zaproś" : "Napisz"}</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{myCrewId ? `Zaproś ${person.username} do ekipy` : `Napisz do ${person.username}`}</DialogTitle>

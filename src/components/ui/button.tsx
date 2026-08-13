@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-[6px] border text-sm font-medium transition-[background-color,border-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f4f4ef] disabled:pointer-events-none disabled:opacity-45 cursor-pointer dark:focus-visible:ring-lime-300 dark:focus-visible:ring-offset-[#11110f]",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-[6px] border text-sm font-medium transition-[background-color,border-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f4f4ef] disabled:pointer-events-none disabled:opacity-45 cursor-pointer dark:focus-visible:ring-lime-300 dark:focus-visible:ring-offset-[var(--bc-canvas)]",
   {
     variants: {
       variant: {
@@ -13,7 +13,7 @@ const buttonVariants = cva(
         secondary:
           "border-[#b8df58] bg-[#c8f169] text-neutral-950 hover:bg-[#d4f58b] dark:border-lime-300 dark:bg-lime-300 dark:text-neutral-950 dark:hover:bg-lime-200",
         outline:
-          "border-[#c9c9c1] bg-white text-neutral-900 hover:border-neutral-500 hover:bg-[#fafaf7] dark:border-neutral-700 dark:bg-[#171715] dark:text-neutral-100 dark:hover:border-neutral-500 dark:hover:bg-[#20201d]",
+          "border-[#c9c9c1] bg-white text-neutral-900 hover:border-neutral-500 hover:bg-[#fafaf7] dark:border-[var(--bc-line)] dark:bg-[var(--bc-surface)] dark:text-neutral-100 dark:hover:border-neutral-500 dark:hover:bg-[var(--bc-surface-hover)]",
         ghost:
           "border-transparent bg-transparent text-neutral-700 hover:bg-black/[0.045] hover:text-neutral-950 dark:text-neutral-300 dark:hover:bg-white/[0.06] dark:hover:text-white",
         destructive: "border-red-700 bg-red-700 text-white hover:bg-red-800",

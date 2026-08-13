@@ -28,6 +28,13 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
   if (params.skill) builders = builders.filter((b) => b.skills.includes(params.skill!));
   if (params.level) builders = builders.filter((b) => b.level === params.level);
   if (params.interest) builders = builders.filter((b) => b.interests.includes(params.interest!));
+  if (params.q) {
+    const query = params.q.trim().toLowerCase();
+    builders = builders.filter((b) => {
+      const roleLabel = b.role ? ROLE_LABELS[b.role as RoleType] : "";
+      return [b.username, roleLabel, ...b.skills, ...b.interests].some((value) => value.toLowerCase().includes(query));
+    });
+  }
 
   const ranked = builders
     .map((builder) => {
@@ -57,26 +64,33 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <Topbar title="Builderzy" subtitle="Ludzie otwarci na wspólne projekty." />
+      <Topbar title="Builderzy" subtitle="Znajdź osoby, z którymi warto rozpocząć rozmowę. Najpierw pokazujemy role, dostępność, technologie i powód dopasowania." />
 
-      <div className="mb-5 border-l-2 border-[#c8f169] pl-4 text-[12px] leading-5 text-neutral-500 dark:text-neutral-400">
-        Dopasowanie uwzględnia rolę, zainteresowania, dostępność, cel i poziom. Traktuj je jako podpowiedź do rozpoczęcia rozmowy.
+      <div className="mb-5 flex max-w-[820px] items-start gap-3 border-l-2 border-[#c8f169] pl-4 text-[12px] leading-5 text-[var(--bc-muted)]">
+        <p><span className="font-medium text-[var(--bc-ink)]">Jak działa match:</span> bierzemy pod uwagę rolę, zainteresowania, dostępność, cel i poziom. Procent jest wskazówką — najważniejsze powody dopasowania zobaczysz przy każdej osobie.</p>
       </div>
 
-      <FilterBar filters={[
-        { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
-        { key: "skill", label: "Umiejętność", options: Object.values(SKILL_GROUPS).flat().map((s) => ({ value: s, label: s })) },
-        { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
-        { key: "interest", label: "Chce budować", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
-      ]} />
+      <FilterBar
+        showSearch
+        searchPlaceholder="Szukaj po nicku, roli lub technologii"
+        filters={[
+          { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
+          { key: "skill", label: "Umiejętność", options: Object.values(SKILL_GROUPS).flat().map((s) => ({ value: s, label: s })) },
+          { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
+          { key: "interest", label: "Chce budować", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
+        ]}
+      />
 
       {ranked.length === 0 ? (
         <EmptyState className="mt-6" title="Nie znaleźliśmy osób pasujących do filtrów." description="Zmień filtry albo wystaw się w Build Pool." ctaLabel="Przejdź do Build Pool" ctaHref="/build" />
       ) : (
-        <>
-          <div className="mt-7 flex items-center justify-between border-b border-[#d8d8d0] pb-2 text-[11px] text-neutral-400 dark:border-neutral-700">
-            <span>Najlepsze dopasowania</span>
-            <span>{ranked.length} {ranked.length === 1 ? "osoba" : "osób"}</span>
+        <section className="mt-8">
+          <div className="flex items-end justify-between gap-5 pb-3">
+            <div>
+              <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Najlepsze dopasowania</h2>
+              <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Najpierw pokazujemy osoby z największą liczbą wspólnych sygnałów.</p>
+            </div>
+            <span className="shrink-0 text-[12px] tabular-nums text-[var(--bc-faint)]">{ranked.length} {ranked.length === 1 ? "osoba" : "osób"}</span>
           </div>
           <div>
             {ranked.map(({ builder: b, score, reasons }) => (
@@ -99,7 +113,7 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
               />
             ))}
           </div>
-        </>
+        </section>
       )}
     </div>
   );

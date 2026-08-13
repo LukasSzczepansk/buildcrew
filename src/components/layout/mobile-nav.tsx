@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 export function MobileNav({ unreadMessages = 0 }: { unreadMessages?: number }) {
   const pathname = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8d8d0] bg-[#fafaf7]/95 px-1 py-1.5 backdrop-blur-md dark:border-neutral-700 dark:bg-[#151513]/95 lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8d8d0] bg-[#fafaf7]/95 px-1 py-1.5 backdrop-blur-md dark:border-[var(--bc-line)] dark:bg-[#121211]/95 lg:hidden">
       {NAV_ITEMS.map((item) => {
         const active = pathname === item.href || pathname.startsWith(item.href + "/");
         const Icon = item.icon;

@@ -83,7 +83,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-[224px] shrink-0 flex-col border-r border-[#d8d8d0] bg-[#efefe9] px-4 py-5 dark:border-[#34342f] dark:bg-[#151513] lg:flex">
+    <aside className="sticky top-0 hidden h-dvh w-[224px] shrink-0 flex-col border-r border-[#d8d8d0] bg-[#efefe9] px-4 py-5 dark:border-[var(--bc-line)] dark:bg-[var(--bc-surface)] lg:flex">
       <Link href="/dashboard" className="mb-8 flex items-center gap-2 px-1 text-[18px] font-semibold tracking-[-0.025em]">
         <span className="h-4 w-[5px] bg-[#c8f169] ring-1 ring-black/10" />
         BuildCrew
@@ -95,7 +95,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
       </div>
 
       {admin ? (
-        <div className="mt-7 border-t border-[#d8d8d0] pt-4 dark:border-neutral-700">
+        <div className="mt-7 border-t border-[#d8d8d0] pt-4 dark:border-[var(--bc-line)]">
           <Link
             href="/admin"
             className={cn(
@@ -125,7 +125,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
         <Link href="/help" className="inline-flex items-center gap-1 hover:text-neutral-950 hover:underline dark:hover:text-white"><CircleHelp className="h-3.5 w-3.5" /> Pomoc</Link>
       </div>
 
-      <div className="border-t border-[#d8d8d0] pt-3 dark:border-neutral-700">
+      <div className="border-t border-[#d8d8d0] pt-3 dark:border-[var(--bc-line)]">
         <Link href="/profile" className="flex items-center gap-2.5 rounded-[5px] px-1 py-2 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.05]">
           <Avatar emoji={avatarEmoji} size="sm" className="h-7 w-7 text-sm" />
           <div className="min-w-0 flex-1">

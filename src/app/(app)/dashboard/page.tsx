@@ -42,39 +42,35 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <Topbar title="Start" />
+      <Topbar title="Start" subtitle={`Dzień dobry, ${profile.username}. Tu masz najważniejsze rzeczy do sprawdzenia.`} />
 
-      <section className="grid gap-6 border-b border-[#d8d8d0] pb-8 dark:border-neutral-700 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
+      <section className="grid gap-5 border-b border-[var(--bc-line)] pb-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
-          <p className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">Dzień dobry, {profile.username}</p>
-          <h2 className="mt-2 max-w-2xl text-[26px] font-semibold leading-[1.25] tracking-[-0.025em] sm:text-[30px]">
-            Wybierz projekt albo człowieka i zacznij rozmowę.
+          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Na teraz</p>
+          <h2 className="mt-2 max-w-2xl text-[22px] font-semibold leading-7 tracking-[-0.018em] sm:text-[24px]">
+            {matchingBuilders.length > 0 || fallbackProjects.length > 0
+              ? `Masz ${matchingBuilders.length} ${matchingBuilders.length === 1 ? "osobę" : "osoby"} i ${fallbackProjects.length} ${fallbackProjects.length === 1 ? "projekt" : "projekty"} warte sprawdzenia.`
+              : "Nie ma teraz nowych dopasowań. Możesz rozpocząć od własnego projektu albo Build Pool."}
           </h2>
         </div>
-        <div className="grid grid-cols-3 divide-x divide-[#d8d8d0] border-y border-[#d8d8d0] py-3 text-center dark:divide-neutral-700 dark:border-neutral-700 lg:border-y-0 lg:py-0">
-          <Stat value={String(fallbackProjects.length)} label="projekty" />
-          <Stat value={String(matchingBuilders.length)} label="osoby" />
-          <Stat value="3" label="drogi startu" />
+
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] font-medium">
+          <Link href="/builders" className="underline decoration-[#c8f169] decoration-[3px] underline-offset-4 hover:decoration-[var(--bc-ink)]">Znajdź ludzi</Link>
+          <Link href="/projects" className="text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Przeglądaj projekty</Link>
+          <Link href="/projects/new" className="text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Dodaj projekt</Link>
         </div>
       </section>
 
-      <nav className="flex flex-wrap gap-x-6 gap-y-2 border-b border-[#d8d8d0] py-4 text-[13px] font-medium dark:border-neutral-700">
-        <Link href="/projects/new" className="underline decoration-[#c8f169] decoration-[3px] underline-offset-4 hover:decoration-neutral-950 dark:hover:decoration-white">Dodaj projekt</Link>
-        <Link href="/projects" className="text-neutral-600 hover:text-neutral-950 hover:underline dark:text-neutral-400 dark:hover:text-white">Przeglądaj projekty</Link>
-        <Link href="/build" className="text-neutral-600 hover:text-neutral-950 hover:underline dark:text-neutral-400 dark:hover:text-white">Wejdź do Build Pool</Link>
-        <Link href="/builders" className="text-neutral-600 hover:text-neutral-950 hover:underline dark:text-neutral-400 dark:hover:text-white">Znajdź ludzi</Link>
-      </nav>
-
       {isAiContestActive() ? (
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mt-7 flex items-center justify-between gap-4 border-l-2 border-[#c8f169] pl-4 text-[12px] text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
-          <span><strong className="font-semibold text-neutral-800 dark:text-neutral-200">{AI_CONTEST.title}</strong> · do {AI_CONTEST.deadlineLabel}</span>
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-between gap-4 border-l-2 border-[#c8f169] pl-4 text-[12px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">
+          <span><strong className="font-semibold text-[var(--bc-ink)]">{AI_CONTEST.title}</strong> · do {AI_CONTEST.deadlineLabel}</span>
           <span className="inline-flex items-center gap-1 font-medium">Discord <ExternalLink className="h-3 w-3" /></span>
         </a>
       ) : null}
 
       {matchingBuilders.length > 0 ? (
         <section className="mt-10">
-          <SectionHeading title="Ludzie do rozmowy" description="Najbliższe dopasowania do Twojego profilu." href="/builders" label="Wszyscy builderzy" />
+          <SectionHeading title="Ludzie do rozmowy" description="Najbliższe dopasowania do Twojego profilu — wraz z powodem, dlaczego warto się odezwać." href="/builders" label="Wszyscy builderzy" />
           <div className="mt-4">
             {matchingBuilders.map(({ builder, match }) => (
               <BuilderCard
@@ -89,35 +85,34 @@ export default async function DashboardPage() {
       ) : null}
 
       <section className="mt-10">
-        <SectionHeading title="Otwarte projekty" description="Projekty, które aktualnie szukają ludzi." href="/projects" label="Wszystkie projekty" />
+        <SectionHeading title="Otwarte projekty" description="Projekty, które aktualnie szukają ludzi i pasują do Twojego profilu." href="/projects" label="Wszystkie projekty" />
         {fallbackProjects.length > 0 ? (
           <div className="mt-4">{fallbackProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
         ) : (
-          <div className="mt-4 border-y border-[#d8d8d0] py-8 text-sm text-neutral-500 dark:border-neutral-700">Brak otwartych projektów. Możesz dodać własny albo wejść do Build Pool.</div>
+          <div className="mt-4 border-y border-[var(--bc-line)] py-8 text-sm text-[var(--bc-muted)]">Brak otwartych projektów. Możesz dodać własny albo wejść do Build Pool.</div>
         )}
       </section>
 
-      <section className="mt-10 border-t border-[#d8d8d0] pt-6 dark:border-neutral-700">
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[13px] font-medium text-neutral-600 hover:text-neutral-950 hover:underline dark:text-neutral-400 dark:hover:text-white">
-          <MessageCircle className="h-3.5 w-3.5" /> Społeczność na Discordzie <ArrowRight className="h-3.5 w-3.5" />
+      <section className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[var(--bc-line)] pt-6">
+        <Link href="/build" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-ink)] hover:underline">
+          Build Pool <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[13px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">
+          <MessageCircle className="h-3.5 w-3.5" /> Discord
         </a>
       </section>
     </div>
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return <div><p className="text-[18px] font-semibold tabular-nums tracking-[-0.02em]">{value}</p><p className="mt-0.5 text-[10px] text-neutral-400">{label}</p></div>;
-}
-
 function SectionHeading({ title, description, href, label }: { title: string; description: string; href: string; label: string }) {
   return (
     <div className="flex items-end justify-between gap-5">
       <div>
-        <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{title}</h2>
-        <p className="mt-1 text-[12px] text-neutral-500 dark:text-neutral-400">{description}</p>
+        <h2 className="text-[20px] font-semibold leading-7 tracking-[-0.015em]">{title}</h2>
+        <p className="mt-1 max-w-[680px] text-[12px] leading-5 text-[var(--bc-muted)]">{description}</p>
       </div>
-      <Link href={href} className="hidden items-center gap-1.5 text-[12px] font-medium text-neutral-600 hover:text-neutral-950 hover:underline sm:inline-flex dark:text-neutral-400 dark:hover:text-white">{label} <ArrowRight className="h-3.5 w-3.5" /></Link>
+      <Link href={href} className="hidden shrink-0 items-center gap-1.5 text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline sm:inline-flex">{label} <ArrowRight className="h-3.5 w-3.5" /></Link>
     </div>
   );
 }

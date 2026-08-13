@@ -28,25 +28,21 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <Topbar title="Projekty" subtitle="Aktywne projekty, które szukają współtwórców." />
+      <Topbar title="Projekty" subtitle="Znajdź projekt, który potrzebuje Twojej roli. Najpierw sprawdź stage, stack, kogo szukają i ile czasu wymaga projekt." />
 
-      <div className="pb-5">
+      <div className="pb-2">
         <FilterBar
           showSearch
+          searchPlaceholder="Szukaj po nazwie lub technologii"
           filters={[
             { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
             { key: "technology", label: "Technologia", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
+            { key: "stage", label: "Etap", options: Object.entries(STAGE_LABELS).map(([value, label]) => ({ value, label })) },
             { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
             { key: "interest", label: "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
             { key: "commitment", label: "Czas", options: Object.entries(COMMITMENT_LABELS).map(([value, label]) => ({ value, label })) },
-            { key: "stage", label: "Etap", options: Object.entries(STAGE_LABELS).map(([value, label]) => ({ value, label })) },
           ]}
         />
-      </div>
-
-      <div className="flex items-center justify-between border-b border-[#d8d8d0] pb-2 text-[11px] text-neutral-400 dark:border-neutral-700">
-        <span>{projects.length} {projects.length === 1 ? "projekt" : "projektów"}</span>
-        <span className="hidden sm:inline">Nazwa · role · technologie · zespół</span>
       </div>
 
       {projects.length === 0 ? (
@@ -58,7 +54,16 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
           ctaHref="/build"
         />
       ) : (
-        <div>{projects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
+        <section className="mt-6">
+          <div className="flex items-end justify-between gap-5 pb-3">
+            <div>
+              <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Projekty otwarte na ludzi</h2>
+              <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Najpierw sprawdź, kogo szukają i ile czasu wymaga projekt.</p>
+            </div>
+            <span className="shrink-0 text-[12px] tabular-nums text-[var(--bc-faint)]">{projects.length} {projects.length === 1 ? "projekt" : "projektów"}</span>
+          </div>
+          <div>{projects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
+        </section>
       )}
     </div>
   );
