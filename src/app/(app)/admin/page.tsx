@@ -32,7 +32,7 @@ export default async function AdminPage() {
               <h2 className="font-semibold">Najnowsze zgłoszenia</h2>
               <p className="text-xs text-neutral-400">Priorytet dla moderacji.</p>
             </div>
-            <Link href="/admin/reports" className="text-sm font-medium text-violet-600 hover:underline dark:text-violet-400">Zobacz wszystkie</Link>
+            <Link href="/admin/reports" className="text-sm font-medium text-lime-600 hover:underline dark:text-lime-400">Zobacz wszystkie</Link>
           </div>
           <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
             {data.recentReports.length ? data.recentReports.map((report) => (
@@ -56,7 +56,7 @@ export default async function AdminPage() {
               <h2 className="font-semibold">Nowi użytkownicy</h2>
               <p className="text-xs text-neutral-400">Ostatnie utworzone konta.</p>
             </div>
-            <Link href="/admin/users" className="text-sm font-medium text-violet-600 hover:underline dark:text-violet-400">Użytkownicy</Link>
+            <Link href="/admin/users" className="text-sm font-medium text-lime-600 hover:underline dark:text-lime-400">Użytkownicy</Link>
           </div>
           <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
             {data.recentUsers.map((user) => (
@@ -81,7 +81,7 @@ export default async function AdminPage() {
             <h2 className="font-semibold">Ostatnie działania administratorów</h2>
             <p className="text-xs text-neutral-400">Log zmian wykonanych z panelu.</p>
           </div>
-          <Link href="/admin/activity" className="text-sm font-medium text-violet-600 hover:underline dark:text-violet-400">Pełny log</Link>
+          <Link href="/admin/activity" className="text-sm font-medium text-lime-600 hover:underline dark:text-lime-400">Pełny log</Link>
         </div>
         <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
           {data.recentEvents.length ? data.recentEvents.map((event) => (

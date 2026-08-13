@@ -1,24 +1,21 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Hammer } from "lucide-react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-50 via-white to-indigo-50 px-4 dark:from-neutral-950 dark:via-neutral-950 dark:to-neutral-900">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex justify-center">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white shadow-md shadow-violet-600/30">
-              🛠️
-            </span>
+    <div className="min-h-screen bg-[#f7f7f3] px-4 py-10 dark:bg-neutral-950">
+      <div className="mx-auto w-full max-w-md">
+        <div className="mb-10 flex justify-center">
+          <Link href="/" className="flex items-center gap-2.5 text-xl font-bold tracking-[-0.04em]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-sm bg-lime-300 text-neutral-950"><Hammer className="h-4 w-4" strokeWidth={2.5} /></span>
             BuildCrew
           </Link>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-          {children}
-        </div>
-        <div className="mt-5 flex items-center justify-center gap-4 text-xs text-neutral-400">
-          <Link href="/regulamin" className="hover:text-neutral-600 dark:hover:text-neutral-200">Regulamin</Link>
-          <Link href="/polityka-prywatnosci" className="hover:text-neutral-600 dark:hover:text-neutral-200">Polityka prywatności</Link>
+        <div className="border border-neutral-300 bg-white p-7 dark:border-neutral-800 dark:bg-neutral-950 sm:p-8">{children}</div>
+        <div className="mt-6 flex items-center justify-center gap-4 text-xs text-neutral-400">
+          <Link href="/regulamin" className="hover:text-neutral-700 dark:hover:text-neutral-200">Regulamin</Link>
+          <Link href="/polityka-prywatnosci" className="hover:text-neutral-700 dark:hover:text-neutral-200">Polityka prywatności</Link>
         </div>
       </div>
     </div>

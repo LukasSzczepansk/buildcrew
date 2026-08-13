@@ -57,7 +57,7 @@ export function ApplyDialog({
           <DialogDescription>To nie rozmowa o pracę. Autor pomysłu zobaczy Twój profil i krótką wiadomość o tym, co chcesz wnieść do wspólnego projektu.</DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-xl bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
+        <div className="rounded-[6px] bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Twoje dane</p>
           <div className="flex flex-col gap-1.5">
             <p>

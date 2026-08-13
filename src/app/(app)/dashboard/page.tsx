@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, ExternalLink, MessageCircle, Rocket, Search, Sparkles, Trophy, Users } from "lucide-react";
+import { ArrowRight, ExternalLink, MessageCircle } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/projects/project-card";
 import { BuilderCard } from "@/components/builders/builder-card";
 import { getCurrentUser } from "@/lib/auth";
@@ -25,10 +23,10 @@ export default async function DashboardPage() {
   const [allProjects, allBuilders] = await Promise.all([listProjects(), listBuilderProfiles(user.id)]);
 
   const matchingProjects = allProjects
-    .filter((p) => p.ownerId !== user.id)
-    .filter((p) => p.openRoles.some((r) => r.roleType === profile.role) || p.interests.some((i) => profile.interests.includes(i)))
-    .slice(0, 3);
-  const fallbackProjects = matchingProjects.length > 0 ? matchingProjects : allProjects.filter((p) => p.ownerId !== user.id).slice(0, 3);
+    .filter((project) => project.ownerId !== user.id)
+    .filter((project) => project.openRoles.some((role) => role.roleType === profile.role) || project.interests.some((interest) => profile.interests.includes(interest)))
+    .slice(0, 4);
+  const fallbackProjects = matchingProjects.length > 0 ? matchingProjects : allProjects.filter((project) => project.ownerId !== user.id).slice(0, 4);
 
   const matchingBuilders = allBuilders
     .filter((builder) => builder.onboardingCompleted)
@@ -44,76 +42,82 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <Topbar />
-      <div className="flex flex-col gap-5 rounded-3xl border border-violet-200 bg-gradient-to-br from-violet-50 to-white p-6 dark:border-violet-500/20 dark:from-violet-500/10 dark:to-neutral-950 sm:flex-row sm:items-center sm:justify-between">
+      <Topbar title="Start" />
+
+      <section className="grid gap-6 border-b border-[#d8d8d0] pb-8 dark:border-neutral-700 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
         <div>
-          <p className="text-sm font-semibold text-violet-600 dark:text-violet-400">Cześć, {profile.username}! 👋</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Nie potrzebujesz gotowego projektu. Potrzebujesz ludzi, z którymi możesz go stworzyć.</h1>
-          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">Wybierz, na jakim etapie jesteś. BuildCrew ma pomóc Ci dojść od „chcę coś zrobić” do małej ekipy, która naprawdę zaczyna budować.</p>
+          <p className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">Dzień dobry, {profile.username}</p>
+          <h2 className="mt-2 max-w-2xl text-[26px] font-semibold leading-[1.25] tracking-[-0.025em] sm:text-[30px]">
+            Wybierz projekt albo człowieka i zacznij rozmowę.
+          </h2>
         </div>
-        <Button asChild size="lg" className="shrink-0 gap-2"><Link href="/build"><Users className="h-4 w-4" /> Znajdź mi ekipę</Link></Button>
-      </div>
+        <div className="grid grid-cols-3 divide-x divide-[#d8d8d0] border-y border-[#d8d8d0] py-3 text-center dark:divide-neutral-700 dark:border-neutral-700 lg:border-y-0 lg:py-0">
+          <Stat value={String(fallbackProjects.length)} label="projekty" />
+          <Stat value={String(matchingBuilders.length)} label="osoby" />
+          <Stat value="3" label="drogi startu" />
+        </div>
+      </section>
+
+      <nav className="flex flex-wrap gap-x-6 gap-y-2 border-b border-[#d8d8d0] py-4 text-[13px] font-medium dark:border-neutral-700">
+        <Link href="/projects/new" className="underline decoration-[#c8f169] decoration-[3px] underline-offset-4 hover:decoration-neutral-950 dark:hover:decoration-white">Dodaj projekt</Link>
+        <Link href="/projects" className="text-neutral-600 hover:text-neutral-950 hover:underline dark:text-neutral-400 dark:hover:text-white">Przeglądaj projekty</Link>
+        <Link href="/build" className="text-neutral-600 hover:text-neutral-950 hover:underline dark:text-neutral-400 dark:hover:text-white">Wejdź do Build Pool</Link>
+        <Link href="/builders" className="text-neutral-600 hover:text-neutral-950 hover:underline dark:text-neutral-400 dark:hover:text-white">Znajdź ludzi</Link>
+      </nav>
 
       {isAiContestActive() ? (
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mt-5 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"><Trophy className="h-4 w-4" /></span>
-            <div><p className="text-sm font-semibold">{AI_CONTEST.title} na Discordzie</p><p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-300">Trwa do {AI_CONTEST.deadlineLabel}. Aktualne szczegóły i zasady znajdziesz na serwerze BuildCrew.</p></div>
-          </div>
-          <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-amber-900 dark:text-amber-200"><MessageCircle className="h-4 w-4" /> Discord <ExternalLink className="h-3.5 w-3.5" /></span>
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mt-7 flex items-center justify-between gap-4 border-l-2 border-[#c8f169] pl-4 text-[12px] text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
+          <span><strong className="font-semibold text-neutral-800 dark:text-neutral-200">{AI_CONTEST.title}</strong> · do {AI_CONTEST.deadlineLabel}</span>
+          <span className="inline-flex items-center gap-1 font-medium">Discord <ExternalLink className="h-3 w-3" /></span>
         </a>
       ) : null}
 
-      <div className="mt-8 grid gap-5 sm:grid-cols-3">
-        <BigActionCard emoji="💡" title="Mam pomysł" description="Znajdź współtwórców, nie wykonawców." cta="Dodaj projekt" href="/projects/new" />
-        <BigActionCard emoji="🔎" title="Chcę dołączyć" description="Znajdź ekipę, której kierunek Ci odpowiada." cta="Przeglądaj projekty" href="/projects" />
-        <BigActionCard emoji="🤝" title="Chcę coś zbudować" description="Nie musisz mieć pomysłu. Zacznij od ludzi." cta="Wejdź do Build Pool" href="/build" />
-      </div>
-
       {matchingBuilders.length > 0 ? (
-        <div className="mt-12">
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight"><Sparkles className="h-4 w-4 text-violet-600" /> Ludzie, z którymi możesz coś zacząć</h2>
-              <p className="mt-1 text-sm text-neutral-400">Dopasowanie z obecnych danych Twojego profilu.</p>
-            </div>
-            <Link href="/builders" className="flex items-center gap-1 text-sm font-medium text-violet-600 hover:underline dark:text-violet-400">Zobacz wszystkich <ArrowRight className="h-3.5 w-3.5" /></Link>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {matchingBuilders.map(({ builder: b, match }) => (
+        <section className="mt-10">
+          <SectionHeading title="Ludzie do rozmowy" description="Najbliższe dopasowania do Twojego profilu." href="/builders" label="Wszyscy builderzy" />
+          <div className="mt-4">
+            {matchingBuilders.map(({ builder, match }) => (
               <BuilderCard
-                key={b.userId}
+                key={builder.userId}
                 matchScore={match.score}
                 matchReasons={match.reasons}
-                builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, lastActiveAt: b.lastActiveAt }}
+                builder={{ userId: builder.userId, username: builder.username, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, lastActiveAt: builder.lastActiveAt }}
               />
             ))}
           </div>
-        </div>
+        </section>
       ) : null}
 
-      <div className="mt-12">
-        <div className="mb-4 flex items-center justify-between">
-          <div><h2 className="text-lg font-semibold tracking-tight">Projekty, do których możesz dołączyć</h2><p className="mt-1 text-sm text-neutral-400">Jeśli wolisz zacząć od czegoś, co już powstaje.</p></div>
-          <Link href="/projects" className="flex items-center gap-1 text-sm font-medium text-violet-600 hover:underline dark:text-violet-400">Zobacz wszystkie <ArrowRight className="h-3.5 w-3.5" /></Link>
-        </div>
+      <section className="mt-10">
+        <SectionHeading title="Otwarte projekty" description="Projekty, które aktualnie szukają ludzi." href="/projects" label="Wszystkie projekty" />
         {fallbackProjects.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{fallbackProjects.map((p) => <ProjectCard key={p.id} project={p} />)}</div>
+          <div className="mt-4">{fallbackProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
         ) : (
-          <Card className="p-10 text-center text-sm text-neutral-400">Nie ma jeszcze projektu dla Ciebie. To dobry moment, żeby wejść do Build Pool i zacząć od znalezienia ludzi.</Card>
+          <div className="mt-4 border-y border-[#d8d8d0] py-8 text-sm text-neutral-500 dark:border-neutral-700">Brak otwartych projektów. Możesz dodać własny albo wejść do Build Pool.</div>
         )}
-      </div>
+      </section>
+
+      <section className="mt-10 border-t border-[#d8d8d0] pt-6 dark:border-neutral-700">
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[13px] font-medium text-neutral-600 hover:text-neutral-950 hover:underline dark:text-neutral-400 dark:hover:text-white">
+          <MessageCircle className="h-3.5 w-3.5" /> Społeczność na Discordzie <ArrowRight className="h-3.5 w-3.5" />
+        </a>
+      </section>
     </div>
   );
 }
 
-function BigActionCard({ emoji, title, description, cta, href }: { emoji: string; title: string; description: string; cta: string; href: string }) {
-  const icon = title.includes("Mam pomysł") ? Rocket : title.includes("dołączyć") ? Search : Sparkles;
-  const Icon = icon;
+function Stat({ value, label }: { value: string; label: string }) {
+  return <div><p className="text-[18px] font-semibold tabular-nums tracking-[-0.02em]">{value}</p><p className="mt-0.5 text-[10px] text-neutral-400">{label}</p></div>;
+}
+
+function SectionHeading({ title, description, href, label }: { title: string; description: string; href: string; label: string }) {
   return (
-    <Card className="flex flex-col justify-between gap-4 bg-gradient-to-br from-white to-violet-50/40 p-6 transition-all hover:-translate-y-0.5 hover:shadow-md dark:from-neutral-900 dark:to-violet-950/20">
-      <div><div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-100 text-xl dark:bg-violet-500/10">{emoji}</div><h3 className="font-semibold tracking-tight">{title}</h3><p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">{description}</p></div>
-      <Button asChild className="w-full gap-2"><Link href={href}><Icon className="h-4 w-4" /> {cta}</Link></Button>
-    </Card>
+    <div className="flex items-end justify-between gap-5">
+      <div>
+        <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{title}</h2>
+        <p className="mt-1 text-[12px] text-neutral-500 dark:text-neutral-400">{description}</p>
+      </div>
+      <Link href={href} className="hidden items-center gap-1.5 text-[12px] font-medium text-neutral-600 hover:text-neutral-950 hover:underline sm:inline-flex dark:text-neutral-400 dark:hover:text-white">{label} <ArrowRight className="h-3.5 w-3.5" /></Link>
+    </div>
   );
 }

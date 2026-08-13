@@ -72,7 +72,7 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               </div>
             </div>
 
-            {profile.isDemo ? <div className="mt-5 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/60">Profil demonstracyjny używany do przykładowej zawartości Showcase.</div> : null}
+            {profile.isDemo ? <div className="mt-5 rounded-[6px] border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/60">Profil demonstracyjny używany do przykładowej zawartości Showcase.</div> : null}
             {profile.bio && <p className="mt-6 text-neutral-600 dark:text-neutral-300">{profile.bio}</p>}
 
             <div className="mt-6 grid gap-6 sm:grid-cols-2">
@@ -131,7 +131,7 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Co faktycznie zbudował</p>
               <div className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
                 {showcaseEntries.map((entry) => (
-                  <Link key={entry.id} href={`/showcase/${entry.id}`} className="flex items-center justify-between py-3 text-sm hover:text-violet-600">
+                  <Link key={entry.id} href={`/showcase/${entry.id}`} className="flex items-center justify-between py-3 text-sm hover:text-lime-600">
                     <span className="font-medium">{entry.title}</span>
                     <span className="text-neutral-400">🚀 {entry.reactionCounts.POTENTIAL} · 💬 {entry.feedbackCount}</span>
                   </Link>
@@ -144,7 +144,7 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Projekty</p>
               <div className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
                 {projects.map((p) => (
-                  <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between py-3 text-sm hover:text-violet-600">
+                  <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between py-3 text-sm hover:text-lime-600">
                     <span className="font-medium">{p.name}</span>
                     <span className="text-neutral-400">{p.relation}</span>
                   </Link>
@@ -182,17 +182,17 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Linki</p>
               <div className="flex flex-col gap-2 text-sm">
                 {profile.githubUrl && (
-                  <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-violet-600 hover:underline dark:text-violet-400">
+                  <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-600 hover:underline dark:text-lime-400">
                     <Link2 className="h-4 w-4" /> GitHub
                   </a>
                 )}
                 {profile.portfolioUrl && (
-                  <a href={profile.portfolioUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-violet-600 hover:underline dark:text-violet-400">
+                  <a href={profile.portfolioUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-600 hover:underline dark:text-lime-400">
                     <Globe className="h-4 w-4" /> Portfolio
                   </a>
                 )}
                 {profile.linkedinUrl && (
-                  <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-violet-600 hover:underline dark:text-violet-400">
+                  <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-600 hover:underline dark:text-lime-400">
                     <Link2 className="h-4 w-4" /> LinkedIn
                   </a>
                 )}

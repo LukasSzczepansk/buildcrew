@@ -141,7 +141,7 @@ export function OnboardingWizard() {
         <Progress value={(step / TOTAL_STEPS) * 100} />
       </div>
 
-      <div className="animate-fade-in rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="animate-fade-in rounded-lg border border-neutral-300 bg-white p-8 dark:border-neutral-800 dark:bg-neutral-900">
         {step === 1 && (
           <StepShell title="Jak mamy Cię nazywać?" subtitle="Wybierz nick. Nie wymagamy prawdziwego imienia i nazwiska.">
             <div className="flex flex-col gap-1.5">
@@ -204,10 +204,10 @@ export function OnboardingWizard() {
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, level }))}
                   className={cn(
-                    "rounded-xl border p-4 text-left transition-colors",
+                    "rounded-[6px] border p-4 text-left transition-colors",
                     form.level === level
-                      ? "border-violet-500 bg-violet-50 dark:bg-violet-500/10"
-                      : "border-neutral-200 hover:border-violet-300 dark:border-neutral-700",
+                      ? "border-lime-500 bg-lime-50 dark:bg-lime-500/10"
+                      : "border-neutral-200 hover:border-lime-300 dark:border-neutral-700",
                   )}
                 >
                   <p className="font-medium">{LEVEL_LABELS[level]}</p>
@@ -270,10 +270,10 @@ export function OnboardingWizard() {
                 <label
                   key={option}
                   className={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors",
+                    "flex cursor-pointer items-center gap-3 rounded-[6px] border p-4 transition-colors",
                     form.lookingFor.includes(option)
-                      ? "border-violet-500 bg-violet-50 dark:bg-violet-500/10"
-                      : "border-neutral-200 hover:border-violet-300 dark:border-neutral-700",
+                      ? "border-lime-500 bg-lime-50 dark:bg-lime-500/10"
+                      : "border-neutral-200 hover:border-lime-300 dark:border-neutral-700",
                   )}
                 >
                   <Checkbox
@@ -369,10 +369,10 @@ function SelectableTile({ active, label, onClick }: { active: boolean; label: st
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-xl border p-3 text-center text-sm font-medium transition-colors",
+        "rounded-[6px] border p-3 text-center text-sm font-medium transition-colors",
         active
-          ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"
-          : "border-neutral-200 hover:border-violet-300 dark:border-neutral-700",
+          ? "border-lime-500 bg-lime-50 text-lime-700 dark:bg-lime-500/10 dark:text-lime-300"
+          : "border-neutral-200 hover:border-lime-300 dark:border-neutral-700",
       )}
     >
       {label}
@@ -388,8 +388,8 @@ function TagToggle({ active, label, onClick }: { active: boolean; label: string;
       className={cn(
         "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
         active
-          ? "border-violet-500 bg-violet-600 text-white"
-          : "border-neutral-200 bg-white text-neutral-600 hover:border-violet-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300",
+          ? "border-lime-500 bg-lime-600 text-white"
+          : "border-neutral-200 bg-white text-neutral-600 hover:border-lime-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300",
       )}
     >
       {label}

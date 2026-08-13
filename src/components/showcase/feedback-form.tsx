@@ -24,7 +24,7 @@ export function ShowcaseFeedbackForm({ entryId }: { entryId: string }) {
   return <form onSubmit={submit} className="space-y-4">
     <div><Label>Co Ci się najbardziej podoba?</Label><Textarea className="mt-1.5" value={liked} onChange={(e) => setLiked(e.target.value)} maxLength={700} /></div>
     <div><Label>Co byś poprawił?</Label><Textarea className="mt-1.5" value={improve} onChange={(e) => setImprove(e.target.value)} maxLength={700} /></div>
-    <div><Label>Czy używałbyś tego projektu?</Label><div className="mt-2 grid grid-cols-3 gap-2">{([['YES','Tak'],['MAYBE','Może'],['NO','Nie']] as const).map(([value,label]) => <button type="button" key={value} onClick={() => setWouldUse(value)} className={`rounded-xl border px-3 py-2 text-sm ${wouldUse === value ? 'border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-500/10' : 'border-neutral-200 dark:border-neutral-700'}`}>{label}</button>)}</div></div>
+    <div><Label>Czy używałbyś tego projektu?</Label><div className="mt-2 grid grid-cols-3 gap-2">{([['YES','Tak'],['MAYBE','Może'],['NO','Nie']] as const).map(([value,label]) => <button type="button" key={value} onClick={() => setWouldUse(value)} className={`rounded-[6px] border px-3 py-2 text-sm ${wouldUse === value ? 'border-lime-400 bg-lime-50 text-lime-700 dark:bg-lime-500/10' : 'border-neutral-200 dark:border-neutral-700'}`}>{label}</button>)}</div></div>
     <Button type="submit" disabled={pending}>{pending ? "Wysyłanie…" : "Wyślij feedback"}</Button>
   </form>;
 }

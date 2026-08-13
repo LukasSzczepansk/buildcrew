@@ -11,11 +11,7 @@ import type { Commitment, Level, RoleType, Stage } from "@/db/schema";
 
 export const metadata: Metadata = { title: "Projekty — BuildCrew" };
 
-export default async function ProjectsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | undefined>>;
-}) {
+export default async function ProjectsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const params = await searchParams;
@@ -32,34 +28,37 @@ export default async function ProjectsPage({
 
   return (
     <div>
-      <Topbar title="Projekty" subtitle="Znajdź coś, co warto zbudować." />
+      <Topbar title="Projekty" subtitle="Aktywne projekty, które szukają współtwórców." />
 
-      <FilterBar
-        showSearch
-        filters={[
-          { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
-          { key: "technology", label: "Technologie", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
-          { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
-          { key: "interest", label: "Zainteresowania", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
-          { key: "commitment", label: "Czas w tygodniu", options: Object.entries(COMMITMENT_LABELS).map(([value, label]) => ({ value, label })) },
-          { key: "stage", label: "Etap", options: Object.entries(STAGE_LABELS).map(([value, label]) => ({ value, label })) },
-        ]}
-      />
+      <div className="pb-5">
+        <FilterBar
+          showSearch
+          filters={[
+            { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
+            { key: "technology", label: "Technologia", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
+            { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
+            { key: "interest", label: "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
+            { key: "commitment", label: "Czas", options: Object.entries(COMMITMENT_LABELS).map(([value, label]) => ({ value, label })) },
+            { key: "stage", label: "Etap", options: Object.entries(STAGE_LABELS).map(([value, label]) => ({ value, label })) },
+          ]}
+        />
+      </div>
+
+      <div className="flex items-center justify-between border-b border-[#d8d8d0] pb-2 text-[11px] text-neutral-400 dark:border-neutral-700">
+        <span>{projects.length} {projects.length === 1 ? "projekt" : "projektów"}</span>
+        <span className="hidden sm:inline">Nazwa · role · technologie · zespół</span>
+      </div>
 
       {projects.length === 0 ? (
         <EmptyState
           className="mt-6"
-          icon="🧩"
-          title="Jeszcze nic tu nie pasuje. Może zamiast czekać znajdziesz ekipę i zaczniecie od zera?"
+          title="Brak projektów pasujących do filtrów."
+          description="Zmień filtry albo zacznij od znalezienia ludzi w Build Pool."
           ctaLabel="Przejdź do Build Pool"
           ctaHref="/build"
         />
       ) : (
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((p) => (
-            <ProjectCard key={p.id} project={p} />
-          ))}
-        </div>
+        <div>{projects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
       )}
     </div>
   );

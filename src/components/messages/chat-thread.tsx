@@ -104,13 +104,13 @@ export function ChatThread({
               return (
                 <div key={message.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
                   <div className={cn(
-                    "max-w-[82%] rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+                    "max-w-[82%] rounded-[10px] px-4 py-2.5 text-sm shadow-sm",
                     mine
-                      ? "rounded-br-md bg-violet-600 text-white"
+                      ? "rounded-br-md bg-lime-600 text-white"
                       : "rounded-bl-md border border-neutral-200 bg-white text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100",
                   )}>
                     <p className="whitespace-pre-wrap break-words">{message.body}</p>
-                    <p className={cn("mt-1 text-[10px]", mine ? "text-violet-100" : "text-neutral-400")}>
+                    <p className={cn("mt-1 text-[10px]", mine ? "text-lime-100" : "text-neutral-400")}>
                       {new Date(message.createdAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}
                       {mine ? ` · ${message.readAt ? "Odczytano" : "Wysłano"}` : ""}
                     </p>

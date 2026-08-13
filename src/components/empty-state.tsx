@@ -20,18 +20,20 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/60 px-6 py-14 text-center dark:border-neutral-800 dark:bg-neutral-900/40",
+        "border-y border-[#d8d8d0] px-1 py-12 dark:border-neutral-700",
         className,
       )}
     >
-      {icon && <div className="mb-4 text-4xl">{icon}</div>}
-      <p className="max-w-sm whitespace-pre-line text-sm font-medium text-neutral-600 dark:text-neutral-300">{title}</p>
-      {description && <p className="mt-1 max-w-sm text-sm text-neutral-400">{description}</p>}
-      {ctaLabel && ctaHref && (
-        <Button asChild className="mt-5">
-          <Link href={ctaHref}>{ctaLabel}</Link>
-        </Button>
-      )}
+      <div className="max-w-lg">
+        {icon ? <div className="mb-3 text-lg grayscale">{icon}</div> : null}
+        <p className="whitespace-pre-line text-sm font-semibold text-neutral-800 dark:text-neutral-200">{title}</p>
+        {description ? <p className="mt-1.5 text-sm leading-6 text-neutral-500 dark:text-neutral-400">{description}</p> : null}
+        {ctaLabel && ctaHref ? (
+          <Button asChild size="sm" className="mt-5">
+            <Link href={ctaHref}>{ctaLabel}</Link>
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }

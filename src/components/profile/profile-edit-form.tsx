@@ -135,10 +135,10 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, level }))}
                 className={cn(
-                  "rounded-xl border p-3 text-left transition-colors",
+                  "rounded-[6px] border p-3 text-left transition-colors",
                   form.level === level
-                    ? "border-violet-500 bg-violet-50 dark:bg-violet-500/10"
-                    : "border-neutral-200 hover:border-violet-300 dark:border-neutral-700",
+                    ? "border-lime-500 bg-lime-50 dark:bg-lime-500/10"
+                    : "border-neutral-200 hover:border-lime-300 dark:border-neutral-700",
                 )}
               >
                 <span className="block text-sm font-medium">{LEVEL_LABELS[level]}</span>
@@ -262,10 +262,10 @@ function ChoiceButton({ active, onClick, children }: { active: boolean; onClick:
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-xl border px-3 py-2 text-sm font-medium transition-colors",
+        "rounded-[6px] border px-3 py-2 text-sm font-medium transition-colors",
         active
-          ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"
-          : "border-neutral-200 text-neutral-600 hover:border-violet-300 dark:border-neutral-700 dark:text-neutral-300",
+          ? "border-lime-500 bg-lime-50 text-lime-700 dark:bg-lime-500/10 dark:text-lime-300"
+          : "border-neutral-200 text-neutral-600 hover:border-lime-300 dark:border-neutral-700 dark:text-neutral-300",
       )}
     >
       {children}
@@ -281,8 +281,8 @@ function TagButton({ active, onClick, children }: { active: boolean; onClick: ()
       className={cn(
         "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
         active
-          ? "border-violet-500 bg-violet-600 text-white"
-          : "border-neutral-200 bg-white text-neutral-600 hover:border-violet-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300",
+          ? "border-lime-500 bg-lime-600 text-white"
+          : "border-neutral-200 bg-white text-neutral-600 hover:border-lime-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300",
       )}
     >
       {children}
@@ -292,7 +292,7 @@ function TagButton({ active, onClick, children }: { active: boolean; onClick: ()
 
 function CheckRow({ checked, label, onChange }: { checked: boolean; label: string; onChange: () => void }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-neutral-200 px-3 py-2.5 text-sm dark:border-neutral-700">
+    <label className="flex cursor-pointer items-center gap-2 rounded-[6px] border border-neutral-200 px-3 py-2.5 text-sm dark:border-neutral-700">
       <Checkbox checked={checked} onCheckedChange={onChange} />
       <span>{label}</span>
     </label>

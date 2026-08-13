@@ -4,7 +4,6 @@ import * as React from "react";
 import { Pause, Pencil, Plus, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -100,7 +99,7 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
   }
 
   return (
-    <Card className="mb-6 border-violet-200 bg-violet-50/50 p-5 dark:border-violet-900/60 dark:bg-violet-500/5">
+    <section className="mb-6 border-y border-[#d8d8d0] py-5 dark:border-neutral-700">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -118,7 +117,7 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
         <div className="flex flex-wrap gap-2">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2" disabled={activeCrew}>
+              <Button className="gap-1.5" disabled={activeCrew}>
                 {listing ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                 {listing ? "Edytuj" : "Wystaw się w Build Pool"}
               </Button>
@@ -192,9 +191,9 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
           </Dialog>
 
           {listing?.status === "ACTIVE" ? (
-            <Button variant="outline" className="gap-2" disabled={pending} onClick={() => handleStatus("PAUSED")}><Pause className="h-4 w-4" /> Wstrzymaj</Button>
+            <Button variant="outline" className="gap-1.5" disabled={pending} onClick={() => handleStatus("PAUSED")}><Pause className="h-4 w-4" /> Wstrzymaj</Button>
           ) : listing ? (
-            <Button variant="outline" className="gap-2" disabled={pending || activeCrew} onClick={() => handleStatus("ACTIVE")}><Power className="h-4 w-4" /> Aktywuj</Button>
+            <Button variant="outline" className="gap-1.5" disabled={pending || activeCrew} onClick={() => handleStatus("ACTIVE")}><Power className="h-4 w-4" /> Aktywuj</Button>
           ) : null}
           {listing && listing.status !== "CLOSED" ? (
             <Button variant="ghost" disabled={pending} onClick={() => handleStatus("CLOSED")}>Zamknij</Button>
@@ -204,6 +203,6 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
           ) : null}
         </div>
       </div>
-    </Card>
+    </section>
   );
 }

@@ -35,9 +35,9 @@ export function AccountSecurity({ hasPassword }: { hasPassword: boolean }) {
             </form>
           </>
         ) : (
-          <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-900 dark:border-violet-500/20 dark:bg-violet-500/10 dark:text-violet-200">
+          <div className="mt-4 rounded-[6px] border border-lime-200 bg-lime-50 p-4 text-sm text-lime-900 dark:border-lime-500/20 dark:bg-lime-500/10 dark:text-lime-200">
             <p className="font-medium">To konto zostało utworzone przez Google.</p>
-            <p className="mt-1 text-violet-700/80 dark:text-violet-300/80">
+            <p className="mt-1 text-lime-700/80 dark:text-lime-300/80">
               Nie masz osobnego hasła BuildCrew. Jeśli chcesz je dodać, użyj opcji „Nie pamiętam hasła” i ustaw je przez link wysłany na Twój e-mail.
             </p>
             <Button asChild variant="outline" size="sm" className="mt-3">

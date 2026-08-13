@@ -10,7 +10,7 @@ export default function NewQuestionPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <Topbar title="Zadaj pytanie" subtitle="Opisz problem tak, żeby inny builder mógł szybko Ci pomóc." />
-      <Link href="/help" className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-violet-600">
+      <Link href="/help" className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-lime-600">
         <ArrowLeft className="h-4 w-4" /> Wróć do pytań
       </Link>
       <QuestionForm />

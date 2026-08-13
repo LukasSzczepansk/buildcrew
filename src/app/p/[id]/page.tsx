@@ -57,7 +57,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
       <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white">🛠️</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-[6px] bg-lime-600 text-white">🛠️</span>
             BuildCrew
           </Link>
           <div className="flex items-center gap-2">
@@ -77,18 +77,18 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
       </header>
 
       <main className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-12">
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-6 flex flex-col gap-2 rounded-2xl border border-violet-200 bg-violet-50 p-4 transition hover:border-violet-300 dark:border-violet-500/20 dark:bg-violet-500/10 sm:flex-row sm:items-center sm:justify-between">
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-6 flex flex-col gap-2 rounded-lg border border-lime-200 bg-lime-50 p-4 transition hover:border-lime-300 dark:border-lime-500/20 dark:bg-lime-500/10 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-violet-900 dark:text-violet-200">💬 Discord BuildCrew</p>
-            <p className="mt-0.5 text-xs text-violet-800/80 dark:text-violet-200/70">Poznaj społeczność, szukaj osób do ekipy i śledź aktualne wydarzenia BuildCrew.</p>
+            <p className="text-sm font-semibold text-lime-900 dark:text-lime-200">💬 Discord BuildCrew</p>
+            <p className="mt-0.5 text-xs text-lime-800/80 dark:text-lime-200/70">Poznaj społeczność, szukaj osób do ekipy i śledź aktualne wydarzenia BuildCrew.</p>
           </div>
-          <span className="flex items-center gap-1 text-sm font-semibold text-violet-900 dark:text-violet-200">Wejdź na Discord <ExternalLink className="h-3.5 w-3.5" /></span>
+          <span className="flex items-center gap-1 text-sm font-semibold text-lime-900 dark:text-lime-200">Wejdź na Discord <ExternalLink className="h-3.5 w-3.5" /></span>
         </a>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           <div className="space-y-6">
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-neutral-100 bg-gradient-to-br from-violet-50 via-white to-indigo-50 p-7 dark:border-neutral-800 dark:from-violet-500/10 dark:via-neutral-900 dark:to-indigo-500/5 sm:p-9">
+              <div className="border-b border-neutral-100 bg-[#f7f7f3] p-7 dark:border-neutral-800 dark:bg-neutral-950 sm:p-9">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary">{STAGE_LABELS[project.stage]}</Badge>
                   <Badge variant="outline"><Users className="mr-1 h-3 w-3" /> Ekipa {crewSize}/{Math.max(totalSlots, crewSize)}</Badge>
@@ -113,7 +113,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
                 <h2 className="text-lg font-semibold">O projekcie</h2>
                 <p className="mt-3 whitespace-pre-line leading-7 text-neutral-600 dark:text-neutral-300">{project.description}</p>
                 {project.ownerContribution ? (
-                  <div className="mt-6 rounded-2xl bg-neutral-50 p-4 dark:bg-neutral-900">
+                  <div className="mt-6 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-900">
                     <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Co wnosi autor pomysłu</p>
                     <p className="mt-1 text-sm">{project.ownerContribution}</p>
                   </div>
@@ -129,7 +129,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
               {project.roles.length ? (
                 <div className="space-y-3">
                   {project.roles.map((role) => (
-                    <div key={role.id} className="flex flex-col gap-3 rounded-2xl border border-neutral-200 p-4 dark:border-neutral-800 sm:flex-row sm:items-center sm:justify-between">
+                    <div key={role.id} className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="font-medium">{ROLE_LABELS[role.roleType]}</p>
@@ -175,8 +175,8 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
               </Card>
             ) : null}
 
-            <Card className="border-violet-200 bg-violet-50/70 p-6 dark:border-violet-500/20 dark:bg-violet-500/5">
-              <ShieldCheck className="h-5 w-5 text-violet-600" />
+            <Card className="border-lime-200 bg-lime-50/70 p-6 dark:border-lime-500/20 dark:bg-lime-500/5">
+              <ShieldCheck className="h-5 w-5 text-lime-600" />
               <p className="mt-3 font-semibold">Wspólny projekt, nie zlecenie</p>
               <p className="mt-1 text-sm leading-6 text-neutral-600 dark:text-neutral-300">BuildCrew pomaga znaleźć współtwórców. Ustalenia dotyczące współpracy, praw do kodu i ewentualnych rozliczeń ustalacie bezpośrednio między sobą.</p>
             </Card>

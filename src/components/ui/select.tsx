@@ -16,14 +16,14 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-10 w-full items-center justify-between rounded-xl border border-neutral-200 bg-white px-3.5 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100",
+      "flex h-10 w-full items-center justify-between rounded-[6px] border border-[#c9c9c1] bg-white px-3 py-2 text-sm text-neutral-950 focus:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-950/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-[#171715] dark:text-neutral-100 dark:focus:border-neutral-400",
       className,
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
+      <ChevronDown className="h-4 w-4 opacity-60" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -38,7 +38,7 @@ const SelectContent = React.forwardRef<
       ref={ref}
       position={position}
       className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl border border-neutral-200 bg-white text-neutral-900 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100",
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-[6px] border border-[#c9c9c1] bg-white text-neutral-950 shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:border-neutral-700 dark:bg-[#171715] dark:text-neutral-100",
         position === "popper" && "translate-y-1",
         className,
       )}
@@ -57,15 +57,13 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-2 text-sm outline-none focus:bg-violet-50 dark:focus:bg-violet-500/10",
+      "relative flex w-full cursor-pointer select-none items-center rounded-[4px] py-2 pl-8 pr-2 text-sm outline-none focus:bg-[#efefe9] focus:text-neutral-950 dark:focus:bg-[#20201d] dark:focus:text-neutral-50",
       className,
     )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
-      </SelectPrimitive.ItemIndicator>
+      <SelectPrimitive.ItemIndicator><Check className="h-4 w-4" /></SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
   </SelectPrimitive.Item>

@@ -69,11 +69,11 @@ export default async function ProfilePage() {
         </Card>
         <Card className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-1">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10"><Rocket className="h-4 w-4" /></span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-[6px] bg-lime-50 text-lime-600 dark:bg-lime-500/10"><Rocket className="h-4 w-4" /></span>
             <div><p className="text-lg font-semibold">{projects.length}</p><p className="text-xs text-neutral-500">projekty</p></div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10"><HelpCircle className="h-4 w-4" /></span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-[6px] bg-lime-50 text-lime-600 dark:bg-lime-500/10"><HelpCircle className="h-4 w-4" /></span>
             <div><p className="text-lg font-semibold">{helpfulCount}</p><p className="text-xs text-neutral-500">pomocne odpowiedzi</p></div>
           </div>
         </Card>
@@ -96,7 +96,7 @@ export default async function ProfilePage() {
           discordUsername: privateContact?.discordUsername ?? "",
         }}
       />
-      {showcaseEntries.length ? <Card className="mt-6 p-5"><div className="flex items-center justify-between"><h2 className="font-semibold">Projekty w Showcase</h2><Button asChild variant="outline" size="sm"><Link href="/showcase/new">Pokaż kolejny</Link></Button></div><div className="mt-3 divide-y divide-neutral-100 dark:divide-neutral-800">{showcaseEntries.map((entry) => <Link key={entry.id} href={`/showcase/${entry.id}`} className="flex items-center justify-between py-3 text-sm hover:text-violet-600"><span className="font-medium">{entry.title}</span><span className="text-neutral-400">🚀 {entry.reactionCounts.POTENTIAL} · 💬 {entry.feedbackCount}</span></Link>)}</div></Card> : null}
+      {showcaseEntries.length ? <Card className="mt-6 p-5"><div className="flex items-center justify-between"><h2 className="font-semibold">Projekty w Showcase</h2><Button asChild variant="outline" size="sm"><Link href="/showcase/new">Pokaż kolejny</Link></Button></div><div className="mt-3 divide-y divide-neutral-100 dark:divide-neutral-800">{showcaseEntries.map((entry) => <Link key={entry.id} href={`/showcase/${entry.id}`} className="flex items-center justify-between py-3 text-sm hover:text-lime-600"><span className="font-medium">{entry.title}</span><span className="text-neutral-400">🚀 {entry.reactionCounts.POTENTIAL} · 💬 {entry.feedbackCount}</span></Link>)}</div></Card> : null}
       <div className="mt-6"><NotificationPreferencesForm initial={{ emailProjectApplications: notificationPrefs.emailProjectApplications, emailProjectAccepted: notificationPrefs.emailProjectAccepted, emailBuildPool: notificationPrefs.emailBuildPool, emailCrew: notificationPrefs.emailCrew, emailChallenge: notificationPrefs.emailChallenge, emailShowcaseFeedback: notificationPrefs.emailShowcaseFeedback, emailMessages: notificationPrefs.emailMessages }} /></div>
       <AccountSecurity hasPassword={user.hasPassword} />
     </div>

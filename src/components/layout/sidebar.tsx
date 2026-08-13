@@ -3,19 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Hammer,
-  HelpCircle,
-  Home,
-  LogOut,
+  CircleHelp,
   ExternalLink,
+  FolderKanban,
+  LayoutDashboard,
+  LogOut,
   MessageCircle,
-  Plus,
   ShieldCheck,
-  Sparkles,
   Trophy,
-  User,
   UserRoundCheck,
   Users,
+  Waves,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
@@ -23,30 +21,35 @@ import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/server/actions/auth";
 import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Start", icon: Home },
-  { href: "/projects", label: "Projekty", icon: Hammer },
+const PRIMARY_NAV = [
+  { href: "/dashboard", label: "Start", icon: LayoutDashboard },
+  { href: "/projects", label: "Projekty", icon: FolderKanban },
   { href: "/builders", label: "Builderzy", icon: Users },
-  { href: "/build", label: "Build Pool", icon: Sparkles },
-  { href: "/showcase", label: "Showcase", icon: Trophy },
-  { href: "/friends", label: "Znajomi", icon: UserRoundCheck },
-  { href: "/messages", label: "Wiadomości", icon: MessageCircle },
-  { href: "/help", label: "Pomoc", icon: HelpCircle },
-  { href: "/profile", label: "Profil", icon: User },
+  { href: "/build", label: "Build Pool", icon: Waves },
 ];
 
-export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages = 0 }: { username: string; avatarEmoji: string; admin?: boolean; unreadMessages?: number }) {
-  const pathname = usePathname();
+const COMMUNITY_NAV = [
+  { href: "/messages", label: "Wiadomości", icon: MessageCircle },
+  { href: "/friends", label: "Znajomi", icon: UserRoundCheck },
+  { href: "/showcase", label: "Showcase", icon: Trophy },
+];
 
+function NavGroup({
+  label,
+  items,
+  pathname,
+  unreadMessages,
+}: {
+  label: string;
+  items: typeof PRIMARY_NAV;
+  pathname: string;
+  unreadMessages: number;
+}) {
   return (
-    <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto border-r border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950 lg:flex">
-      <Link href="/dashboard" className="mb-3 flex items-center gap-2 px-2 text-lg font-bold tracking-tight">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white">🛠️</span>
-        BuildCrew
-      </Link>
-
-      <nav className="flex flex-col gap-0">
-        {NAV_ITEMS.map((item) => {
+    <div>
+      <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400 dark:text-neutral-500">{label}</p>
+      <nav className="space-y-0.5">
+        {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;
           return (
@@ -54,82 +57,85 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors",
+                "group relative flex h-9 items-center gap-2.5 rounded-[5px] px-2 text-[13px] font-medium transition-colors",
                 active
-                  ? "bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"
-                  : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",
+                  ? "bg-black/[0.055] text-neutral-950 dark:bg-white/[0.08] dark:text-white"
+                  : "text-neutral-600 hover:bg-black/[0.035] hover:text-neutral-950 dark:text-neutral-400 dark:hover:bg-white/[0.05] dark:hover:text-white",
               )}
             >
-              <Icon className="h-4.5 w-4.5" />
+              {active ? <span className="absolute -left-[13px] h-5 w-[3px] bg-neutral-950 dark:bg-lime-300" /> : null}
+              <Icon className="h-[15px] w-[15px]" strokeWidth={1.8} />
               <span className="flex-1">{item.label}</span>
               {item.href === "/messages" && unreadMessages > 0 ? (
-                <span className="rounded-full bg-violet-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">{unreadMessages > 99 ? "99+" : unreadMessages}</span>
+                <span className="min-w-5 rounded-[4px] bg-neutral-900 px-1.5 py-0.5 text-center text-[10px] font-semibold text-white dark:bg-lime-300 dark:text-neutral-950">
+                  {unreadMessages > 99 ? "99+" : unreadMessages}
+                </span>
               ) : null}
             </Link>
           );
         })}
       </nav>
-        {admin ? (
+    </div>
+  );
+}
+
+export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages = 0 }: { username: string; avatarEmoji: string; admin?: boolean; unreadMessages?: number }) {
+  const pathname = usePathname();
+
+  return (
+    <aside className="sticky top-0 hidden h-dvh w-[224px] shrink-0 flex-col border-r border-[#d8d8d0] bg-[#efefe9] px-4 py-5 dark:border-[#34342f] dark:bg-[#151513] lg:flex">
+      <Link href="/dashboard" className="mb-8 flex items-center gap-2 px-1 text-[18px] font-semibold tracking-[-0.025em]">
+        <span className="h-4 w-[5px] bg-[#c8f169] ring-1 ring-black/10" />
+        BuildCrew
+      </Link>
+
+      <div className="space-y-7">
+        <NavGroup label="Praca" items={PRIMARY_NAV} pathname={pathname} unreadMessages={unreadMessages} />
+        <NavGroup label="Społeczność" items={COMMUNITY_NAV} pathname={pathname} unreadMessages={unreadMessages} />
+      </div>
+
+      {admin ? (
+        <div className="mt-7 border-t border-[#d8d8d0] pt-4 dark:border-neutral-700">
           <Link
             href="/admin"
             className={cn(
-              "mt-1 flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex h-9 items-center gap-2.5 rounded-[5px] px-2 text-[13px] font-medium transition-colors",
               pathname.startsWith("/admin")
-                ? "bg-neutral-950 text-white dark:bg-white dark:text-neutral-950"
-                : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",
+                ? "bg-neutral-950 text-white dark:bg-neutral-100 dark:text-neutral-950"
+                : "text-neutral-600 hover:bg-black/[0.04] hover:text-neutral-950 dark:text-neutral-400 dark:hover:bg-white/[0.05] dark:hover:text-white",
             )}
           >
-            <ShieldCheck className="h-4.5 w-4.5" />
+            <ShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.8} />
             Panel admina
           </Link>
-        ) : null}
+        </div>
+      ) : null}
 
-      <div className="min-h-2 flex-1" />
+      <div className="min-h-6 flex-1" />
 
       {isAiContestActive() ? (
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-2 rounded-2xl border border-amber-200 bg-amber-50 p-2.5 text-left transition hover:border-amber-300 dark:border-amber-500/20 dark:bg-amber-500/10">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">🏆 {AI_CONTEST.shortTitle}</p>
-              <p className="mt-1 text-[11px] leading-4 text-amber-800/75 dark:text-amber-200/70">Do {AI_CONTEST.deadlineLabel}. Szczegóły na Discordzie.</p>
-            </div>
-            <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-300" />
-          </div>
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-4 border-l-2 border-[#c8f169] pl-3 text-[11px] leading-4 text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
+          <span className="block font-semibold text-neutral-800 dark:text-neutral-200">{AI_CONTEST.shortTitle}</span>
+          <span className="mt-0.5 inline-flex items-center gap-1 text-neutral-500">do {AI_CONTEST.deadlineLabel} <ExternalLink className="h-3 w-3" /></span>
         </a>
       ) : null}
 
-      <Button asChild variant="outline" className="mb-1.5 h-9 w-full gap-2">
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer"><MessageCircle className="h-4 w-4" /> Discord BuildCrew</a>
-      </Button>
-
-      <div className="mb-1.5 flex items-center justify-center gap-3 px-2 py-1 text-[11px] text-neutral-400">
-        <Link href="/regulamin" className="hover:text-neutral-600 dark:hover:text-neutral-200">Regulamin</Link>
-        <span aria-hidden="true">•</span>
-        <Link href="/polityka-prywatnosci" className="hover:text-neutral-600 dark:hover:text-neutral-200">Prywatność</Link>
+      <div className="mb-4 flex items-center gap-4 px-1 text-[12px] text-neutral-500">
+        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Discord</a>
+        <Link href="/help" className="inline-flex items-center gap-1 hover:text-neutral-950 hover:underline dark:hover:text-white"><CircleHelp className="h-3.5 w-3.5" /> Pomoc</Link>
       </div>
 
-      <Button asChild className="mb-2 h-9 w-full gap-2">
-        <Link href="/projects/new">
-          <Plus className="h-4 w-4" /> Dodaj projekt
-        </Link>
-      </Button>
-
-      <div className="mb-2 space-y-1">
-        <Link
-          href="/profile"
-          className="flex items-center gap-3 rounded-xl border border-neutral-200 p-2.5 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
-        >
-          <Avatar emoji={avatarEmoji} size="sm" />
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{username}</p>
-            <p className="text-xs text-neutral-400">Zobacz profil</p>
+      <div className="border-t border-[#d8d8d0] pt-3 dark:border-neutral-700">
+        <Link href="/profile" className="flex items-center gap-2.5 rounded-[5px] px-1 py-2 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.05]">
+          <Avatar emoji={avatarEmoji} size="sm" className="h-7 w-7 text-sm" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-medium">{username}</p>
+            <p className="text-[10px] text-neutral-400">Profil i ustawienia</p>
           </div>
         </Link>
-
         <form action={logoutAction}>
-          <Button type="submit" variant="ghost" className="w-full justify-start gap-2 text-neutral-500 hover:text-red-600 dark:text-neutral-400 dark:hover:text-red-400">
-            <LogOut className="h-4 w-4" />
-            Wyloguj się
+          <Button type="submit" variant="ghost" size="sm" className="mt-1 w-full justify-start gap-2 px-2 text-neutral-500 hover:text-red-700 dark:text-neutral-400 dark:hover:text-red-400">
+            <LogOut className="h-3.5 w-3.5" /> Wyloguj
           </Button>
         </form>
       </div>

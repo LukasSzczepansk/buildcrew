@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <div>
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-sm font-medium text-violet-600 dark:text-violet-400">
+          <div className="flex items-center gap-2 text-sm font-medium text-lime-600 dark:text-lime-400">
             <ShieldCheck className="h-4 w-4" />
             Administracja BuildCrew
           </div>

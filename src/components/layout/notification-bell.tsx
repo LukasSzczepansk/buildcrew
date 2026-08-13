@@ -30,12 +30,12 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button
-          className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+          className="relative flex h-10 w-10 items-center justify-center rounded-[6px] border border-neutral-200 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
           aria-label="Powiadomienia"
         >
           <Bell className="h-4.5 w-4.5" />
           {unread > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4.5 w-4.5 min-w-[18px] items-center justify-center rounded-full bg-violet-600 px-1 text-[10px] font-semibold text-white">
+            <span className="absolute -right-1 -top-1 flex h-4.5 w-4.5 min-w-[18px] items-center justify-center rounded-full bg-lime-600 px-1 text-[10px] font-semibold text-white">
               {unread}
             </span>
           )}
@@ -48,7 +48,7 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
             <Button
               variant="ghost"
               size="sm"
-              className="h-auto p-0 text-xs text-violet-600 hover:bg-transparent hover:underline dark:text-violet-400"
+              className="h-auto p-0 text-xs text-lime-600 hover:bg-transparent hover:underline dark:text-lime-400"
               onClick={async () => {
                 await markAllNotificationsRead();
               }}
@@ -73,8 +73,8 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
                   n.isRead ? "opacity-60" : ""
                 }`}
               >
-                <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300">
-                  {n.isRead ? <Check className="h-3 w-3" /> : <span className="h-1.5 w-1.5 rounded-full bg-violet-600" />}
+                <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime-100 text-lime-600 dark:bg-lime-500/15 dark:text-lime-300">
+                  {n.isRead ? <Check className="h-3 w-3" /> : <span className="h-1.5 w-1.5 rounded-full bg-lime-600" />}
                 </span>
                 <span className="flex-1">
                   <span className="block font-medium text-neutral-800 dark:text-neutral-100">{n.title}</span>
@@ -86,7 +86,7 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
           )}
         </div>
         <div className="border-t border-neutral-100 p-2 dark:border-neutral-800">
-          <Link href="/notifications" onClick={() => setOpen(false)} className="block rounded-lg px-3 py-2 text-center text-xs font-medium text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-500/10">Zobacz wszystkie powiadomienia</Link>
+          <Link href="/notifications" onClick={() => setOpen(false)} className="block rounded-lg px-3 py-2 text-center text-xs font-medium text-lime-600 hover:bg-lime-50 dark:text-lime-400 dark:hover:bg-lime-500/10">Zobacz wszystkie powiadomienia</Link>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

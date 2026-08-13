@@ -26,7 +26,7 @@ export default async function MessagesPage() {
           <MessageCircle className="mx-auto h-10 w-10 text-neutral-300" />
           <h2 className="mt-4 font-semibold">Nie masz jeszcze rozmów</h2>
           <p className="mt-1 text-sm text-neutral-500">Dodaj kogoś do znajomych, a po akceptacji będziecie mogli pisać.</p>
-          <Link href="/friends" className="mt-4 inline-block text-sm font-medium text-violet-600 hover:underline">Przejdź do znajomych</Link>
+          <Link href="/friends" className="mt-4 inline-block text-sm font-medium text-lime-600 hover:underline">Przejdź do znajomych</Link>
         </Card>
       ) : (
         <div className="space-y-3">

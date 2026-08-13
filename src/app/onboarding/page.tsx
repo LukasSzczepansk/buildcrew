@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Hammer } from "lucide-react";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -12,12 +13,10 @@ export default async function OnboardingPage() {
   if (user.onboardingCompleted) redirect("/dashboard");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50 px-4 py-12 dark:from-neutral-950 dark:via-neutral-950 dark:to-neutral-900">
-      <div className="mb-8 flex justify-center">
-        <span className="flex items-center gap-2 text-xl font-bold tracking-tight">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white shadow-md shadow-violet-600/30">
-            🛠️
-          </span>
+    <div className="min-h-screen bg-[#f7f7f3] px-4 py-10 dark:bg-neutral-950">
+      <div className="mb-10 flex justify-center">
+        <span className="flex items-center gap-2.5 text-xl font-bold tracking-[-0.04em]">
+          <span className="flex h-7 w-7 items-center justify-center rounded-sm bg-lime-300 text-neutral-950"><Hammer className="h-4 w-4" strokeWidth={2.5} /></span>
           BuildCrew
         </span>
       </div>

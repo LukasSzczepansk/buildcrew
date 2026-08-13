@@ -13,10 +13,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const unreadMessages = await unreadMessagesCount(user.id);
 
   return (
-    <div className="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
+    <div className="flex min-h-screen bg-[#f4f4ef] dark:bg-[#11110f]">
       <Sidebar username={user.username ?? "Builder"} avatarEmoji={user.avatarEmoji} admin={isAdmin(user.email, user.systemRole)} unreadMessages={unreadMessages} />
-      <main className="flex-1 px-4 py-6 pb-24 sm:px-8 sm:py-8 lg:pb-8">
-        <div className="mx-auto max-w-6xl">{children}</div>
+      <main className="min-w-0 flex-1 px-4 py-5 pb-24 sm:px-7 sm:py-7 lg:px-10 lg:py-8 lg:pb-10 xl:px-12">
+        <div className="mx-auto w-full max-w-[1180px]">{children}</div>
       </main>
       <MobileNav unreadMessages={unreadMessages} />
     </div>

@@ -48,7 +48,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     <div>
       <Topbar />
 
-      <div className="mb-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-950 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
+      <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-950 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
         <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
         <p><span className="font-semibold">Bezpieczna współpraca:</span> BuildCrew służy do szukania współtwórców, a nie wykonawców płatnych zleceń. Nie wysyłaj pieniędzy, haseł, kodów 2FA ani sekretów API osobom poznanym na platformie.</p>
       </div>
@@ -84,7 +84,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             <p className="mt-6 whitespace-pre-line text-neutral-600 dark:text-neutral-300">{project.description}</p>
 
             {project.ownerContribution && (
-              <div className="mt-6 rounded-xl bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
+              <div className="mt-6 rounded-[6px] bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-400">Co wnosi autor pomysłu</p>
                 <p>{project.ownerContribution}</p>
               </div>
@@ -102,7 +102,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                   return (
                     <div
                       key={role.id}
-                      className="flex flex-col gap-3 rounded-xl border border-neutral-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-neutral-700"
+                      className="flex flex-col gap-3 rounded-[6px] border border-neutral-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-neutral-700"
                     >
                       <div>
                         <p className="font-medium">{ROLE_LABELS[role.roleType]}</p>

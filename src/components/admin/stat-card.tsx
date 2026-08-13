@@ -10,7 +10,7 @@ export function AdminStatCard({ icon: Icon, label, value, helper }: { icon: Luci
           <p className="mt-1 text-3xl font-bold tracking-tight">{value}</p>
           {helper ? <p className="mt-1 text-xs text-neutral-400">{helper}</p> : null}
         </div>
-        <div className="rounded-xl bg-violet-50 p-2.5 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300">
+        <div className="rounded-[6px] bg-lime-50 p-2.5 text-lime-600 dark:bg-lime-500/10 dark:text-lime-300">
           <Icon className="h-5 w-5" />
         </div>
       </div>

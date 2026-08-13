@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         <p>
           Administratorem danych osobowych przetwarzanych w związku z działaniem BuildCrew jest <strong>{operator.name}</strong>,
           adres: <strong>{operator.address}</strong>, e-mail: {" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+          <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
           , dalej „Administrator”.
@@ -341,7 +341,7 @@ export default function PrivacyPage() {
         </ul>
         <p>
           Żądanie można przesłać na adres {" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+          <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
           . Administrator może poprosić o informacje konieczne do potwierdzenia tożsamości osoby składającej żądanie, jeżeli
@@ -451,11 +451,11 @@ export default function PrivacyPage() {
         </p>
         <p>
           W sprawach związanych z prywatnością można kontaktować się z Administratorem pod adresem {" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+          <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
           . Zasady korzystania z Serwisu opisuje {" "}
-          <Link href="/regulamin" className="text-violet-600 hover:underline dark:text-violet-400">
+          <Link href="/regulamin" className="text-lime-600 hover:underline dark:text-lime-400">
             Regulamin BuildCrew
           </Link>
           .

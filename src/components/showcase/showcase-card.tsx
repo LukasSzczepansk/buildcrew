@@ -64,14 +64,14 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
   }
 
   return (
-    <Card className="overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
+    <Card className="overflow-hidden transition-colors hover:border-neutral-500 dark:hover:border-neutral-600">
       {entry.screenshotUrl ? (
         <Link href={`/showcase/${entry.id}`} className="block aspect-[16/9] overflow-hidden bg-neutral-100 dark:bg-neutral-800">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={entry.screenshotUrl} alt={`Podgląd ${entry.title}`} className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]" />
         </Link>
       ) : (
-        <Link href={`/showcase/${entry.id}`} className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-violet-100 via-white to-indigo-100 text-5xl dark:from-violet-950/40 dark:via-neutral-900 dark:to-indigo-950/40">🚀</Link>
+        <Link href={`/showcase/${entry.id}`} className="flex aspect-[16/9] items-center justify-center border-b border-neutral-200 bg-neutral-100 text-5xl dark:border-neutral-800 dark:bg-neutral-900">🚀</Link>
       )}
       <div className="p-5">
         <div className="flex flex-wrap items-center gap-2">
@@ -81,7 +81,7 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
           {entry.crewId ? <Badge variant="outline">🟣 Ekipa z BuildCrew</Badge> : null}
           {entry.challengeId ? <Badge variant="warning">🏁 Challenge</Badge> : null}
         </div>
-        <Link href={`/showcase/${entry.id}`}><h3 className="mt-3 text-lg font-semibold tracking-tight hover:text-violet-600">{entry.title}</h3></Link>
+        <Link href={`/showcase/${entry.id}`}><h3 className="mt-3 text-lg font-semibold tracking-tight hover:text-lime-600">{entry.title}</h3></Link>
         <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{entry.tagline}</p>
 
         <div className="mt-4 flex items-center justify-between gap-3">
@@ -92,14 +92,14 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
         </div>
 
         {entry.lookingForCollaborators ? (
-          <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50 p-3 text-xs text-violet-800 dark:border-violet-500/20 dark:bg-violet-500/5 dark:text-violet-300">
+          <div className="mt-4 rounded-[6px] border border-lime-200 bg-lime-50 p-3 text-xs text-lime-800 dark:border-lime-500/20 dark:bg-lime-500/5 dark:text-lime-300">
             <span className="font-semibold">Szukają kolejnych współtwórców.</span>{entry.lookingForText ? ` ${entry.lookingForText}` : ""}
           </div>
         ) : null}
 
         <div className="mt-4 grid grid-cols-3 gap-1.5">
           {reactions.map((reaction) => (
-            <button key={reaction.key} disabled={pending === reaction.key} onClick={() => react(reaction.key)} className={`rounded-xl border px-2 py-2 text-center text-xs transition-colors ${active.has(reaction.key) ? "border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-300" : "border-neutral-200 hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"}`} title={reaction.label}>
+            <button key={reaction.key} disabled={pending === reaction.key} onClick={() => react(reaction.key)} className={`rounded-[6px] border px-2 py-2 text-center text-xs transition-colors ${active.has(reaction.key) ? "border-lime-300 bg-lime-50 text-lime-700 dark:border-lime-500/30 dark:bg-lime-500/10 dark:text-lime-300" : "border-neutral-200 hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"}`} title={reaction.label}>
               <span className="block text-base">{reaction.emoji}</span><span className="font-semibold">{counts[reaction.key]}</span>
             </button>
           ))}

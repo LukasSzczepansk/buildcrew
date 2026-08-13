@@ -33,7 +33,7 @@ export default function TermsPage() {
         <p>
           Operatorem i usługodawcą BuildCrew jest <strong>{operator.name}</strong>, adres: <strong>{operator.address}</strong>.
           Kontakt z Operatorem: {" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+          <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
           .
@@ -43,7 +43,7 @@ export default function TermsPage() {
           Elektronicznym punktem kontaktowym w sprawach dotyczących działania Serwisu, zgłoszeń treści oraz kontaktu z
           właściwymi organami — w zakresie, w jakim obowiązek taki wynika z przepisów, w tym z Aktu o usługach cyfrowych
           (DSA) — jest adres {" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+          <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
           . Punkt kontaktowy obsługuje komunikację w języku polskim i angielskim.
@@ -277,7 +277,7 @@ export default function TermsPage() {
           nielegalne albo narusza prawa zgłaszającego lub osoby trzeciej. Mechanizm ten pełni również funkcję zgłaszania
           potencjalnie nielegalnych treści w zakresie, w jakim odpowiednie obowiązki DSA mają zastosowanie do BuildCrew.
           Zgłoszenia można przekazywać przez funkcje dostępne w BuildCrew lub na adres {" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+          <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
           .
@@ -321,7 +321,7 @@ export default function TermsPage() {
         </p>
         <p>
           Użytkownik może zakwestionować decyzję moderacyjną, kontaktując się z Operatorem pod adresem {" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+          <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
           .
@@ -377,7 +377,7 @@ export default function TermsPage() {
       <LegalSection title="17. Reklamacje">
         <p>
           Reklamacje dotyczące działania BuildCrew można przesyłać na adres {" "}
-          <a className="text-violet-600 hover:underline dark:text-violet-400" href={`mailto:${operator.email}`}>
+          <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
           .
@@ -416,7 +416,7 @@ export default function TermsPage() {
         </p>
         <p>
           Zasady przetwarzania danych osobowych i informacje dotyczące praw użytkownika znajdują się w {" "}
-          <Link href="/polityka-prywatnosci" className="text-violet-600 hover:underline dark:text-violet-400">
+          <Link href="/polityka-prywatnosci" className="text-lime-600 hover:underline dark:text-lime-400">
             Polityce prywatności BuildCrew
           </Link>
           .

@@ -51,9 +51,9 @@ export function AuthForm({
           {mode === "signup" && (
             <p className="-mt-2 text-center text-xs leading-5 text-neutral-500">
               Klikając „Załóż konto przez Google”, akceptujesz{" "}
-              <Link href="/regulamin" className="text-violet-600 hover:underline dark:text-violet-400">Regulamin</Link>
+              <Link href="/regulamin" className="text-lime-600 hover:underline dark:text-lime-400">Regulamin</Link>
               {" "}i potwierdzasz zapoznanie się z{" "}
-              <Link href="/polityka-prywatnosci" className="text-violet-600 hover:underline dark:text-violet-400">Polityką prywatności</Link>.
+              <Link href="/polityka-prywatnosci" className="text-lime-600 hover:underline dark:text-lime-400">Polityką prywatności</Link>.
             </p>
           )}
           <div className="flex items-center gap-3 text-xs text-neutral-400">
@@ -89,13 +89,13 @@ export function AuthForm({
               name="acceptTerms"
               type="checkbox"
               required
-              className="mt-1 h-4 w-4 rounded border-neutral-300 accent-violet-600"
+              className="mt-1 h-4 w-4 rounded border-neutral-300 accent-lime-600"
             />
             <span>
               Akceptuję{" "}
-              <Link href="/regulamin" className="font-medium text-violet-600 hover:underline dark:text-violet-400">Regulamin</Link>
+              <Link href="/regulamin" className="font-medium text-lime-600 hover:underline dark:text-lime-400">Regulamin</Link>
               {" "}i potwierdzam zapoznanie się z{" "}
-              <Link href="/polityka-prywatnosci" className="font-medium text-violet-600 hover:underline dark:text-violet-400">Polityką prywatności</Link>.
+              <Link href="/polityka-prywatnosci" className="font-medium text-lime-600 hover:underline dark:text-lime-400">Polityką prywatności</Link>.
             </span>
           </label>
         )}
@@ -112,7 +112,7 @@ export function AuthForm({
 
         {mode === "login" && (
           <p className="-mt-2 text-right text-xs">
-            <Link href="/forgot-password" className="text-violet-600 hover:underline dark:text-violet-400">Nie pamiętam hasła</Link>
+            <Link href="/forgot-password" className="text-lime-600 hover:underline dark:text-lime-400">Nie pamiętam hasła</Link>
           </p>
         )}
 
@@ -120,12 +120,12 @@ export function AuthForm({
           {mode === "signup" ? (
             <>
               Masz już konto?{" "}
-              <Link href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login"} className="font-medium text-violet-600 hover:underline dark:text-violet-400">Zaloguj się</Link>
+              <Link href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login"} className="font-medium text-lime-600 hover:underline dark:text-lime-400">Zaloguj się</Link>
             </>
           ) : (
             <>
               Nie masz konta?{" "}
-              <Link href={nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"} className="font-medium text-violet-600 hover:underline dark:text-violet-400">Zarejestruj się</Link>
+              <Link href={nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"} className="font-medium text-lime-600 hover:underline dark:text-lime-400">Zarejestruj się</Link>
             </>
           )}
         </p>

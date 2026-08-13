@@ -1,15 +1,9 @@
-import * as React from "react";
 import { cn } from "@/lib/utils";
 
-function Progress({ value, className }: { value: number; className?: string }) {
+export function Progress({ value, className }: { value: number; className?: string }) {
   return (
-    <div className={cn("h-2 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800", className)}>
-      <div
-        className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-300"
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-      />
+    <div className={cn("h-1.5 w-full overflow-hidden bg-neutral-200 dark:bg-neutral-800", className)}>
+      <div className="h-full bg-neutral-950 dark:bg-lime-300 transition-all duration-300" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   );
 }
-
-export { Progress };

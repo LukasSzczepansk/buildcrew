@@ -21,7 +21,7 @@ export default async function AdminProjectsPage() {
             <thead className="bg-neutral-50 text-xs uppercase tracking-wide text-neutral-400 dark:bg-neutral-900/60"><tr><th className="px-5 py-3">Projekt</th><th className="px-4 py-3">Właściciel</th><th className="px-4 py-3">Etap</th><th className="px-4 py-3">Zespół</th><th className="px-4 py-3">Aplikacje</th><th className="px-4 py-3">Czas</th><th className="px-5 py-3 text-right">Akcje</th></tr></thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
               {rows.map((project) => <tr key={project.id} className="hover:bg-neutral-50/60 dark:hover:bg-neutral-800/30">
-                <td className="px-5 py-4"><Link href={`/projects/${project.id}`} className="font-medium hover:text-violet-600">{project.name}</Link><p className="mt-0.5 max-w-md truncate text-xs text-neutral-400">{project.tagline}</p></td>
+                <td className="px-5 py-4"><Link href={`/projects/${project.id}`} className="font-medium hover:text-lime-600">{project.name}</Link><p className="mt-0.5 max-w-md truncate text-xs text-neutral-400">{project.tagline}</p></td>
                 <td className="px-4 py-4"><p>{project.ownerAvatar ?? "🙂"} {project.ownerUsername ?? "Brak profilu"}</p>{project.ownerSuspended ? <Badge variant="destructive" className="mt-1">Właściciel zawieszony</Badge> : null}</td>
                 <td className="px-4 py-4"><Badge variant="secondary">{STAGE_LABELS[project.stage]}</Badge></td>
                 <td className="px-4 py-4"><p>{project.memberCount} osób</p><p className="text-xs text-neutral-400">{project.openRoleDefinitions} ról</p></td>

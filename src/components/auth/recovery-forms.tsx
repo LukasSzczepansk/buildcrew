@@ -26,7 +26,7 @@ export function ForgotPasswordForm() {
     <div className="space-y-1.5"><Label htmlFor="email">E-mail</Label><Input id="email" name="email" type="email" autoComplete="email" required /></div>
     <StateMessage state={state} />
     <Button className="w-full" size="lg" disabled={pending}>{pending ? "Wysyłamy…" : "Wyślij link do resetu"}</Button>
-    <p className="text-center text-sm text-neutral-500"><Link href="/login" className="text-violet-600 hover:underline">Wróć do logowania</Link></p>
+    <p className="text-center text-sm text-neutral-500"><Link href="/login" className="text-lime-600 hover:underline">Wróć do logowania</Link></p>
   </form>;
 }
 

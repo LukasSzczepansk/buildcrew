@@ -30,7 +30,7 @@ export default async function FriendsPage() {
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
         <section>
           <div className="mb-3 flex items-center gap-2">
-            <Users className="h-5 w-5 text-violet-600" />
+            <Users className="h-5 w-5 text-lime-600" />
             <h2 className="font-semibold">Twoi znajomi</h2>
             <Badge variant="secondary">{friends.length}</Badge>
           </div>
@@ -40,7 +40,7 @@ export default async function FriendsPage() {
               <UserCheck className="mx-auto h-9 w-9 text-neutral-300" />
               <h3 className="mt-3 font-semibold">Nie masz jeszcze znajomych</h3>
               <p className="mt-1 text-sm text-neutral-500">Wejdź w profil buildera i wyślij zaproszenie.</p>
-              <Link href="/builders" className="mt-4 inline-block text-sm font-medium text-violet-600 hover:underline">Przeglądaj builderów</Link>
+              <Link href="/builders" className="mt-4 inline-block text-sm font-medium text-lime-600 hover:underline">Przeglądaj builderów</Link>
             </Card>
           ) : (
             <div className="grid gap-3">
@@ -66,7 +66,7 @@ export default async function FriendsPage() {
         <section className="space-y-6">
           <div>
             <div className="mb-3 flex items-center gap-2">
-              <Inbox className="h-5 w-5 text-violet-600" />
+              <Inbox className="h-5 w-5 text-lime-600" />
               <h2 className="font-semibold">Otrzymane zaproszenia</h2>
               {requests.incoming.length > 0 ? <Badge>{requests.incoming.length}</Badge> : null}
             </div>

@@ -7,7 +7,7 @@ export function LegalPage({ title, subtitle, children }: { title: string; subtit
       <header className="border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-5 sm:px-8">
           <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white">🛠️</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-600 text-white">🛠️</span>
             BuildCrew
           </Link>
           <div className="flex items-center gap-4 text-sm text-neutral-500">

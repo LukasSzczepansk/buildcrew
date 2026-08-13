@@ -23,14 +23,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "64px",
-          background: "linear-gradient(135deg, #f5f3ff 0%, #ffffff 48%, #eef2ff 100%)",
+          background: "#f7f7f3",
           color: "#171717",
           fontFamily: "sans-serif",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "30px", fontWeight: 800 }}>
-            <div style={{ width: "52px", height: "52px", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", background: "#7c3aed", color: "white", fontSize: "28px" }}>🛠️</div>
+            <div style={{ width: "52px", height: "52px", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", background: "#11110f", color: "white", fontSize: "28px" }}>🛠️</div>
             BuildCrew
           </div>
           <div style={{ padding: "10px 18px", borderRadius: "999px", background: "#ede9fe", color: "#6d28d9", fontSize: "20px", fontWeight: 700 }}>{STAGE_LABELS[project.stage]}</div>
@@ -52,7 +52,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
             <div style={{ padding: "10px 16px", borderRadius: "12px", background: "white", border: "2px solid #e5e5e5" }}>👥 Ekipa: {crewSize}</div>
             <div style={{ padding: "10px 16px", borderRadius: "12px", background: "#f5f3ff", color: "#6d28d9", fontWeight: 700 }}>{roles.length ? `Szukamy: ${roles.join(" · ")}` : "Ekipa kompletna"}</div>
           </div>
-          <div style={{ fontSize: "22px", fontWeight: 750, color: "#7c3aed" }}>buildcreww.pl</div>
+          <div style={{ fontSize: "22px", fontWeight: 750, color: "#11110f" }}>buildcreww.pl</div>
         </div>
       </div>
     ),

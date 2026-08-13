@@ -67,7 +67,7 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
             {application.applicant.level ? LEVEL_LABELS[application.applicant.level] : ""}
             {application.applicant.weeklyHours ? ` · ${COMMITMENT_LABELS[application.applicant.weeklyHours]}` : ""}
           </p>
-          {application.reasons.length ? <p className="mt-2 text-xs text-violet-600 dark:text-violet-400">✓ {application.reasons.slice(0, 3).join(" · ")}</p> : null}
+          {application.reasons.length ? <p className="mt-2 text-xs text-lime-600 dark:text-lime-400">✓ {application.reasons.slice(0, 3).join(" · ")}</p> : null}
           {application.message && <p className="mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-300">&ldquo;{application.message}&rdquo;</p>}
         </div>
       </div>
