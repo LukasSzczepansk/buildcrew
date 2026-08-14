@@ -16,7 +16,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     ? project.openRoles.find((item) => item.id === roleId) ?? project.openRoles[0]
     : undefined;
 
-  const technologies = project.technologies.slice(0, 5);
+  const technologies = (requestedRole?.skills.length ? requestedRole.skills : project.technologies).slice(0, 5);
   const openRoleLabels = project.openRoles.slice(0, 3).map((role) => ROLE_LABELS[role.roleType]);
   const crewSize = Math.max(project.members.length, project.owner ? 1 : 0);
   const totalSlots = project.roles.reduce((sum, role) => sum + role.slots, 0) + 1;

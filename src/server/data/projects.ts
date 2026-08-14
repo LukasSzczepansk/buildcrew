@@ -96,7 +96,7 @@ export async function listProjects(filters: ProjectFilters = {}, viewerId?: stri
     withRelations = withRelations.filter((p) => p.roles.some((r) => r.roleType === filters.role));
   }
   if (filters.technology) {
-    withRelations = withRelations.filter((p) => p.technologies.includes(filters.technology!));
+    withRelations = withRelations.filter((p) => p.technologies.includes(filters.technology!) || p.roles.some((role) => role.skills.includes(filters.technology!)));
   }
   if (filters.level) {
     withRelations = withRelations.filter((p) => p.roles.some((r) => r.preferredLevel === filters.level));

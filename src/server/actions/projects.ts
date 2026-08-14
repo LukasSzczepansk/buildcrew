@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -69,6 +68,15 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
       commitment: data.commitment,
       goal: data.goal,
       character: data.character,
+      projectType: data.projectType,
+      existingAssets: data.existingAssets,
+      collaborationMode: data.collaborationMode,
+      collaborationPace: data.collaborationPace,
+      duration: data.duration,
+      repositoryUrl: data.repositoryUrl || null,
+      demoUrl: data.demoUrl || null,
+      designUrl: data.designUrl || null,
+      docsUrl: data.docsUrl || null,
     }).returning();
 
     if (data.technologies.length) {
@@ -79,6 +87,7 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
       roleType: r.roleType,
       description: r.description || null,
       preferredLevel: r.preferredLevel,
+      skills: r.skills,
       slots: r.slots,
     })));
     await tx.insert(projectMembers).values({ projectId: project.id, userId: user.id, isOwner: true, roleType: null });
@@ -103,7 +112,7 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
   await logEvent("project_created", user.id, { projectId: result.project.id, name: data.name });
   revalidatePath("/projects");
   revalidatePath("/dashboard");
-  redirect(`/projects/${result.project.id}`);
+  return { success: true, projectId: result.project.id };
 }
 
 export async function applyToProject(projectId: string, input: z.infer<typeof applicationSchema>) {

@@ -1,10 +1,15 @@
 import { z } from "zod";
 import {
   characterEnum,
+  collaborationModeEnum,
+  collaborationPaceEnum,
   commitmentEnum,
   goalEnum,
   levelEnum,
   lookingForEnum,
+  projectAssetEnum,
+  projectDurationEnum,
+  projectTypeEnum,
   reportReasonEnum,
   roleTypeEnum,
   showcaseCategoryEnum,
@@ -104,23 +109,33 @@ export const profileEditSchema = onboardingSchema.partial({
 
 export const projectRoleSchema = z.object({
   roleType: z.enum(roleTypeEnum),
-  description: z.string().trim().max(240).optional().or(z.literal("")),
+  description: z.string().trim().max(360).optional().or(z.literal("")),
   preferredLevel: z.enum(levelEnum).optional(),
+  skills: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
   slots: z.coerce.number().int().min(1).max(10).default(1),
 });
 
 export const projectCreateSchema = z.object({
   name: z.string().trim().min(2, "Podaj nazwę projektu.").max(60),
   tagline: z.string().trim().min(4, "Dodaj krótki opis (tagline).").max(120),
-  description: z.string().trim().min(20, "Opisz projekt szerzej (min. 20 znaków).").max(2000),
-  interests: z.array(z.string()).min(1, "Wybierz przynajmniej jedną kategorię."),
+  description: z.string().trim().min(20, "Opisz projekt szerzej (min. 20 znaków).").max(2400),
+  interests: z.array(z.string()).min(1, "Wybierz przynajmniej jedną kategorię.").max(5),
   stage: z.enum(stageEnum),
-  technologies: z.array(z.string()).min(1, "Dodaj przynajmniej jedną technologię."),
-  ownerContribution: z.string().trim().max(300).optional().or(z.literal("")),
-  roles: z.array(projectRoleSchema).min(1, "Dodaj przynajmniej jedną otwartą rolę."),
+  projectType: z.enum(projectTypeEnum),
+  technologies: z.array(z.string().trim().min(1).max(40)).min(1, "Dodaj przynajmniej jedną technologię.").max(15),
+  existingAssets: z.array(z.enum(projectAssetEnum)).max(projectAssetEnum.length).default([]),
+  ownerContribution: z.string().trim().max(400).optional().or(z.literal("")),
+  roles: z.array(projectRoleSchema).min(1, "Dodaj przynajmniej jedną otwartą rolę.").max(8),
   commitment: z.enum(commitmentEnum),
-  goal: z.string().trim().min(3, "Podaj cel projektu.").max(200),
-  character: z.array(z.enum(characterEnum)).min(1, "Wybierz charakter projektu."),
+  collaborationMode: z.enum(collaborationModeEnum),
+  collaborationPace: z.enum(collaborationPaceEnum),
+  duration: z.enum(projectDurationEnum),
+  goal: z.string().trim().min(3, "Podaj najbliższy cel projektu.").max(240),
+  character: z.array(z.enum(characterEnum)).min(1, "Wybierz charakter projektu.").max(3),
+  repositoryUrl: httpUrl.optional().or(z.literal("")),
+  demoUrl: httpUrl.optional().or(z.literal("")),
+  designUrl: httpUrl.optional().or(z.literal("")),
+  docsUrl: httpUrl.optional().or(z.literal("")),
   crewId: z.string().uuid().optional(),
 });
 

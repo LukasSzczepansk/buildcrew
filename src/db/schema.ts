@@ -185,6 +185,42 @@ export type Stage = (typeof stageEnum)[number];
 export const characterEnum = ["LEARNING", "PORTFOLIO", "HOBBY", "STARTUP", "COMMERCIAL"] as const;
 export type Character = (typeof characterEnum)[number];
 
+export const projectTypeEnum = [
+  "WEB_APP",
+  "MOBILE_APP",
+  "SAAS",
+  "OPEN_SOURCE",
+  "DEV_TOOL",
+  "AI_ML",
+  "GAME",
+  "MARKETPLACE",
+  "ECOMMERCE",
+  "COMMUNITY",
+  "OTHER",
+] as const;
+export type ProjectType = (typeof projectTypeEnum)[number];
+
+export const projectAssetEnum = [
+  "RESEARCH",
+  "DESIGN",
+  "LANDING",
+  "REPOSITORY",
+  "PROTOTYPE",
+  "MVP",
+  "USERS",
+  "REVENUE",
+] as const;
+export type ProjectAsset = (typeof projectAssetEnum)[number];
+
+export const collaborationModeEnum = ["REMOTE", "HYBRID", "LOCAL"] as const;
+export type CollaborationMode = (typeof collaborationModeEnum)[number];
+
+export const collaborationPaceEnum = ["RELAXED", "REGULAR", "INTENSIVE"] as const;
+export type CollaborationPace = (typeof collaborationPaceEnum)[number];
+
+export const projectDurationEnum = ["WEEKEND", "1_2_MONTHS", "3_6_MONTHS", "LONG_TERM"] as const;
+export type ProjectDuration = (typeof projectDurationEnum)[number];
+
 export const crews = pgTable("crews", {
   id: uuidPk(),
   status: text("status").$type<"FORMING" | "CONVERTED_TO_PROJECT" | "ARCHIVED">().notNull().default("FORMING"),
@@ -206,6 +242,15 @@ export const projects = pgTable("projects", {
   commitment: text("commitment").$type<Commitment>(),
   goal: text("goal"),
   character: text("character").array().$type<Character[]>().notNull().default(sql`'{}'::text[]`),
+  projectType: text("project_type").$type<ProjectType>(),
+  existingAssets: text("existing_assets").array().$type<ProjectAsset[]>().notNull().default(sql`'{}'::text[]`),
+  collaborationMode: text("collaboration_mode").$type<CollaborationMode>(),
+  collaborationPace: text("collaboration_pace").$type<CollaborationPace>(),
+  duration: text("duration").$type<ProjectDuration>(),
+  repositoryUrl: text("repository_url"),
+  demoUrl: text("demo_url"),
+  designUrl: text("design_url"),
+  docsUrl: text("docs_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("projects_owner_idx").on(t.ownerId)]);
@@ -222,6 +267,7 @@ export const projectRoles = pgTable("project_roles", {
   roleType: text("role_type").$type<RoleType>().notNull(),
   description: text("description"),
   preferredLevel: text("preferred_level").$type<Level>(),
+  skills: text("skills").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
   slots: integer("slots").notNull().default(1),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [check("project_roles_slots_check", sql`${t.slots} between 1 and 10`)]);

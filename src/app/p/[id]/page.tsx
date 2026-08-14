@@ -6,12 +6,23 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { TechnologyStack } from "@/components/ui/technology-badge";
 import { ShareProjectButton } from "@/components/projects/share-project-button";
 import { getCurrentUser } from "@/lib/auth";
 import { activityLabel, getActivityState } from "@/lib/activity";
 import { DISCORD_INVITE_URL } from "@/lib/community";
 import { absoluteUrl } from "@/lib/email";
-import { COMMITMENT_LABELS, LEVEL_LABELS, ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
+import {
+  COLLABORATION_MODE_LABELS,
+  COLLABORATION_PACE_LABELS,
+  COMMITMENT_LABELS,
+  LEVEL_LABELS,
+  PROJECT_ASSET_LABELS,
+  PROJECT_DURATION_LABELS,
+  PROJECT_TYPE_LABELS,
+  ROLE_LABELS,
+  STAGE_LABELS,
+} from "@/lib/constants";
 import { getProjectById } from "@/server/data/projects";
 
 export async function generateMetadata({
@@ -76,8 +87,8 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[6px] bg-lime-600 text-white">🛠️</span>
+          <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+            <span className="h-5 w-1 bg-[#C8F169]" aria-hidden="true" />
             BuildCrew
           </Link>
           <div className="flex items-center gap-2">
@@ -99,7 +110,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
       <main className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-12">
         <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-6 flex flex-col gap-2 rounded-lg border border-lime-200 bg-lime-50 p-4 transition hover:border-lime-300 dark:border-lime-500/20 dark:bg-lime-500/10 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-lime-900 dark:text-lime-200">💬 Discord BuildCrew</p>
+            <p className="text-sm font-semibold text-lime-900 dark:text-lime-200">Discord BuildCrew</p>
             <p className="mt-0.5 text-xs text-lime-800/80 dark:text-lime-200/70">Poznaj społeczność, szukaj osób do ekipy i śledź aktualne wydarzenia BuildCrew.</p>
           </div>
           <span className="flex items-center gap-1 text-sm font-semibold text-lime-900 dark:text-lime-200">Wejdź na Discord <ExternalLink className="h-3.5 w-3.5" /></span>
@@ -131,6 +142,18 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
               <div className="p-7 sm:p-9">
                 <h2 className="text-lg font-semibold">O projekcie</h2>
                 <p className="mt-3 whitespace-pre-line leading-7 text-neutral-600 dark:text-neutral-300">{project.description}</p>
+                {project.goal ? (
+                  <div className="mt-6 border-l-2 border-[#C8F169] pl-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Najbliższy cel</p>
+                    <p className="mt-1 text-sm leading-6">{project.goal}</p>
+                  </div>
+                ) : null}
+                {project.existingAssets.length ? (
+                  <div className="mt-6">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Co już istnieje</p>
+                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{project.existingAssets.map((item) => PROJECT_ASSET_LABELS[item]).join(" · ")}</p>
+                  </div>
+                ) : null}
                 {project.ownerContribution ? (
                   <div className="mt-6 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-900">
                     <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Co wnosi autor pomysłu</p>
@@ -155,6 +178,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
                           <Badge variant={role.open > 0 ? "success" : "secondary"}>{role.open > 0 ? `${role.open} wolne` : "Obsadzone"}</Badge>
                         </div>
                         {role.description ? <p className="mt-1 text-sm text-neutral-500">{role.description}</p> : null}
+                        {role.skills.length ? <TechnologyStack items={role.skills} max={6} compact className="mt-2" /> : null}
                         {role.preferredLevel ? <p className="mt-1 text-xs text-neutral-400">Preferowany poziom: {LEVEL_LABELS[role.preferredLevel]}</p> : null}
                       </div>
                       {role.open > 0 && !user ? <Button asChild size="sm"><Link href={signupHref}>Chcę dołączyć</Link></Button> : null}
@@ -166,6 +190,29 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
           </div>
 
           <aside className="space-y-6">
+            <Card className="p-6">
+              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Szczegóły</p>
+              <dl className="mt-3 space-y-3 text-sm">
+                {project.projectType ? <PublicDetail label="Typ" value={PROJECT_TYPE_LABELS[project.projectType]} /> : null}
+                <PublicDetail label="Etap" value={STAGE_LABELS[project.stage]} />
+                {project.commitment ? <PublicDetail label="Czas" value={COMMITMENT_LABELS[project.commitment]} /> : null}
+                {project.collaborationMode ? <PublicDetail label="Tryb" value={COLLABORATION_MODE_LABELS[project.collaborationMode]} /> : null}
+                {project.collaborationPace ? <PublicDetail label="Tempo" value={COLLABORATION_PACE_LABELS[project.collaborationPace]} /> : null}
+                {project.duration ? <PublicDetail label="Horyzont" value={PROJECT_DURATION_LABELS[project.duration]} /> : null}
+              </dl>
+              {project.repositoryUrl || project.demoUrl || project.designUrl || project.docsUrl ? (
+                <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Linki</p>
+                  <div className="mt-2 space-y-2 text-sm">
+                    {project.repositoryUrl ? <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>Repozytorium</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
+                    {project.demoUrl ? <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>Demo / landing</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
+                    {project.designUrl ? <a href={project.designUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>Design / Figma</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
+                    {project.docsUrl ? <a href={project.docsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>Dokumentacja</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
+                  </div>
+                </div>
+              ) : null}
+            </Card>
+
             <Card className="p-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Autor pomysłu</p>
               <div className="mt-3 flex items-center gap-3">
@@ -204,4 +251,8 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
       </main>
     </div>
   );
+}
+
+function PublicDetail({ label, value }: { label: string; value: string }) {
+  return <div><dt className="text-xs text-neutral-400">{label}</dt><dd className="mt-0.5 text-neutral-800 dark:text-neutral-200">{value}</dd></div>;
 }

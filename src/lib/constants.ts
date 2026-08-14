@@ -1,4 +1,21 @@
-import type { Character, ChallengeStatus, Commitment, Goal, Level, LookingFor, RoleType, ShowcaseCategory, ShowcaseReaction, ShowcaseStatus, Stage } from "@/db/schema";
+import type {
+  Character,
+  ChallengeStatus,
+  CollaborationMode,
+  CollaborationPace,
+  Commitment,
+  Goal,
+  Level,
+  LookingFor,
+  ProjectAsset,
+  ProjectDuration,
+  ProjectType,
+  RoleType,
+  ShowcaseCategory,
+  ShowcaseReaction,
+  ShowcaseStatus,
+  Stage,
+} from "@/db/schema";
 
 export const ROLE_LABELS: Record<RoleType, string> = {
   FRONTEND: "Frontend",
@@ -54,13 +71,62 @@ export const LOOKING_FOR_LABELS: Record<LookingFor, string> = {
 export const LOOKING_FOR_OPTIONS = Object.keys(LOOKING_FOR_LABELS) as LookingFor[];
 
 export const STAGE_LABELS: Record<Stage, string> = {
-  IDEA: "💡 Pomysł",
-  DESIGN: "🎨 Projektowanie",
-  BUILDING: "🔨 Budowa",
-  TESTING: "🧪 Testowanie",
-  LAUNCHED: "🚀 Uruchomiony",
+  IDEA: "Pomysł",
+  DESIGN: "Projektowanie",
+  BUILDING: "Budowa",
+  TESTING: "Testowanie",
+  LAUNCHED: "Uruchomiony",
 };
 export const STAGE_OPTIONS = Object.keys(STAGE_LABELS) as Stage[];
+
+export const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
+  WEB_APP: "Aplikacja webowa",
+  MOBILE_APP: "Aplikacja mobilna",
+  SAAS: "SaaS",
+  OPEN_SOURCE: "Open source",
+  DEV_TOOL: "Developer tool",
+  AI_ML: "AI / ML",
+  GAME: "Gra",
+  MARKETPLACE: "Marketplace",
+  ECOMMERCE: "E-commerce",
+  COMMUNITY: "Community",
+  OTHER: "Inny",
+};
+export const PROJECT_TYPE_OPTIONS = Object.keys(PROJECT_TYPE_LABELS) as ProjectType[];
+
+export const PROJECT_ASSET_LABELS: Record<ProjectAsset, string> = {
+  RESEARCH: "Research",
+  DESIGN: "Design",
+  LANDING: "Landing page",
+  REPOSITORY: "Repozytorium",
+  PROTOTYPE: "Prototyp",
+  MVP: "MVP",
+  USERS: "Pierwsi użytkownicy",
+  REVENUE: "Przychód",
+};
+export const PROJECT_ASSET_OPTIONS = Object.keys(PROJECT_ASSET_LABELS) as ProjectAsset[];
+
+export const COLLABORATION_MODE_LABELS: Record<CollaborationMode, string> = {
+  REMOTE: "Zdalnie",
+  HYBRID: "Hybrydowo",
+  LOCAL: "Lokalnie",
+};
+export const COLLABORATION_MODE_OPTIONS = Object.keys(COLLABORATION_MODE_LABELS) as CollaborationMode[];
+
+export const COLLABORATION_PACE_LABELS: Record<CollaborationPace, string> = {
+  RELAXED: "Luźne tempo",
+  REGULAR: "Regularne tempo",
+  INTENSIVE: "Intensywne tempo",
+};
+export const COLLABORATION_PACE_OPTIONS = Object.keys(COLLABORATION_PACE_LABELS) as CollaborationPace[];
+
+export const PROJECT_DURATION_LABELS: Record<ProjectDuration, string> = {
+  WEEKEND: "Weekend / hackathon",
+  "1_2_MONTHS": "1–2 miesiące",
+  "3_6_MONTHS": "3–6 miesięcy",
+  LONG_TERM: "Długoterminowo",
+};
+export const PROJECT_DURATION_OPTIONS = Object.keys(PROJECT_DURATION_LABELS) as ProjectDuration[];
 
 export const CHARACTER_LABELS: Record<Character, string> = {
   LEARNING: "Nauka",

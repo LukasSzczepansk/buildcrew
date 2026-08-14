@@ -34,10 +34,12 @@ function projectMatch(profile: Builder, project: Project) {
     reasons.push("Projekt szuka Twojej roli");
   }
 
-  const sharedTech = project.technologies.filter((technology) => profile.skills.includes(technology));
+  const matchingRole = profile.role ? project.openRoles.find((role) => role.roleType === profile.role) : undefined;
+  const targetSkills = matchingRole?.skills.length ? matchingRole.skills : project.technologies;
+  const sharedTech = targetSkills.filter((technology) => profile.skills.includes(technology));
   if (sharedTech.length > 0) {
     score += Math.min(25, sharedTech.length * 10);
-    reasons.push(`Wspólny stack: ${sharedTech.slice(0, 2).join(", ")}`);
+    reasons.push(`${matchingRole?.skills.length ? "Wymagane umiejętności" : "Wspólny stack"}: ${sharedTech.slice(0, 2).join(", ")}`);
   }
 
   const sharedInterests = project.interests.filter((interest) => profile.interests.includes(interest));

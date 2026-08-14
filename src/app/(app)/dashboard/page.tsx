@@ -24,7 +24,7 @@ export default async function DashboardPage() {
   const [allProjects, allBuilders] = await Promise.all([listProjects(), listBuilderProfiles(user.id)]);
   const matchingProjects = allProjects
     .filter((project) => project.ownerId !== user.id)
-    .filter((project) => project.openRoles.some((role) => role.roleType === profile.role) || project.interests.some((interest) => profile.interests.includes(interest)))
+    .filter((project) => project.openRoles.some((role) => role.roleType === profile.role || role.skills.some((skill) => profile.skills.includes(skill))) || project.interests.some((interest) => profile.interests.includes(interest)))
     .slice(0, 4);
   const fallbackProjects = matchingProjects.length > 0 ? matchingProjects : allProjects.filter((project) => project.ownerId !== user.id).slice(0, 4);
   const matchingBuilders = allBuilders
