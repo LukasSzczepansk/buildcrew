@@ -14,6 +14,8 @@ import {
   projectMembers,
   projectRoles,
   projectTechnologies,
+  projectWorkspaceActivity,
+  projectWorkspaceTasks,
   projects,
   users,
 } from "@/db/schema";
@@ -295,5 +297,113 @@ export async function respondToProjectInvite(inviteId: string, decision: "ACCEPT
   if (decision === "ACCEPTED") await logEvent("contact_revealed", user.id, { withUserId: row.project.ownerId });
   await createNotification(row.project.ownerId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Zaproszenie do ${row.project.name} zostało zaakceptowane!` : `Zaproszenie do ${row.project.name} zostało odrzucone.`, undefined, `/projects/${row.project.id}`);
   revalidatePath(`/projects/${row.project.id}`);
+  return { success: true };
+}
+
+
+export async function removeProjectMember(projectId: string, memberId: string) {
+  if (!uuidSchema.safeParse(projectId).success || !uuidSchema.safeParse(memberId).success) return { error: "Nieprawidłowe dane." };
+  const user = await getVerifiedCurrentUser();
+  if (!user) return { error: "Musisz być zalogowany." };
+  const rateError = await enforceUserRateLimit("action:project:remove-member", user.id, 40, 24 * 60 * 60);
+  if (rateError) return { error: rateError };
+
+  const outcome = await db.transaction(async (tx) => {
+    await tx.execute(sql`select id from projects where id = ${projectId} for update`);
+    const projectRows = await tx.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT"))).limit(1);
+    const project = projectRows[0];
+    if (!project) return { error: "Projekt nie istnieje." } as const;
+    if (project.ownerId !== user.id) return { error: "Tylko twórca projektu może usuwać członków zespołu." } as const;
+    if (memberId === user.id) return { error: "Twórca projektu nie może usunąć samego siebie." } as const;
+
+    const memberRows = await tx.select({ member: projectMembers, username: profiles.username })
+      .from(projectMembers)
+      .leftJoin(profiles, eq(profiles.userId, projectMembers.userId))
+      .where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, memberId)))
+      .limit(1);
+    const row = memberRows[0];
+    if (!row || row.member.isOwner) return { error: "Ta osoba nie jest członkiem projektu." } as const;
+
+    await tx.update(projectWorkspaceTasks)
+      .set({ assigneeId: null, updatedAt: new Date() })
+      .where(and(eq(projectWorkspaceTasks.projectId, projectId), eq(projectWorkspaceTasks.assigneeId, memberId)));
+    await tx.delete(projectMembers).where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, memberId)));
+    await tx.insert(projectWorkspaceActivity).values({
+      projectId,
+      actorId: user.id,
+      type: "MEMBER_REMOVED",
+      body: `${row.username ?? "Członek zespołu"} nie jest już członkiem projektu.`,
+    });
+
+    return { project, username: row.username ?? "Członek zespołu" } as const;
+  });
+
+  if ("error" in outcome) return outcome;
+  await createNotification(
+    memberId,
+    "PROJECT_MEMBER_REMOVED",
+    `Nie jesteś już członkiem projektu ${outcome.project.name}`,
+    "Twój dostęp do prywatnego workspace'u i nowych treści zespołu został zakończony.",
+    `/projects/${projectId}`,
+    { actorId: user.id, entityType: "project", entityId: projectId },
+  );
+  await logEvent("project_member_removed", user.id, { projectId, memberId });
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/projects/${projectId}/manage`);
+  revalidatePath(`/projects/${projectId}/workspace`);
+  revalidatePath("/my-projects");
+  return { success: true };
+}
+
+export async function leaveProject(projectId: string) {
+  if (!uuidSchema.safeParse(projectId).success) return { error: "Nieprawidłowy projekt." };
+  const user = await getVerifiedCurrentUser();
+  if (!user) return { error: "Musisz być zalogowany." };
+  const rateError = await enforceUserRateLimit("action:project:leave", user.id, 20, 24 * 60 * 60);
+  if (rateError) return { error: rateError };
+
+  const outcome = await db.transaction(async (tx) => {
+    await tx.execute(sql`select id from projects where id = ${projectId} for update`);
+    const projectRows = await tx.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT"))).limit(1);
+    const project = projectRows[0];
+    if (!project) return { error: "Projekt nie istnieje." } as const;
+    if (project.ownerId === user.id) return { error: "Twórca projektu nie może go opuścić. Może nim zarządzać z poziomu Moich projektów." } as const;
+
+    const memberRows = await tx.select({ member: projectMembers, username: profiles.username })
+      .from(projectMembers)
+      .leftJoin(profiles, eq(profiles.userId, projectMembers.userId))
+      .where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, user.id)))
+      .limit(1);
+    const row = memberRows[0];
+    if (!row) return { error: "Nie należysz do tego projektu." } as const;
+
+    await tx.update(projectWorkspaceTasks)
+      .set({ assigneeId: null, updatedAt: new Date() })
+      .where(and(eq(projectWorkspaceTasks.projectId, projectId), eq(projectWorkspaceTasks.assigneeId, user.id)));
+    await tx.delete(projectMembers).where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, user.id)));
+    await tx.insert(projectWorkspaceActivity).values({
+      projectId,
+      actorId: user.id,
+      type: "MEMBER_LEFT",
+      body: `${row.username ?? "Członek zespołu"} opuścił projekt.`,
+    });
+
+    return { project, username: row.username ?? "Członek zespołu" } as const;
+  });
+
+  if ("error" in outcome) return outcome;
+  await createNotification(
+    outcome.project.ownerId,
+    "PROJECT_MEMBER_LEFT",
+    `${outcome.username} opuścił projekt ${outcome.project.name}`,
+    "Miejsce w zespole jest ponownie dostępne, jeśli było przypisane do otwartej roli.",
+    `/projects/${projectId}/manage`,
+    { actorId: user.id, entityType: "project", entityId: projectId },
+  );
+  await logEvent("project_member_left", user.id, { projectId });
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/projects/${projectId}/manage`);
+  revalidatePath(`/projects/${projectId}/workspace`);
+  revalidatePath("/my-projects");
   return { success: true };
 }

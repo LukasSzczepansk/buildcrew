@@ -294,6 +294,83 @@ export const projectMembers = pgTable("project_members", {
   joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [primaryKey({ columns: [t.projectId, t.userId] })]);
 
+// ---------------------------------------------------------------------------
+// Project workspace (private to project members)
+// ---------------------------------------------------------------------------
+
+export const projectTaskStatusEnum = ["TODO", "DOING", "DONE"] as const;
+export type ProjectTaskStatus = (typeof projectTaskStatusEnum)[number];
+
+export const projectLinkKindEnum = ["GITHUB", "FIGMA", "NOTION", "DISCORD", "DEMO", "DOCS", "OTHER"] as const;
+export type ProjectLinkKind = (typeof projectLinkKindEnum)[number];
+
+export const projectWorkspaceActivityTypeEnum = [
+  "FOCUS_UPDATED",
+  "MILESTONE_UPDATED",
+  "TASK_CREATED",
+  "TASK_STATUS_CHANGED",
+  "TASK_DELETED",
+  "LINK_ADDED",
+  "LINK_REMOVED",
+  "MEMBER_REMOVED",
+  "MEMBER_LEFT",
+] as const;
+export type ProjectWorkspaceActivityType = (typeof projectWorkspaceActivityTypeEnum)[number];
+
+export const projectWorkspaces = pgTable("project_workspaces", {
+  projectId: uuid("project_id").primaryKey().references(() => projects.id, { onDelete: "cascade" }),
+  currentFocus: text("current_focus"),
+  milestoneTitle: text("milestone_title"),
+  milestoneDueAt: timestamp("milestone_due_at", { withTimezone: true }),
+  milestoneCompleted: boolean("milestone_completed").notNull().default(false),
+  updatedBy: uuid("updated_by").references(() => users.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const projectWorkspaceMessages = pgTable("project_workspace_messages", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  senderId: uuid("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("project_workspace_messages_project_created_idx").on(t.projectId, t.createdAt),
+  index("project_workspace_messages_sender_idx").on(t.senderId),
+]);
+
+export const projectWorkspaceTasks = pgTable("project_workspace_tasks", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  status: text("status").$type<ProjectTaskStatus>().notNull().default("TODO"),
+  assigneeId: uuid("assignee_id").references(() => users.id, { onDelete: "set null" }),
+  createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("project_workspace_tasks_project_status_idx").on(t.projectId, t.status, t.createdAt),
+  index("project_workspace_tasks_assignee_idx").on(t.assigneeId),
+]);
+
+export const projectWorkspaceLinks = pgTable("project_workspace_links", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  label: text("label").notNull(),
+  url: text("url").notNull(),
+  kind: text("kind").$type<ProjectLinkKind>().notNull().default("OTHER"),
+  createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("project_workspace_links_project_idx").on(t.projectId, t.createdAt)]);
+
+export const projectWorkspaceActivity = pgTable("project_workspace_activity", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+  type: text("type").$type<ProjectWorkspaceActivityType>().notNull(),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("project_workspace_activity_project_created_idx").on(t.projectId, t.createdAt)]);
+
 export const applicationStatusEnum = ["PENDING", "ACCEPTED", "REJECTED"] as const;
 export type ApplicationStatus = (typeof applicationStatusEnum)[number];
 
@@ -608,6 +685,8 @@ export const notificationTypeEnum = [
   "WEEKLY_DIGEST",
   "IDEA_INTERESTED",
   "IDEA_CONVERTED",
+  "PROJECT_MEMBER_REMOVED",
+  "PROJECT_MEMBER_LEFT",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
 

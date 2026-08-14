@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Topbar } from "@/components/layout/topbar";
+import { Button } from "@/components/ui/button";
 import { FilterBar } from "@/components/filters/filter-bar";
 import { ProjectCard } from "@/components/projects/project-card";
 import { EmptyState } from "@/components/empty-state";
@@ -30,7 +32,10 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   return (
     <div>
       <Topbar title="Projekty" subtitle="Sprawdź stack, otwarte role i wymagany czas — bez przeklikiwania każdej karty." />
-      <DiscoveryTabs active="projects" />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <DiscoveryTabs active="projects" />
+        <Button asChild variant="outline" size="sm"><Link href="/my-projects">Moje projekty</Link></Button>
+      </div>
 
       <div className="mt-5">
       <FilterBar

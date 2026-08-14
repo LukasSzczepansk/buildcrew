@@ -9,6 +9,8 @@ import {
   lookingForEnum,
   projectAssetEnum,
   projectDurationEnum,
+  projectLinkKindEnum,
+  projectTaskStatusEnum,
   projectTypeEnum,
   reportReasonEnum,
   roleTypeEnum,
@@ -206,6 +208,30 @@ export const buildPoolListingStatusSchema = z.enum(["ACTIVE", "PAUSED", "CLOSED"
 
 export const messageSchema = z.object({
   body: z.string().trim().min(1, "Wiadomość nie może być pusta.").max(800, "Wiadomość może mieć maks. 800 znaków."),
+});
+
+export const workspaceMessageSchema = z.object({
+  body: z.string().trim().min(1, "Wiadomość nie może być pusta.").max(2000, "Wiadomość może mieć maks. 2000 znaków."),
+});
+
+export const workspaceOverviewSchema = z.object({
+  currentFocus: z.string().trim().max(240, "Aktualny fokus może mieć maks. 240 znaków.").optional().or(z.literal("")),
+  milestoneTitle: z.string().trim().max(180, "Nazwa milestone'u może mieć maks. 180 znaków.").optional().or(z.literal("")),
+  milestoneDueAt: z.string().trim().optional().or(z.literal("")),
+  milestoneCompleted: z.boolean().default(false),
+});
+
+export const workspaceTaskSchema = z.object({
+  title: z.string().trim().min(2, "Dodaj krótką nazwę zadania.").max(160, "Zadanie może mieć maks. 160 znaków."),
+  assigneeId: z.string().uuid().optional().or(z.literal("")),
+});
+
+export const workspaceTaskStatusSchema = z.enum(projectTaskStatusEnum);
+
+export const workspaceLinkSchema = z.object({
+  label: z.string().trim().min(2, "Dodaj nazwę linku.").max(60, "Nazwa linku może mieć maks. 60 znaków."),
+  url: httpUrl.refine((value) => Boolean(value), "Podaj adres linku."),
+  kind: z.enum(projectLinkKindEnum),
 });
 
 

@@ -9,6 +9,7 @@ import { TechnologyStack } from "@/components/ui/technology-badge";
 import { Topbar } from "@/components/layout/topbar";
 import { ApplyDialog } from "@/components/projects/apply-dialog";
 import { ShareProjectButton } from "@/components/projects/share-project-button";
+import { LeaveProjectButton } from "@/components/projects/project-team-manager";
 import {
   CHARACTER_LABELS,
   COLLABORATION_MODE_LABELS,
@@ -53,7 +54,7 @@ export default async function ProjectDetailPage({ params, searchParams }: { para
       <section className="border-b border-[var(--bc-line)] pb-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0"><div className="flex flex-wrap items-center gap-2.5"><h1 className="text-[30px] font-semibold tracking-[-0.035em]">{project.name}</h1><Badge variant="secondary">{STAGE_LABELS[project.stage]}</Badge></div><p className="bc-truncate-2 mt-2 max-w-[760px] text-[14px] leading-6 text-[var(--bc-muted)]">{project.tagline}</p></div>
-          <div className="flex shrink-0 items-center gap-2"><ShareProjectButton projectId={project.id} projectName={project.name} projectTagline={project.tagline} openRoles={project.openRoles.map((role) => ({ id: role.id, roleType: role.roleType }))} compact /><Button asChild variant="outline" size="sm"><Link href={`/p/${project.id}`} target="_blank">Publiczny link <ExternalLink className="h-3.5 w-3.5" /></Link></Button></div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">{isOwner ? <Button asChild size="sm"><Link href={`/projects/${project.id}/manage`}>Zarządzaj projektem</Link></Button> : isMember ? <Button asChild size="sm"><Link href={`/projects/${project.id}/workspace`}>Workspace zespołu</Link></Button> : null}{isOwner ? <Button asChild variant="outline" size="sm"><Link href={`/projects/${project.id}/workspace`}>Workspace</Link></Button> : null}<ShareProjectButton projectId={project.id} projectName={project.name} projectTagline={project.tagline} openRoles={project.openRoles.map((role) => ({ id: role.id, roleType: role.roleType }))} compact /><Button asChild variant="outline" size="sm"><Link href={`/p/${project.id}`} target="_blank">Publiczny link <ExternalLink className="h-3.5 w-3.5" /></Link></Button></div>
         </div>
         {project.technologies.length ? <TechnologyStack items={project.technologies} max={8} compact className="mt-4" /> : null}
       </section>
@@ -124,8 +125,8 @@ export default async function ProjectDetailPage({ params, searchParams }: { para
           ) : null}
           {ownerProfile ? <SideSection title="Autor"><Link href={`/builders/${ownerProfile.userId}`} className="flex items-center gap-3"><Avatar username={ownerProfile.username} seed={ownerProfile.userId} size="sm" /><div><p className="text-[13px] font-medium">{ownerProfile.username}</p><p className="text-[11px] text-[var(--bc-muted)]">{ownerProfile.role ? ROLE_LABELS[ownerProfile.role as RoleType] : ""}</p></div></Link></SideSection> : null}
           <SideSection title="Ekipa"><div className="space-y-3">{project.members.map((member) => <Link key={member.userId} href={`/builders/${member.userId}`} className="flex items-center gap-3"><Avatar username={member.profile?.username ?? "Builder"} seed={member.userId} size="sm" /><div><p className="text-[13px] font-medium">{member.profile?.username ?? "Builder"}</p><p className="text-[11px] text-[var(--bc-muted)]">{member.isOwner ? "Autor" : member.roleType ? ROLE_LABELS[member.roleType] : "Członek"}</p></div></Link>)}</div></SideSection>
-          {isOwner ? <Button asChild variant="outline" className="w-full"><Link href={`/projects/${project.id}/applications`}>Zgłoszenia</Link></Button> : null}
-          {!isOwner && isMember ? <p className="text-[12px] text-[var(--bc-muted)]">Jesteś członkiem tej ekipy.</p> : null}
+          {isOwner ? <div className="space-y-2"><Button asChild className="w-full"><Link href={`/projects/${project.id}/manage`}>Zarządzaj zespołem</Link></Button><Button asChild variant="outline" className="w-full"><Link href={`/projects/${project.id}/applications`}>Zgłoszenia</Link></Button></div> : null}
+          {!isOwner && isMember ? <div className="space-y-2"><p className="text-[12px] text-[var(--bc-muted)]">Jesteś członkiem tej ekipy.</p><LeaveProjectButton projectId={project.id} projectName={project.name} /></div> : null}
         </aside>
       </div>
     </div>

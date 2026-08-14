@@ -12,6 +12,7 @@ import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/communi
 const PRIMARY_NAV = [
   { href: "/dashboard", label: "Start", icon: LayoutDashboard },
   { href: "/projects", label: "Projekty", icon: FolderKanban },
+  { href: "/my-projects", label: "Moje projekty", icon: FolderKanban },
   { href: "/builders", label: "Ludzie", icon: Users },
   { href: "/build", label: "Build Pool", icon: Waves },
 ];
