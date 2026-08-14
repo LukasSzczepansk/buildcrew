@@ -517,7 +517,9 @@ export const notificationPreferences = pgTable("notification_preferences", {
   emailCrew: boolean("email_crew").notNull().default(true),
   emailChallenge: boolean("email_challenge").notNull().default(true),
   emailShowcaseFeedback: boolean("email_showcase_feedback").notNull().default(false),
-  emailMessages: boolean("email_messages").notNull().default(false),
+  emailMessages: boolean("email_messages").notNull().default(true),
+  emailMatches: boolean("email_matches").notNull().default(true),
+  emailWeeklyDigest: boolean("email_weekly_digest").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -542,6 +544,9 @@ export const notificationTypeEnum = [
   "SHOWCASE_FEEDBACK",
   "CHALLENGE_MATCH",
   "CHALLENGE_UPDATE",
+  "MESSAGE_RECEIVED",
+  "MATCH_DIGEST",
+  "WEEKLY_DIGEST",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
 
@@ -617,6 +622,8 @@ export const analyticsEventTypeEnum = [
   "contact_revealed",
   "question_created",
   "answer_marked_helpful",
+  "match_email_sent",
+  "weekly_digest_sent",
 ] as const;
 export type AnalyticsEventType = (typeof analyticsEventTypeEnum)[number];
 

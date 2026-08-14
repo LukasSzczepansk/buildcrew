@@ -14,26 +14,46 @@ import { absoluteUrl } from "@/lib/email";
 import { COMMITMENT_LABELS, LEVEL_LABELS, ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
 import { getProjectById } from "@/server/data/projects";
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ share?: string; role?: string }>;
+}): Promise<Metadata> {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   const project = await getProjectById(id);
   if (!project) return { title: "Projekt — BuildCrew" };
+
+  const requestedRole = query.share === "role"
+    ? project.openRoles.find((role) => role.id === query.role)
+    : undefined;
+  const roleLabel = requestedRole ? ROLE_LABELS[requestedRole.roleType] : null;
   const publicUrl = absoluteUrl(`/p/${project.id}`);
-  const imageUrl = absoluteUrl(`/api/projects/${project.id}/share-card`);
+  const shareUrl = roleLabel
+    ? absoluteUrl(`/p/${project.id}?share=role&role=${encodeURIComponent(requestedRole!.id)}`)
+    : publicUrl;
+  const imageUrl = roleLabel
+    ? absoluteUrl(`/api/projects/${project.id}/share-card?variant=recruitment&role=${encodeURIComponent(requestedRole!.id)}&v=${project.updatedAt.getTime()}`)
+    : absoluteUrl(`/api/projects/${project.id}/share-card?v=${project.updatedAt.getTime()}`);
+  const title = roleLabel
+    ? `Szukamy ${roleLabel} do ${project.name} — BuildCrew`
+    : `${project.name} — projekt na BuildCrew`;
+
   return {
-    title: `${project.name} — szuka ekipy na BuildCrew`,
+    title,
     description: project.tagline,
     alternates: { canonical: publicUrl },
     openGraph: {
-      title: `${project.name} — BuildCrew`,
+      title,
       description: project.tagline,
-      url: publicUrl,
+      url: shareUrl,
       type: "website",
       images: [{ url: imageUrl, width: 1200, height: 630, alt: `${project.name} — karta projektu BuildCrew` }],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${project.name} — BuildCrew`,
+      title,
       description: project.tagline,
       images: [imageUrl],
     },
@@ -105,8 +125,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
                   ) : (
                     <Button asChild><Link href={signupHref}>Chcę dołączyć do tej ekipy <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                   )}
-                  <ShareProjectButton projectId={project.id} projectName={project.name} />
-                  <Button asChild variant="ghost"><a href={`/api/projects/${project.id}/share-card`} download={`${project.name}-BuildCrew.png`}>Pobierz kartę do udostępnienia</a></Button>
+                  <ShareProjectButton projectId={project.id} projectName={project.name} projectTagline={project.tagline} openRoles={project.openRoles.map((role) => ({ id: role.id, roleType: role.roleType }))} />
                 </div>
               </div>
               <div className="p-7 sm:p-9">
@@ -150,7 +169,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
             <Card className="p-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Autor pomysłu</p>
               <div className="mt-3 flex items-center gap-3">
-                <Avatar emoji={project.owner?.avatarEmoji ?? "🙂"} />
+                <Avatar username={project.owner?.username ?? "Builder"} seed={project.owner?.userId ?? project.ownerId} />
                 <div>
                   <p className="font-semibold">{project.owner?.username ?? "Builder"}</p>
                   <p className={`text-xs ${ownerActivity === "TODAY" ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-400"}`}>{activityLabel(project.owner?.lastActiveAt)}</p>
@@ -164,7 +183,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
                 <div className="mt-3 space-y-3">
                   {project.members.slice(0, 8).map((member) => (
                     <div key={member.userId} className="flex items-center gap-3">
-                      <Avatar emoji={member.profile?.avatarEmoji ?? "🙂"} size="sm" />
+                      <Avatar username={member.profile?.username ?? "Builder"} seed={member.userId} size="sm" />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{member.profile?.username ?? "Builder"}</p>
                         <p className="text-xs text-neutral-400">{member.roleType ? ROLE_LABELS[member.roleType] : member.profile?.role ? ROLE_LABELS[member.profile.role] : "Współtwórca"}</p>

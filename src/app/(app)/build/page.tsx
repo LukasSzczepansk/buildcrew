@@ -13,14 +13,9 @@ import { getBuildPoolListingForUser, listActiveBuildPoolListings } from "@/serve
 import { computeMatch } from "@/lib/matching";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
-
 export const metadata: Metadata = { title: "Build Pool — BuildCrew" };
 
-export default async function BuildPoolPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | undefined>>;
-}) {
+export default async function BuildPoolPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const params = await searchParams;
@@ -42,24 +37,8 @@ export default async function BuildPoolPage({
   const ranked = pool
     .map((item) => {
       const match = computeMatch(
-        {
-          userId: myProfile.userId,
-          username: myProfile.username,
-          role: myProfile.role as RoleType | null,
-          level: myProfile.level as Level | null,
-          weeklyHours: myProfile.weeklyHours as Commitment | null,
-          interests: myProfile.interests,
-          goals: myProfile.goals as Goal[],
-        },
-        {
-          userId: item.profile.userId,
-          username: item.profile.username,
-          role: item.profile.role as RoleType | null,
-          level: item.profile.level as Level | null,
-          weeklyHours: item.profile.weeklyHours as Commitment | null,
-          interests: item.profile.interests,
-          goals: item.profile.goals as Goal[],
-        },
+        { userId: myProfile.userId, username: myProfile.username, role: myProfile.role as RoleType | null, level: myProfile.level as Level | null, weeklyHours: myProfile.weeklyHours as Commitment | null, interests: myProfile.interests, goals: myProfile.goals as Goal[] },
+        { userId: item.profile.userId, username: item.profile.username, role: item.profile.role as RoleType | null, level: item.profile.level as Level | null, weeklyHours: item.profile.weeklyHours as Commitment | null, interests: item.profile.interests, goals: item.profile.goals as Goal[] },
       );
       return { ...item, reasons: match.reasons, score: match.score };
     })
@@ -71,81 +50,46 @@ export default async function BuildPoolPage({
 
   return (
     <div>
-      <Topbar title="Build Pool" subtitle="Osoby, które są teraz otwarte na wspólne budowanie." />
-
-      <div className="mb-6 max-w-3xl border-l-2 border-[#c8f169] pl-4 text-[12px] leading-5 text-neutral-500 dark:text-neutral-400">
-        Nie potrzebujesz projektu, żeby zacząć. Wystaw siebie, określ kierunek i znajdź osoby o podobnym celu.
-      </div>
+      <Topbar title="Build Pool" subtitle="Znajdź osoby gotowe do wspólnego projektu." />
 
       <BuildPoolListingManager
-        listing={myListing ? {
-          headline: myListing.headline,
-          role: myListing.role,
-          technologies: myListing.technologies,
-          wantsToBuild: myListing.wantsToBuild,
-          avoids: myListing.avoids,
-          weeklyHours: myListing.weeklyHours,
-          preferredCrewSize: myListing.preferredCrewSize,
-          level: myListing.level,
-          description: myListing.description,
-          status: myListing.status,
-        } : null}
+        listing={myListing ? { headline: myListing.headline, role: myListing.role, technologies: myListing.technologies, wantsToBuild: myListing.wantsToBuild, avoids: myListing.avoids, weeklyHours: myListing.weeklyHours, preferredCrewSize: myListing.preferredCrewSize, level: myListing.level, description: myListing.description, status: myListing.status } : null}
         activeCrew={Boolean(myCrewId)}
-        defaults={{
-          role: myProfile.role as RoleType | null,
-          level: myProfile.level as Level | null,
-          weeklyHours: myProfile.weeklyHours as Commitment | null,
-          skills: myProfile.skills,
-        }}
+        defaults={{ role: myProfile.role as RoleType | null, level: myProfile.level as Level | null, weeklyHours: myProfile.weeklyHours as Commitment | null, skills: myProfile.skills }}
       />
 
-      <FilterBar
-        filters={[
-          { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
-          { key: "skill", label: "Technologia", options: technologyOptions },
-          { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
-          { key: "interest", label: "Zainteresowania", options: INTEREST_OPTIONS.map((interest) => ({ value: interest, label: interest })) },
-        ]}
-      />
-
-      {ranked.length > 0 ? (
-        <div className="mt-7 flex items-center justify-between border-b border-[#d8d8d0] pb-2 text-[11px] text-neutral-400 dark:border-neutral-700">
-          <span>Najlepsze dopasowania</span>
-          <span>{ranked.length} aktywnych</span>
-        </div>
-      ) : null}
+      <div className="mt-6">
+        <FilterBar
+          filters={[
+            { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
+            { key: "skill", label: "Technologia", options: technologyOptions },
+            { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
+            { key: "interest", label: "Zainteresowania", options: INTEREST_OPTIONS.map((interest) => ({ value: interest, label: interest })) },
+          ]}
+        />
+      </div>
 
       {ranked.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-          title="Brak aktywnych zgłoszeń pasujących do filtrów."
-          description="Wystaw własne zgłoszenie albo zmień filtry."
-        />
+        <EmptyState className="mt-6" title="Brak aktywnych zgłoszeń pasujących do filtrów." description="Wystaw własne zgłoszenie albo zmień filtry." />
       ) : (
-        <div>
-          {ranked.map((item) => (
-            <BuildPoolCard
-              key={item.id}
-              myCrewId={myCrewId}
-              person={{
-                userId: item.userId,
-                username: item.profile.username,
-                avatarEmoji: item.profile.avatarEmoji,
-                headline: item.headline,
-                role: item.role,
-                level: item.level,
-                weeklyHours: item.weeklyHours,
-                technologies: item.technologies,
-                wantsToBuild: item.wantsToBuild,
-                avoids: item.avoids,
-                preferredCrewSize: item.preferredCrewSize,
-                description: item.description,
-                reasons: item.reasons,
-                matchScore: item.score,
-              }}
-            />
-          ))}
-        </div>
+        <section className="mt-8">
+          <div className="mb-4 flex items-end justify-between gap-5">
+            <div>
+              <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Najlepsze dopasowania</h2>
+              
+            </div>
+            <span className="text-[13px] text-[var(--bc-faint)]">{ranked.length} aktywnych</span>
+          </div>
+          <div className="space-y-2.5">
+            {ranked.map((item) => (
+              <BuildPoolCard
+                key={item.id}
+                myCrewId={myCrewId}
+                person={{ userId: item.userId, username: item.profile.username, avatarEmoji: item.profile.avatarEmoji, headline: item.headline, role: item.role, level: item.level, weeklyHours: item.weeklyHours, technologies: item.technologies, wantsToBuild: item.wantsToBuild, avoids: item.avoids, preferredCrewSize: item.preferredCrewSize, description: item.description, reasons: item.reasons, matchScore: item.score }}
+              />
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

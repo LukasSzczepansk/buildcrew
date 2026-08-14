@@ -374,8 +374,8 @@ export default function PrivacyPage() {
       <LegalSection title="15. Powiadomienia i wiadomości e-mail">
         <p>
           BuildCrew może wysyłać wiadomości e-mail związane z bezpieczeństwem i obsługą konta oraz — zgodnie z preferencjami
-          użytkownika — wybranymi zdarzeniami społecznościowymi, takimi jak zgłoszenie do projektu, odpowiedź w Build Pool,
-          zaproszenie do Crew, zdarzenie Build Challenge lub feedback w Showcase.
+          użytkownika — wybranymi zdarzeniami społecznościowymi, takimi jak wiadomość od innego użytkownika, zgłoszenie lub zaproszenie do projektu, odpowiedź w Build Pool,
+          zaproszenie do Crew, mocne dopasowanie profilu lub projektu, tygodniowe podsumowanie, zdarzenie Build Challenge albo feedback w Showcase.
         </p>
         <p>
           Użytkownik może zarządzać częścią preferencji e-mailowych w Serwisie, jeżeli dana opcja jest dostępna. Wiadomości

@@ -17,10 +17,7 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
   if (!user) redirect("/login");
   const params = await searchParams;
 
-  const [myProfile, allBuilders] = await Promise.all([
-    getProfileByUserId(user.id),
-    listBuilderProfiles(user.id),
-  ]);
+  const [myProfile, allBuilders] = await Promise.all([getProfileByUserId(user.id), listBuilderProfiles(user.id)]);
   if (!myProfile) redirect("/onboarding");
 
   let builders = allBuilders.filter((b) => b.onboardingCompleted);
@@ -39,24 +36,8 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
   const ranked = builders
     .map((builder) => {
       const match = computeMatch(
-        {
-          userId: myProfile.userId,
-          username: myProfile.username,
-          role: myProfile.role as RoleType | null,
-          level: myProfile.level as Level | null,
-          weeklyHours: myProfile.weeklyHours as Commitment | null,
-          interests: myProfile.interests,
-          goals: myProfile.goals as Goal[],
-        },
-        {
-          userId: builder.userId,
-          username: builder.username,
-          role: builder.role as RoleType | null,
-          level: builder.level as Level | null,
-          weeklyHours: builder.weeklyHours as Commitment | null,
-          interests: builder.interests,
-          goals: builder.goals as Goal[],
-        },
+        { userId: myProfile.userId, username: myProfile.username, role: myProfile.role as RoleType | null, level: myProfile.level as Level | null, weeklyHours: myProfile.weeklyHours as Commitment | null, interests: myProfile.interests, goals: myProfile.goals as Goal[] },
+        { userId: builder.userId, username: builder.username, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, interests: builder.interests, goals: builder.goals as Goal[] },
       );
       return { builder, ...match };
     })
@@ -64,53 +45,30 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <Topbar title="Builderzy" subtitle="Znajdź osoby, z którymi warto rozpocząć rozmowę. Najpierw pokazujemy role, dostępność, technologie i powód dopasowania." />
-
-      <div className="mb-5 flex max-w-[820px] items-start gap-3 border-l-2 border-[#c8f169] pl-4 text-[12px] leading-5 text-[var(--bc-muted)]">
-        <p><span className="font-medium text-[var(--bc-ink)]">Jak działa match:</span> bierzemy pod uwagę rolę, zainteresowania, dostępność, cel i poziom. Procent jest wskazówką — najważniejsze powody dopasowania zobaczysz przy każdej osobie.</p>
-      </div>
+      <Topbar title="Builderzy" subtitle="Znajdź osoby pasujące do Twojej roli, stacku i dostępności." />
 
       <FilterBar
         showSearch
-        searchPlaceholder="Szukaj po nicku, roli lub technologii"
+        searchPlaceholder="Szukaj osoby, roli lub technologii"
         filters={[
           { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
-          { key: "skill", label: "Umiejętność", options: Object.values(SKILL_GROUPS).flat().map((s) => ({ value: s, label: s })) },
+          { key: "skill", label: "Technologia", options: Object.values(SKILL_GROUPS).flat().map((s) => ({ value: s, label: s })) },
           { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
-          { key: "interest", label: "Chce budować", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
+          { key: "interest", label: "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
         ]}
       />
 
       {ranked.length === 0 ? (
-        <EmptyState className="mt-6" title="Nie znaleźliśmy osób pasujących do filtrów." description="Zmień filtry albo wystaw się w Build Pool." ctaLabel="Przejdź do Build Pool" ctaHref="/build" />
+        <EmptyState className="mt-6" title="Brak osób pasujących do filtrów" description="Zmień filtry albo sprawdź Build Pool." ctaLabel="Build Pool" ctaHref="/build" />
       ) : (
-        <section className="mt-8">
-          <div className="flex items-end justify-between gap-5 pb-3">
-            <div>
-              <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Najlepsze dopasowania</h2>
-              <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Najpierw pokazujemy osoby z największą liczbą wspólnych sygnałów.</p>
-            </div>
-            <span className="shrink-0 text-[12px] tabular-nums text-[var(--bc-faint)]">{ranked.length} {ranked.length === 1 ? "osoba" : "osób"}</span>
+        <section className="mt-7">
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Najlepsze dopasowania</h2>
+            <span className="text-[12px] tabular-nums text-[var(--bc-faint)]">{ranked.length} {ranked.length === 1 ? "osoba" : "osób"}</span>
           </div>
-          <div>
+          <div className="space-y-2.5">
             {ranked.map(({ builder: b, score, reasons }) => (
-              <BuilderCard
-                key={b.userId}
-                matchScore={score}
-                matchReasons={reasons}
-                builder={{
-                  userId: b.userId,
-                  username: b.username,
-                  avatarEmoji: b.avatarEmoji,
-                  role: b.role as RoleType | null,
-                  level: b.level as Level | null,
-                  weeklyHours: b.weeklyHours as Commitment | null,
-                  skills: b.skills,
-                  interests: b.interests,
-                  lookingFor: b.lookingFor,
-                  lastActiveAt: b.lastActiveAt,
-                }}
-              />
+              <BuilderCard key={b.userId} matchScore={score} matchReasons={reasons} builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, lastActiveAt: b.lastActiveAt }} />
             ))}
           </div>
         </section>

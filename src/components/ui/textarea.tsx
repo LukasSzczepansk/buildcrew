@@ -1,18 +1,16 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, ...props }, ref) => (
-    <textarea
-      ref={ref}
-      className={cn(
-        "flex min-h-[100px] w-full rounded-[6px] border border-[#c9c9c1] bg-white px-3 py-2.5 text-sm text-neutral-950 transition-[border-color,box-shadow] placeholder:text-neutral-400 focus-visible:border-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-[#171715] dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus-visible:border-neutral-400 dark:focus-visible:ring-white/10",
-        className,
-      )}
-      {...props}
-    />
-  ),
-);
+const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(({ className, ...props }, ref) => (
+  <textarea
+    ref={ref}
+    className={cn(
+      "flex min-h-[110px] w-full rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3.5 py-3 text-sm text-[var(--bc-ink)] transition-[border-color,box-shadow,background-color] placeholder:text-[var(--bc-faint)] focus-visible:border-[var(--bc-line-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--bc-accent-soft)] disabled:cursor-not-allowed disabled:opacity-50",
+      className,
+    )}
+    {...props}
+  />
+));
 Textarea.displayName = "Textarea";
 
 export { Textarea };

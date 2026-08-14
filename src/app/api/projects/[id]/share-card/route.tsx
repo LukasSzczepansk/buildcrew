@@ -1,17 +1,30 @@
 import { ImageResponse } from "next/og";
 import { getProjectById } from "@/server/data/projects";
-import { ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
+import { COMMITMENT_LABELS, ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
 
 export const runtime = "nodejs";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const project = await getProjectById(id);
   if (!project) return new Response("Not found", { status: 404 });
 
-  const roles = project.openRoles.slice(0, 3).map((role) => ROLE_LABELS[role.roleType]);
+  const requestUrl = new URL(request.url);
+  const variant = requestUrl.searchParams.get("variant");
+  const roleId = requestUrl.searchParams.get("role");
+  const requestedRole = variant === "recruitment"
+    ? project.openRoles.find((item) => item.id === roleId) ?? project.openRoles[0]
+    : undefined;
+
   const technologies = project.technologies.slice(0, 5);
+  const openRoleLabels = project.openRoles.slice(0, 3).map((role) => ROLE_LABELS[role.roleType]);
   const crewSize = Math.max(project.members.length, project.owner ? 1 : 0);
+  const totalSlots = project.roles.reduce((sum, role) => sum + role.slots, 0) + 1;
+  const stage = stripStageEmoji(STAGE_LABELS[project.stage]);
+  const commitment = project.commitment ? COMMITMENT_LABELS[project.commitment] : "Do ustalenia";
+  const host = getPublicHost();
+  const isRecruitment = Boolean(requestedRole);
+  const projectNameSize = project.name.length > 42 ? 52 : project.name.length > 28 ? 58 : 66;
 
   return new ImageResponse(
     (
@@ -20,42 +33,157 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           width: "1200px",
           height: "630px",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "64px",
-          background: "#f7f7f3",
-          color: "#171717",
-          fontFamily: "sans-serif",
+          background: "#F4F4EF",
+          color: "#111111",
+          fontFamily: "Arial, sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "30px", fontWeight: 800 }}>
-            <div style={{ width: "52px", height: "52px", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", background: "#11110f", color: "white", fontSize: "28px" }}>🛠️</div>
-            BuildCrew
+        <div
+          style={{
+            width: "820px",
+            height: "630px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            padding: "54px 56px 50px",
+            borderRight: "1px solid #DADAD3",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "13px" }}>
+              <div style={{ width: "7px", height: "34px", background: "#C8F169", borderRadius: "2px" }} />
+              <div style={{ fontSize: "26px", fontWeight: 700, letterSpacing: "-0.6px" }}>BuildCrew</div>
+            </div>
+            <div style={{ fontSize: "15px", color: "#70706B", letterSpacing: "0.9px", textTransform: "uppercase" }}>
+              {isRecruitment ? "Otwarta rola" : "Projekt"}
+            </div>
           </div>
-          <div style={{ padding: "10px 18px", borderRadius: "999px", background: "#ede9fe", color: "#6d28d9", fontSize: "20px", fontWeight: 700 }}>{STAGE_LABELS[project.stage]}</div>
+
+          <div style={{ display: "flex", flexDirection: "column", maxWidth: "700px" }}>
+            {isRecruitment ? (
+              <>
+                <div style={{ fontSize: "23px", color: "#70706B", marginBottom: "12px" }}>{project.name}</div>
+                <div style={{ fontSize: "65px", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-2.2px" }}>
+                  Szukamy {ROLE_LABELS[requestedRole!.roleType]}
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: `${projectNameSize}px`, lineHeight: 1.02, fontWeight: 700, letterSpacing: "-2.2px" }}>
+                {project.name}
+              </div>
+            )}
+
+            <div style={{ marginTop: "22px", maxWidth: "680px", fontSize: "25px", lineHeight: 1.35, color: "#5F5F5A" }}>
+              {project.tagline}
+            </div>
+
+            {technologies.length > 0 ? (
+              <div style={{ display: "flex", marginTop: "27px", fontSize: "18px", lineHeight: 1.4, color: "#252525" }}>
+                {technologies.join("  ·  ")}
+              </div>
+            ) : null}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #DADAD3", paddingTop: "20px" }}>
+            <div style={{ display: "flex", gap: "34px" }}>
+              <Metric label="Etap" value={stage} />
+              <Metric label="Czas" value={commitment} />
+              <Metric label="Ekipa" value={`${crewSize}/${Math.max(totalSlots, crewSize)}`} />
+            </div>
+            <div style={{ fontSize: "16px", fontWeight: 600 }}>{host}</div>
+          </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", maxWidth: "980px" }}>
-          <div style={{ fontSize: "62px", lineHeight: 1.04, fontWeight: 850, letterSpacing: "-2px" }}>{project.name}</div>
-          <div style={{ marginTop: "20px", fontSize: "29px", lineHeight: 1.35, color: "#525252" }}>{project.tagline}</div>
+        <div
+          style={{
+            width: "380px",
+            height: "630px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            padding: "54px 44px 50px",
+            background: "#111111",
+            color: "#F4F4EF",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ fontSize: "13px", color: "#A5A59F", letterSpacing: "1.2px", textTransform: "uppercase" }}>
+              {isRecruitment ? "Dołącz do projektu" : "Szukamy do ekipy"}
+            </div>
 
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "30px" }}>
-            {technologies.map((technology) => (
-              <div key={technology} style={{ border: "2px solid #e5e5e5", borderRadius: "999px", padding: "8px 15px", fontSize: "19px", background: "white" }}>{technology}</div>
-            ))}
-          </div>
-        </div>
+            <div style={{ marginTop: "22px", width: "42px", height: "5px", borderRadius: "2px", background: "#C8F169" }} />
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", gap: "14px", alignItems: "center", fontSize: "22px", color: "#404040" }}>
-            <div style={{ padding: "10px 16px", borderRadius: "12px", background: "white", border: "2px solid #e5e5e5" }}>👥 Ekipa: {crewSize}</div>
-            <div style={{ padding: "10px 16px", borderRadius: "12px", background: "#f5f3ff", color: "#6d28d9", fontWeight: 700 }}>{roles.length ? `Szukamy: ${roles.join(" · ")}` : "Ekipa kompletna"}</div>
+            <div style={{ marginTop: "30px", display: "flex", flexDirection: "column", gap: "16px" }}>
+              {isRecruitment ? (
+                <>
+                  <div style={{ fontSize: "33px", lineHeight: 1.15, fontWeight: 600 }}>{ROLE_LABELS[requestedRole!.roleType]}</div>
+                  {requestedRole!.description ? (
+                    <div style={{ fontSize: "18px", lineHeight: 1.45, color: "#C8C8C2" }}>
+                      {truncate(requestedRole!.description, 120)}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: "18px", lineHeight: 1.45, color: "#C8C8C2" }}>
+                      Otwarta rola w zespole. Sprawdź zakres i napisz do autora projektu.
+                    </div>
+                  )}
+                </>
+              ) : openRoleLabels.length > 0 ? (
+                openRoleLabels.map((role) => (
+                  <div key={role} style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "24px", lineHeight: 1.3 }}>
+                    <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#C8F169" }} />
+                    {role}
+                  </div>
+                ))
+              ) : (
+                <div style={{ fontSize: "25px", lineHeight: 1.3, fontWeight: 600 }}>Ekipa jest obecnie kompletna.</div>
+              )}
+            </div>
           </div>
-          <div style={{ fontSize: "22px", fontWeight: 750, color: "#11110f" }}>buildcreww.pl</div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div style={{ fontSize: "18px", lineHeight: 1.45, color: "#C8C8C2" }}>
+              {isRecruitment ? "Zobacz projekt, ekipę i szczegóły roli." : "Zobacz projekt i poznaj ludzi, którzy go budują."}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "19px", fontWeight: 600 }}>
+              <div style={{ width: "16px", height: "4px", borderRadius: "2px", background: "#C8F169" }} />
+              Otwórz na BuildCrew
+            </div>
+          </div>
         </div>
       </div>
     ),
-    { width: 1200, height: 630 },
+    {
+      width: 1200,
+      height: 630,
+      headers: {
+        "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600",
+      },
+    },
   );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+      <div style={{ fontSize: "12px", color: "#9A9A94", letterSpacing: "0.7px", textTransform: "uppercase" }}>{label}</div>
+      <div style={{ fontSize: "17px", fontWeight: 600 }}>{value}</div>
+    </div>
+  );
+}
+
+function stripStageEmoji(value: string) {
+  const parts = value.trim().split(/\s+/);
+  return parts.length > 1 ? parts.slice(1).join(" ") : value;
+}
+
+function truncate(value: string, maxLength: number) {
+  return value.length <= maxLength ? value : `${value.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function getPublicHost() {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_APP_URL || "https://buildcreww.pl").host.replace(/^www\./, "");
+  } catch {
+    return "buildcreww.pl";
+  }
 }

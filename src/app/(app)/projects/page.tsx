@@ -28,41 +28,30 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <Topbar title="Projekty" subtitle="Znajdź projekt, który potrzebuje Twojej roli. Najpierw sprawdź stage, stack, kogo szukają i ile czasu wymaga projekt." />
+      <Topbar title="Projekty" subtitle="Sprawdź stack, otwarte role i wymagany czas — bez przeklikiwania każdej karty." />
 
-      <div className="pb-2">
-        <FilterBar
-          showSearch
-          searchPlaceholder="Szukaj po nazwie lub technologii"
-          filters={[
-            { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
-            { key: "technology", label: "Technologia", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
-            { key: "stage", label: "Etap", options: Object.entries(STAGE_LABELS).map(([value, label]) => ({ value, label })) },
-            { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
-            { key: "interest", label: "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
-            { key: "commitment", label: "Czas", options: Object.entries(COMMITMENT_LABELS).map(([value, label]) => ({ value, label })) },
-          ]}
-        />
-      </div>
+      <FilterBar
+        showSearch
+        searchPlaceholder="Szukaj projektu lub technologii"
+        filters={[
+          { key: "role", label: "Rola", options: Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label })) },
+          { key: "technology", label: "Technologia", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
+          { key: "stage", label: "Etap", options: Object.entries(STAGE_LABELS).map(([value, label]) => ({ value, label })) },
+          { key: "level", label: "Poziom", options: Object.entries(LEVEL_LABELS).map(([value, label]) => ({ value, label })) },
+          { key: "interest", label: "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
+          { key: "commitment", label: "Czas", options: Object.entries(COMMITMENT_LABELS).map(([value, label]) => ({ value, label })) },
+        ]}
+      />
 
       {projects.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-          title="Brak projektów pasujących do filtrów."
-          description="Zmień filtry albo zacznij od znalezienia ludzi w Build Pool."
-          ctaLabel="Przejdź do Build Pool"
-          ctaHref="/build"
-        />
+        <EmptyState className="mt-6" title="Brak projektów pasujących do filtrów" description="Zmień filtry albo znajdź ekipę w Build Pool." ctaLabel="Build Pool" ctaHref="/build" />
       ) : (
-        <section className="mt-6">
-          <div className="flex items-end justify-between gap-5 pb-3">
-            <div>
-              <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Projekty otwarte na ludzi</h2>
-              <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Najpierw sprawdź, kogo szukają i ile czasu wymaga projekt.</p>
-            </div>
-            <span className="shrink-0 text-[12px] tabular-nums text-[var(--bc-faint)]">{projects.length} {projects.length === 1 ? "projekt" : "projektów"}</span>
+        <section className="mt-7">
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Otwarte projekty</h2>
+            <span className="text-[12px] tabular-nums text-[var(--bc-faint)]">{projects.length} {projects.length === 1 ? "projekt" : "projektów"}</span>
           </div>
-          <div>{projects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
+          <div className="space-y-2.5">{projects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
         </section>
       )}
     </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Search, ShieldBan, ShieldCheck } from "lucide-react";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -36,7 +37,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
               {rows.map((user) => {
                 const adminAccount = isAdmin(user.email, user.systemRole);
                 return <tr key={user.id} className="align-top hover:bg-neutral-50/60 dark:hover:bg-neutral-800/30">
-                  <td className="px-5 py-4"><div className="flex gap-3"><span className="text-2xl">{user.avatarEmoji ?? "🙂"}</span><div><Link href={`/builders/${user.id}`} className="font-medium hover:text-lime-600">{user.username ?? "Nieukończony profil"}</Link><p className="text-xs text-neutral-400">{user.email}</p>{!user.onboardingCompleted ? <Badge variant="warning" className="mt-1">Onboarding nieukończony</Badge> : null}</div></div></td>
+                  <td className="px-5 py-4"><div className="flex gap-3"><Avatar username={user.username ?? "Nieukończony profil"} seed={user.id} size="sm" /><div><Link href={`/builders/${user.id}`} className="font-medium hover:text-lime-600">{user.username ?? "Nieukończony profil"}</Link><p className="text-xs text-neutral-400">{user.email}</p>{!user.onboardingCompleted ? <Badge variant="warning" className="mt-1">Onboarding nieukończony</Badge> : null}</div></div></td>
                   <td className="px-4 py-4"><p>{user.role ? ROLE_LABELS[user.role] : "—"}</p><p className="text-xs text-neutral-400">{user.level ? LEVEL_LABELS[user.level] : "Brak poziomu"}</p></td>
                   <td className="px-4 py-4"><p>{user.ownedProjects} własnych</p><p className="text-xs text-neutral-400">{user.projectMemberships} członkostw</p></td>
                   <td className="px-4 py-4">{user.applications}</td>

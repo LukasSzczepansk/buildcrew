@@ -1,19 +1,17 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, type, ...props }, ref) => (
-    <input
-      type={type}
-      ref={ref}
-      className={cn(
-        "flex h-10 w-full rounded-[6px] border border-[#c9c9c1] bg-white px-3 py-2 text-sm text-neutral-950 transition-[border-color,box-shadow] placeholder:text-neutral-400 focus-visible:border-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-[var(--bc-line)] dark:bg-[var(--bc-surface)] dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus-visible:border-[#c8f169] dark:focus-visible:ring-[#c8f169]/10",
-        className,
-      )}
-      {...props}
-    />
-  ),
-);
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(({ className, type, ...props }, ref) => (
+  <input
+    type={type}
+    ref={ref}
+    className={cn(
+      "flex h-10 w-full rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3.5 py-2 text-sm text-[var(--bc-ink)] transition-[border-color,box-shadow,background-color] placeholder:text-[var(--bc-faint)] focus-visible:border-[var(--bc-line-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--bc-accent-soft)] disabled:cursor-not-allowed disabled:opacity-50",
+      className,
+    )}
+    {...props}
+  />
+));
 Input.displayName = "Input";
 
 export { Input };

@@ -52,7 +52,7 @@ export default async function CrewPage({ params }: { params: Promise<{ id: strin
             {crew.members.map((m) => (
               <div key={m.userId} className="flex items-center justify-between py-3">
                 <Link href={`/builders/${m.userId}`} className="flex items-center gap-3">
-                  <Avatar emoji={m.profile.avatarEmoji} size="sm" />
+                  <Avatar username={m.profile.username} seed={m.userId} size="sm" />
                   <div>
                     <p className="font-medium">
                       {m.profile.username} {m.userId === user.id && <span className="text-neutral-400">(Ty)</span>}

@@ -84,7 +84,7 @@ export function ChatThread({
     <Card className="overflow-hidden">
       <div className="border-b border-neutral-200 px-5 py-4 dark:border-neutral-800">
         <div className="flex items-center gap-3">
-          <Avatar emoji={otherUser.avatarEmoji} size="sm" />
+          <Avatar username={otherUser.username} size="sm" />
           <div>
             <p className="font-semibold">{otherUser.username}</p>
             <p className="text-xs text-neutral-400">Wiadomości odświeżają się co kilka sekund</p>
@@ -104,7 +104,7 @@ export function ChatThread({
               return (
                 <div key={message.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
                   <div className={cn(
-                    "max-w-[82%] rounded-[10px] px-4 py-2.5 text-sm shadow-sm",
+                    "max-w-[82%] rounded-[8px] px-3.5 py-2.5 text-sm",
                     mine
                       ? "rounded-br-md bg-lime-600 text-white"
                       : "rounded-bl-md border border-neutral-200 bg-white text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100",

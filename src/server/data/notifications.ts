@@ -10,7 +10,9 @@ export const DEFAULT_NOTIFICATION_PREFERENCES = {
   emailCrew: true,
   emailChallenge: true,
   emailShowcaseFeedback: false,
-  emailMessages: false,
+  emailMessages: true,
+  emailMatches: true,
+  emailWeeklyDigest: true,
 };
 
 export async function listNotifications(userId: string, limit = 50) {

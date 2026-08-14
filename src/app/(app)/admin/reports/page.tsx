@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,8 +25,8 @@ export default async function AdminReportsPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2"><Badge variant={report.status === "open" ? "destructive" : report.status === "resolved" ? "success" : "secondary"}>{statusLabel[report.status] ?? report.status}</Badge><Badge variant="outline">{reasonLabel[report.reason] ?? report.reason}</Badge><span className="text-xs text-neutral-400">{report.createdAt.toLocaleString("pl-PL")}</span></div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-[6px] bg-neutral-50 p-3 dark:bg-neutral-800/50"><p className="text-xs text-neutral-400">Zgłaszający</p><p className="mt-1 text-sm font-medium">{report.reporter?.avatarEmoji ?? "🙂"} {report.reporter?.username ?? "Brak profilu"}</p><p className="text-xs text-neutral-400">{report.reporter?.email}</p></div>
-                  <div className="rounded-[6px] bg-red-50/60 p-3 dark:bg-red-500/5"><p className="text-xs text-neutral-400">Zgłoszony</p><Link href={report.reported ? `/builders/${report.reported.id}` : "#"} className="mt-1 block text-sm font-medium hover:text-lime-600">{report.reported?.avatarEmoji ?? "🙂"} {report.reported?.username ?? "Brak profilu"}</Link><p className="text-xs text-neutral-400">{report.reported?.email}</p>{report.reported?.isSuspended ? <Badge variant="destructive" className="mt-2">Konto zawieszone</Badge> : null}</div>
+                  <div className="rounded-[6px] bg-neutral-50 p-3 dark:bg-neutral-800/50"><p className="text-xs text-neutral-400">Zgłaszający</p><div className="mt-2 flex items-center gap-2.5"><Avatar username={report.reporter?.username ?? "Brak profilu"} seed={report.reporter?.id ?? report.reporterId} size="sm" /><div><p className="text-sm font-medium">{report.reporter?.username ?? "Brak profilu"}</p><p className="text-xs text-neutral-400">{report.reporter?.email}</p></div></div></div>
+                  <div className="rounded-[6px] bg-red-50/60 p-3 dark:bg-red-500/5"><p className="text-xs text-neutral-400">Zgłoszony</p><div className="mt-2 flex items-center gap-2.5"><Avatar username={report.reported?.username ?? "Brak profilu"} seed={report.reported?.id ?? report.reportedId} size="sm" /><div><Link href={report.reported ? `/builders/${report.reported.id}` : "#"} className="block text-sm font-medium hover:text-lime-600">{report.reported?.username ?? "Brak profilu"}</Link><p className="text-xs text-neutral-400">{report.reported?.email}</p></div></div>{report.reported?.isSuspended ? <Badge variant="destructive" className="mt-2">Konto zawieszone</Badge> : null}</div>
                 </div>
                 {report.description ? <div className="mt-3 rounded-[6px] border border-neutral-200 p-3 text-sm dark:border-neutral-800"><p className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-400">Opis użytkownika</p>{report.description}</div> : null}
               </div>

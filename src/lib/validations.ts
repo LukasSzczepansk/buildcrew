@@ -235,4 +235,6 @@ export const notificationPreferencesSchema = z.object({
   emailChallenge: z.boolean(),
   emailShowcaseFeedback: z.boolean(),
   emailMessages: z.boolean(),
+  emailMatches: z.boolean(),
+  emailWeeklyDigest: z.boolean(),
 });

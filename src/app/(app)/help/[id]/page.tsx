@@ -30,7 +30,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
 
       <Card className="p-6 sm:p-7">
         <div className="flex items-start gap-3">
-          <Avatar emoji={question.author?.avatarEmoji ?? "🙂"} size="md" />
+          <Avatar username={question.author?.username ?? "Builder"} seed={question.authorId} size="md" />
           <div className="min-w-0 flex-1">
             <p className="text-sm text-neutral-500">{question.author?.username ?? "Builder"} · {timeAgo(question.createdAt)}</p>
             <h1 className="mt-2 text-2xl font-bold tracking-tight">{question.title}</h1>
@@ -53,7 +53,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           question.answers.map((answer) => (
             <Card key={answer.id} className={answer.isHelpful ? "border-emerald-200 p-5 dark:border-emerald-500/30" : "p-5"}>
               <div className="flex items-start gap-3">
-                <Avatar emoji={answer.author?.avatarEmoji ?? "🙂"} size="sm" />
+                <Avatar username={answer.author?.username ?? "Builder"} seed={answer.authorId} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-medium">{answer.author?.username ?? "Builder"}</p>

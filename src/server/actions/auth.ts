@@ -26,7 +26,7 @@ import {
   consumePostAuthRedirect,
   verifyPassword,
 } from "@/lib/auth";
-import { absoluteUrl, sendTransactionalEmail } from "@/lib/email";
+import { absoluteUrl, buildCrewEmail, sendTransactionalEmail } from "@/lib/email";
 import { checkRateLimit, getRequestIp, randomSixDigitCode, randomToken, sha256 } from "@/lib/security";
 import { safeInternalRedirect } from "@/lib/redirects";
 import {
@@ -60,7 +60,7 @@ async function issueVerificationEmail(userId: string, email: string, nextPath?: 
   return sendTransactionalEmail({
     to: email,
     subject: "Potwierdź e-mail w BuildCrew",
-    html: `<p>Potwierdź swój adres e-mail, aby korzystać z BuildCrew.</p><p><a href="${link}">Potwierdź e-mail</a></p><p>Link wygasa po 24 godzinach.</p>`,
+    html: buildCrewEmail({ eyebrow: "Bezpieczeństwo konta", title: "Potwierdź swój e-mail", intro: "Potwierdź adres, aby korzystać z BuildCrew.", ctaLabel: "Potwierdź e-mail", ctaHref: `/verify-email?token=${encodeURIComponent(token)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`, footer: "Link wygasa po 24 godzinach. Jeśli to nie Ty zakładałeś konto, możesz zignorować tę wiadomość." }),
     devPreview: `Link weryfikacyjny: ${link}`,
   });
 }
@@ -75,7 +75,7 @@ async function issuePasswordResetEmail(userId: string, email: string) {
   return sendTransactionalEmail({
     to: email,
     subject: "Reset hasła BuildCrew",
-    html: `<p>Otrzymaliśmy prośbę o zmianę hasła.</p><p><a href="${link}">Ustaw nowe hasło</a></p><p>Link wygasa po 30 minutach. Jeżeli to nie Ty, zignoruj tę wiadomość.</p>`,
+    html: buildCrewEmail({ eyebrow: "Bezpieczeństwo konta", title: "Ustaw nowe hasło", intro: "Otrzymaliśmy prośbę o zmianę hasła do Twojego konta.", ctaLabel: "Ustaw nowe hasło", ctaHref: `/reset-password?token=${encodeURIComponent(token)}`, footer: "Link wygasa po 30 minutach. Jeśli to nie Ty wysłałeś prośbę, zignoruj tę wiadomość." }),
     devPreview: `Link resetu hasła: ${link}`,
   });
 }
@@ -162,7 +162,7 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
     const sent = await sendTransactionalEmail({
       to: user.email,
       subject: "Kod logowania administratora BuildCrew",
-      html: `<p>Twój jednorazowy kod logowania administratora:</p><p style="font-size:28px;font-weight:700;letter-spacing:4px">${code}</p><p>Kod wygasa po 10 minutach.</p>`,
+      html: buildCrewEmail({ eyebrow: "Logowanie administratora", title: "Kod logowania", content: `<div style="font-size:30px;font-weight:700;letter-spacing:6px;margin:18px 0">${code}</div><p style="font-size:12px;line-height:1.6;color:#777770;margin:0">Kod wygasa po 10 minutach.</p>`, footer: "Jeśli to nie Ty próbujesz się zalogować, zmień hasło i sprawdź aktywne sesje." }),
       devPreview: `Kod administratora: ${code}`,
     });
     if (!sent.ok && process.env.NODE_ENV === "production") {

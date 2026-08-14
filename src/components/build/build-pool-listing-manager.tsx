@@ -107,9 +107,7 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
             {listing ? <Badge variant="secondary">{STATUS_LABELS[listing.status]}</Badge> : null}
           </div>
           <p className="mt-1 text-sm text-neutral-500">
-            {activeCrew
-              ? "Masz już aktywną ekipę. Możesz przeglądać Build Pool i zapraszać innych, ale Twoje własne zgłoszenie pozostaje nieaktywne."
-              : "Build Pool pokazuje tylko osoby, które aktywnie wystawiły się jako gotowe do wspólnego budowania."}
+            {activeCrew ? "Masz aktywną ekipę — nadal możesz zapraszać innych." : "Wystaw się, jeśli jesteś gotowy na wspólne budowanie."}
           </p>
           {listing ? <p className="mt-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">{listing.headline}</p> : null}
         </div>
@@ -125,7 +123,7 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
               <DialogHeader>
                 <DialogTitle>{listing ? "Edytuj zgłoszenie" : "Wystaw się w Build Pool"}</DialogTitle>
-                <DialogDescription>Powiedz konkretnie, czego szukasz. Zapisanie formularza automatycznie ustawia zgłoszenie jako aktywne.</DialogDescription>
+                <DialogDescription>Krótko opisz, czego szukasz. Po zapisaniu zgłoszenie będzie aktywne.</DialogDescription>
               </DialogHeader>
 
               <div className="grid gap-4 py-1 sm:grid-cols-2">

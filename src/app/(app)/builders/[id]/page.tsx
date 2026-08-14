@@ -6,13 +6,8 @@ import { Topbar } from "@/components/layout/topbar";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import {
-  COMMITMENT_LABELS,
-  GOAL_LABELS,
-  LEVEL_LABELS,
-  LOOKING_FOR_LABELS,
-  ROLE_LABELS,
-} from "@/lib/constants";
+import { TechnologyStack } from "@/components/ui/technology-badge";
+import { COMMITMENT_LABELS, GOAL_LABELS, LEVEL_LABELS, LOOKING_FOR_LABELS, ROLE_LABELS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
 import { getProfileByUserId } from "@/server/data/profiles";
 import { getRevealedContact } from "@/server/data/contact";
@@ -35,172 +30,61 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
   if (!user) redirect("/login");
   const { id } = await params;
   if (user.id !== id && await isBlockedEitherWay(user.id, id)) notFound();
-
   const profile = await getProfileByUserId(id);
   if (!profile) notFound();
 
   const [ownedProjects, memberProjects, contact, showcaseEntries, badges] = await Promise.all([
-    listProjectsForOwner(id),
-    listProjectsForMember(id),
-    user.id !== id ? getRevealedContact(user.id, id) : Promise.resolve(null),
-    listShowcaseForUser(id),
-    getBuilderBadges(id),
+    listProjectsForOwner(id), listProjectsForMember(id), user.id !== id ? getRevealedContact(user.id, id) : Promise.resolve(null), listShowcaseForUser(id), getBuilderBadges(id),
   ]);
-  const projects = [
-    ...ownedProjects.map((p) => ({ ...p, relation: "Właściciel" })),
-    ...memberProjects.filter((p) => p.ownerId !== id).map((p) => ({ ...p, relation: "Członek zespołu" })),
-  ];
-
+  const projects = [...ownedProjects.map((p) => ({ ...p, relation: "Właściciel" })), ...memberProjects.filter((p) => p.ownerId !== id).map((p) => ({ ...p, relation: "Członek zespołu" }))];
   const activityState = getActivityState(profile.lastActiveAt);
-
-  const [myOwnedProjects, friendState] = user.id !== id
-    ? await Promise.all([listProjectsForOwner(user.id), getFriendshipState(user.id, id)])
-    : [[], { kind: "NONE" as const }];
+  const [myOwnedProjects, friendState] = user.id !== id ? await Promise.all([listProjectsForOwner(user.id), getFriendshipState(user.id, id)]) : [[], { kind: "NONE" as const }];
 
   return (
     <div>
       <Topbar />
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card className="p-8">
-            <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-              <Avatar emoji={profile.avatarEmoji} size="xl" />
-              <div>
-                <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-bold tracking-tight">{profile.username}</h1>{profile.isDemo ? <Badge variant="outline">Demo</Badge> : null}</div>
-                <div className="mt-1 flex flex-wrap items-center gap-2"><p className="text-neutral-500">{profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder"}</p><Badge variant={activityState === "TODAY" ? "success" : "outline"}>{activityLabel(profile.lastActiveAt)}</Badge></div>
-                {badges.length ? <div className="mt-2 flex flex-wrap gap-1.5">{badges.map((badge) => <Badge key={badge.key} variant="outline">{badge.emoji} {badge.label}</Badge>)}</div> : null}
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <main className="min-w-0">
+          <section className="border-b border-[var(--bc-line)] pb-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <Avatar username={profile.username} seed={profile.userId} size="lg" />
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2"><h1 className="text-[28px] font-semibold tracking-[-0.03em]">{profile.username}</h1>{profile.isDemo ? <Badge variant="outline">Demo</Badge> : null}</div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[var(--bc-muted)]"><span>{profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder"}</span><span>{profile.level ? LEVEL_LABELS[profile.level] : ""}</span><span className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${activityState === "TODAY" ? "bg-[var(--bc-accent-strong)]" : "bg-[var(--bc-line-strong)]"}`} />{activityLabel(profile.lastActiveAt)}</span></div>
+                {badges.length ? <p className="mt-2 text-[11px] text-[var(--bc-faint)]">{badges.slice(0, 3).map((badge) => badge.label).join(" · ")}</p> : null}
               </div>
             </div>
+            {profile.bio ? <p className="mt-5 max-w-[760px] text-[14px] leading-6 text-[var(--bc-muted)]">{profile.bio}</p> : null}
+          </section>
 
-            {profile.isDemo ? <div className="mt-5 rounded-[6px] border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/60">Profil demonstracyjny używany do przykładowej zawartości Showcase.</div> : null}
-            {profile.bio && <p className="mt-6 text-neutral-600 dark:text-neutral-300">{profile.bio}</p>}
-
-            <div className="mt-6 grid gap-6 sm:grid-cols-2">
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Umiejętności</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {profile.skills.map((s) => (
-                    <Badge key={s} variant="outline">
-                      {s}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Poziom</p>
-                <Badge>{profile.level ? LEVEL_LABELS[profile.level] : "—"}</Badge>
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Zainteresowania</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {profile.interests.map((i) => (
-                    <Badge key={i} variant="secondary">
-                      {i}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Cele</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {profile.goals.map((g) => (
-                    <Badge key={g} variant="secondary">
-                      {GOAL_LABELS[g]}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Dostępność</p>
-                <p className="text-sm">⏱️ {profile.weeklyHours ? COMMITMENT_LABELS[profile.weeklyHours] : "—"}</p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Aktualnie</p>
-                <div className="flex flex-col gap-1 text-sm">
-                  {profile.lookingFor.map((l) => (
-                    <span key={l}>✓ {LOOKING_FOR_LABELS[l]}</span>
-                  ))}
-                </div>
-              </div>
+          <ProfileSection title="Umiejętności"><TechnologyStack items={profile.skills} max={10} compact /></ProfileSection>
+          <ProfileSection title="Dostępność i kierunek">
+            <div className="grid gap-4 text-[13px] sm:grid-cols-2">
+              <div><p className="text-[11px] text-[var(--bc-faint)]">Czas</p><p className="mt-1 font-medium">{profile.weeklyHours ? COMMITMENT_LABELS[profile.weeklyHours] : "—"}</p></div>
+              <div><p className="text-[11px] text-[var(--bc-faint)]">Szukam teraz</p><p className="mt-1 font-medium">{profile.lookingFor.length ? profile.lookingFor.map((item) => LOOKING_FOR_LABELS[item]).join(" · ") : "—"}</p></div>
+              <div><p className="text-[11px] text-[var(--bc-faint)]">Obszary</p><p className="mt-1 text-[var(--bc-muted)]">{profile.interests.join(" · ") || "—"}</p></div>
+              <div><p className="text-[11px] text-[var(--bc-faint)]">Cele</p><p className="mt-1 text-[var(--bc-muted)]">{profile.goals.map((goal) => GOAL_LABELS[goal]).join(" · ") || "—"}</p></div>
             </div>
-          </Card>
+          </ProfileSection>
 
+          {showcaseEntries.length > 0 ? <ProfileSection title="Showcase"><SimpleList items={showcaseEntries.map((entry) => ({ href: `/showcase/${entry.id}`, title: entry.title, meta: `${entry.reactionCounts.POTENTIAL} reakcji · ${entry.feedbackCount} komentarzy` }))} /></ProfileSection> : null}
+          {projects.length > 0 ? <ProfileSection title="Projekty"><SimpleList items={projects.map((project) => ({ href: `/projects/${project.id}`, title: project.name, meta: project.relation }))} /></ProfileSection> : null}
+        </main>
 
-          {showcaseEntries.length > 0 && (
-            <Card className="mt-6 p-6">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Co faktycznie zbudował</p>
-              <div className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
-                {showcaseEntries.map((entry) => (
-                  <Link key={entry.id} href={`/showcase/${entry.id}`} className="flex items-center justify-between py-3 text-sm hover:text-lime-600">
-                    <span className="font-medium">{entry.title}</span>
-                    <span className="text-neutral-400">🚀 {entry.reactionCounts.POTENTIAL} · 💬 {entry.feedbackCount}</span>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-          )}
-          {projects.length > 0 && (
-            <Card className="mt-6 p-6">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Projekty</p>
-              <div className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
-                {projects.map((p) => (
-                  <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between py-3 text-sm hover:text-lime-600">
-                    <span className="font-medium">{p.name}</span>
-                    <span className="text-neutral-400">{p.relation}</span>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-6">
-          {user.id !== id && (
-            <BuilderProfileActions
-              targetUserId={id}
-              myProjects={myOwnedProjects.map((p) => ({ id: p.id, name: p.name }))}
-              friendState={friendState}
-            />
-          )}
-
-          {user.id !== id && contact && (
-            <Card className="p-6">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Kontakt</p>
-              {contact.discordUsername ? (
-                <div>
-                  <p className="text-sm text-neutral-500">Discord</p>
-                  <p className="font-mono font-medium">{contact.discordUsername}</p>
-                </div>
-              ) : (
-                <p className="text-sm text-neutral-400">Ta osoba nie podała jeszcze Discorda.</p>
-              )}
-            </Card>
-          )}
-
-          {(profile.githubUrl || profile.portfolioUrl || profile.linkedinUrl) && (
-            <Card className="p-6">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Linki</p>
-              <div className="flex flex-col gap-2 text-sm">
-                {profile.githubUrl && (
-                  <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-600 hover:underline dark:text-lime-400">
-                    <Link2 className="h-4 w-4" /> GitHub
-                  </a>
-                )}
-                {profile.portfolioUrl && (
-                  <a href={profile.portfolioUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-600 hover:underline dark:text-lime-400">
-                    <Globe className="h-4 w-4" /> Portfolio
-                  </a>
-                )}
-                {profile.linkedinUrl && (
-                  <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-600 hover:underline dark:text-lime-400">
-                    <Link2 className="h-4 w-4" /> LinkedIn
-                  </a>
-                )}
-              </div>
-            </Card>
-          )}
-        </div>
+        <aside className="space-y-4">
+          {user.id !== id ? <BuilderProfileActions targetUserId={id} myProjects={myOwnedProjects.map((p) => ({ id: p.id, name: p.name }))} friendState={friendState} /> : null}
+          {user.id !== id && contact ? <Card className="p-4"><p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Kontakt</p>{contact.discordUsername ? <p className="mt-2 font-mono text-[13px] font-medium">{contact.discordUsername}</p> : <p className="mt-2 text-[12px] text-[var(--bc-muted)]">Brak Discorda.</p>}</Card> : null}
+          {(profile.githubUrl || profile.portfolioUrl || profile.linkedinUrl) ? <Card className="p-4"><p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Linki</p><div className="mt-2 space-y-2 text-[13px]">{profile.githubUrl ? <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline"><Link2 className="h-3.5 w-3.5" /> GitHub</a> : null}{profile.portfolioUrl ? <a href={profile.portfolioUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline"><Globe className="h-3.5 w-3.5" /> Portfolio</a> : null}{profile.linkedinUrl ? <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline"><Link2 className="h-3.5 w-3.5" /> LinkedIn</a> : null}</div></Card> : null}
+        </aside>
       </div>
     </div>
   );
+}
+
+function ProfileSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return <section className="border-b border-[var(--bc-line)] py-6"><h2 className="mb-3 text-[14px] font-semibold">{title}</h2>{children}</section>;
+}
+
+function SimpleList({ items }: { items: { href: string; title: string; meta: string }[] }) {
+  return <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{items.map((item) => <Link key={item.href} href={item.href} className="flex items-center justify-between gap-4 py-3 text-[13px] hover:bg-[var(--bc-surface-subtle)]"><span className="min-w-0 truncate font-medium">{item.title}</span><span className="shrink-0 text-[11px] text-[var(--bc-faint)]">{item.meta}</span></Link>)}</div>;
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Activity, FileQuestion, Flag, FolderKanban, Users, UsersRound } from "lucide-react";
 import { AdminStatCard } from "@/components/admin/stat-card";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getAdminOverview } from "@/server/data/admin";
@@ -61,9 +62,9 @@ export default async function AdminPage() {
           <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
             {data.recentUsers.map((user) => (
               <div key={user.id} className="flex items-center justify-between gap-4 px-5 py-4">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{user.avatarEmoji ?? "🙂"} {user.username ?? "Bez profilu"}</p>
-                  <p className="truncate text-xs text-neutral-400">{user.email}</p>
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <Avatar username={user.username ?? "Bez profilu"} seed={user.id} size="sm" />
+                  <div className="min-w-0"><p className="truncate text-sm font-medium">{user.username ?? "Bez profilu"}</p><p className="truncate text-xs text-neutral-400">{user.email}</p></div>
                 </div>
                 <div className="flex items-center gap-2">
                   {user.isSuspended ? <Badge variant="destructive">Zawieszony</Badge> : <Badge variant="success">Aktywny</Badge>}

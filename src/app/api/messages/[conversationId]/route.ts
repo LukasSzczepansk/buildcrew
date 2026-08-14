@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { and, eq, isNull, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { conversations, messages } from "@/db/schema";
+import { conversations, messages, profiles, users } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
 import { enforceUserRateLimit } from "@/lib/security";
 import { messageSchema } from "@/lib/validations";
 import { getConversationForUser, listConversationMessages } from "@/server/data/messages";
+import { createNotification } from "@/server/services/notifications";
 
 function noStore(body: unknown, init?: ResponseInit) {
   const response = NextResponse.json(body, init);
@@ -59,12 +60,34 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
   if (!parsed.success) return noStore({ error: parsed.error.issues[0]?.message ?? "Nieprawidłowa wiadomość." }, { status: 400 });
 
   const now = new Date();
+  const [existingUnread, recipientState, senderProfile] = await Promise.all([
+    db.select({ id: messages.id }).from(messages).where(and(eq(messages.conversationId, conversationId), eq(messages.senderId, user.id), isNull(messages.readAt))).limit(1),
+    db.select({ lastActiveAt: users.lastActiveAt }).from(users).where(eq(users.id, access.otherUserId)).limit(1),
+    db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1),
+  ]);
+
   const [created] = await db.insert(messages).values({
     conversationId,
     senderId: user.id,
     body: parsed.data.body,
   }).returning();
   await db.update(conversations).set({ updatedAt: now }).where(eq(conversations.id, conversationId));
+
+  const recipientRecentlyActive = recipientState[0]?.lastActiveAt
+    ? now.getTime() - recipientState[0].lastActiveAt.getTime() < 5 * 60 * 1000
+    : false;
+  if (!existingUnread[0] && !recipientRecentlyActive) {
+    const senderName = senderProfile[0]?.username ?? "Ktoś";
+    const preview = parsed.data.body.length > 140 ? `${parsed.data.body.slice(0, 137)}…` : parsed.data.body;
+    await createNotification(
+      access.otherUserId,
+      "MESSAGE_RECEIVED",
+      `${senderName} napisał do Ciebie`,
+      preview,
+      `/messages/${conversationId}`,
+      { actorId: user.id, entityType: "conversation", entityId: conversationId, emailPreference: "emailMessages", emailCtaLabel: "Odpowiedz" },
+    );
+  }
 
   return noStore({
     message: {

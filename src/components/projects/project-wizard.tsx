@@ -168,9 +168,9 @@ export function ProjectWizard() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6">
       <div>
-        <div className="mb-2 flex items-center justify-between text-sm text-neutral-500">
+        <div className="mb-2 flex items-center justify-between text-sm text-[var(--bc-muted)]">
           <span>
             Krok {step} z {TOTAL_STEPS}
           </span>
@@ -179,7 +179,7 @@ export function ProjectWizard() {
         <Progress value={(step / TOTAL_STEPS) * 100} />
       </div>
 
-      <div className="animate-fade-in rounded-lg border border-neutral-300 bg-white p-8 dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="animate-fade-in rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 sm:p-6">
         {step === 1 && (
           <StepShell title="Jak nazywa się projekt?">
             <Input
@@ -304,7 +304,7 @@ export function ProjectWizard() {
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-sm font-medium">Rola {index + 1}</p>
                     {form.roles.length > 1 && (
-                      <button type="button" onClick={() => removeRole(index)} className="text-neutral-400 hover:text-red-500">
+                      <button type="button" onClick={() => removeRole(index)} className="text-[var(--bc-faint)] hover:text-red-500">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     )}
@@ -343,7 +343,7 @@ export function ProjectWizard() {
                     maxLength={240}
                   />
                   <div className="mt-3 flex items-center gap-2">
-                    <Label htmlFor={`slots-${index}`} className="text-xs text-neutral-400">
+                    <Label htmlFor={`slots-${index}`} className="text-xs text-[var(--bc-faint)]">
                       Liczba miejsc
                     </Label>
                     <Input
@@ -408,8 +408,8 @@ function StepShell({ title, subtitle, children }: { title: string; subtitle?: st
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>}
+        <h2 className="text-[20px] font-semibold tracking-[-0.015em]">{title}</h2>
+        {subtitle && <p className="mt-1 text-sm text-[var(--bc-muted)]">{subtitle}</p>}
       </div>
       {children}
     </div>
@@ -423,7 +423,7 @@ function SelectableTile({ active, label, onClick }: { active: boolean; label: st
       onClick={onClick}
       className={cn(
         "rounded-[6px] border p-3 text-center text-sm font-medium transition-colors",
-        active ? "border-lime-500 bg-lime-50 text-lime-700 dark:bg-lime-500/10 dark:text-lime-300" : "border-neutral-200 hover:border-lime-300 dark:border-neutral-700",
+        active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)]",
       )}
     >
       {label}
@@ -437,8 +437,8 @@ function TagToggle({ active, label, onClick }: { active: boolean; label: string;
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
-        active ? "border-lime-500 bg-lime-600 text-white" : "border-neutral-200 bg-white text-neutral-600 hover:border-lime-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300",
+        "rounded-[6px] border px-2.5 py-1.5 text-[12px] font-medium transition-colors",
+        active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]",
       )}
     >
       {label}

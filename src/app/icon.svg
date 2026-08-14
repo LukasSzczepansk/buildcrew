@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="#111111"/>
+  <rect x="2" y="2" width="5" height="60" rx="2.5" fill="#C8F169"/>
+  <text x="34" y="40" text-anchor="middle" font-family="Inter, Geist, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="-1.2" fill="#F4F4EF">BC</text>
+  <circle cx="52" cy="12" r="4" fill="#C8F169"/>
+</svg>

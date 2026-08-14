@@ -256,8 +256,8 @@ export default function TermsPage() {
       <LegalSection title="11. Powiadomienia i wiadomości e-mail">
         <p>
           BuildCrew może wysyłać powiadomienia w Serwisie oraz wiadomości e-mail związane z korzystaniem z konta, w
-          szczególności o zgłoszeniu do projektu, odpowiedzi w Build Pool, zaproszeniu do Crew, zaakceptowaniu zgłoszenia,
-          ważnym zdarzeniu w Build Challenge, bezpieczeństwie konta, weryfikacji adresu e-mail lub resecie hasła.
+          szczególności o wiadomości od innego użytkownika, zgłoszeniu lub zaproszeniu do projektu, odpowiedzi w Build Pool, zaproszeniu do Crew, zaakceptowaniu lub odrzuceniu zgłoszenia,
+          mocnym dopasowaniu profilu lub projektu, tygodniowym podsumowaniu, ważnym zdarzeniu w Build Challenge, bezpieczeństwie konta, weryfikacji adresu e-mail lub resecie hasła.
         </p>
         <p>
           Użytkownik może zarządzać częścią preferencji dotyczących powiadomień, jeżeli taka funkcja jest dostępna. Wyłączenie

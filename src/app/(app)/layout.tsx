@@ -15,8 +15,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-[var(--bc-canvas)]">
       <Sidebar username={user.username ?? "Builder"} avatarEmoji={user.avatarEmoji} admin={isAdmin(user.email, user.systemRole)} unreadMessages={unreadMessages} />
-      <main className="min-w-0 flex-1 px-4 py-5 pb-24 sm:px-7 sm:py-7 lg:px-10 lg:py-8 lg:pb-10 xl:px-12 2xl:px-16">
-        <div className="mx-auto w-full max-w-[1240px]">{children}</div>
+      <main className="min-w-0 flex-1 px-4 py-5 pb-24 sm:px-6 sm:py-6 lg:px-8 lg:py-7 lg:pb-10 xl:px-9">
+        <div className="mx-auto w-full max-w-[1320px]">{children}</div>
       </main>
       <MobileNav unreadMessages={unreadMessages} />
     </div>

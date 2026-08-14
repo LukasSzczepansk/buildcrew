@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { Check, X } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { TechnologyStack } from "@/components/ui/technology-badge";
 import { COMMITMENT_LABELS, LEVEL_LABELS, ROLE_LABELS } from "@/lib/constants";
 import type { Commitment, Level, RoleType } from "@/db/schema";
 import { respondToApplication } from "@/server/actions/projects";
@@ -19,14 +19,7 @@ export type ApplicationCardData = {
   role: { roleType: RoleType };
   matchScore: number;
   reasons: string[];
-  applicant: {
-    userId: string;
-    username: string;
-    avatarEmoji: string;
-    level: Level | null;
-    weeklyHours: Commitment | null;
-    skills: string[];
-  };
+  applicant: { userId: string; username: string; avatarEmoji: string; level: Level | null; weeklyHours: Commitment | null; skills: string[] };
 };
 
 export function ApplicationCard({ application }: { application: ApplicationCardData }) {
@@ -37,55 +30,28 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
     setPending(true);
     const res = await respondToApplication(application.id, decision);
     setPending(false);
-    if (res?.error) {
-      toast.error(res.error);
-      return;
-    }
+    if (res?.error) { toast.error(res.error); return; }
     setStatus(decision);
-    toast.success(decision === "ACCEPTED" ? "Zaakceptowano zgłoszenie!" : "Zgłoszenie odrzucone.");
+    toast.success(decision === "ACCEPTED" ? "Zaakceptowano zgłoszenie" : "Zgłoszenie odrzucone");
   }
 
   return (
-    <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-start gap-3">
-        <Link href={`/builders/${application.applicant.userId}`}>
-          <Avatar emoji={application.applicant.avatarEmoji} />
-        </Link>
-        <div>
-          <Link href={`/builders/${application.applicant.userId}`} className="font-medium hover:underline">
-            {application.applicant.username}
-          </Link>
-          <div className="mt-0.5 flex flex-wrap items-center gap-2"><p className="text-sm text-neutral-500">Rola: {ROLE_LABELS[application.role.roleType]}</p><Badge>{application.matchScore}% dopasowania</Badge></div>
-          <div className="mt-1 flex flex-wrap gap-1.5">
-            {application.applicant.skills.slice(0, 4).map((s) => (
-              <Badge key={s} variant="outline">
-                {s}
-              </Badge>
-            ))}
-          </div>
-          <p className="mt-1 text-xs text-neutral-400">
-            {application.applicant.level ? LEVEL_LABELS[application.applicant.level] : ""}
-            {application.applicant.weeklyHours ? ` · ${COMMITMENT_LABELS[application.applicant.weeklyHours]}` : ""}
-          </p>
-          {application.reasons.length ? <p className="mt-2 text-xs text-lime-600 dark:text-lime-400">✓ {application.reasons.slice(0, 3).join(" · ")}</p> : null}
-          {application.message && <p className="mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-300">&ldquo;{application.message}&rdquo;</p>}
+    <article className="grid gap-4 border-b border-[var(--bc-line)] py-4 first:border-t sm:grid-cols-[minmax(0,1fr)_110px_auto] sm:items-center">
+      <div className="flex min-w-0 items-start gap-3">
+        <Link href={`/builders/${application.applicant.userId}`}><Avatar username={application.applicant.username} seed={application.applicant.userId} /></Link>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-baseline gap-x-2"><Link href={`/builders/${application.applicant.userId}`} className="font-semibold hover:underline">{application.applicant.username}</Link><span className="text-[12px] text-[var(--bc-muted)]">{ROLE_LABELS[application.role.roleType]}</span></div>
+          <div className="mt-2"><TechnologyStack items={application.applicant.skills} max={4} compact className="gap-1.5" /></div>
+          <p className="mt-2 truncate text-[11px] text-[var(--bc-muted)]">{application.reasons[0] || application.message || "Sprawdź profil kandydata."}</p>
+          <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{application.applicant.level ? LEVEL_LABELS[application.applicant.level] : ""}{application.applicant.weeklyHours ? ` · ${COMMITMENT_LABELS[application.applicant.weeklyHours]}` : ""}</p>
         </div>
       </div>
 
+      <div><p className="text-[10px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Match</p><p className="mt-1 text-[22px] font-semibold text-[#94bf28]">{application.matchScore}%</p></div>
+
       <div className="flex shrink-0 items-center gap-2">
-        {status === "PENDING" ? (
-          <>
-            <Button size="sm" className="gap-1" onClick={() => respond("ACCEPTED")} disabled={pending}>
-              <Check className="h-4 w-4" /> Pasuje
-            </Button>
-            <Button size="sm" variant="outline" className="gap-1" onClick={() => respond("REJECTED")} disabled={pending}>
-              <X className="h-4 w-4" /> Odrzuć
-            </Button>
-          </>
-        ) : (
-          <Badge variant={status === "ACCEPTED" ? "success" : "destructive"}>{status === "ACCEPTED" ? "Zaakceptowano" : "Odrzucono"}</Badge>
-        )}
+        {status === "PENDING" ? <><Button size="sm" className="gap-1" onClick={() => respond("ACCEPTED")} disabled={pending}><Check className="h-3.5 w-3.5" /> Akceptuj</Button><Button size="sm" variant="outline" onClick={() => respond("REJECTED")} disabled={pending} aria-label="Odrzuć"><X className="h-3.5 w-3.5" /></Button></> : <Badge variant={status === "ACCEPTED" ? "success" : "destructive"}>{status === "ACCEPTED" ? "Zaakceptowano" : "Odrzucono"}</Badge>}
       </div>
-    </Card>
+    </article>
   );
 }
