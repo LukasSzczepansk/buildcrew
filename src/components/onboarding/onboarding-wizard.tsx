@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -42,7 +43,21 @@ type FormState = {
 };
 
 const TOTAL_STEPS = 5;
-const DRAFT_KEY = "buildcrew-onboarding-draft-v2";
+const DRAFT_KEY = "buildcrew-onboarding-draft-v3";
+const LEGACY_DRAFT_KEY = "buildcrew-onboarding-draft-v2";
+
+type StoredDraft = {
+  version: 3;
+  step: number;
+  form: FormState;
+  updatedAt: string;
+};
+
+function normalizeStep(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) return 1;
+  return Math.min(TOTAL_STEPS, Math.max(1, Math.round(parsed)));
+}
 
 function toggleValue<T>(arr: T[], value: T): T[] {
   return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
@@ -64,17 +79,31 @@ const emptyForm: FormState = {
 };
 
 export function OnboardingWizard() {
+  const router = useRouter();
   const [step, setStep] = React.useState(1);
   const [pending, setPending] = React.useState(false);
   const [draftReady, setDraftReady] = React.useState(false);
+  const [savedAt, setSavedAt] = React.useState<string | null>(null);
   const [form, setForm] = React.useState<FormState>(emptyForm);
 
   React.useEffect(() => {
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as Partial<FormState>;
-        setForm({ ...emptyForm, ...parsed });
+        const parsed = JSON.parse(raw) as Partial<StoredDraft>;
+        if (parsed.form) {
+          setForm({ ...emptyForm, ...parsed.form });
+          setStep(normalizeStep(parsed.step));
+          setSavedAt(typeof parsed.updatedAt === "string" ? parsed.updatedAt : null);
+          return;
+        }
+      }
+
+      // Migracja szkicu z poprzedniej wersji onboardingu.
+      const legacyRaw = window.localStorage.getItem(LEGACY_DRAFT_KEY);
+      if (legacyRaw) {
+        const legacyForm = JSON.parse(legacyRaw) as Partial<FormState>;
+        setForm({ ...emptyForm, ...legacyForm });
       }
     } catch {
       // Nie blokujemy onboardingu, jeśli lokalny szkic jest uszkodzony.
@@ -83,17 +112,31 @@ export function OnboardingWizard() {
     }
   }, []);
 
+  const saveDraftNow = React.useCallback(() => {
+    if (!draftReady) return;
+    const updatedAt = new Date().toISOString();
+    const draft: StoredDraft = { version: 3, step, form, updatedAt };
+    try {
+      window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      window.localStorage.removeItem(LEGACY_DRAFT_KEY);
+      setSavedAt(updatedAt);
+    } catch {
+      // LocalStorage może być niedostępny w trybie prywatnym.
+    }
+  }, [draftReady, form, step]);
+
   React.useEffect(() => {
     if (!draftReady) return;
-    const timeout = window.setTimeout(() => {
-      try {
-        window.localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
-      } catch {
-        // LocalStorage może być niedostępny w trybie prywatnym.
-      }
-    }, 250);
+    const timeout = window.setTimeout(saveDraftNow, 250);
     return () => window.clearTimeout(timeout);
-  }, [draftReady, form]);
+  }, [draftReady, saveDraftNow]);
+
+  React.useEffect(() => {
+    if (!draftReady) return;
+    const handlePageHide = () => saveDraftNow();
+    window.addEventListener("pagehide", handlePageHide);
+    return () => window.removeEventListener("pagehide", handlePageHide);
+  }, [draftReady, saveDraftNow]);
 
   const canProceed = React.useMemo(() => {
     switch (step) {
@@ -134,6 +177,7 @@ export function OnboardingWizard() {
       if ((err as { digest?: string })?.digest?.startsWith?.("NEXT_REDIRECT")) {
         try {
           window.localStorage.removeItem(DRAFT_KEY);
+          window.localStorage.removeItem(LEGACY_DRAFT_KEY);
         } catch {
           // Bez wpływu na zapis profilu.
         }
@@ -142,6 +186,11 @@ export function OnboardingWizard() {
       setPending(false);
       toast.error("Nie udało się zapisać profilu. Spróbuj ponownie.");
     }
+  }
+
+  function exitOnboarding() {
+    saveDraftNow();
+    router.push("/");
   }
 
   function next() {
@@ -161,11 +210,23 @@ export function OnboardingWizard() {
   return (
     <div className="mx-auto flex w-full max-w-[820px] flex-col gap-6">
       <div>
-        <div className="mb-2 flex items-center justify-between text-[12px] text-[var(--bc-muted)]">
+        <div className="mb-2 flex items-center justify-between gap-4 text-[12px] text-[var(--bc-muted)]">
           <span>Krok {step} z {TOTAL_STEPS}</span>
-          <span>{Math.round((step / TOTAL_STEPS) * 100)}%</span>
+          <div className="flex items-center gap-3">
+            <span>{Math.round((step / TOTAL_STEPS) * 100)}%</span>
+            <button
+              type="button"
+              onClick={exitOnboarding}
+              className="font-medium text-[var(--bc-muted)] underline-offset-4 transition-colors hover:text-[var(--bc-ink)] hover:underline"
+            >
+              Dokończ później
+            </button>
+          </div>
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} />
+        <p className="mt-2 text-[11px] leading-4 text-[var(--bc-faint)]">
+          Postęp zapisuje się automatycznie na tym urządzeniu. Możesz wyjść, odświeżyć stronę i wrócić do tego samego kroku.
+        </p>
       </div>
 
       <div className="rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 sm:p-7">
@@ -329,7 +390,7 @@ export function OnboardingWizard() {
       <div className="flex items-center justify-between gap-3">
         <Button variant="ghost" onClick={back} disabled={step === 1 || pending}>Wstecz</Button>
         <div className="flex items-center gap-3">
-          <span className="hidden text-[11px] text-[var(--bc-faint)] sm:inline">Szkic zapisuje się automatycznie.</span>
+          <span className="hidden text-[11px] text-[var(--bc-faint)] sm:inline">{savedAt ? "Szkic zapisany." : "Szkic zapisuje się automatycznie."}</span>
           <Button onClick={next} disabled={!canProceed || pending}>
             {pending ? "Szukamy dopasowań…" : step === TOTAL_STEPS ? "Zapisz i pokaż dopasowania" : "Dalej"}
           </Button>

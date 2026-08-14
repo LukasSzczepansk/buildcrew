@@ -10,7 +10,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { COMMITMENT_LABELS, ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
 import { computeMatch } from "@/lib/matching";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
-import { listProjects } from "@/server/data/projects";
+import { listIdeas, listProjects } from "@/server/data/projects";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
 export const metadata: Metadata = { title: "Pierwsze dopasowania — BuildCrew" };
@@ -28,7 +28,7 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
   const profile = await getProfileByUserId(user.id);
   if (!profile) redirect("/onboarding");
 
-  const [builders, projects] = await Promise.all([listBuilderProfiles(user.id), listProjects({}, user.id)]);
+  const [builders, projects, ideas] = await Promise.all([listBuilderProfiles(user.id), listProjects({}, user.id), listIdeas(user.id)]);
 
   const builderMatches = builders
     .filter((builder) => builder.onboardingCompleted)
@@ -56,6 +56,16 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
       ),
     }))
     .sort((a, b) => b.match.score - a.match.score)
+    .slice(0, 3);
+
+
+  const ideaMatches = ideas
+    .filter((idea) => idea.ownerId !== user.id)
+    .sort((a, b) => {
+      const aShared = a.interests.filter((interest) => profile.interests.includes(interest)).length;
+      const bShared = b.interests.filter((interest) => profile.interests.includes(interest)).length;
+      return bShared - aShared || b.interestedCount - a.interestedCount;
+    })
     .slice(0, 3);
 
   const projectMatches = projects
@@ -144,10 +154,25 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
           )}
         </section>
 
+        <section className="mt-9">
+          <SectionHeader title="Jeśli żaden projekt Cię nie przekonuje" meta={`${ideaMatches.length} pomysły do przegadania`} href="/ideas" />
+          {ideaMatches.length ? (
+            <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
+              {ideaMatches.map((idea) => (
+                <Link key={idea.id} href={`/ideas/${idea.id}`} className="grid gap-2 py-4 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                  <div><p className="text-[14px] font-semibold">{idea.name}</p><p className="mt-1 line-clamp-2 text-[12px] leading-5 text-[var(--bc-muted)]">{idea.tagline}</p><p className="mt-1 text-[11px] text-[var(--bc-faint)]">{idea.interests.slice(0, 3).join(" · ")} · {idea.interestedCount} zainteresowanych</p></div>
+                  <span className="text-[12px] font-medium">Sprawdź →</span>
+                </Link>
+              ))}
+            </div>
+          ) : <EmptyLine text="Nie ma jeszcze pomysłów. Możesz dodać własny w mniej niż minutę albo wejść do Build Pool." />}
+          <div className="mt-4 flex flex-wrap gap-2"><Button asChild variant="outline" size="sm"><Link href="/ideas">Dodaj / zobacz pomysły</Link></Button><Button asChild variant="ghost" size="sm"><Link href="/build">Znajdź ludzi bez projektu</Link></Button></div>
+        </section>
+
         <footer className="mt-10 flex flex-col gap-3 border-t border-[var(--bc-line-strong)] pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-[560px] text-[12px] leading-5 text-[var(--bc-muted)]">To dopiero pierwszy ranking. Im więcej realnej aktywności pojawi się w BuildCrew, tym lepsze będą kolejne rekomendacje.</p>
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline"><Link href="/projects/new">Dodaj projekt</Link></Button>
+            <Button asChild variant="outline"><Link href="/ideas">Dodaj pomysł</Link></Button>
             <Button asChild><Link href={nextPath}>{nextPath === "/dashboard" ? "Przejdź do Start" : "Kontynuuj"} <ArrowRight className="h-4 w-4" /></Link></Button>
           </div>
         </footer>

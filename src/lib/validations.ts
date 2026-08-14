@@ -137,8 +137,15 @@ export const projectCreateSchema = z.object({
   designUrl: httpUrl.optional().or(z.literal("")),
   docsUrl: httpUrl.optional().or(z.literal("")),
   crewId: z.string().uuid().optional(),
+  sourceIdeaId: z.string().uuid().optional(),
 });
 
+
+export const ideaCreateSchema = z.object({
+  name: z.string().trim().min(2, "Podaj nazwę pomysłu.").max(60),
+  summary: z.string().trim().min(10, "Opisz pomysł jednym–dwoma zdaniami.").max(320),
+  interests: z.array(z.string().trim().min(1).max(40)).min(1, "Wybierz przynajmniej jeden obszar.").max(5),
+});
 
 export const uuidSchema = z.string().uuid("Nieprawidłowy identyfikator.");
 export const decisionSchema = z.enum(["ACCEPTED", "REJECTED"]);

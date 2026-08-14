@@ -10,6 +10,7 @@ import {
   crews,
   profiles,
   projectInvites,
+  projectIdeaInterests,
   projectMembers,
   projectRoles,
   projectTechnologies,
@@ -41,6 +42,15 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
   const data = parsed.data;
 
   const result = await db.transaction(async (tx) => {
+    let sourceIdeaInterestUserIds: string[] = [];
+    if (data.sourceIdeaId) {
+      const sourceRows = await tx.select().from(projects).where(and(eq(projects.id, data.sourceIdeaId), eq(projects.entryType, "IDEA"))).limit(1);
+      const sourceIdea = sourceRows[0];
+      if (!sourceIdea || sourceIdea.ownerId !== user.id) return { error: "Nie możesz przekształcić tego pomysłu w projekt." } as const;
+      const interestRows = await tx.select({ userId: projectIdeaInterests.userId }).from(projectIdeaInterests).where(eq(projectIdeaInterests.projectId, data.sourceIdeaId));
+      sourceIdeaInterestUserIds = interestRows.map((row) => row.userId);
+    }
+
     let crewMembersList: { userId: string; roleType: string | null }[] = [];
     if (data.crewId) {
       await tx.execute(sql`select id from crews where id = ${data.crewId} for update`);
@@ -59,6 +69,7 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
     const [project] = await tx.insert(projects).values({
       ownerId: user.id,
       crewId: data.crewId ?? null,
+      entryType: "PROJECT",
       name: data.name,
       tagline: data.tagline,
       description: data.description,
@@ -104,13 +115,27 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
       }
       await tx.update(crews).set({ status: "CONVERTED_TO_PROJECT", projectId: project.id }).where(eq(crews.id, data.crewId));
     }
-    return { project } as const;
+    if (data.sourceIdeaId) {
+      await tx.delete(projects).where(and(eq(projects.id, data.sourceIdeaId), eq(projects.ownerId, user.id), eq(projects.entryType, "IDEA")));
+    }
+    return { project, sourceIdeaInterestUserIds } as const;
   });
 
   if ("error" in result) return result;
   if (data.crewId) await logEvent("crew_converted_to_project", user.id, { crewId: data.crewId, projectId: result.project.id });
-  await logEvent("project_created", user.id, { projectId: result.project.id, name: data.name });
+  if (data.sourceIdeaId && result.sourceIdeaInterestUserIds.length) {
+    await Promise.all(result.sourceIdeaInterestUserIds.filter((id) => id !== user.id).map((recipientId) => createNotification(
+      recipientId,
+      "IDEA_CONVERTED",
+      `${data.name} jest już projektem`,
+      "Pomysł, którym się interesowałeś, został rozwinięty w pełny projekt.",
+      `/projects/${result.project.id}`,
+      { actorId: user.id, entityType: "project", entityId: result.project.id },
+    )));
+  }
+  await logEvent("project_created", user.id, { projectId: result.project.id, name: data.name, sourceIdeaId: data.sourceIdeaId });
   revalidatePath("/projects");
+  revalidatePath("/ideas");
   revalidatePath("/dashboard");
   return { success: true, projectId: result.project.id };
 }
@@ -125,7 +150,7 @@ export async function applyToProject(projectId: string, input: z.infer<typeof ap
   const parsed = applicationSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Błędne dane." };
 
-  const projectRows = await db.select().from(projects).where(eq(projects.id, projectId)).limit(1);
+  const projectRows = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT"))).limit(1);
   const project = projectRows[0];
   if (!project) return { error: "Projekt nie istnieje." };
   if (project.ownerId === user.id) return { error: "Nie możesz aplikować do własnego projektu." };
@@ -207,7 +232,7 @@ export async function inviteToProject(projectId: string, inviteeId: string, role
   const invitee = inviteeRows[0];
   if (!invitee || invitee.isSuspended || invitee.systemRole === "ADMIN" || !invitee.onboardingCompleted) return { error: "Ta osoba nie jest dostępna." };
 
-  const projectRows = await db.select().from(projects).where(eq(projects.id, validatedProjectId)).limit(1);
+  const projectRows = await db.select().from(projects).where(and(eq(projects.id, validatedProjectId), eq(projects.entryType, "PROJECT"))).limit(1);
   const project = projectRows[0];
   if (!project) return { error: "Projekt nie istnieje." };
   if (project.ownerId !== user.id) return { error: "Brak uprawnień." };

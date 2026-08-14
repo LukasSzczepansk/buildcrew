@@ -221,6 +221,9 @@ export type CollaborationPace = (typeof collaborationPaceEnum)[number];
 export const projectDurationEnum = ["WEEKEND", "1_2_MONTHS", "3_6_MONTHS", "LONG_TERM"] as const;
 export type ProjectDuration = (typeof projectDurationEnum)[number];
 
+export const projectEntryTypeEnum = ["PROJECT", "IDEA"] as const;
+export type ProjectEntryType = (typeof projectEntryTypeEnum)[number];
+
 export const crews = pgTable("crews", {
   id: uuidPk(),
   status: text("status").$type<"FORMING" | "CONVERTED_TO_PROJECT" | "ARCHIVED">().notNull().default("FORMING"),
@@ -233,6 +236,7 @@ export const projects = pgTable("projects", {
   id: uuidPk(),
   ownerId: uuid("owner_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   crewId: uuid("crew_id").references(() => crews.id, { onDelete: "set null" }),
+  entryType: text("entry_type").$type<ProjectEntryType>().notNull().default("PROJECT"),
   name: text("name").notNull(),
   tagline: text("tagline").notNull(),
   description: text("description").notNull(),
@@ -254,6 +258,15 @@ export const projects = pgTable("projects", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("projects_owner_idx").on(t.ownerId)]);
+
+export const projectIdeaInterests = pgTable("project_idea_interests", {
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.projectId, t.userId] }),
+  index("project_idea_interests_project_idx").on(t.projectId, t.createdAt),
+]);
 
 export const projectTechnologies = pgTable("project_technologies", {
   id: serial("id").primaryKey(),
@@ -593,6 +606,8 @@ export const notificationTypeEnum = [
   "MESSAGE_RECEIVED",
   "MATCH_DIGEST",
   "WEEKLY_DIGEST",
+  "IDEA_INTERESTED",
+  "IDEA_CONVERTED",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
 
@@ -670,6 +685,9 @@ export const analyticsEventTypeEnum = [
   "answer_marked_helpful",
   "match_email_sent",
   "weekly_digest_sent",
+  "idea_created",
+  "idea_interested",
+  "idea_interest_removed",
 ] as const;
 export type AnalyticsEventType = (typeof analyticsEventTypeEnum)[number];
 

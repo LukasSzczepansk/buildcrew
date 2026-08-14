@@ -5,6 +5,7 @@ import { FilterBar } from "@/components/filters/filter-bar";
 import { BuildPoolCard } from "@/components/build/build-pool-card";
 import { BuildPoolListingManager } from "@/components/build/build-pool-listing-manager";
 import { EmptyState } from "@/components/empty-state";
+import { DiscoveryTabs } from "@/components/discovery/discovery-tabs";
 import { INTEREST_OPTIONS, LEVEL_LABELS, ROLE_LABELS, SKILL_GROUPS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
 import { getProfileByUserId } from "@/server/data/profiles";
@@ -50,13 +51,16 @@ export default async function BuildPoolPage({ searchParams }: { searchParams: Pr
 
   return (
     <div>
-      <Topbar title="Build Pool" subtitle="Znajdź osoby gotowe do wspólnego projektu." />
+      <Topbar title="Build Pool" subtitle="Znajdź osoby gotowe do wspólnego projektu — także wtedy, gdy nie masz jeszcze konkretnego pomysłu." />
+      <DiscoveryTabs active="people" />
 
+      <div className="mt-6">
       <BuildPoolListingManager
         listing={myListing ? { headline: myListing.headline, role: myListing.role, technologies: myListing.technologies, wantsToBuild: myListing.wantsToBuild, avoids: myListing.avoids, weeklyHours: myListing.weeklyHours, preferredCrewSize: myListing.preferredCrewSize, level: myListing.level, description: myListing.description, status: myListing.status } : null}
         activeCrew={Boolean(myCrewId)}
         defaults={{ role: myProfile.role as RoleType | null, level: myProfile.level as Level | null, weeklyHours: myProfile.weeklyHours as Commitment | null, skills: myProfile.skills }}
       />
+      </div>
 
       <div className="mt-6">
         <FilterBar

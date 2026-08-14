@@ -136,17 +136,30 @@ function hasUsefulDraft(value: FormState) {
   );
 }
 
-export function ProjectWizard({ draftKey = "session" }: { draftKey?: string }) {
+export function ProjectWizard({
+  draftKey = "session",
+  initialData,
+  sourceIdeaId,
+}: {
+  draftKey?: string;
+  initialData?: Partial<Pick<FormState, "name" | "tagline" | "description" | "interests">>;
+  sourceIdeaId?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const crewId = searchParams.get("crewId") ?? undefined;
-  const storageKey = `${DRAFT_KEY_PREFIX}:${draftKey}`;
+  const storageKey = `${DRAFT_KEY_PREFIX}:${draftKey}${sourceIdeaId ? `:idea:${sourceIdeaId}` : ""}`;
+  const initialForm: FormState = {
+    ...EMPTY_FORM,
+    ...initialData,
+    interests: initialData?.interests ?? EMPTY_FORM.interests,
+  };
 
   const [step, setStep] = React.useState(1);
   const [pending, setPending] = React.useState(false);
   const [hydrated, setHydrated] = React.useState(false);
   const [draftState, setDraftState] = React.useState<"idle" | "restored" | "saving" | "saved">("idle");
-  const [form, setForm] = React.useState<FormState>(EMPTY_FORM);
+  const [form, setForm] = React.useState<FormState>(initialForm);
 
   React.useEffect(() => {
     try {
@@ -245,7 +258,7 @@ export function ProjectWizard({ draftKey = "session" }: { draftKey?: string }) {
   function clearDraft() {
     if (hasUsefulDraft(form) && !window.confirm("Wyczyścić cały zapisany szkic projektu?")) return;
     window.localStorage.removeItem(storageKey);
-    setForm(EMPTY_FORM);
+    setForm(initialForm);
     setStep(1);
     setDraftState("idle");
   }
@@ -280,6 +293,7 @@ export function ProjectWizard({ draftKey = "session" }: { draftKey?: string }) {
       duration: form.duration as ProjectDuration,
       character: form.character,
       crewId,
+      sourceIdeaId,
     }).catch(() => ({ error: "Nie udało się utworzyć projektu." }));
     setPending(false);
 

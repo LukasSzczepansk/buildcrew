@@ -9,6 +9,7 @@ import {
   projectRoles,
   projectTechnologies,
   projects,
+  projectIdeaInterests,
   users,
   type Commitment,
   type Level,
@@ -67,7 +68,7 @@ async function attachRelations(projectRows: (typeof projects.$inferSelect)[]) {
 }
 
 export async function listProjects(filters: ProjectFilters = {}, viewerId?: string) {
-  const conditions = [] as ReturnType<typeof eq>[];
+  const conditions = [eq(projects.entryType, "PROJECT")] as ReturnType<typeof eq>[];
   if (filters.stage) conditions.push(eq(projects.stage, filters.stage));
   if (filters.commitment) conditions.push(eq(projects.commitment, filters.commitment));
   if (filters.search) {
@@ -107,7 +108,7 @@ export async function listProjects(filters: ProjectFilters = {}, viewerId?: stri
 
 export async function getProjectById(id: string) {
   if (!isUuid(id)) return null;
-  const rows = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+  const rows = await db.select().from(projects).where(and(eq(projects.id, id), eq(projects.entryType, "PROJECT"))).limit(1);
   if (!rows[0]) return null;
   const [withRelations] = await attachRelations(rows);
   if (!withRelations || withRelations.owner?.isSuspended) return null;
@@ -132,7 +133,7 @@ export async function getProjectById(id: string) {
 }
 
 export async function listProjectsForOwner(ownerId: string) {
-  const rows = await db.select().from(projects).where(eq(projects.ownerId, ownerId)).orderBy(desc(projects.createdAt));
+  const rows = await db.select().from(projects).where(and(eq(projects.ownerId, ownerId), eq(projects.entryType, "PROJECT"))).orderBy(desc(projects.createdAt));
   return attachRelations(rows);
 }
 
@@ -140,6 +141,59 @@ export async function listProjectsForMember(userId: string) {
   const memberRows = await db.select().from(projectMembers).where(eq(projectMembers.userId, userId));
   const ids = memberRows.map((m) => m.projectId);
   if (ids.length === 0) return [];
-  const rows = await db.select().from(projects).where(inArray(projects.id, ids)).orderBy(desc(projects.createdAt));
+  const rows = await db.select().from(projects).where(and(inArray(projects.id, ids), eq(projects.entryType, "PROJECT"))).orderBy(desc(projects.createdAt));
   return attachRelations(rows);
+}
+
+
+export async function listIdeas(viewerId?: string) {
+  const rows = await db.select().from(projects).where(eq(projects.entryType, "IDEA")).orderBy(desc(projects.createdAt));
+  let ideas = await attachRelations(rows);
+  if (!ideas.length) return [];
+  if (viewerId) {
+    const blockRows = await db.select({ blockerId: blocks.blockerId, blockedId: blocks.blockedId }).from(blocks)
+      .where(sql`${blocks.blockerId} = ${viewerId} or ${blocks.blockedId} = ${viewerId}`);
+    const blockedIds = new Set(blockRows.map((b) => b.blockerId === viewerId ? b.blockedId : b.blockerId));
+    ideas = ideas.filter((idea) => !blockedIds.has(idea.ownerId));
+  }
+  const ids = ideas.map((idea) => idea.id);
+  const interestRows = await db.select().from(projectIdeaInterests).where(inArray(projectIdeaInterests.projectId, ids));
+  const counts = new Map<string, number>();
+  const mine = new Set<string>();
+  for (const row of interestRows) {
+    counts.set(row.projectId, (counts.get(row.projectId) ?? 0) + 1);
+    if (viewerId && row.userId === viewerId) mine.add(row.projectId);
+  }
+  return ideas.filter((idea) => !idea.owner?.isSuspended).map((idea) => ({
+    ...idea,
+    interestedCount: counts.get(idea.id) ?? 0,
+    viewerInterested: mine.has(idea.id),
+  }));
+}
+
+export async function getIdeaById(id: string, viewerId?: string) {
+  if (!isUuid(id)) return null;
+  const rows = await db.select().from(projects).where(and(eq(projects.id, id), eq(projects.entryType, "IDEA"))).limit(1);
+  if (!rows[0]) return null;
+  const [idea] = await attachRelations(rows);
+  if (!idea || idea.owner?.isSuspended) return null;
+  if (viewerId) {
+    const blockRows = await db.select({ blockerId: blocks.blockerId, blockedId: blocks.blockedId }).from(blocks)
+      .where(sql`(${blocks.blockerId} = ${viewerId} and ${blocks.blockedId} = ${idea.ownerId}) or (${blocks.blockerId} = ${idea.ownerId} and ${blocks.blockedId} = ${viewerId})`).limit(1);
+    if (blockRows[0]) return null;
+  }
+  const interestRows = await db.select().from(projectIdeaInterests).where(eq(projectIdeaInterests.projectId, id));
+  const interestedUserIds = interestRows.map((row) => row.userId);
+  const interestedProfiles = interestedUserIds.length
+    ? await db.select({ userId: profiles.userId, username: profiles.username, role: profiles.role })
+        .from(profiles)
+        .innerJoin(users, eq(users.id, profiles.userId))
+        .where(and(inArray(profiles.userId, interestedUserIds), eq(users.isSuspended, false)))
+    : [];
+  return {
+    ...idea,
+    interestedCount: interestRows.length,
+    viewerInterested: viewerId ? interestedUserIds.includes(viewerId) : false,
+    interestedProfiles,
+  };
 }

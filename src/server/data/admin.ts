@@ -1,5 +1,5 @@
 import "server-only";
-import { desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   adminAuditLogs,
@@ -30,7 +30,7 @@ export async function getAdminOverview() {
   ] = await Promise.all([
     db.select({ count: sql<number>`count(*)::int` }).from(users),
     db.select({ count: sql<number>`count(*)::int` }).from(users).where(eq(users.isSuspended, true)),
-    db.select({ count: sql<number>`count(*)::int` }).from(projects),
+    db.select({ count: sql<number>`count(*)::int` }).from(projects).where(eq(projects.entryType, "PROJECT")),
     db.select({ count: sql<number>`count(*)::int` }).from(crews),
     db.select({ count: sql<number>`count(*)::int` }).from(applications),
     db.select({ count: sql<number>`count(*)::int` }).from(questions),
@@ -98,7 +98,7 @@ export async function listAdminUsers(search?: string, limit = 100) {
     db
       .select({ userId: projects.ownerId, count: sql<number>`count(*)::int` })
       .from(projects)
-      .where(inArray(projects.ownerId, ids))
+      .where(and(inArray(projects.ownerId, ids), eq(projects.entryType, "PROJECT")))
       .groupBy(projects.ownerId),
     db
       .select({ userId: projectMembers.userId, count: sql<number>`count(*)::int` })
@@ -149,6 +149,7 @@ export async function listAdminProjects(limit = 100) {
     .from(projects)
     .leftJoin(profiles, eq(profiles.userId, projects.ownerId))
     .leftJoin(users, eq(users.id, projects.ownerId))
+    .where(eq(projects.entryType, "PROJECT"))
     .orderBy(desc(projects.createdAt))
     .limit(limit);
 
