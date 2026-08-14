@@ -5,9 +5,10 @@ import { LegalPage, LegalSection } from "@/components/legal/legal-page";
 export const metadata: Metadata = {
   title: "Regulamin — BuildCrew",
   description: "Regulamin korzystania z platformy BuildCrew.",
+  alternates: { canonical: "/regulamin" },
 };
 
-const EFFECTIVE_DATE = "14 sierpnia 2026 r.";
+const EFFECTIVE_DATE = "12 sierpnia 2026 r.";
 
 function getOperator() {
   return {
@@ -77,7 +78,6 @@ export default function TermsPage() {
           <li>zgłaszanie się do ról w projektach oraz zapraszanie innych użytkowników;</li>
           <li>publikowanie aktywnego zgłoszenia w Build Pool i odpowiadanie na takie zgłoszenia;</li>
           <li>tworzenie ekip (Crew) i zarządzanie członkostwem w ekipie;</li>
-          <li>korzystanie z prywatnego workspace projektu obejmującego czat zespołowy, milestone, proste zadania, linki i historię zmian;</li>
           <li>dodawanie znajomych oraz prowadzenie prywatnych rozmów 1:1 w zakresie udostępnionym przez Serwis;</li>
           <li>zadawanie pytań i udzielanie odpowiedzi;</li>
           <li>publikowanie informacji o umiejętnościach, doświadczeniu, zainteresowaniach i dostępności;</li>
@@ -240,24 +240,10 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Prywatne wiadomości, workspace projektu, kontakty i serwisy zewnętrzne">
+      <LegalSection title="10. Prywatne wiadomości, kontakty i serwisy zewnętrzne">
         <p>
-          BuildCrew może umożliwiać użytkownikom prowadzenie prywatnych rozmów oraz korzystanie z prywatnego workspace projektu.
-          Workspace jest dostępny wyłącznie dla członków danego projektu i może obejmować czat zespołowy, aktualny fokus,
-          milestone, zadania, przypisania, linki oraz historię zmian.
-        </p>
-        <p>
-          Użytkownik nie może wykorzystywać wiadomości lub workspace do spamu, nękania, oszustw, wyłudzania danych ani innych
-          działań zabronionych Regulaminem lub prawem. Nie należy umieszczać w workspace haseł, kluczy API, kodów 2FA, danych
-          płatniczych ani innych sekretów. Workspace nie jest szyfrowany end-to-end i nie powinien być traktowany jako magazyn
-          informacji wymagających szczególnej poufności.
-        </p>
-        <p>
-          Członek może opuścić projekt, a twórca projektu może usunąć z zespołu innego członka. Twórca nie może w ten sposób
-          usunąć samego siebie. Po ustaniu członkostwa użytkownik traci dostęp do prywatnego workspace i nowych treści zespołu.
-          Wcześniej utworzone wiadomości, zadania, linki i historia zmian mogą pozostać dostępne pozostałym członkom jako część
-          historii współpracy; przypisania zadań do byłego członka mogą zostać usunięte. Autor wiadomości może ją usunąć, a
-          właściciel projektu może usuwać wiadomości w workspace w celu zarządzania przestrzenią zespołu i reagowania na nadużycia.
+          BuildCrew może umożliwiać użytkownikom prowadzenie prywatnych rozmów. Użytkownik nie może wykorzystywać wiadomości
+          do spamu, nękania, oszustw, wyłudzania danych ani innych działań zabronionych Regulaminem lub prawem.
         </p>
         <p>
           Użytkownicy mogą dobrowolnie publikować lub udostępniać linki do zewnętrznych profili i usług, w szczególności

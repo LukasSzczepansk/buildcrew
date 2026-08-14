@@ -13,7 +13,10 @@ import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles"
 import { listIdeas, listProjects } from "@/server/data/projects";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Pierwsze dopasowania — BuildCrew" };
+export const metadata: Metadata = {
+  title: "Pierwsze dopasowania — BuildCrew",
+  robots: { index: false, follow: false },
+};
 
 export default async function OnboardingRecommendationsPage({ searchParams }: { searchParams: Promise<{ next?: string | string[] }> }) {
   const params = await searchParams;

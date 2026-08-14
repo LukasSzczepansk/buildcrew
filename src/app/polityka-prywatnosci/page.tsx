@@ -5,9 +5,10 @@ import { LegalPage, LegalSection } from "@/components/legal/legal-page";
 export const metadata: Metadata = {
   title: "Polityka prywatności — BuildCrew",
   description: "Informacje o przetwarzaniu danych osobowych w BuildCrew.",
+  alternates: { canonical: "/polityka-prywatnosci" },
 };
 
-const EFFECTIVE_DATE = "14 sierpnia 2026 r.";
+const EFFECTIVE_DATE = "12 sierpnia 2026 r.";
 
 function getOperator() {
   return {
@@ -85,7 +86,6 @@ export default function PrivacyPage() {
           <li>utworzone projekty, ich opisy i role;</li>
           <li>zgłoszenia do projektów, zaproszenia i decyzje dotyczące zgłoszeń;</li>
           <li>członkostwo w ekipach i zaproszenia do Crew;</li>
-          <li>dane prywatnej przestrzeni projektu: wiadomości zespołowe, aktualny fokus, milestone, zadania, przypisania, linki zespołu i historia zmian;</li>
           <li>informacje publikowane w Build Pool i propozycje wspólnego budowania;</li>
           <li>relacje pomiędzy użytkownikami, w tym znajomi i blokady;</li>
           <li>pytania, odpowiedzi oraz inne informacje związane z korzystaniem z funkcji społecznościowych.</li>
@@ -115,17 +115,11 @@ export default function PrivacyPage() {
           <li>informacje o zaakceptowaniu albo odrzuceniu zaproszenia lub propozycji dopasowania.</li>
         </ul>
 
-        <p><strong>G. Prywatne wiadomości i przestrzeń zespołowa projektu</strong></p>
+        <p><strong>G. Prywatne wiadomości</strong></p>
         <p>
-          Jeżeli użytkownicy korzystają z prywatnych wiadomości lub workspace projektu, BuildCrew przetwarza treść wiadomości
-          oraz dane potrzebne do działania tej funkcji, w tym zadania, przypisania, milestone, aktualny fokus, linki zespołu
-          i krótką historię zmian. Dane workspace nie są przeznaczone do publicznego udostępniania i są udostępniane w Serwisie
-          członkom danego projektu.
-        </p>
-        <p>
-          Workspace nie jest sejfem na poufne dane i nie zapewnia szyfrowania end-to-end. Użytkownicy nie powinni umieszczać
-          w nim haseł, kluczy API, kodów uwierzytelniających, danych płatniczych ani innych informacji, które nie są potrzebne
-          do współpracy nad projektem.
+          Jeżeli użytkownicy korzystają z prywatnych wiadomości, BuildCrew przetwarza treść wiadomości oraz informacje
+          techniczne niezbędne do ich dostarczenia, wyświetlenia historii i obsługi statusu odczytu. Treść wiadomości nie jest
+          przeznaczona do publicznego udostępniania.
         </p>
         <p>
           Administrator może uzyskać dostęp do treści w zakresie koniecznym do zapewnienia działania usługi, rozwiązania
@@ -176,8 +170,8 @@ export default function PrivacyPage() {
             umowy o korzystanie z BuildCrew, na podstawie art. 6 ust. 1 lit. b RODO.
           </li>
           <li>
-            <strong>Realizacja funkcji społecznościowych</strong>, w tym profilu, projektów, prywatnego workspace projektu,
-            Crew, Build Pool, znajomych, wiadomości, Showcase, feedbacku i Build Challenges — na podstawie art. 6 ust. 1 lit. b RODO w zakresie
+            <strong>Realizacja funkcji społecznościowych</strong>, w tym profilu, projektów, Crew, Build Pool, znajomych,
+            wiadomości, Showcase, feedbacku i Build Challenges — na podstawie art. 6 ust. 1 lit. b RODO w zakresie
             niezbędnym do świadczenia funkcji wybranych przez użytkownika.
           </li>
           <li>
@@ -261,12 +255,9 @@ export default function PrivacyPage() {
           ujawniać innym osobom. Prywatne dane kontaktowe są udostępniane wyłącznie w zakresie wynikającym z funkcji Serwisu.
         </p>
         <p>
-          Prywatne wiadomości 1:1 są przeznaczone dla uczestników danej rozmowy i nie są publikowane jako treści publiczne.
-          Wiadomości, zadania, milestone i linki w workspace projektu są widoczne dla aktualnych członków tego projektu. Po
-          samodzielnym opuszczeniu projektu albo usunięciu użytkownika z zespołu przez twórcę projektu użytkownik traci dostęp
-          do workspace i nowych treści zespołu. Wcześniejsze wiadomości oraz historia zmian potrzebne pozostałej ekipie mogą
-          pozostać w historii projektu do czasu ich usunięcia zgodnie z funkcjami Serwisu lub usunięcia projektu; przypisania
-          zadań do osoby, która przestała należeć do projektu, mogą zostać usunięte.
+          Prywatne wiadomości są przeznaczone dla uczestników danej rozmowy i nie są publikowane jako treści publiczne.
+          Zablokowanie użytkownika, usunięcie relacji lub konta może wpływać na możliwość dalszego prowadzenia rozmowy lub
+          sposób prezentowania jej historii zgodnie z aktualnym działaniem Serwisu.
         </p>
       </LegalSection>
 
@@ -279,7 +270,7 @@ export default function PrivacyPage() {
           <li><strong>Vercel</strong> — hosting i infrastruktura służąca do udostępniania aplikacji;</li>
           <li><strong>Neon</strong> — infrastruktura bazy danych PostgreSQL;</li>
           <li><strong>Resend</strong> — dostarczanie wiadomości e-mail związanych z kontem i wybranymi powiadomieniami;</li>
-          <li><strong>Google</strong> — uwierzytelnianie, jeżeli użytkownik dobrowolnie wybierze logowanie Google, oraz Google Analytics 4 po wyrażeniu zgody na analitykę;</li>
+          <li><strong>Google</strong> — uwierzytelnianie, jeżeli użytkownik dobrowolnie wybierze logowanie Google;</li>
           <li>dostawcy infrastruktury i podwykonawcy powyższych podmiotów w zakresie wynikającym z ich aktualnych warunków świadczenia usług.</li>
         </ul>
         <p>
@@ -308,8 +299,7 @@ export default function PrivacyPage() {
         <p>
           Dane dotyczące projektów, Crew, Build Pool, Showcase, Build Challenges, wiadomości, relacji i aktywności są
           przechowywane przez okres potrzebny do świadczenia funkcji, z których użytkownik korzysta, lub do czasu ich usunięcia
-          zgodnie z funkcjami Serwisu. Dane workspace są powiązane z projektem i są usuwane wraz z usunięciem projektu.
-          Wiadomość zespołowa może zostać usunięta przez jej autora, a właściciel projektu może usuwać wiadomości w swoim workspace.
+          zgodnie z funkcjami Serwisu.
         </p>
         <p>
           Powiadomienia i informacje o ich odczytaniu mogą być przechowywane przez okres potrzebny do zapewnienia historii

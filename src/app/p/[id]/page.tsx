@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { ShareProjectButton } from "@/components/projects/share-project-button";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getCurrentUser } from "@/lib/auth";
 import { activityLabel, getActivityState } from "@/lib/activity";
 import { DISCORD_INVITE_URL } from "@/lib/community";
-import { absoluteUrl } from "@/lib/email";
 import {
   COLLABORATION_MODE_LABELS,
   COLLABORATION_PACE_LABELS,
@@ -23,7 +23,24 @@ import {
   ROLE_LABELS,
   STAGE_LABELS,
 } from "@/lib/constants";
+import { SITE_URL, seoUrl, truncateMeta } from "@/lib/seo";
 import { getProjectById } from "@/server/data/projects";
+
+
+function projectMetaDescription(project: {
+  tagline: string;
+  technologies: string[];
+  openRoles: Array<{ roleType: keyof typeof ROLE_LABELS }>;
+}) {
+  const roles = project.openRoles.slice(0, 3).map((role) => ROLE_LABELS[role.roleType]);
+  const stack = project.technologies.slice(0, 4);
+  return truncateMeta([
+    project.tagline,
+    roles.length ? `Otwarte role: ${roles.join(", ")}.` : "",
+    stack.length ? `Stack: ${stack.join(", ")}.` : "",
+    "Zobacz projekt i ekipę na BuildCrew.",
+  ].filter(Boolean).join(" "));
+}
 
 export async function generateMetadata({
   params,
@@ -34,38 +51,45 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const project = await getProjectById(id);
-  if (!project) return { title: "Projekt — BuildCrew" };
+  if (!project) return { title: "Projekt — BuildCrew", robots: { index: false, follow: false } };
 
   const requestedRole = query.share === "role"
     ? project.openRoles.find((role) => role.id === query.role)
     : undefined;
   const roleLabel = requestedRole ? ROLE_LABELS[requestedRole.roleType] : null;
-  const publicUrl = absoluteUrl(`/p/${project.id}`);
+  const openRoleLabels = project.openRoles.slice(0, 2).map((role) => ROLE_LABELS[role.roleType]);
+  const publicUrl = seoUrl(`/p/${project.id}`);
   const shareUrl = roleLabel
-    ? absoluteUrl(`/p/${project.id}?share=role&role=${encodeURIComponent(requestedRole!.id)}`)
+    ? seoUrl(`/p/${project.id}?share=role&role=${encodeURIComponent(requestedRole!.id)}`)
     : publicUrl;
   const imageUrl = roleLabel
-    ? absoluteUrl(`/api/projects/${project.id}/share-card?variant=recruitment&role=${encodeURIComponent(requestedRole!.id)}&v=${project.updatedAt.getTime()}`)
-    : absoluteUrl(`/api/projects/${project.id}/share-card?v=${project.updatedAt.getTime()}`);
+    ? seoUrl(`/api/projects/${project.id}/share-card?variant=recruitment&role=${encodeURIComponent(requestedRole!.id)}&v=${project.updatedAt.getTime()}`)
+    : seoUrl(`/api/projects/${project.id}/share-card?v=${project.updatedAt.getTime()}`);
   const title = roleLabel
-    ? `Szukamy ${roleLabel} do ${project.name} — BuildCrew`
-    : `${project.name} — projekt na BuildCrew`;
+    ? `Szukamy ${roleLabel} do ${project.name} | BuildCrew`
+    : openRoleLabels.length
+      ? `${project.name} — szuka ${openRoleLabels.join(" / ")} | BuildCrew`
+      : `${project.name} — projekt na BuildCrew`;
+  const description = projectMetaDescription(project);
 
   return {
     title,
-    description: project.tagline,
+    description,
     alternates: { canonical: publicUrl },
+    robots: { index: true, follow: true },
     openGraph: {
       title,
-      description: project.tagline,
+      description,
       url: shareUrl,
       type: "website",
+      locale: "pl_PL",
+      siteName: "BuildCrew",
       images: [{ url: imageUrl, width: 1200, height: 630, alt: `${project.name} — karta projektu BuildCrew` }],
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description: project.tagline,
+      description,
       images: [imageUrl],
     },
   };
@@ -82,9 +106,28 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
   const crewSize = Math.max(project.members.length, project.owner ? 1 : 0);
   const totalSlots = project.roles.reduce((sum, role) => sum + role.slots, 0) + 1;
   const ownerActivity = getActivityState(project.owner?.lastActiveAt);
+  const publicUrl = seoUrl(`/p/${project.id}`);
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: `${project.name} — projekt na BuildCrew`,
+    description: projectMetaDescription(project),
+    url: publicUrl,
+    inLanguage: "pl-PL",
+    dateCreated: project.createdAt.toISOString(),
+    dateModified: project.updatedAt.toISOString(),
+    isPartOf: { "@type": "WebSite", name: "BuildCrew", url: SITE_URL },
+    mainEntity: {
+      "@type": "CreativeWork",
+      name: project.name,
+      description: project.tagline,
+      ...(project.owner?.username ? { creator: { "@type": "Person", name: project.owner.username } } : {}),
+    },
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+      <JsonLd data={structuredData} />
       <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">

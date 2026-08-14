@@ -1,16 +1,52 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, ExternalLink } from "lucide-react";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
+import { ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
+import { DEFAULT_SEO_DESCRIPTION, DEFAULT_SEO_TITLE, SITE_URL } from "@/lib/seo";
+import { listPublicProjectsForLanding } from "@/server/data/projects";
+
+export const metadata: Metadata = {
+  title: DEFAULT_SEO_TITLE,
+  description: DEFAULT_SEO_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    siteName: "BuildCrew",
+    title: DEFAULT_SEO_TITLE,
+    description: DEFAULT_SEO_DESCRIPTION,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_SEO_TITLE,
+    description: DEFAULT_SEO_DESCRIPTION,
+  },
+  robots: { index: true, follow: true },
+};
 
 export default async function LandingPage() {
   const user = await getCurrentUser();
   if (user) redirect(user.onboardingCompleted ? "/dashboard" : "/onboarding");
 
+  const featuredProjects = await listPublicProjectsForLanding(3);
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "BuildCrew",
+    url: SITE_URL,
+    description: DEFAULT_SEO_DESCRIPTION,
+    inLanguage: "pl-PL",
+  };
+
   return (
     <div className="min-h-screen bg-[#f4f4ef] text-[#111111] dark:bg-[#11110f] dark:text-[#f4f4ef]">
+      <JsonLd data={websiteJsonLd} />
       <header className="border-b border-[#d8d8d0] dark:border-[#34342f]">
         <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between px-5 sm:px-8 lg:px-10">
           <Link href="/" className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.02em]">
@@ -18,6 +54,7 @@ export default async function LandingPage() {
             BuildCrew
           </Link>
           <nav className="hidden items-center gap-6 text-[13px] text-neutral-600 md:flex dark:text-neutral-400">
+            <Link href="/projekty" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Projekty</Link>
             <a href="#jak-to-dziala" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Jak działa</a>
             <a href="#dla-kogo" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Dla kogo</a>
             <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Discord</a>
@@ -49,19 +86,33 @@ export default async function LandingPage() {
               BuildCrew pomaga programistom, designerom i product builderom znaleźć sensowny projekt albo osobę do współpracy. Bez ofert pracy i bez udawania rekrutacji.
             </p>
             <div className="mt-7 flex flex-wrap gap-2">
-              <Button asChild size="lg"><Link href="/signup">Przejdź do projektów <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
-              <Button asChild size="lg" variant="outline"><Link href="/signup">Szukaj ludzi</Link></Button>
+              <Button asChild size="lg"><Link href="/projekty">Zobacz projekty <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
+              <Button asChild size="lg" variant="outline"><Link href="/signup">Załóż profil</Link></Button>
             </div>
           </div>
 
           <div className="border-t border-[#b9b9b1] dark:border-neutral-600">
             <div className="flex items-center justify-between border-b border-[#d8d8d0] py-3 text-[11px] text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
-              <span>Przykładowy feed</span>
-              <span>aktualizowany przez społeczność</span>
+              <span>Aktualne projekty</span>
+              <Link href="/projekty" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Zobacz wszystkie</Link>
             </div>
-            <PreviewRow name="Splitly" meta="MVP · Frontend + design" stack="React · Supabase" />
-            <PreviewRow name="LocalFirst Notes" meta="Prototyp · Backend" stack="TypeScript · SQLite" />
-            <PreviewRow name="Habit Relay" meta="Discovery · Product" stack="Mobile · UX" />
+            {featuredProjects.length ? featuredProjects.map((project) => {
+              const roles = project.openRoles.slice(0, 2).map((role) => ROLE_LABELS[role.roleType]).join(" + ");
+              const stack = project.technologies.slice(0, 3).join(" · ") || "Projekt społecznościowy";
+              return (
+                <PreviewRow
+                  key={project.id}
+                  href={`/p/${project.id}`}
+                  name={project.name}
+                  meta={`${STAGE_LABELS[project.stage]} · ${roles || "ekipa kompletna"}`}
+                  stack={stack}
+                />
+              );
+            }) : (
+              <div className="border-b border-[#d8d8d0] py-5 text-[12px] leading-5 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+                Pierwsze publiczne projekty pojawią się tutaj po publikacji.
+              </div>
+            )}
           </div>
         </section>
 
@@ -111,6 +162,7 @@ export default async function LandingPage() {
         <div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-4 px-5 py-7 text-[11px] text-neutral-500 sm:flex-row sm:items-center sm:px-8 lg:px-10">
           <p>© {new Date().getFullYear()} BuildCrew</p>
           <div className="flex flex-wrap gap-5">
+            <Link href="/projekty" className="hover:underline">Projekty</Link>
             <Link href="/regulamin" className="hover:underline">Regulamin</Link>
             <Link href="/polityka-prywatnosci" className="hover:underline">Prywatność</Link>
             <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:underline">Discord</a>
@@ -122,15 +174,15 @@ export default async function LandingPage() {
   );
 }
 
-function PreviewRow({ name, meta, stack }: { name: string; meta: string; stack: string }) {
+function PreviewRow({ href, name, meta, stack }: { href: string; name: string; meta: string; stack: string }) {
   return (
-    <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#d8d8d0] py-4 dark:border-neutral-700">
+    <Link href={href} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#d8d8d0] py-4 transition-colors hover:bg-black/[0.025] dark:border-neutral-700 dark:hover:bg-white/[0.03]">
       <div>
         <p className="text-[14px] font-semibold tracking-[-0.01em]">{name}</p>
         <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">{meta}</p>
       </div>
-      <p className="self-end text-[11px] text-neutral-500 dark:text-neutral-400">{stack}</p>
-    </div>
+      <p className="max-w-[190px] self-end text-right text-[11px] text-neutral-500 dark:text-neutral-400">{stack}</p>
+    </Link>
   );
 }
 

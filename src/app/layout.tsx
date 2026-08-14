@@ -4,12 +4,26 @@ import { Toaster } from "sonner";
 import { AnalyticsConsentBanner } from "@/components/analytics/analytics-consent-banner";
 import { ANALYTICS_CONSENT_BOOTSTRAP, GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { ThemeProvider } from "@/components/theme-provider";
+import { DEFAULT_SEO_DESCRIPTION, DEFAULT_SEO_TITLE, SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BuildCrew — Znajdź ludzi i zbuduj coś razem",
-  description:
-    "BuildCrew łączy programistów, designerów i product builderów, którzy chcą razem tworzyć aplikacje, strony i produkty cyfrowe.",
+  metadataBase: new URL(SITE_URL),
+  applicationName: "BuildCrew",
+  title: DEFAULT_SEO_TITLE,
+  description: DEFAULT_SEO_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    siteName: "BuildCrew",
+    title: DEFAULT_SEO_TITLE,
+    description: DEFAULT_SEO_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_SEO_TITLE,
+    description: DEFAULT_SEO_DESCRIPTION,
+  },
 };
 
 const themeInitScript = `

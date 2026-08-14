@@ -4,7 +4,10 @@ import { Hammer } from "lucide-react";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 import { getCurrentUser } from "@/lib/auth";
 
-export const metadata: Metadata = { title: "Onboarding — BuildCrew" };
+export const metadata: Metadata = {
+  title: "Onboarding — BuildCrew",
+  robots: { index: false, follow: false },
+};
 
 export default async function OnboardingPage() {
   const user = await getCurrentUser();

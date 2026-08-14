@@ -106,6 +106,26 @@ export async function listProjects(filters: ProjectFilters = {}, viewerId?: stri
   return withRelations;
 }
 
+export async function listProjectsForSitemap() {
+  return db
+    .select({ id: projects.id, updatedAt: projects.updatedAt })
+    .from(projects)
+    .innerJoin(users, eq(users.id, projects.ownerId))
+    .where(and(eq(projects.entryType, "PROJECT"), eq(users.isSuspended, false)))
+    .orderBy(desc(projects.updatedAt));
+}
+
+export async function listPublicProjectsForLanding(limit = 3) {
+  const rows = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.entryType, "PROJECT"))
+    .orderBy(desc(projects.updatedAt))
+    .limit(limit);
+
+  return (await attachRelations(rows)).filter((project) => !project.owner?.isSuspended);
+}
+
 export async function getProjectById(id: string) {
   if (!isUuid(id)) return null;
   const rows = await db.select().from(projects).where(and(eq(projects.id, id), eq(projects.entryType, "PROJECT"))).limit(1);
