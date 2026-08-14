@@ -767,6 +767,8 @@ export const analyticsEventTypeEnum = [
   "idea_created",
   "idea_interested",
   "idea_interest_removed",
+  "project_member_removed",
+  "project_member_left",
 ] as const;
 export type AnalyticsEventType = (typeof analyticsEventTypeEnum)[number];
 
