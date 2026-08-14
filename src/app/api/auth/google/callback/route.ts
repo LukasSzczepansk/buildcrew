@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { adminLoginChallenges, authAccounts, profiles, users } from "@/db/schema";
 import { createSessionForUser, hashPassword, isAdmin, setAdminChallengeCookie, setPostAuthRedirect } from "@/lib/auth";
-import { absoluteUrl, sendTransactionalEmail } from "@/lib/email";
+import { absoluteUrl, buildCrewEmail, sendTransactionalEmail } from "@/lib/email";
 import { consumeGoogleOAuthContext, exchangeGoogleCode, fetchGoogleUserInfo } from "@/lib/google-oauth";
 import { randomSixDigitCode } from "@/lib/security";
 import { withNext } from "@/lib/redirects";
@@ -111,7 +111,13 @@ export async function GET(request: NextRequest) {
       const sent = await sendTransactionalEmail({
         to: user.email,
         subject: "Kod logowania administratora BuildCrew",
-        html: `<p>Twój jednorazowy kod logowania administratora:</p><p style="font-size:28px;font-weight:700;letter-spacing:4px">${codeValue}</p><p>Kod wygasa po 10 minutach.</p>`,
+        html: buildCrewEmail({
+          eyebrow: "Bezpieczeństwo konta",
+          title: "Kod logowania",
+          intro: "Użyj poniższego kodu, aby dokończyć logowanie do panelu administratora.",
+          content: `<div style="padding:18px 0;border-top:1px solid #E5E5DF;border-bottom:1px solid #E5E5DF;font-size:30px;line-height:38px;font-weight:700;letter-spacing:6px;color:#111111;">${codeValue}</div>`,
+          footer: "Kod wygasa po 10 minutach. Jeśli to nie Ty próbujesz się zalogować, zmień hasło i sprawdź aktywne sesje.",
+        }),
         devPreview: `Kod administratora: ${codeValue}`,
       });
 

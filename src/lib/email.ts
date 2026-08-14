@@ -26,28 +26,61 @@ export function buildCrewEmail(input: {
   footer?: string;
 }) {
   const target = input.ctaHref ? absoluteUrl(input.ctaHref) : undefined;
-  return `
-  <!doctype html>
-  <html lang="pl">
-    <body style="margin:0;padding:0;background:#f4f4ef;color:#111111;font-family:Inter,Arial,sans-serif">
-      <div style="padding:28px 14px">
-        <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #d8d8d0;border-radius:10px;overflow:hidden">
-          <div style="height:4px;background:#c8f169"></div>
-          <div style="padding:28px 28px 24px">
-            <div style="font-size:17px;font-weight:700;letter-spacing:-0.02em;margin-bottom:28px">BuildCrew</div>
-            ${input.eyebrow ? `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7e9f25;margin-bottom:10px">${escapeEmailHtml(input.eyebrow)}</div>` : ""}
-            <h1 style="font-size:25px;line-height:1.2;letter-spacing:-0.025em;margin:0 0 12px;font-weight:650">${escapeEmailHtml(input.title)}</h1>
-            ${input.intro ? `<p style="font-size:14px;line-height:1.65;color:#66665f;margin:0 0 20px">${escapeEmailHtml(input.intro)}</p>` : ""}
-            ${input.content ?? ""}
-            ${target && input.ctaLabel ? `<div style="margin-top:24px"><a href="${target}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:11px 16px;border-radius:7px;font-size:14px;font-weight:600">${escapeEmailHtml(input.ctaLabel)}</a></div>` : ""}
-          </div>
-          <div style="border-top:1px solid #e2e2dc;padding:16px 28px;font-size:11px;line-height:1.55;color:#96968f">
-            ${input.footer ?? `Dostajesz tę wiadomość, bo masz włączone odpowiednie powiadomienia BuildCrew. Ustawienia możesz zmienić w swoim profilu.`}
-          </div>
-        </div>
-      </div>
-    </body>
-  </html>`;
+  const footerText = escapeEmailHtml(
+    input.footer ??
+      "Wiadomość została wysłana przez BuildCrew. Ustawienia powiadomień możesz zmienić w swoim profilu.",
+  );
+
+  return `<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+  </head>
+  <body style="margin:0;padding:0;background:#F4F4EF;color:#111111;font-family:Arial,Helvetica,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#F4F4EF;">
+      <tr>
+        <td align="center" style="padding:40px 16px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background:#FFFFFF;border:1px solid #DADAD3;">
+            <tr>
+              <td style="padding:20px 28px;border-bottom:1px solid #DADAD3;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="font-size:18px;line-height:24px;font-weight:600;color:#111111;">BuildCrew</td>
+                    <td align="right"><span style="display:inline-block;width:8px;height:8px;background:#C8F169;"></span></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:34px 28px 32px;">
+                ${input.eyebrow ? `<div style="margin-bottom:10px;font-size:11px;line-height:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#70706B;">${escapeEmailHtml(input.eyebrow)}</div>` : ""}
+                <h1 style="margin:0;font-size:26px;line-height:34px;font-weight:600;letter-spacing:-0.5px;color:#111111;">${escapeEmailHtml(input.title)}</h1>
+                ${input.intro ? `<p style="margin:14px 0 0;font-size:15px;line-height:23px;color:#70706B;">${escapeEmailHtml(input.intro)}</p>` : ""}
+                ${input.content ? `<div style="margin-top:22px;">${input.content}</div>` : ""}
+                ${target && input.ctaLabel ? `<div style="margin-top:28px;"><a href="${target}" style="display:inline-block;padding:12px 18px;background:#111111;color:#FFFFFF;text-decoration:none;font-size:14px;line-height:20px;font-weight:600;border-radius:6px;">${escapeEmailHtml(input.ctaLabel)} →</a></div>` : ""}
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:18px 28px;border-top:1px solid #DADAD3;font-size:12px;line-height:18px;color:#9A9A94;">
+                ${footerText}
+                <div style="margin-top:12px;">
+                  <a href="${absoluteUrl("/")}" style="color:#70706B;text-decoration:none;">BuildCrew</a>
+                  <span style="color:#B0B0AA;"> · </span>
+                  <a href="${absoluteUrl("/polityka-prywatnosci")}" style="color:#70706B;text-decoration:none;">Prywatność</a>
+                  <span style="color:#B0B0AA;"> · </span>
+                  <a href="${absoluteUrl("/regulamin")}" style="color:#70706B;text-decoration:none;">Regulamin</a>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
 }
 
 export async function sendTransactionalEmail(input: {
