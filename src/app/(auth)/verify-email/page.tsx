@@ -1,7 +1,32 @@
 import type { Metadata } from "next";
-import { ResendVerificationForm, VerifyEmailForm } from "@/components/auth/recovery-forms";
+import { redirect } from "next/navigation";
+import { AutoVerifyEmail } from "@/components/auth/auto-verify-email";
+import { VerificationWaitingRoom } from "@/components/auth/verification-waiting-room";
+import { getCurrentUser } from "@/lib/auth";
+
 export const metadata: Metadata = { title: "Potwierdź e-mail — BuildCrew" };
-export default async function VerifyEmailPage({ searchParams }: { searchParams: Promise<{ token?: string; sent?: string; next?: string }> }) {
+
+export default async function VerifyEmailPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string; sent?: string; next?: string }>;
+}) {
   const { token, sent, next } = await searchParams;
-  return <div><h1 className="mb-1 text-2xl font-bold">Potwierdź swój e-mail</h1>{token ? <><p className="mb-6 text-sm text-neutral-500">Kliknij poniżej, aby aktywować konto.</p><VerifyEmailForm token={token} nextPath={next} /></> : <><p className="mb-6 text-sm text-neutral-500">{sent ? "Wysłaliśmy link aktywacyjny. Sprawdź skrzynkę i spam." : "Aby korzystać z BuildCrew, najpierw potwierdź adres e-mail."}</p><ResendVerificationForm /></>}</div>;
+
+  if (token) {
+    return (
+      <div>
+        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Weryfikacja konta</p>
+        <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">Potwierdzamy Twój e-mail</h1>
+        <p className="mt-3 mb-6 text-[14px] leading-6 text-[var(--bc-muted)]">To potrwa tylko chwilę.</p>
+        <AutoVerifyEmail token={token} nextPath={next} />
+      </div>
+    );
+  }
+
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if (user.emailVerified) redirect(user.onboardingCompleted ? "/dashboard" : "/onboarding");
+
+  return <VerificationWaitingRoom email={user.email} initialCooldown={sent === "1"} />;
 }

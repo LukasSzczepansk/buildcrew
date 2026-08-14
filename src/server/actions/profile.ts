@@ -70,7 +70,7 @@ export async function completeOnboarding(
         linkedinUrl: data.linkedinUrl || null,
         avatarEmoji: emojiForSeed(data.username),
         onboardingCompleted: true,
-        onboardingStep: 10,
+        onboardingStep: 5,
       })
       .onConflictDoUpdate({
         target: profiles.userId,
@@ -85,7 +85,7 @@ export async function completeOnboarding(
           portfolioUrl: data.portfolioUrl || null,
           linkedinUrl: data.linkedinUrl || null,
           onboardingCompleted: true,
-          onboardingStep: 10,
+          onboardingStep: 5,
           updatedAt: new Date(),
         },
       });
@@ -106,7 +106,8 @@ export async function completeOnboarding(
   }
 
   revalidatePath("/dashboard");
-  redirect(await consumePostAuthRedirect("/dashboard"));
+  const nextPath = await consumePostAuthRedirect("/dashboard");
+  redirect(`/onboarding/recommendations?next=${encodeURIComponent(nextPath)}`);
 }
 
 export async function updateProfile(input: z.infer<typeof profileEditSchema>): Promise<ProfileFormState> {

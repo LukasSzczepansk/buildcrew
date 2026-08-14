@@ -398,9 +398,15 @@ export default function PrivacyPage() {
           <li>prawidłowego działania funkcji Serwisu.</li>
         </ul>
         <p>
-          Jeżeli w przyszłości BuildCrew zacznie korzystać z technologii analitycznych, reklamowych lub innych technologii
-          wymagających zgody użytkownika, odpowiednia zgoda będzie pobierana przed ich użyciem w zakresie wymaganym przez
-          obowiązujące przepisy.
+          BuildCrew korzysta z Google Analytics 4 wyłącznie po wyrażeniu zgody na analitykę. Narzędzie pomaga mierzyć m.in.
+          odsłony, sposób korzystania z funkcji oraz podstawowe zdarzenia produktowe. BuildCrew nie włącza w tej integracji
+          personalizacji reklamowej ani Google Signals. Zgoda na analitykę jest opcjonalna i może zostać zmieniona przez
+          przycisk „Cookies” dostępny w stopce Serwisu.
+        </p>
+        <p>
+          Do obsługi wyboru użytkownika BuildCrew stosuje Google Consent Mode. Przed wyrażeniem zgody pamięć analityczna
+          jest ustawiona jako niedozwolona, a skrypt Google Analytics nie jest ładowany. Ustawienia dotyczące reklam, danych
+          reklamowych i personalizacji pozostają wyłączone. Wybór zgody jest zapamiętywany lokalnie w przeglądarce.
         </p>
       </LegalSection>
 

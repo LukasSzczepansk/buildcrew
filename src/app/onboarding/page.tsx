@@ -20,6 +20,10 @@ export default async function OnboardingPage() {
           BuildCrew
         </span>
       </div>
+      <div className="mb-6 text-center">
+        <h1 className="text-[28px] font-semibold tracking-[-0.03em]">Ustaw profil pod dobre dopasowania</h1>
+        <p className="mx-auto mt-2 max-w-[560px] text-[13px] leading-5 text-[var(--bc-muted)]">5 krótkich kroków. Po zapisaniu od razu pokażemy Ci ludzi i projekty warte sprawdzenia.</p>
+      </div>
       <OnboardingWizard />
     </div>
   );
