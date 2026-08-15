@@ -337,11 +337,11 @@ export function ProjectWizard({
               <div
                 key={label}
                 className={cn(
-                  "relative flex min-w-[138px] flex-1 items-center gap-2 border-r border-[var(--bc-line)] px-4 py-3 text-[12px] last:border-r-0",
+                  "relative flex min-w-[138px] flex-1 items-center gap-2 border-r border-[var(--bc-line)] px-4 py-3 text-[13px] last:border-r-0",
                   active ? "font-semibold text-[var(--bc-ink)]" : done ? "text-[var(--bc-ink)]" : "text-[var(--bc-faint)]",
                 )}
               >
-                <span className={cn("text-[11px] tabular-nums", active && "text-[var(--bc-ink)]")}>0{currentStep}</span>
+                <span className={cn("text-[12px] tabular-nums", active && "text-[var(--bc-ink)]")}>0{currentStep}</span>
                 <span>{label}</span>
                 {active ? <span className="absolute inset-x-0 bottom-[-1px] h-[2px] bg-[var(--bc-accent)]" /> : null}
               </div>
@@ -350,7 +350,7 @@ export function ProjectWizard({
         </div>
       </div>
 
-      <div className="mt-4 flex min-h-5 items-center justify-between gap-4 text-[11px] text-[var(--bc-faint)]">
+      <div className="mt-4 flex min-h-5 items-center justify-between gap-4 text-[12px] text-[var(--bc-faint)]">
         <span>
           {draftState === "restored"
             ? "Przywrócono szkic zapisany na tym urządzeniu."
@@ -380,7 +380,7 @@ export function ProjectWizard({
           Wstecz
         </Button>
         <div className="flex items-center gap-3">
-          {!canProceed && step < TOTAL_STEPS ? <span className="hidden text-[11px] text-[var(--bc-faint)] sm:inline">Uzupełnij wymagane pola.</span> : null}
+          {!canProceed && step < TOTAL_STEPS ? <span className="hidden text-[12px] text-[var(--bc-faint)] sm:inline">Uzupełnij wymagane pola.</span> : null}
           <Button type="button" onClick={next} disabled={!canProceed || pending}>
             {pending ? "Publikowanie…" : step === TOTAL_STEPS ? "Opublikuj projekt" : "Dalej"}
           </Button>
@@ -487,7 +487,7 @@ function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispat
                 aria-pressed={active}
                 onClick={() => setForm((current) => ({ ...current, existingAssets: toggleValue(current.existingAssets, asset) }))}
                 className={cn(
-                  "flex min-h-11 items-center justify-between bg-[var(--bc-surface)] px-3 text-left text-[13px] transition-colors hover:bg-[var(--bc-surface-subtle)]",
+                  "flex min-h-11 items-center justify-between bg-[var(--bc-surface)] px-3 text-left text-sm transition-colors hover:bg-[var(--bc-surface-subtle)]",
                   active && "font-medium text-[var(--bc-ink)]",
                 )}
               >
@@ -520,8 +520,8 @@ function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispat
 
       <div>
         <div className="mb-3">
-          <Label className="text-[13px] font-medium">Linki</Label>
-          <p className="mt-1 text-[12px] leading-5 text-[var(--bc-muted)]">Dodaj tylko to, co faktycznie istnieje. Wszystkie pola są opcjonalne.</p>
+          <Label className="text-sm font-medium">Linki</Label>
+          <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">Dodaj tylko to, co faktycznie istnieje. Wszystkie pola są opcjonalne.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <LinkField label="Repozytorium" value={form.repositoryUrl} onChange={(repositoryUrl) => setForm((current) => ({ ...current, repositoryUrl }))} placeholder="https://github.com/…" />
@@ -556,8 +556,8 @@ function CrewStep({
           <div key={index} className="py-6 first:pt-5 last:pb-5">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <p className="text-[13px] font-semibold">Rola {index + 1}</p>
-                <p className="mt-1 text-[11px] text-[var(--bc-faint)]">Określ rolę, liczbę miejsc i konkretny zakres.</p>
+                <p className="text-sm font-semibold">Rola {index + 1}</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">Określ rolę, liczbę miejsc i konkretny zakres.</p>
               </div>
               {form.roles.length > 1 ? (
                 <Button type="button" variant="ghost" size="sm" onClick={() => removeRole(index)} aria-label={`Usuń rolę ${index + 1}`}>
@@ -678,7 +678,7 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
         </div>
       </Field>
 
-      <div className="border-l-2 border-[var(--bc-accent)] pl-4 text-[12px] leading-5 text-[var(--bc-muted)]">
+      <div className="border-l-2 border-[var(--bc-accent)] pl-4 text-[13px] leading-5 text-[var(--bc-muted)]">
         BuildCrew pomaga znaleźć współtwórców. Ustalenia dotyczące wynagrodzenia, udziałów, praw do kodu i odpowiedzialności ustalacie bezpośrednio między sobą.
       </div>
     </StepShell>
@@ -693,7 +693,7 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
       subtitle="Po publikacji od razu przejdziesz do projektu i będziesz mógł go udostępnić."
     >
       <div className="border-y border-[var(--bc-line)] py-6">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">
           <span>{form.projectType ? PROJECT_TYPE_LABELS[form.projectType] : "Typ projektu"}</span>
           <span>·</span>
           <span>{form.stage ? STAGE_LABELS[form.stage] : "Etap"}</span>
@@ -702,7 +702,7 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
         </div>
         <h2 className="mt-4 text-[30px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)]">{form.name || "Nazwa projektu"}</h2>
         <p className="mt-2 max-w-3xl text-[15px] leading-6 text-[var(--bc-muted)]">{form.tagline || "Krótki opis projektu."}</p>
-        <p className="mt-5 max-w-3xl whitespace-pre-line text-[13px] leading-6 text-[var(--bc-muted)]">{form.description}</p>
+        <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-6 text-[var(--bc-muted)]">{form.description}</p>
 
         <div className="mt-6 grid gap-px border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-3">
           <PreviewCell label="Najbliższy cel" value={form.goal || "—"} />
@@ -711,25 +711,25 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
         </div>
 
         <div className="mt-6">
-          <p className="text-[11px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">Stack</p>
-          <p className="mt-2 text-[13px] leading-6">{form.technologies.join(" · ") || "—"}</p>
+          <p className="text-[12px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">Stack</p>
+          <p className="mt-2 text-sm leading-6">{form.technologies.join(" · ") || "—"}</p>
         </div>
       </div>
 
       <div>
-        <p className="text-[12px] font-semibold uppercase tracking-[0.07em] text-[var(--bc-faint)]">Otwarte role</p>
+        <p className="text-[13px] font-semibold uppercase tracking-[0.07em] text-[var(--bc-faint)]">Otwarte role</p>
         <div className="mt-2 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
           {form.roles.map((role, index) => (
             <div key={index} className="grid gap-3 py-4 sm:grid-cols-[180px_minmax(0,1fr)_90px] sm:items-start">
               <div>
-                <p className="text-[13px] font-semibold">{role.roleType ? ROLE_LABELS[role.roleType] : `Rola ${index + 1}`}</p>
-                <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{role.preferredLevel ? LEVEL_LABELS[role.preferredLevel] : "Dowolny poziom"}</p>
+                <p className="text-sm font-semibold">{role.roleType ? ROLE_LABELS[role.roleType] : `Rola ${index + 1}`}</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{role.preferredLevel ? LEVEL_LABELS[role.preferredLevel] : "Dowolny poziom"}</p>
               </div>
               <div>
-                <p className="text-[12px] leading-5 text-[var(--bc-muted)]">{role.description || "Zakres nie został jeszcze opisany."}</p>
-                {role.skills.length ? <p className="mt-2 text-[11px] text-[var(--bc-faint)]">{role.skills.join(" · ")}</p> : null}
+                <p className="text-[13px] leading-5 text-[var(--bc-muted)]">{role.description || "Zakres nie został jeszcze opisany."}</p>
+                {role.skills.length ? <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{role.skills.join(" · ")}</p> : null}
               </div>
-              <p className="text-[12px] tabular-nums text-[var(--bc-muted)] sm:text-right">{role.slots} {role.slots === 1 ? "miejsce" : "miejsca"}</p>
+              <p className="text-[13px] tabular-nums text-[var(--bc-muted)] sm:text-right">{role.slots} {role.slots === 1 ? "miejsce" : "miejsca"}</p>
             </div>
           ))}
         </div>
@@ -738,15 +738,15 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
       <div className="border-l-2 border-[var(--bc-line-strong)] pl-4">
         {qualityHints.length ? (
           <>
-            <p className="text-[13px] font-semibold">Możesz opublikować teraz. Warto jeszcze rozważyć:</p>
-            <ul className="mt-2 space-y-1.5 text-[12px] leading-5 text-[var(--bc-muted)]">
+            <p className="text-sm font-semibold">Możesz opublikować teraz. Warto jeszcze rozważyć:</p>
+            <ul className="mt-2 space-y-1.5 text-[13px] leading-5 text-[var(--bc-muted)]">
               {qualityHints.slice(0, 4).map((hint) => <li key={hint}>— {hint}</li>)}
             </ul>
           </>
         ) : (
           <>
-            <p className="text-[13px] font-semibold">Projekt ma komplet najważniejszych informacji.</p>
-            <p className="mt-1 text-[12px] leading-5 text-[var(--bc-muted)]">Po publikacji możesz go udostępnić albo przejść do szukania osób.</p>
+            <p className="text-sm font-semibold">Projekt ma komplet najważniejszych informacji.</p>
+            <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">Po publikacji możesz go udostępnić albo przejść do szukania osób.</p>
           </>
         )}
       </div>
@@ -768,9 +768,9 @@ function StepShell({
   return (
     <div>
       <div className="max-w-[680px]">
-        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{eyebrow}</p>
+        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{eyebrow}</p>
         <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)] sm:text-[30px]">{title}</h1>
-        <p className="mt-2 text-[13px] leading-6 text-[var(--bc-muted)]">{subtitle}</p>
+        <p className="mt-2 text-sm leading-6 text-[var(--bc-muted)]">{subtitle}</p>
       </div>
       <div className="mt-8 space-y-7">{children}</div>
     </div>
@@ -795,12 +795,12 @@ function Field({
   return (
     <div className={cn(!compact && "border-b border-[var(--bc-line)] pb-7 last:border-b-0 last:pb-0")}>
       <div className="mb-2 flex items-baseline justify-between gap-3">
-        <Label className="text-[13px] font-medium text-[var(--bc-ink)]">
+        <Label className="text-sm font-medium text-[var(--bc-ink)]">
           {label}{required ? <span className="ml-1 text-[var(--bc-faint)]">*</span> : null}
         </Label>
-        {hint ? <span className="text-[10px] tabular-nums text-[var(--bc-faint)]">{hint}</span> : null}
+        {hint ? <span className="text-[11px] tabular-nums text-[var(--bc-faint)]">{hint}</span> : null}
       </div>
-      {description ? <p className="mb-2.5 text-[11px] leading-5 text-[var(--bc-muted)]">{description}</p> : null}
+      {description ? <p className="mb-2.5 text-[12px] leading-5 text-[var(--bc-muted)]">{description}</p> : null}
       {children}
     </div>
   );
@@ -809,7 +809,7 @@ function Field({
 function LinkField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder: string }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[11px] text-[var(--bc-muted)]">{label}</label>
+      <label className="mb-1.5 block text-[12px] text-[var(--bc-muted)]">{label}</label>
       <Input type="url" value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
     </div>
   );
@@ -823,7 +823,7 @@ function ToggleButton({ active, disabled, onClick, children }: { active: boolean
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "min-h-9 rounded-[6px] border px-3 text-[12px] transition-colors disabled:cursor-not-allowed disabled:opacity-35",
+        "min-h-9 rounded-[6px] border px-3 text-[13px] transition-colors disabled:cursor-not-allowed disabled:opacity-35",
         active
           ? "border-[var(--bc-ink)] bg-[var(--bc-ink)] text-[var(--bc-surface)] dark:border-[var(--bc-accent)] dark:bg-[var(--bc-accent)] dark:text-neutral-950"
           : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]",
@@ -860,7 +860,7 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
               key={value}
               type="button"
               onClick={() => onChange(values.filter((item) => item !== value))}
-              className="inline-flex min-h-8 items-center gap-1.5 rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2.5 text-[11px] text-[var(--bc-ink)] hover:border-[var(--bc-line-strong)]"
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2.5 text-[12px] text-[var(--bc-ink)] hover:border-[var(--bc-line-strong)]"
               title={`Usuń ${value}`}
             >
               {value}<X className="h-3 w-3 text-[var(--bc-faint)]" />
@@ -886,18 +886,18 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
       {values.length < max && (suggestions.length || canAddCustom) ? (
         <div className="mt-1 overflow-hidden border border-[var(--bc-line)] bg-[var(--bc-surface)]">
           {suggestions.map((skill) => (
-            <button key={skill} type="button" onClick={() => add(skill)} className="block w-full border-b border-[var(--bc-line)] px-3 py-2 text-left text-[12px] last:border-b-0 hover:bg-[var(--bc-surface-subtle)]">
+            <button key={skill} type="button" onClick={() => add(skill)} className="block w-full border-b border-[var(--bc-line)] px-3 py-2 text-left text-[13px] last:border-b-0 hover:bg-[var(--bc-surface-subtle)]">
               {skill}
             </button>
           ))}
           {canAddCustom ? (
-            <button type="button" onClick={() => add(query)} className="block w-full border-t border-[var(--bc-line)] px-3 py-2 text-left text-[12px] font-medium hover:bg-[var(--bc-surface-subtle)]">
+            <button type="button" onClick={() => add(query)} className="block w-full border-t border-[var(--bc-line)] px-3 py-2 text-left text-[13px] font-medium hover:bg-[var(--bc-surface-subtle)]">
               Dodaj własne: “{query.trim()}”
             </button>
           ) : null}
         </div>
       ) : null}
-      <p className="mt-1.5 text-[10px] tabular-nums text-[var(--bc-faint)]">{values.length}/{max}</p>
+      <p className="mt-1.5 text-[11px] tabular-nums text-[var(--bc-faint)]">{values.length}/{max}</p>
     </div>
   );
 }
@@ -905,8 +905,8 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
 function PreviewCell({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-[var(--bc-surface)] p-4">
-      <p className="text-[10px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">{label}</p>
-      <p className="mt-1.5 text-[12px] leading-5 text-[var(--bc-ink)]">{value}</p>
+      <p className="text-[11px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">{label}</p>
+      <p className="mt-1.5 text-[13px] leading-5 text-[var(--bc-ink)]">{value}</p>
     </div>
   );
 }

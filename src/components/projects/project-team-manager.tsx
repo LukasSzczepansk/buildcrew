@@ -63,19 +63,19 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
               <Link href={`/builders/${member.userId}`} className="flex min-w-0 items-center gap-3">
                 <Avatar username={username} seed={member.userId} size="sm" />
                 <div className="min-w-0">
-                  <p className="truncate text-[13px] font-medium text-[var(--bc-ink)]">{username}</p>
-                  <p className="mt-0.5 text-[11px] text-[var(--bc-faint)]">{member.isOwner ? "Twórca projektu" : member.profile?.role ? ROLE_LABELS[member.profile.role] : "Członek zespołu"}</p>
+                  <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{username}</p>
+                  <p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{member.isOwner ? "Twórca projektu" : member.profile?.role ? ROLE_LABELS[member.profile.role] : "Członek zespołu"}</p>
                 </div>
               </Link>
 
               <div>
-                <p className="text-[10px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Rola w projekcie</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-ink)]">{member.isOwner ? "Autor" : member.roleType ? ROLE_LABELS[member.roleType] : "Bez przypisanej roli"}</p>
+                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Rola w projekcie</p>
+                <p className="mt-1 text-[13px] text-[var(--bc-ink)]">{member.isOwner ? "Autor" : member.roleType ? ROLE_LABELS[member.roleType] : "Bez przypisanej roli"}</p>
               </div>
 
               <div>
-                <p className="text-[10px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Dołączył</p>
-                <p className="mt-1 text-[11px] text-[var(--bc-muted)]">{formatDate(member.joinedAt)}</p>
+                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Dołączył</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{formatDate(member.joinedAt)}</p>
               </div>
 
               {member.isOwner ? <span /> : (
@@ -107,7 +107,7 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
               {selected?.profile?.username ?? "Ta osoba"} straci dostęp do prywatnego workspace&apos;u, nowych wiadomości zespołu i zadań projektu.
             </DialogDescription>
           </DialogHeader>
-          <div className="border-y border-[var(--bc-line)] py-3 text-[12px] leading-5 text-[var(--bc-muted)]">
+          <div className="border-y border-[var(--bc-line)] py-3 text-[13px] leading-5 text-[var(--bc-muted)]">
             Wcześniejsze wiadomości i historia zmian pozostaną w projekcie, żeby nie usuwać kontekstu pracy pozostałej ekipy. Zadania przypisane tej osobie staną się nieprzypisane.
           </div>
           <DialogFooter>
@@ -150,7 +150,7 @@ export function LeaveProjectButton({ projectId, projectName }: { projectId: stri
             <DialogTitle>Opuścić {projectName}?</DialogTitle>
             <DialogDescription>Stracisz dostęp do prywatnego workspace&apos;u projektu i nowych wiadomości zespołu.</DialogDescription>
           </DialogHeader>
-          <div className="border-y border-[var(--bc-line)] py-3 text-[12px] leading-5 text-[var(--bc-muted)]">
+          <div className="border-y border-[var(--bc-line)] py-3 text-[13px] leading-5 text-[var(--bc-muted)]">
             Twoje wcześniejsze wiadomości mogą pozostać w historii projektu. Jeśli byłeś przypisany do zadania, zostanie ono bez przypisanej osoby.
           </div>
           <DialogFooter>

@@ -20,7 +20,7 @@ export default async function NewProjectPage({ searchParams }: { searchParams: P
         subtitle={canConvert ? "Pomysł jest już zapisany. Uzupełnij ekipę, stack i zasady współpracy." : "Opisz projekt, ekipę i zasady współpracy bez zbędnego formularza."}
       />
       {!canConvert ? (
-        <div className="mb-6 flex flex-col gap-2 border-y border-[var(--bc-line)] py-4 text-[12px] text-[var(--bc-muted)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-2 border-y border-[var(--bc-line)] py-4 text-[13px] text-[var(--bc-muted)] sm:flex-row sm:items-center sm:justify-between">
           <span>Masz dopiero zalążek i nie chcesz jeszcze wypełniać całego projektu?</span>
           <Link href="/ideas" className="shrink-0 font-medium text-[var(--bc-ink)] hover:underline">Dodaj pomysł w mniej niż minutę →</Link>
         </div>

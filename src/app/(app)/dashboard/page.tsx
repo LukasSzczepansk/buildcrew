@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, ExternalLink, MessageCircle, Users2 } from "lucide-react";
+import { ArrowRight, Bell, ExternalLink, FolderCheck, MessageCircle, Users2 } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
+import { DashboardVisitMarker } from "@/components/dashboard/dashboard-visit-marker";
 import { ProjectCard } from "@/components/projects/project-card";
 import { BuilderCard } from "@/components/builders/builder-card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { computeMatch } from "@/lib/matching";
 import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
+import { getDashboardSinceLastVisit } from "@/server/data/dashboard";
+import { listNetworkActivity } from "@/server/data/network";
+import { getDashboardAttention, listFollowedProjectUpdates, PROJECT_UPDATE_KIND_LABELS } from "@/server/data/social-projects";
 import { listIdeas, listProjects } from "@/server/data/projects";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
@@ -21,7 +25,15 @@ export default async function DashboardPage() {
   const profile = await getProfileByUserId(user.id);
   if (!profile) redirect("/onboarding");
 
-  const [allProjects, allBuilders, allIdeas] = await Promise.all([listProjects(), listBuilderProfiles(user.id), listIdeas(user.id)]);
+  const [allProjects, allBuilders, allIdeas, attention, followedUpdates, networkActivity, sinceLastVisit] = await Promise.all([
+    listProjects({}, user.id),
+    listBuilderProfiles(user.id),
+    listIdeas(user.id),
+    getDashboardAttention(user.id),
+    listFollowedProjectUpdates(user.id, 5),
+    listNetworkActivity(user.id, 5),
+    getDashboardSinceLastVisit(user.id, 6),
+  ]);
   const matchingIdeas = allIdeas
     .filter((idea) => idea.ownerId !== user.id)
     .sort((a, b) => {
@@ -50,7 +62,41 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <Topbar title="Start" subtitle={`Dzień dobry, ${profile.username}. Najważniejsze rzeczy masz poniżej.`} />
+      <Topbar title="Start" subtitle={`Cześć ${profile.username}. Tu wracasz po ludzi, projekty i rzeczy wymagające Twojej uwagi.`} />
+      <DashboardVisitMarker />
+
+      {sinceLastVisit.items.length > 0 ? (
+        <section className="mb-6 border-y border-[var(--bc-line)] bg-[var(--bc-surface)]">
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--bc-line)] px-4 py-3.5">
+            <div>
+              <p className="bc-kicker">Od ostatniej wizyty</p>
+              <h2 className="mt-1 text-[16px] font-semibold text-[var(--bc-ink)]">{sinceLastVisit.count} {sinceLastVisit.count === 1 ? "nowa rzecz" : "nowych rzeczy"}</h2>
+            </div>
+            {sinceLastVisit.lastVisitedAt ? <p className="text-[11px] text-[var(--bc-faint)]">od {sinceLastVisit.lastVisitedAt.toLocaleString("pl-PL", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p> : null}
+          </div>
+          <div className="divide-y divide-[var(--bc-line)]">
+            {sinceLastVisit.items.slice(0, 4).map((item) => (
+              <Link key={item.id} href={item.link ?? "/notifications"} className="grid gap-1 px-4 py-3 transition-colors hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-4">
+                <div className="min-w-0">
+                  <p className="text-[13px] font-medium text-[var(--bc-ink)]">{item.title}</p>
+                  {item.body ? <p className="mt-0.5 bc-truncate-2 text-[12px] leading-5 text-[var(--bc-muted)]">{item.body}</p> : null}
+                </div>
+                <span className="shrink-0 text-[11px] text-[var(--bc-faint)]">{item.createdAt.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}</span>
+              </Link>
+            ))}
+          </div>
+          {sinceLastVisit.count > 4 ? <div className="border-t border-[var(--bc-line)] px-4 py-2.5"><Link href="/notifications" className="text-[12px] font-medium text-[var(--bc-ink)] hover:underline">Zobacz wszystkie nowe rzeczy →</Link></div> : null}
+        </section>
+      ) : null}
+
+      <section className="mb-6 border-y border-[var(--bc-line)]">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4">
+          <AttentionItem href="/messages" icon={<MessageCircle className="h-3.5 w-3.5" />} value={attention.unreadMessages} label="nowe wiadomości" empty="Brak nowych wiadomości" />
+          <AttentionItem href="/notifications" icon={<Bell className="h-3.5 w-3.5" />} value={attention.unreadNotifications} label="powiadomienia" empty="Powiadomienia sprawdzone" />
+          <AttentionItem href="/my-projects" icon={<Users2 className="h-3.5 w-3.5" />} value={attention.pendingApplications} label="nowe zgłoszenia" empty="Brak nowych zgłoszeń" />
+          <AttentionItem href="/my-projects" icon={<FolderCheck className="h-3.5 w-3.5" />} value={attention.assignedTasks} label="zadania dla Ciebie" empty="Brak zadań do ogarnięcia" />
+        </div>
+      </section>
 
       <section className="overflow-hidden rounded-[8px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
         <div className="grid gap-5 px-5 py-5 md:px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
@@ -89,6 +135,35 @@ export default async function DashboardPage() {
         </section>
       ) : null}
 
+      {(followedUpdates.length > 0 || networkActivity.length > 0) ? (
+        <section className="mt-8 grid gap-8 xl:grid-cols-2">
+          <div>
+            <SectionHeading title="Obserwowane projekty" href="/projects" label="Odkrywaj projekty" />
+            <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
+              {followedUpdates.length ? followedUpdates.map((item) => (
+                <Link key={item.updateId} href={`/projects/${item.projectId}`} className="block py-3.5 hover:bg-[var(--bc-surface-subtle)]">
+                  <div className="flex items-center justify-between gap-3"><p className="text-[12px] font-semibold">{item.projectName}</p><span className="text-[9px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{PROJECT_UPDATE_KIND_LABELS[item.kind]}</span></div>
+                  <p className="mt-1 bc-truncate-2 text-[11px] leading-4 text-[var(--bc-muted)]">{item.body}</p>
+                  <p className="mt-1 text-[9px] text-[var(--bc-faint)]">{item.authorUsername ?? "Zespół"} · {item.createdAt.toLocaleDateString("pl-PL", { day: "2-digit", month: "short" })}</p>
+                </Link>
+              )) : <p className="py-5 text-[11px] leading-5 text-[var(--bc-muted)]">Obserwuj projekty, które Cię interesują. Ich konkretne aktualizacje pojawią się tutaj.</p>}
+            </div>
+          </div>
+          <div>
+            <SectionHeading title="Aktywność Twojej sieci" href="/network" label="Moja sieć" />
+            <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
+              {networkActivity.length ? networkActivity.map((item) => (
+                <Link key={item.id} href={`/projects/${item.id}`} className="block py-3.5 hover:bg-[var(--bc-surface-subtle)]">
+                  <p className="text-[10px] text-[var(--bc-faint)]">{item.username}</p>
+                  <p className="mt-0.5 text-[12px] font-semibold">{item.name}</p>
+                  <p className="mt-1 bc-truncate-2 text-[11px] leading-4 text-[var(--bc-muted)]">{item.tagline}</p>
+                </Link>
+              )) : <p className="py-5 text-[11px] leading-5 text-[var(--bc-muted)]">Obserwuj builderów i współpracuj przy projektach. Z czasem powstanie tu Twój własny feed realnego budowania.</p>}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="mt-8">
         <SectionHeading title="Otwarte projekty" href="/projects" label="Wszystkie projekty" />
         {fallbackProjects.length > 0 ? <div className="mt-3 space-y-2.5">{fallbackProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div> : <div className="mt-3 border-y border-[var(--bc-line)] py-7 text-sm text-[var(--bc-muted)]">Brak otwartych projektów.</div>}
@@ -121,9 +196,18 @@ export default async function DashboardPage() {
       <section className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[var(--bc-line)] pt-5">
         <Link href="/ideas" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-ink)] hover:underline">Pomysły <ArrowRight className="h-3.5 w-3.5" /></Link>
         <Link href="/build" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-ink)] hover:underline">Build Pool <ArrowRight className="h-3.5 w-3.5" /></Link>
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[13px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline"><MessageCircle className="h-3.5 w-3.5" /> Discord</a>
+        <Link href="/network" className="inline-flex items-center gap-1.5 text-[13px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline"><Users2 className="h-3.5 w-3.5" /> Moja sieć</Link>
       </section>
     </div>
+  );
+}
+
+function AttentionItem({ href, icon, value, label, empty }: { href: string; icon: React.ReactNode; value: number; label: string; empty: string }) {
+  return (
+    <Link href={href} className="flex min-h-[74px] items-center gap-3 border-b border-[var(--bc-line)] px-4 py-3 transition-colors hover:bg-[var(--bc-surface-subtle)] xl:border-b-0 xl:border-r xl:last:border-r-0">
+      <span className="text-[var(--bc-muted)]">{icon}</span>
+      <div><p className="text-[14px] font-semibold tabular-nums text-[var(--bc-ink)]">{value > 0 ? `${value} ${label}` : empty}</p><p className="mt-0.5 text-[10px] text-[var(--bc-faint)]">{value > 0 ? "Wymaga uwagi" : "Na teraz czysto"}</p></div>
+    </Link>
   );
 }
 

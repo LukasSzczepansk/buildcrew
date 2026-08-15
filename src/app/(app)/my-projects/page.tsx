@@ -3,116 +3,366 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, FolderKanban, UsersRound } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
+import { ProjectIdentityMark } from "@/components/projects/project-identity-mark";
 import { Button } from "@/components/ui/button";
+import { TechnologyStack } from "@/components/ui/technology-badge";
 import { ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
 import { listApplicationsForProject } from "@/server/data/applications";
 import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
+import { getWorkspaceSignalsForProjects } from "@/server/data/project-workspace";
 
 export const metadata: Metadata = { title: "Moje projekty — BuildCrew" };
 
-export default async function MyProjectsPage() {
+type View = "owned" | "joined";
+
+export default async function MyProjectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+
+  const params = await searchParams;
+  const view: View = params.view === "joined" ? "joined" : "owned";
 
   const [owned, allMemberships] = await Promise.all([
     listProjectsForOwner(user.id),
     listProjectsForMember(user.id),
   ]);
   const joined = allMemberships.filter((project) => project.ownerId !== user.id);
+  const workspaceSignals = await getWorkspaceSignalsForProjects(
+    Array.from(new Set([...owned.map((project) => project.id), ...joined.map((project) => project.id)])),
+    user.id,
+  );
 
   const pendingByProject = new Map<string, number>();
-  await Promise.all(owned.map(async (project) => {
-    const applications = await listApplicationsForProject(project.id);
-    pendingByProject.set(project.id, applications.filter((item) => item.status === "PENDING").length);
-  }));
+  await Promise.all(
+    owned.map(async (project) => {
+      const applications = await listApplicationsForProject(project.id);
+      pendingByProject.set(
+        project.id,
+        applications.filter((item) => item.status === "PENDING").length,
+      );
+    }),
+  );
 
   return (
     <div>
-      <Topbar title="Moje projekty" subtitle="W jednym miejscu: projekty, które prowadzisz, oraz zespoły, do których dołączyłeś." />
+      <Topbar
+        title="Moje projekty"
+        subtitle="Projekty, które prowadzisz, i zespoły, do których należysz — bez szukania ich w katalogu."
+      />
 
-      <section>
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-[17px] font-semibold tracking-[-0.015em] text-[var(--bc-ink)]">Utworzone przeze mnie</h2>
-            <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Zgłoszenia, zespół i workspace bez szukania projektu w katalogu.</p>
-          </div>
-          <Button asChild size="sm"><Link href="/projects/new">Dodaj projekt</Link></Button>
-        </div>
+      <nav aria-label="Widok moich projektów" className="mb-5 flex items-center gap-6 border-b border-[var(--bc-line)]">
+        <TabLink href="/my-projects?view=owned" active={view === "owned"} count={owned.length}>
+          Prowadzę
+        </TabLink>
+        <TabLink href="/my-projects?view=joined" active={view === "joined"} count={joined.length}>
+          Jestem członkiem
+        </TabLink>
+      </nav>
 
-        {owned.length ? (
-          <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-            {owned.map((project) => {
-              const pending = pendingByProject.get(project.id) ?? 0;
-              return (
-                <div key={project.id} className="grid gap-4 py-4 md:grid-cols-[minmax(0,1fr)_170px_180px] md:items-center">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link href={`/projects/${project.id}`} className="truncate text-[15px] font-semibold text-[var(--bc-ink)] hover:underline">{project.name}</Link>
-                      <span className="text-[10px] font-medium text-[var(--bc-faint)]">{STAGE_LABELS[project.stage]}</span>
-                    </div>
-                    <p className="mt-1 line-clamp-1 text-[12px] text-[var(--bc-muted)]">{project.tagline}</p>
-                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--bc-faint)]">
-                      <span className="inline-flex items-center gap-1"><UsersRound className="h-3 w-3" /> {Math.max(project.members.length, 1)} w zespole</span>
-                      <span>{project.openRoles.length} {project.openRoles.length === 1 ? "otwarta rola" : "otwarte role"}</span>
-                    </div>
-                  </div>
-
-                  <div className="border-l-0 md:border-l md:border-[var(--bc-line)] md:pl-5">
-                    <p className="text-[10px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Do sprawdzenia</p>
-                    <p className={`mt-1 text-[13px] font-medium ${pending ? "text-[var(--bc-ink)]" : "text-[var(--bc-muted)]"}`}>{pending ? `${pending} ${pending === 1 ? "nowe zgłoszenie" : "nowe zgłoszenia"}` : "Brak nowych zgłoszeń"}</p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                    <Button asChild variant="outline" size="sm"><Link href={`/projects/${project.id}/workspace`}>Workspace</Link></Button>
-                    <Button asChild size="sm"><Link href={`/projects/${project.id}/manage`}>Zarządzaj <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="border-y border-[var(--bc-line)] py-8">
-            <div className="flex items-start gap-3">
-              <FolderKanban className="mt-0.5 h-4 w-4 text-[var(--bc-faint)]" />
-              <div>
-                <p className="text-[13px] font-medium text-[var(--bc-ink)]">Nie utworzyłeś jeszcze projektu.</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Możesz zacząć od prostego szkicu i uzupełnić resztę później.</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      <section className="mt-9">
-        <div className="mb-3">
-          <h2 className="text-[17px] font-semibold tracking-[-0.015em] text-[var(--bc-ink)]">Projekty, w których jestem</h2>
-          <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Twoje aktywne zespoły i szybki dostęp do ich workspace&apos;ów.</p>
-        </div>
-
-        {joined.length ? (
-          <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-            {joined.map((project) => {
-              const membership = project.members.find((member) => member.userId === user.id);
-              return (
-                <div key={project.id} className="grid gap-4 py-4 md:grid-cols-[minmax(0,1fr)_170px] md:items-center">
-                  <div className="min-w-0">
-                    <Link href={`/projects/${project.id}`} className="text-[14px] font-semibold text-[var(--bc-ink)] hover:underline">{project.name}</Link>
-                    <p className="mt-1 line-clamp-1 text-[12px] text-[var(--bc-muted)]">{project.tagline}</p>
-                    <p className="mt-2 text-[11px] text-[var(--bc-faint)]">{membership?.roleType ? `Rola: ${ROLE_LABELS[membership.roleType]}` : "Członek zespołu"} · {Math.max(project.members.length, 1)} osób</p>
-                  </div>
-                  <div className="flex gap-2 md:justify-end">
-                    <Button asChild variant="outline" size="sm"><Link href={`/projects/${project.id}`}>Projekt</Link></Button>
-                    <Button asChild size="sm"><Link href={`/projects/${project.id}/workspace`}>Workspace</Link></Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="border-y border-[var(--bc-line)] py-7 text-[12px] text-[var(--bc-muted)]">Nie należysz jeszcze do żadnego projektu poza własnymi.</div>
-        )}
-      </section>
+      {view === "owned" ? (
+        <OwnedProjects projects={owned} pendingByProject={pendingByProject} workspaceSignals={workspaceSignals} />
+      ) : (
+        <JoinedProjects projects={joined} userId={user.id} workspaceSignals={workspaceSignals} />
+      )}
     </div>
+  );
+}
+
+function TabLink({
+  href,
+  active,
+  count,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  count: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`relative flex min-h-10 items-center gap-2 pb-3 text-sm font-medium transition-colors ${
+        active ? "text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"
+      }`}
+    >
+      <span>{children}</span>
+      <span
+        className={`text-[12px] ${active ? "text-[var(--bc-ink)]" : "text-[var(--bc-faint)]"}`}
+        aria-label={`${count} projektów`}
+      >
+        {count}
+      </span>
+      {active ? <span className="absolute inset-x-0 bottom-0 h-[2px] bg-[var(--bc-accent)]" /> : null}
+    </Link>
+  );
+}
+
+function OwnedProjects({
+  projects,
+  pendingByProject,
+  workspaceSignals,
+}: {
+  projects: Awaited<ReturnType<typeof listProjectsForOwner>>;
+  pendingByProject: Map<string, number>;
+  workspaceSignals: Map<string, { unreadMessages: number; assignedTasks: number }>;
+}) {
+  if (!projects.length) {
+    return (
+      <EmptyState
+        title="Nie prowadzisz jeszcze żadnego projektu."
+        description="Utwórz szkic projektu i uzupełniaj go później, gdy zbierzesz ekipę."
+        actionHref="/projects/new"
+        actionLabel="Dodaj projekt"
+      />
+    );
+  }
+
+  return (
+    <section aria-labelledby="owned-projects-heading">
+      <div className="mb-3 flex items-baseline justify-between gap-4">
+        <div>
+          <h2 id="owned-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">
+            Projekty, które prowadzisz
+          </h2>
+          <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Najpierw pokazujemy rzeczy, które mogą wymagać Twojej reakcji.</p>
+        </div>
+      </div>
+
+      <div className="border-y border-[var(--bc-line)]">
+        {projects.map((project, index) => {
+          const pending = pendingByProject.get(project.id) ?? 0;
+          const signals = workspaceSignals.get(project.id) ?? { unreadMessages: 0, assignedTasks: 0 };
+          const memberCount = Math.max(project.members.length, 1);
+          const openRoleCount = project.openRoles.length;
+          const openRoleNames = project.openRoles
+            .slice(0, 2)
+            .map((role) => ROLE_LABELS[role.roleType])
+            .join(", ");
+
+          return (
+            <article
+              key={project.id}
+              className={`grid gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_220px_190px] lg:items-center ${
+                index > 0 ? "border-t border-[var(--bc-line)]" : ""
+              }`}
+            >
+              <div className="flex min-w-0 gap-3.5">
+                <ProjectIdentityMark
+                  name={project.name}
+                  tagline={project.tagline}
+                  projectType={project.projectType}
+                  technologies={project.technologies}
+                  size="sm"
+                />
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                    <Link
+                      href={`/projects/${project.id}`}
+                      className="truncate text-[15px] font-semibold tracking-[-0.01em] text-[var(--bc-ink)] hover:underline"
+                    >
+                      {project.name}
+                    </Link>
+                    <span className="text-[11px] font-medium text-[var(--bc-faint)]">{STAGE_LABELS[project.stage]}</span>
+                  </div>
+
+                  <p className="mt-1 line-clamp-1 max-w-[700px] text-[13px] leading-5 text-[var(--bc-muted)]">{project.tagline}</p>
+
+                  <TechnologyStack items={project.technologies} max={3} compact className="mt-2.5 gap-1.5" />
+
+                  <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--bc-faint)]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <UsersRound className="h-3.5 w-3.5" strokeWidth={1.7} />
+                      {memberCount} {memberCount === 1 ? "osoba" : "osoby"}
+                    </span>
+                    {signals.unreadMessages > 0 ? <span className="font-medium text-[var(--bc-ink)]">{signals.unreadMessages} nowych wiadomości</span> : null}
+                    {signals.assignedTasks > 0 ? <span>{signals.assignedTasks} {signals.assignedTasks === 1 ? "zadanie dla Ciebie" : "zadania dla Ciebie"}</span> : null}
+                    {openRoleCount > 0 ? (
+                      <span>
+                        Szukamy: <span className="text-[var(--bc-muted)]">{openRoleNames}{openRoleCount > 2 ? ` +${openRoleCount - 2}` : ""}</span>
+                      </span>
+                    ) : (
+                      <span>Ekipa kompletna</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:border-l lg:border-[var(--bc-line)] lg:pl-5">
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">
+                  {pending > 0 ? "Do sprawdzenia" : openRoleCount > 0 ? "Rekrutacja" : "Zespół"}
+                </p>
+
+                {pending > 0 ? (
+                  <>
+                    <p className="mt-1.5 text-sm font-semibold text-[var(--bc-ink)]">
+                      {pending} {pending === 1 ? "nowe zgłoszenie" : "nowe zgłoszenia"}
+                    </p>
+                    <Link
+                      href={`/projects/${project.id}/applications`}
+                      className="mt-1 inline-flex text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]"
+                    >
+                      Otwórz zgłoszenia
+                    </Link>
+                  </>
+                ) : openRoleCount > 0 ? (
+                  <>
+                    <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">
+                      {openRoleCount} {openRoleCount === 1 ? "otwarta rola" : "otwarte role"}
+                    </p>
+                    <p className="mt-1 line-clamp-1 text-[12px] text-[var(--bc-muted)]">{openRoleNames}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">Ekipa kompletna</p>
+                    <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Brak otwartych ról.</p>
+                  </>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/projects/${project.id}/workspace`}>Workspace</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href={`/projects/${project.id}/manage`}>
+                    Zarządzaj <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function JoinedProjects({
+  projects,
+  userId,
+  workspaceSignals,
+}: {
+  projects: Awaited<ReturnType<typeof listProjectsForMember>>;
+  userId: string;
+  workspaceSignals: Map<string, { unreadMessages: number; assignedTasks: number }>;
+}) {
+  if (!projects.length) {
+    return (
+      <EmptyState
+        title="Nie jesteś jeszcze członkiem innego projektu."
+        description="Przejrzyj otwarte projekty i znajdź taki, który potrzebuje Twoich umiejętności."
+        actionHref="/projects"
+        actionLabel="Przeglądaj projekty"
+      />
+    );
+  }
+
+  return (
+    <section aria-labelledby="joined-projects-heading">
+      <div className="mb-3">
+        <h2 id="joined-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">
+          Zespoły, do których należysz
+        </h2>
+        <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Twoja rola i szybki dostęp do miejsca pracy zespołu.</p>
+      </div>
+
+      <div className="border-y border-[var(--bc-line)]">
+        {projects.map((project, index) => {
+          const membership = project.members.find((member) => member.userId === userId);
+          const signals = workspaceSignals.get(project.id) ?? { unreadMessages: 0, assignedTasks: 0 };
+          const roleLabel = membership?.roleType ? ROLE_LABELS[membership.roleType] : "Członek zespołu";
+          const memberCount = Math.max(project.members.length, 1);
+
+          return (
+            <article
+              key={project.id}
+              className={`grid gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_190px_190px] lg:items-center ${
+                index > 0 ? "border-t border-[var(--bc-line)]" : ""
+              }`}
+            >
+              <div className="flex min-w-0 gap-3.5">
+                <ProjectIdentityMark
+                  name={project.name}
+                  tagline={project.tagline}
+                  projectType={project.projectType}
+                  technologies={project.technologies}
+                  size="sm"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link href={`/projects/${project.id}`} className="text-[15px] font-semibold text-[var(--bc-ink)] hover:underline">
+                      {project.name}
+                    </Link>
+                    <span className="text-[11px] font-medium text-[var(--bc-faint)]">{STAGE_LABELS[project.stage]}</span>
+                  </div>
+                  <p className="mt-1 line-clamp-1 max-w-[700px] text-[13px] leading-5 text-[var(--bc-muted)]">{project.tagline}</p>
+                  <TechnologyStack items={project.technologies} max={3} compact className="mt-2.5 gap-1.5" />
+                </div>
+              </div>
+
+              <div className="lg:border-l lg:border-[var(--bc-line)] lg:pl-5">
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Twoja rola</p>
+                <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{roleLabel}</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{memberCount} {memberCount === 1 ? "osoba" : "osoby"} w zespole</p>
+                {signals.unreadMessages > 0 || signals.assignedTasks > 0 ? (
+                  <p className="mt-2 text-[11px] font-medium text-[var(--bc-ink)]">
+                    {signals.unreadMessages > 0 ? `${signals.unreadMessages} nowych wiadomości` : ""}
+                    {signals.unreadMessages > 0 && signals.assignedTasks > 0 ? " · " : ""}
+                    {signals.assignedTasks > 0 ? `${signals.assignedTasks} ${signals.assignedTasks === 1 ? "zadanie" : "zadania"} dla Ciebie` : ""}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/projects/${project.id}`}>Projekt</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href={`/projects/${project.id}/workspace`}>
+                    Workspace <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function EmptyState({
+  title,
+  description,
+  actionHref,
+  actionLabel,
+}: {
+  title: string;
+  description: string;
+  actionHref: string;
+  actionLabel: string;
+}) {
+  return (
+    <section className="border-y border-[var(--bc-line)] py-8">
+      <div className="flex max-w-[760px] items-start justify-between gap-5">
+        <div className="flex items-start gap-3">
+          <FolderKanban className="mt-0.5 h-4 w-4 shrink-0 text-[var(--bc-faint)]" strokeWidth={1.7} />
+          <div>
+            <p className="text-sm font-medium text-[var(--bc-ink)]">{title}</p>
+            <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{description}</p>
+          </div>
+        </div>
+        <Button asChild variant="outline" size="sm" className="shrink-0">
+          <Link href={actionHref}>{actionLabel}</Link>
+        </Button>
+      </div>
+    </section>
   );
 }

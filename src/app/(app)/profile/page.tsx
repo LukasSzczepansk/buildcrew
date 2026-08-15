@@ -6,15 +6,18 @@ import { Topbar } from "@/components/layout/topbar";
 import { ProfileEditForm } from "@/components/profile/profile-edit-form";
 import { AccountSecurity } from "@/components/profile/account-security";
 import { NotificationPreferencesForm } from "@/components/profile/notification-preferences-form";
+import { AvatarPhotoSettings } from "@/components/profile/avatar-photo-settings";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { LEVEL_LABELS, ROLE_LABELS } from "@/lib/constants";
 import { countHelpfulAnswersForUser } from "@/server/data/help";
 import { getPrivateContact, getProfileByUserId } from "@/server/data/profiles";
+import { getProfileAvatarState } from "@/server/data/profile-avatars";
 import { listProjectsForMember } from "@/server/data/projects";
 import { getNotificationPreferences } from "@/server/data/notifications";
 import { getBuilderBadges, listShowcaseForUser } from "@/server/data/showcase";
+import { listCreditsForUser } from "@/server/data/social-projects";
 import { logoutAction } from "@/server/actions/auth";
 
 export const metadata: Metadata = { title: "Profil — BuildCrew" };
@@ -23,7 +26,7 @@ export default async function ProfilePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [profile, privateContact, helpfulCount, projects, notificationPrefs, showcaseEntries, badges] = await Promise.all([
+  const [profile, privateContact, helpfulCount, projects, notificationPrefs, showcaseEntries, badges, avatarState, completedCredits] = await Promise.all([
     getProfileByUserId(user.id),
     getPrivateContact(user.id),
     countHelpfulAnswersForUser(user.id),
@@ -31,9 +34,19 @@ export default async function ProfilePage() {
     getNotificationPreferences(user.id),
     listShowcaseForUser(user.id),
     getBuilderBadges(user.id),
+    getProfileAvatarState(user.id),
+    listCreditsForUser(user.id),
   ]);
 
   if (!profile || !profile.role || !profile.level || !profile.weeklyHours) redirect("/onboarding");
+
+  const matchingGaps = [
+    !profile.bio?.trim() ? "krótkie bio" : null,
+    profile.skills.length < 3 ? "co najmniej 3 umiejętności" : null,
+    profile.interests.length < 2 ? "obszary, które chcesz budować" : null,
+    profile.lookingFor.length === 0 ? "czego szukasz teraz" : null,
+    !profile.githubUrl && !profile.portfolioUrl ? "GitHub lub portfolio" : null,
+  ].filter((value): value is string => Boolean(value));
 
   return (
     <div>
@@ -53,14 +66,26 @@ export default async function ProfilePage() {
             </div>
             {profile.bio ? <p className="bc-truncate-2 mt-1.5 max-w-[680px] text-[13px] leading-5 text-[var(--bc-muted)]">{profile.bio}</p> : null}
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--bc-faint)]">
-              <span>{projects.length} {projects.length === 1 ? "projekt" : "projekty"}</span>
+              <span>{projects.length} aktywnych · {completedCredits.length} ukończonych</span>
               <span>{helpfulCount} pomocnych odpowiedzi</span>
               {badges.slice(0, 2).map((badge) => <span key={badge.key}>{badge.label}</span>)}
             </div>
           </div>
         </div>
-        <Button asChild variant="outline" size="sm"><Link href={`/builders/${user.id}`}>Podgląd publiczny <ExternalLink className="h-3.5 w-3.5" /></Link></Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm"><Link href={`/builders/${user.id}`}>Podgląd w BuildCrew</Link></Button>
+          {profile.publicProfile ? <Button asChild variant="outline" size="sm"><Link href={`/u/${profile.username}`}>Publiczny profil <ExternalLink className="h-3.5 w-3.5" /></Link></Button> : null}
+        </div>
       </section>
+
+      {matchingGaps.length ? (
+        <section className="mb-6 border-l-[3px] border-[var(--bc-accent)] bg-[var(--bc-surface-subtle)] px-4 py-3">
+          <p className="text-[12px] font-semibold">Lepsze dopasowania bez sztucznego „profile score”</p>
+          <p className="mt-1 text-[11px] leading-5 text-[var(--bc-muted)]">Uzupełnij: <span className="font-medium text-[var(--bc-ink)]">{matchingGaps.join(" · ")}</span>. BuildCrew wykorzysta te dane do rekomendacji ludzi i projektów.</p>
+        </section>
+      ) : null}
+
+      <AvatarPhotoSettings username={profile.username} initialState={avatarState} />
 
       <ProfileEditForm
         initial={{
@@ -77,6 +102,7 @@ export default async function ProfilePage() {
           portfolioUrl: profile.portfolioUrl ?? "",
           linkedinUrl: profile.linkedinUrl ?? "",
           discordUsername: privateContact?.discordUsername ?? "",
+          publicProfile: profile.publicProfile,
         }}
       />
 
@@ -89,7 +115,7 @@ export default async function ProfilePage() {
         </section>
       ) : null}
 
-      <div className="mt-7"><NotificationPreferencesForm initial={{ emailProjectApplications: notificationPrefs.emailProjectApplications, emailProjectAccepted: notificationPrefs.emailProjectAccepted, emailBuildPool: notificationPrefs.emailBuildPool, emailCrew: notificationPrefs.emailCrew, emailChallenge: notificationPrefs.emailChallenge, emailShowcaseFeedback: notificationPrefs.emailShowcaseFeedback, emailMessages: notificationPrefs.emailMessages, emailMatches: notificationPrefs.emailMatches, emailWeeklyDigest: notificationPrefs.emailWeeklyDigest }} /></div>
+      <div className="mt-7"><NotificationPreferencesForm initial={{ emailProjectApplications: notificationPrefs.emailProjectApplications, emailProjectAccepted: notificationPrefs.emailProjectAccepted, emailBuildPool: notificationPrefs.emailBuildPool, emailCrew: notificationPrefs.emailCrew, emailChallenge: notificationPrefs.emailChallenge, emailShowcaseFeedback: notificationPrefs.emailShowcaseFeedback, emailMessages: notificationPrefs.emailMessages, emailWorkspace: notificationPrefs.emailWorkspace, emailMatches: notificationPrefs.emailMatches, emailWeeklyDigest: notificationPrefs.emailWeeklyDigest }} /></div>
       <AccountSecurity hasPassword={user.hasPassword} />
 
     </div>

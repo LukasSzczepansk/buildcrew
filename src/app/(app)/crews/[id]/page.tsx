@@ -47,7 +47,7 @@ export default async function CrewPage({ params }: { params: Promise<{ id: strin
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="p-6 lg:col-span-2">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-neutral-400">Członkowie ekipy</p>
+          <p className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Członkowie ekipy</p>
           <div className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
             {crew.members.map((m) => (
               <div key={m.userId} className="flex items-center justify-between py-3">
@@ -57,7 +57,7 @@ export default async function CrewPage({ params }: { params: Promise<{ id: strin
                     <p className="font-medium">
                       {m.profile.username} {m.userId === user.id && <span className="text-neutral-400">(Ty)</span>}
                     </p>
-                    <p className="text-xs text-neutral-500">{m.profile.role ? ROLE_LABELS[m.profile.role as RoleType] : "Builder"}</p>
+                    <p className="text-[13px] text-neutral-500">{m.profile.role ? ROLE_LABELS[m.profile.role as RoleType] : "Builder"}</p>
                   </div>
                 </Link>
               </div>
@@ -73,7 +73,7 @@ export default async function CrewPage({ params }: { params: Promise<{ id: strin
 
         <div className="flex flex-col gap-6">
           <Card className="p-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Co Was łączy?</p>
+            <p className="mb-3 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Co Was łączy?</p>
             {sharedInterests.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
                 {sharedInterests.map((i) => (
@@ -88,7 +88,7 @@ export default async function CrewPage({ params }: { params: Promise<{ id: strin
           </Card>
 
           <Card className="p-6">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Macie już pomysł?</p>
+            <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Macie już pomysł?</p>
             {crew.status === "CONVERTED_TO_PROJECT" && crew.projectId ? (
               <div>
                 <p className="mb-3 text-sm text-neutral-500">Ta ekipa zamieniła się już w projekt.</p>

@@ -146,6 +146,7 @@ export async function updateProfile(input: z.infer<typeof profileEditSchema>): P
       githubUrl: data.githubUrl || null,
       portfolioUrl: data.portfolioUrl || null,
       linkedinUrl: data.linkedinUrl || null,
+      publicProfile: data.publicProfile ?? false,
       updatedAt: new Date(),
     })
     .where(eq(profiles.userId, user.id));
@@ -159,8 +160,11 @@ export async function updateProfile(input: z.infer<typeof profileEditSchema>): P
     });
 
   await syncSkillsAndInterests(user.id, data.skills, data.interests ?? []);
+  await logEvent("public_profile_updated", user.id, { enabled: data.publicProfile ?? false });
 
   revalidatePath("/profile");
+  revalidatePath(`/u/${data.username}`);
+  revalidatePath("/network");
   revalidatePath(`/builders/${user.id}`);
   return { success: true };
 }

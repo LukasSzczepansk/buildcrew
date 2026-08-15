@@ -33,15 +33,15 @@ function TechIcon({ label }: { label: string }) {
   }
 
   if (["typescript", "ts"].includes(key)) {
-    return <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[#3178c6]">TS</span>;
+    return <span className="text-[10px] font-bold uppercase tracking-[0.02em] text-[#3178c6]">TS</span>;
   }
 
   if (["javascript", "js"].includes(key)) {
-    return <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[#b78a00]">JS</span>;
+    return <span className="text-[10px] font-bold uppercase tracking-[0.02em] text-[#b78a00]">JS</span>;
   }
 
   if (["nextjs", "next", "next.js"].includes(key)) {
-    return <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-neutral-900 dark:text-white">N</span>;
+    return <span className="text-[10px] font-bold uppercase tracking-[0.02em] text-neutral-900 dark:text-white">N</span>;
   }
 
   if (["nodejs", "node", "node.js"].includes(key)) {
@@ -63,7 +63,7 @@ function TechIcon({ label }: { label: string }) {
   }
 
   if (["svelte", "sveltekit"].includes(key)) {
-    return <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[#ff5b2d]">S</span>;
+    return <span className="text-[10px] font-bold uppercase tracking-[0.02em] text-[#ff5b2d]">S</span>;
   }
 
   if (["tailwindcss", "tailwind"].includes(key)) {
@@ -75,7 +75,7 @@ function TechIcon({ label }: { label: string }) {
   }
 
   if (["python", "py"].includes(key)) {
-    return <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[#3d7ab8]">Py</span>;
+    return <span className="text-[10px] font-bold uppercase tracking-[0.02em] text-[#3d7ab8]">Py</span>;
   }
 
   if (["postgresql", "postgres", "psql"].includes(key)) {
@@ -138,11 +138,11 @@ function TechIcon({ label }: { label: string }) {
   }
 
   if (["stripe"].includes(key)) {
-    return <span className="text-[9px] font-black uppercase tracking-[0.02em] text-[#635bff]">S</span>;
+    return <span className="text-[10px] font-black uppercase tracking-[0.02em] text-[#635bff]">S</span>;
   }
 
   if (["html", "htmlcss", "css", "html/css"].includes(key)) {
-    return <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-orange-500">&lt;/&gt;</span>;
+    return <span className="text-[10px] font-bold uppercase tracking-[0.02em] text-orange-500">&lt;/&gt;</span>;
   }
 
   if (["gemini", "geminiapi"].includes(key)) {
@@ -153,7 +153,7 @@ function TechIcon({ label }: { label: string }) {
     );
   }
 
-  return <span className="text-[9px] font-semibold uppercase tracking-[0.02em] text-[var(--bc-faint)]">{initials(label)}</span>;
+  return <span className="text-[10px] font-semibold uppercase tracking-[0.02em] text-[var(--bc-faint)]">{initials(label)}</span>;
 }
 
 export function TechnologyBadge({
@@ -169,7 +169,7 @@ export function TechnologyBadge({
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-ink)]",
-        compact ? "min-h-7 px-2 py-1 text-[11px]" : "min-h-8 px-2.5 py-1 text-[12px]",
+        compact ? "min-h-7 px-2 py-1 text-[12px]" : "min-h-8 px-2.5 py-1 text-[13px]",
         className,
       )}
     >
@@ -203,7 +203,7 @@ export function TechnologyStack({
         <TechnologyBadge key={item} label={item} compact={compact} />
       ))}
       {remaining > 0 ? (
-        <span className={cn("inline-flex items-center rounded-[6px] border border-dashed border-[var(--bc-line)] text-[var(--bc-muted)]", compact ? "min-h-7 px-2 py-1 text-[11px]" : "min-h-8 px-2.5 py-1 text-[12px]")}>+{remaining}</span>
+        <span className={cn("inline-flex items-center rounded-[6px] border border-dashed border-[var(--bc-line)] text-[var(--bc-muted)]", compact ? "min-h-7 px-2 py-1 text-[12px]" : "min-h-8 px-2.5 py-1 text-[13px]")}>+{remaining}</span>
       ) : null}
     </div>
   );

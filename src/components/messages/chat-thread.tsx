@@ -87,7 +87,7 @@ export function ChatThread({
           <Avatar username={otherUser.username} size="sm" />
           <div>
             <p className="font-semibold">{otherUser.username}</p>
-            <p className="text-xs text-neutral-400">Wiadomości odświeżają się co kilka sekund</p>
+            <p className="text-[13px] text-neutral-400">Wiadomości odświeżają się co kilka sekund</p>
           </div>
         </div>
       </div>
@@ -110,7 +110,7 @@ export function ChatThread({
                       : "rounded-bl-md border border-neutral-200 bg-white text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100",
                   )}>
                     <p className="whitespace-pre-wrap break-words">{message.body}</p>
-                    <p className={cn("mt-1 text-[10px]", mine ? "text-lime-100" : "text-neutral-400")}>
+                    <p className={cn("mt-1 text-[11px]", mine ? "text-lime-100" : "text-neutral-400")}>
                       {new Date(message.createdAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}
                       {mine ? ` · ${message.readAt ? "Odczytano" : "Wysłano"}` : ""}
                     </p>

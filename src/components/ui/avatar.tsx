@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -35,15 +37,19 @@ export function initialsForUsername(username: string) {
   return single.slice(0, Math.min(2, single.length)).toLocaleUpperCase("pl-PL");
 }
 
-function Avatar({ username, seed, emoji: _legacyEmoji, className, size = "md" }: { username?: string | null; seed?: string | null; emoji?: string | null; className?: string; size?: AvatarSize }) {
+function Avatar({ username, seed, emoji: _legacyEmoji, className, size = "md", disablePhoto = false }: { username?: string | null; seed?: string | null; emoji?: string | null; className?: string; size?: AvatarSize; disablePhoto?: boolean }) {
   const label = username?.trim() || "BuildCrew";
   const palette = PALETTES[avatarHash(seed?.trim() || _legacyEmoji?.trim() || label) % PALETTES.length];
+  const [photoLoaded, setPhotoLoaded] = React.useState(false);
   const sizes: Record<AvatarSize, string> = {
-    sm: "h-8 w-8 text-[11px]",
-    md: "h-11 w-11 text-[13px]",
+    sm: "h-8 w-8 text-[12px]",
+    md: "h-11 w-11 text-sm",
     lg: "h-16 w-16 text-[18px]",
     xl: "h-24 w-24 text-[28px]",
   };
+  const photoSrc = disablePhoto || !username?.trim() ? null : `/api/avatar/${encodeURIComponent(username.trim())}`;
+
+  React.useEffect(() => setPhotoLoaded(false), [photoSrc]);
 
   return (
     <div
@@ -51,13 +57,26 @@ function Avatar({ username, seed, emoji: _legacyEmoji, className, size = "md" }:
       aria-label={`Avatar ${label}`}
       title={label}
       className={cn(
-        "flex shrink-0 select-none items-center justify-center rounded-full border font-semibold tracking-[-0.035em] text-neutral-950",
+        "relative flex shrink-0 select-none items-center justify-center overflow-hidden rounded-full border font-semibold tracking-[-0.035em] text-neutral-950",
         sizes[size],
         className,
       )}
       style={{ backgroundColor: palette.bg, color: palette.fg, borderColor: palette.ring }}
     >
-      <span aria-hidden="true">{initialsForUsername(label)}</span>
+      <span aria-hidden="true" className={photoLoaded ? "opacity-0" : "opacity-100"}>{initialsForUsername(label)}</span>
+      {photoSrc ? (
+        // The endpoint only returns an approved photo. A 404 simply keeps the initials fallback.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={photoSrc}
+          alt=""
+          aria-hidden="true"
+          className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-150", photoLoaded ? "opacity-100" : "opacity-0")}
+          onLoad={() => setPhotoLoaded(true)}
+          onError={() => setPhotoLoaded(false)}
+          draggable={false}
+        />
+      ) : null}
     </div>
   );
 }

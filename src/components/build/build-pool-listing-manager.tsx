@@ -166,7 +166,7 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="pool-tech">Technologie</Label>
                   <Input id="pool-tech" value={technologies} onChange={(e) => setTechnologies(e.target.value)} placeholder="Next.js, TypeScript, PostgreSQL" />
-                  <p className="text-xs text-neutral-400">Oddziel technologie przecinkami, maks. 10.</p>
+                  <p className="text-[13px] text-neutral-400">Oddziel technologie przecinkami, maks. 10.</p>
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="pool-wants">Co chcesz budować?</Label>

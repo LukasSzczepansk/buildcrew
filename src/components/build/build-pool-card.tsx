@@ -55,9 +55,9 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
           <Link href={`/builders/${person.userId}`} className="shrink-0"><Avatar username={person.username} seed={person.userId} className="h-14 w-14 text-[19px]" /></Link>
           <div className="min-w-0">
             <Link href={`/builders/${person.userId}`} className="truncate text-[17px] font-semibold tracking-[-0.018em] hover:underline">{person.username}</Link>
-            <p className="mt-0.5 text-[13px] text-[var(--bc-muted)]">{ROLE_LABELS[person.role]}</p>
-            <p className="mt-2 line-clamp-1 text-[12px] font-medium text-[var(--bc-ink)]">{person.headline}</p>
-            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[var(--bc-muted)]">
+            <p className="mt-0.5 text-sm text-[var(--bc-muted)]">{ROLE_LABELS[person.role]}</p>
+            <p className="mt-2 line-clamp-1 text-[13px] font-medium text-[var(--bc-ink)]">{person.headline}</p>
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-[var(--bc-muted)]">
               <span>{LEVEL_LABELS[person.level]}</span>
               <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{COMMITMENT_LABELS[person.weeklyHours]}</span>
               <span className="inline-flex items-center gap-1"><UsersRound className="h-3 w-3" />{person.preferredCrewSize} os.</span>
@@ -67,11 +67,11 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
 
         <div className="min-w-0 border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
           {person.technologies.length > 0 ? <TechnologyStack items={person.technologies} max={5} compact className="gap-1.5" /> : null}
-          <p className="mt-3 truncate text-[12px] text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">Wspólny punkt: </span>{insight}</p>
+          <p className="mt-3 truncate text-[13px] text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">Wspólny punkt: </span>{insight}</p>
         </div>
 
         <div className="border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Match</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Match</p>
           <p className={`mt-1.5 text-[26px] font-semibold leading-none tracking-[-0.03em] ${strongMatch ? "text-[#94bf28] dark:text-[var(--bc-accent)]" : "text-[var(--bc-ink)]"}`}>{score}%</p>
           <div className="mt-2.5 h-[3px] w-full bg-black/8 dark:bg-white/10"><div className="h-[3px] bg-[var(--bc-accent-strong)]" style={{ width: `${score}%` }} /></div>
         </div>
@@ -88,7 +88,7 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
               <DialogFooter><Button onClick={handleSend} disabled={pending}>{pending ? "Wysyłanie…" : "Wyślij"}</Button></DialogFooter>
             </DialogContent>
           </Dialog>
-          <Link href={`/builders/${person.userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[12px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">Profil <ArrowRight className="h-3.5 w-3.5" /></Link>
+          <Link href={`/builders/${person.userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">Profil <ArrowRight className="h-3.5 w-3.5" /></Link>
         </div>
       </div>
     </article>

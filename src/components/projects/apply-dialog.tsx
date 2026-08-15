@@ -58,7 +58,7 @@ export function ApplyDialog({
         </DialogHeader>
 
         <div className="rounded-[6px] bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Twoje dane</p>
+          <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Twoje dane</p>
           <div className="flex flex-col gap-1.5">
             <p>
               <span className="text-neutral-400">Rola:</span> {myProfile.role ? ROLE_LABELS[myProfile.role] : "—"}
@@ -82,7 +82,7 @@ export function ApplyDialog({
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium">Co chciałbyś wnieść do projektu?</label>
           <Textarea placeholder="Np. Mogę ogarnąć frontend i chciałbym razem dowieźć pierwsze MVP…" maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} />
-          <p className="text-right text-xs text-neutral-400">{message.length}/500</p>
+          <p className="text-right text-[13px] text-neutral-400">{message.length}/500</p>
         </div>
 
         <DialogFooter>

@@ -10,6 +10,7 @@ import {
   profiles,
   projectMembers,
   projectRoles,
+  profileAvatars,
   projects,
   questions,
   reports,
@@ -26,6 +27,7 @@ export async function getAdminOverview() {
     questionCount,
     answerCount,
     openReportCount,
+    pendingAvatarCount,
     eventCount,
   ] = await Promise.all([
     db.select({ count: sql<number>`count(*)::int` }).from(users),
@@ -36,6 +38,7 @@ export async function getAdminOverview() {
     db.select({ count: sql<number>`count(*)::int` }).from(questions),
     db.select({ count: sql<number>`count(*)::int` }).from(answers),
     db.select({ count: sql<number>`count(*)::int` }).from(reports).where(eq(reports.status, "open")),
+    db.select({ count: sql<number>`count(*)::int` }).from(profileAvatars).where(eq(profileAvatars.status, "PENDING")),
     db
       .select({ count: sql<number>`count(*)::int` })
       .from(analyticsEvents)
@@ -57,6 +60,7 @@ export async function getAdminOverview() {
     questions: questionCount[0]?.count ?? 0,
     answers: answerCount[0]?.count ?? 0,
     openReports: openReportCount[0]?.count ?? 0,
+    pendingAvatars: pendingAvatarCount[0]?.count ?? 0,
     events7d: eventCount[0]?.count ?? 0,
     recentReports,
     recentUsers,

@@ -26,6 +26,7 @@ import { applicationSchema, decisionSchema, projectCreateSchema, projectInviteSc
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import { createNotification } from "@/server/services/notifications";
 import { ROLE_LABELS } from "@/lib/constants";
+import { listFollowerIds } from "@/server/data/network";
 
 export type ActionState = { error?: string; success?: boolean };
 
@@ -136,7 +137,20 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
     )));
   }
   await logEvent("project_created", user.id, { projectId: result.project.id, name: data.name, sourceIdeaId: data.sourceIdeaId });
+  const followerIds = await listFollowerIds(user.id);
+  if (followerIds.length) {
+    const actor = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
+    await Promise.all(followerIds.map((recipientId) => createNotification(
+      recipientId,
+      "FOLLOWED_USER_PROJECT",
+      `${actor[0]?.username ?? "Obserwowany builder"} opublikował nowy projekt`,
+      data.name,
+      `/projects/${result.project.id}`,
+      { actorId: user.id, entityType: "project", entityId: result.project.id },
+    )));
+  }
   revalidatePath("/projects");
+  revalidatePath("/network");
   revalidatePath("/ideas");
   revalidatePath("/dashboard");
   return { success: true, projectId: result.project.id };

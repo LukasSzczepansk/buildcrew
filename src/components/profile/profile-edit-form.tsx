@@ -41,6 +41,7 @@ type EditableProfile = {
   portfolioUrl: string;
   linkedinUrl: string;
   discordUsername: string;
+  publicProfile: boolean;
 };
 
 function toggleValue<T>(arr: T[], value: T): T[] {
@@ -75,7 +76,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
         <div className="flex max-h-[28rem] flex-col gap-4 overflow-y-auto pr-1">
           {Object.entries(SKILL_GROUPS).map(([group, skills]) => (
             <div key={group}>
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{group}</p>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{group}</p>
               <div className="flex flex-wrap gap-1.5">{skills.map((skill) => <TagButton key={skill} active={form.skills.includes(skill)} onClick={() => setForm((f) => ({ ...f, skills: toggleValue(f.skills, skill) }))}>{skill}</TagButton>)}</div>
             </div>
           ))}
@@ -84,24 +85,34 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
 
       <FormSection title="Dopasowanie">
         <div>
-          <p className="mb-2 text-[13px] font-medium">Poziom</p>
+          <p className="mb-2 text-sm font-medium">Poziom</p>
           <div className="grid gap-2 sm:grid-cols-3">
             {LEVEL_OPTIONS.map((level) => (
               <button key={level} type="button" onClick={() => setForm((f) => ({ ...f, level }))} className={cn("rounded-[7px] border p-3 text-left transition-colors", form.level === level ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)]" : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)]")}>
-                <span className="block text-[13px] font-medium">{LEVEL_LABELS[level]}</span>
-                <span className="mt-1 block text-[11px] leading-4 text-[var(--bc-muted)]">{LEVEL_DESCRIPTIONS[level]}</span>
+                <span className="block text-sm font-medium">{LEVEL_LABELS[level]}</span>
+                <span className="mt-1 block text-[12px] leading-4 text-[var(--bc-muted)]">{LEVEL_DESCRIPTIONS[level]}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="mt-5"><p className="mb-2 text-[13px] font-medium">Czas w tygodniu</p><div className="flex flex-wrap gap-1.5">{COMMITMENT_OPTIONS.map((commitment) => <TagButton key={commitment} active={form.weeklyHours === commitment} onClick={() => setForm((f) => ({ ...f, weeklyHours: commitment }))}>{COMMITMENT_LABELS[commitment]}</TagButton>)}</div></div>
-        <div className="mt-5"><p className="mb-2 text-[13px] font-medium">Obszary</p><div className="flex flex-wrap gap-1.5">{INTEREST_OPTIONS.map((interest) => <TagButton key={interest} active={form.interests.includes(interest)} onClick={() => setForm((f) => ({ ...f, interests: toggleValue(f.interests, interest) }))}>{interest}</TagButton>)}</div></div>
+        <div className="mt-5"><p className="mb-2 text-sm font-medium">Czas w tygodniu</p><div className="flex flex-wrap gap-1.5">{COMMITMENT_OPTIONS.map((commitment) => <TagButton key={commitment} active={form.weeklyHours === commitment} onClick={() => setForm((f) => ({ ...f, weeklyHours: commitment }))}>{COMMITMENT_LABELS[commitment]}</TagButton>)}</div></div>
+        <div className="mt-5"><p className="mb-2 text-sm font-medium">Obszary</p><div className="flex flex-wrap gap-1.5">{INTEREST_OPTIONS.map((interest) => <TagButton key={interest} active={form.interests.includes(interest)} onClick={() => setForm((f) => ({ ...f, interests: toggleValue(f.interests, interest) }))}>{interest}</TagButton>)}</div></div>
 
         <div className="mt-5 grid gap-5 md:grid-cols-2">
-          <div><p className="mb-2 text-[13px] font-medium">Cel</p><div className="space-y-2">{GOAL_OPTIONS.map((goal) => <CheckRow key={goal} checked={form.goals.includes(goal)} label={GOAL_LABELS[goal]} onChange={() => setForm((f) => ({ ...f, goals: toggleValue(f.goals, goal) }))} />)}</div></div>
-          <div><p className="mb-2 text-[13px] font-medium">Szukam teraz</p><div className="space-y-2">{LOOKING_FOR_OPTIONS.map((value) => <CheckRow key={value} checked={form.lookingFor.includes(value)} label={LOOKING_FOR_LABELS[value]} onChange={() => setForm((f) => ({ ...f, lookingFor: toggleValue(f.lookingFor, value) }))} />)}</div></div>
+          <div><p className="mb-2 text-sm font-medium">Cel</p><div className="space-y-2">{GOAL_OPTIONS.map((goal) => <CheckRow key={goal} checked={form.goals.includes(goal)} label={GOAL_LABELS[goal]} onChange={() => setForm((f) => ({ ...f, goals: toggleValue(f.goals, goal) }))} />)}</div></div>
+          <div><p className="mb-2 text-sm font-medium">Szukam teraz</p><div className="space-y-2">{LOOKING_FOR_OPTIONS.map((value) => <CheckRow key={value} checked={form.lookingFor.includes(value)} label={LOOKING_FOR_LABELS[value]} onChange={() => setForm((f) => ({ ...f, lookingFor: toggleValue(f.lookingFor, value) }))} />)}</div></div>
         </div>
+      </FormSection>
+
+      <FormSection title="Widoczność profilu" hint="Publiczny profil jest opcjonalny i możesz go wyłączyć w dowolnym momencie.">
+        <label className="flex cursor-pointer items-start justify-between gap-5 border-y border-[var(--bc-line)] py-3.5">
+          <span className="min-w-0">
+            <span className="block text-sm font-medium text-[var(--bc-ink)]">Publiczny profil buildera</span>
+            <span className="mt-0.5 block max-w-[680px] text-[12px] leading-4 text-[var(--bc-faint)]">Pozwala udostępniać profil poza BuildCrew i pojawiać się w publicznym portfolio współpracy. Discord i prywatne dane kontaktowe nadal nie są publiczne.</span>
+          </span>
+          <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#a8d72f]" checked={form.publicProfile} onChange={(event) => setForm((f) => ({ ...f, publicProfile: event.target.checked }))} />
+        </label>
       </FormSection>
 
       <FormSection title="Linki i kontakt" hint="Discord jest prywatny do czasu zaakceptowanego połączenia.">
@@ -121,7 +132,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
 }
 
 function FormSection({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
-  return <section className="border-t border-[var(--bc-line)] py-6 first:border-t-0 first:pt-0"><div className="mb-4 flex flex-wrap items-baseline justify-between gap-2"><h2 className="text-[16px] font-semibold tracking-[-0.01em]">{title}</h2>{hint ? <p className="text-[11px] text-[var(--bc-faint)]">{hint}</p> : null}</div>{children}</section>;
+  return <section className="border-t border-[var(--bc-line)] py-6 first:border-t-0 first:pt-0"><div className="mb-4 flex flex-wrap items-baseline justify-between gap-2"><h2 className="text-[16px] font-semibold tracking-[-0.01em]">{title}</h2>{hint ? <p className="text-[12px] text-[var(--bc-faint)]">{hint}</p> : null}</div>{children}</section>;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -129,13 +140,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function ChoiceButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" onClick={onClick} className={cn("rounded-[7px] border px-3 py-2 text-[13px] font-medium transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{children}</button>;
+  return <button type="button" onClick={onClick} className={cn("rounded-[7px] border px-3 py-2 text-sm font-medium transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{children}</button>;
 }
 
 function TagButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" onClick={onClick} className={cn("rounded-[6px] border px-2.5 py-1.5 text-[11px] font-medium transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{children}</button>;
+  return <button type="button" onClick={onClick} className={cn("rounded-[6px] border px-2.5 py-1.5 text-[12px] font-medium transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{children}</button>;
 }
 
 function CheckRow({ checked, label, onChange }: { checked: boolean; label: string; onChange: () => void }) {
-  return <label className="flex cursor-pointer items-center gap-2 border-b border-[var(--bc-line)] py-2 text-[13px] last:border-b-0"><Checkbox checked={checked} onCheckedChange={onChange} /><span>{label}</span></label>;
+  return <label className="flex cursor-pointer items-center gap-2 border-b border-[var(--bc-line)] py-2 text-sm last:border-b-0"><Checkbox checked={checked} onCheckedChange={onChange} /><span>{label}</span></label>;
 }

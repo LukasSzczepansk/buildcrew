@@ -45,12 +45,12 @@ export default async function IdeasPage() {
 
       <section className="mt-6 grid gap-0 border-y border-[var(--bc-line)] lg:grid-cols-[minmax(0,1fr)_390px]">
         <div className="py-7 pr-0 lg:pr-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Pomysł → ludzie → projekt</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Pomysł → ludzie → projekt</p>
           <h2 className="mt-2 max-w-[720px] text-[27px] font-semibold leading-[1.15] tracking-[-0.035em]">Nie czekaj, aż pomysł będzie kompletny.</h2>
-          <p className="mt-3 max-w-[690px] text-[13px] leading-6 text-[var(--bc-muted)]">W tej sekcji wystarczy opisać problem lub kierunek. Zainteresowane osoby mogą odezwać się jeszcze zanim ustalisz stack, roadmapę czy pełny skład ekipy.</p>
+          <p className="mt-3 max-w-[690px] text-sm leading-6 text-[var(--bc-muted)]">W tej sekcji wystarczy opisać problem lub kierunek. Zainteresowane osoby mogą odezwać się jeszcze zanim ustalisz stack, roadmapę czy pełny skład ekipy.</p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <a href="#dodaj-pomysl" className="inline-flex h-9 items-center rounded-[6px] bg-[var(--bc-ink)] px-3.5 text-[13px] font-medium text-[var(--bc-surface)]">Dodaj pomysł</a>
-            <Link href="/build" className="inline-flex h-9 items-center rounded-[6px] border border-[var(--bc-line-strong)] px-3.5 text-[13px] font-medium">Znajdź ludzi</Link>
+            <a href="#dodaj-pomysl" className="inline-flex h-9 items-center rounded-[6px] bg-[var(--bc-ink)] px-3.5 text-sm font-medium text-[var(--bc-surface)]">Dodaj pomysł</a>
+            <Link href="/build" className="inline-flex h-9 items-center rounded-[6px] border border-[var(--bc-line-strong)] px-3.5 text-sm font-medium">Znajdź ludzi</Link>
           </div>
         </div>
 
@@ -68,17 +68,17 @@ export default async function IdeasPage() {
           <div className="mb-3 flex items-end justify-between gap-4">
             <div>
               <h2 className="text-[19px] font-semibold tracking-[-0.02em]">Pomysły społeczności</h2>
-              <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Kliknij „Interesuje mnie”, jeśli chcesz porozmawiać o kierunku bez formalnego zgłoszenia do projektu.</p>
+              <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Kliknij „Interesuje mnie”, jeśli chcesz porozmawiać o kierunku bez formalnego zgłoszenia do projektu.</p>
             </div>
-            <span className="text-[12px] tabular-nums text-[var(--bc-faint)]">{ideas.length}</span>
+            <span className="text-[13px] tabular-nums text-[var(--bc-faint)]">{ideas.length}</span>
           </div>
           <div>{ideas.map((idea) => <IdeaCard key={idea.id} idea={idea} viewerId={user.id} />)}</div>
         </section>
       ) : (
         <section className="mt-9 border-l-2 border-[var(--bc-accent)] pl-4">
           <h2 className="text-[17px] font-semibold">Tu może pojawić się pierwszy prawdziwy pomysł społeczności.</h2>
-          <p className="mt-1 max-w-[680px] text-[12px] leading-5 text-[var(--bc-muted)]">Nie musisz przygotowywać całego projektu. Wystarczą nazwa, krótki opis i kilka obszarów.</p>
-          <a href="#dodaj-pomysl" className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium hover:underline">Opublikuj pierwszy <ArrowRight className="h-3.5 w-3.5" /></a>
+          <p className="mt-1 max-w-[680px] text-[13px] leading-5 text-[var(--bc-muted)]">Nie musisz przygotowywać całego projektu. Wystarczą nazwa, krótki opis i kilka obszarów.</p>
+          <a href="#dodaj-pomysl" className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium hover:underline">Opublikuj pierwszy <ArrowRight className="h-3.5 w-3.5" /></a>
         </section>
       )}
 
@@ -87,9 +87,9 @@ export default async function IdeasPage() {
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-[19px] font-semibold tracking-[-0.02em]">Przykładowe kierunki</h2>
-              <p className="mt-1 max-w-[720px] text-[12px] leading-5 text-[var(--bc-muted)]">Tak może wyglądać pomysł przed stworzeniem pełnego projektu. Te wpisy są przykładowe i znikają, gdy pojawia się więcej treści społeczności.</p>
+              <p className="mt-1 max-w-[720px] text-[13px] leading-5 text-[var(--bc-muted)]">Tak może wyglądać pomysł przed stworzeniem pełnego projektu. Te wpisy są przykładowe i znikają, gdy pojawia się więcej treści społeczności.</p>
             </div>
-            <span className="text-[11px] text-[var(--bc-faint)]">Treść demonstracyjna</span>
+            <span className="text-[12px] text-[var(--bc-faint)]">Treść demonstracyjna</span>
           </div>
           <div>{starterIdeas.map((idea) => <StarterIdeaCard key={idea.slug} idea={idea} />)}</div>
         </section>
@@ -99,9 +99,9 @@ export default async function IdeasPage() {
         <div className="mb-3 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-[19px] font-semibold tracking-[-0.02em]">Ludzie, którzy chcą zacząć od ekipy</h2>
-            <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Prawdziwi użytkownicy BuildCrew, którzy deklarują, że są otwarci na wspólne budowanie bez gotowego projektu.</p>
+            <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Prawdziwi użytkownicy BuildCrew, którzy deklarują, że są otwarci na wspólne budowanie bez gotowego projektu.</p>
           </div>
-          <Link href="/build" className="text-[12px] font-medium hover:underline">Build Pool →</Link>
+          <Link href="/build" className="text-[13px] font-medium hover:underline">Build Pool →</Link>
         </div>
 
         {peopleReadyToBuild.length ? (
@@ -111,19 +111,19 @@ export default async function IdeasPage() {
                 <div className="flex min-w-0 items-center gap-3">
                   <Avatar username={person.username} seed={person.userId} size="sm" />
                   <div className="min-w-0">
-                    <p className="text-[13px] font-medium">{person.username}</p>
-                    <p className="truncate text-[11px] text-[var(--bc-muted)]">{person.role ? ROLE_LABELS[person.role as RoleType] : "Builder"} · {person.interests.slice(0, 3).join(" · ") || "otwarty na pomysły"}</p>
+                    <p className="text-sm font-medium">{person.username}</p>
+                    <p className="truncate text-[12px] text-[var(--bc-muted)]">{person.role ? ROLE_LABELS[person.role as RoleType] : "Builder"} · {person.interests.slice(0, 3).join(" · ") || "otwarty na pomysły"}</p>
                   </div>
                 </div>
-                <span className="shrink-0 text-[12px] font-medium">Zobacz profil →</span>
+                <span className="shrink-0 text-[13px] font-medium">Zobacz profil →</span>
               </Link>
             ))}
           </div>
         ) : (
           <div className="border-y border-[var(--bc-line)] py-6">
-            <p className="text-[13px] font-medium">Na razie nikt z widocznych profili nie wystawił się jako „otwarty na wspólne budowanie”.</p>
-            <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Możesz wystawić własny profil w Build Pool i dać innym sygnał, jaki kierunek Cię interesuje.</p>
-            <Link href="/build" className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium hover:underline">Otwórz Build Pool <ArrowRight className="h-3.5 w-3.5" /></Link>
+            <p className="text-sm font-medium">Na razie nikt z widocznych profili nie wystawił się jako „otwarty na wspólne budowanie”.</p>
+            <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Możesz wystawić własny profil w Build Pool i dać innym sygnał, jaki kierunek Cię interesuje.</p>
+            <Link href="/build" className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium hover:underline">Otwórz Build Pool <ArrowRight className="h-3.5 w-3.5" /></Link>
           </div>
         )}
       </section>
@@ -131,7 +131,7 @@ export default async function IdeasPage() {
       <section className="mt-10 border-y border-[var(--bc-line)] py-6">
         <div className="grid gap-5 md:grid-cols-[180px_minmax(0,1fr)]">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Jak to działa</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Jak to działa</p>
             <h2 className="mt-1 text-[17px] font-semibold">Od kierunku do ekipy</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -149,7 +149,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex min-h-[118px] flex-col justify-center border-r border-[var(--bc-line)] px-4 py-5 last:border-r-0 lg:min-h-0">
       <span className="text-[20px] font-semibold tracking-[-0.02em]">{value}</span>
-      <span className="mt-1 text-[10px] leading-4 text-[var(--bc-faint)]">{label}</span>
+      <span className="mt-1 text-[11px] leading-4 text-[var(--bc-faint)]">{label}</span>
     </div>
   );
 }
@@ -157,9 +157,9 @@ function Stat({ value, label }: { value: string; label: string }) {
 function Step({ number, title, text }: { number: string; title: string; text: string }) {
   return (
     <div className="border-l border-[var(--bc-line)] pl-4">
-      <p className="text-[10px] font-semibold tabular-nums text-[var(--bc-faint)]">{number}</p>
-      <p className="mt-1 text-[13px] font-medium">{title}</p>
-      <p className="mt-1 text-[11px] leading-4 text-[var(--bc-muted)]">{text}</p>
+      <p className="text-[11px] font-semibold tabular-nums text-[var(--bc-faint)]">{number}</p>
+      <p className="mt-1 text-sm font-medium">{title}</p>
+      <p className="mt-1 text-[12px] leading-4 text-[var(--bc-muted)]">{text}</p>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { users } from "@/db/schema";
 import { destroyAllSessionsForUser, getVerifiedCurrentUser, hashPassword, verifyPassword } from "@/lib/auth";
 import { enforceUserRateLimit } from "@/lib/security";
 import { changePasswordSchema, deleteAccountSchema } from "@/lib/validations";
+import { markAllNotificationsReadAndCancel } from "@/server/services/notifications";
 
 export type AccountActionState = { error?: string; success?: string };
 
@@ -41,6 +42,7 @@ export async function deleteAccountAction(_prev: AccountActionState, formData: F
   const rows = await db.select({ passwordHash: users.passwordHash, systemRole: users.systemRole }).from(users).where(eq(users.id, user.id)).limit(1);
   if (!rows[0] || !(await verifyPassword(parsed.data.password, rows[0].passwordHash))) return { error: "Hasło jest nieprawidłowe." };
   if (rows[0].systemRole === "ADMIN") return { error: "Konto administratora usuń dopiero po odebraniu mu roli ADMIN." };
+  await markAllNotificationsReadAndCancel(user.id);
   await destroyAllSessionsForUser(user.id);
   await db.delete(users).where(eq(users.id, user.id));
   redirect("/?account=deleted");

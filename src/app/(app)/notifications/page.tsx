@@ -22,7 +22,7 @@ export default async function NotificationsPage() {
           {notifications.map((notification) => (
             <Link key={notification.id} href={notification.link ?? "/dashboard"} className={`flex gap-3 py-4 transition-colors hover:bg-[var(--bc-surface-subtle)] sm:px-2 ${notification.isRead ? "opacity-65" : ""}`}>
               <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${notification.isRead ? "bg-[var(--bc-line-strong)]" : "bg-[var(--bc-accent-strong)]"}`} />
-              <span className="min-w-0 flex-1"><span className="block text-[13px] font-semibold">{notification.title}</span>{notification.body ? <span className="mt-1 line-clamp-2 block text-[13px] text-[var(--bc-muted)]">{notification.body}</span> : null}<span className="mt-1 block text-[11px] text-[var(--bc-faint)]">{timeAgo(notification.createdAt.toISOString())}</span></span>
+              <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{notification.title}</span>{notification.body ? <span className="mt-1 line-clamp-2 block text-sm text-[var(--bc-muted)]">{notification.body}</span> : null}<span className="mt-1 block text-[12px] text-[var(--bc-faint)]">{timeAgo(notification.createdAt.toISOString())}</span></span>
               <Bell className="mt-0.5 h-4 w-4 shrink-0 text-[var(--bc-faint)]" />
             </Link>
           ))}

@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { ProjectTeamManager } from "@/components/projects/project-team-manager";
+import { ProjectLifecycleControls } from "@/components/projects/project-completion-dialog";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { ROLE_LABELS } from "@/lib/constants";
@@ -35,9 +36,9 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
         <Button asChild variant="ghost" size="sm" className="mb-3 -ml-3"><Link href="/my-projects"><ArrowLeft className="h-3.5 w-3.5" /> Moje projekty</Link></Button>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Zarządzanie projektem</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Zarządzanie projektem</p>
             <h1 className="mt-1 text-[28px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)]">{project.name}</h1>
-            <p className="mt-2 max-w-[700px] text-[13px] leading-5 text-[var(--bc-muted)]">Zespół, zgłoszenia i bieżąca praca nad projektem w jednym miejscu.</p>
+            <p className="mt-2 max-w-[700px] text-sm leading-5 text-[var(--bc-muted)]">Zespół, zgłoszenia i bieżąca praca nad projektem w jednym miejscu.</p>
           </div>
           <Button asChild variant="outline" size="sm"><Link href={`/p/${id}`} target="_blank">Publiczny widok <ExternalLink className="h-3.5 w-3.5" /></Link></Button>
         </div>
@@ -54,7 +55,7 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
         <main>
           <div className="mb-4">
             <h2 className="text-[17px] font-semibold text-[var(--bc-ink)]">Zespół</h2>
-            <p className="mt-1 max-w-[680px] text-[12px] leading-5 text-[var(--bc-muted)]">Tylko twórca projektu może usuwać osoby z zespołu. Po usunięciu członek traci dostęp do prywatnego workspace&apos;u.</p>
+            <p className="mt-1 max-w-[680px] text-[13px] leading-5 text-[var(--bc-muted)]">Tylko twórca projektu może usuwać osoby z zespołu. Po usunięciu członek traci dostęp do prywatnego workspace&apos;u.</p>
           </div>
           <ProjectTeamManager
             projectId={id}
@@ -70,32 +71,39 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
 
         <aside className="space-y-6">
           <section className="border-b border-[var(--bc-line)] pb-5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Stan projektu</p>
-            <dl className="mt-3 space-y-3 text-[12px]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Stan projektu</p>
+            <dl className="mt-3 space-y-3 text-[13px]">
+              <Summary label="Status" value={project.lifecycleStatus === "COMPLETED" ? "Ukończony" : project.lifecycleStatus === "PAUSED" ? "Wstrzymany" : "Aktywny"} />
               <Summary label="Zespół" value={`${nonOwnerMembers + 1} osób`} />
               <Summary label="Nowe zgłoszenia" value={String(pending)} />
               <Summary label="Otwarte role" value={String(project.openRoles.length)} />
             </dl>
           </section>
 
+          <section>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Cykl życia projektu</p>
+            <p className="mt-2 text-[12px] leading-4 text-[var(--bc-muted)]">Wstrzymaj nieaktywny projekt albo zamknij go, gdy zespół dowiózł rezultat. Ukończenie zapisuje credits współtwórców.</p>
+            <ProjectLifecycleControls projectId={id} status={project.lifecycleStatus} />
+          </section>
+
           <section className="border-b border-[var(--bc-line)] pb-5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Otwarte role</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Otwarte role</p>
             <div className="mt-3 space-y-2">
               {project.openRoles.length ? project.openRoles.map((role) => (
-                <div key={role.id} className="flex items-center justify-between gap-3 text-[12px]">
+                <div key={role.id} className="flex items-center justify-between gap-3 text-[13px]">
                   <span className="text-[var(--bc-ink)]">{ROLE_LABELS[role.roleType]}</span>
                   <span className="text-[var(--bc-faint)]">{role.open} wolne</span>
                 </div>
-              )) : <p className="text-[12px] text-[var(--bc-muted)]">Ekipa jest kompletna.</p>}
+              )) : <p className="text-[13px] text-[var(--bc-muted)]">Ekipa jest kompletna.</p>}
             </div>
           </section>
 
           <section>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Skróty</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Skróty</p>
             <div className="mt-2 flex flex-col items-start gap-1">
-              <Link href={`/projects/${id}/applications`} className="text-[12px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Przejdź do zgłoszeń</Link>
-              <Link href={`/projects/${id}/workspace`} className="text-[12px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Otwórz workspace</Link>
-              <Link href={`/builders`} className="text-[12px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Znajdź kolejne osoby</Link>
+              <Link href={`/projects/${id}/applications`} className="text-[13px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Przejdź do zgłoszeń</Link>
+              <Link href={`/projects/${id}/workspace`} className="text-[13px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Otwórz workspace</Link>
+              <Link href={`/builders`} className="text-[13px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Znajdź kolejne osoby</Link>
             </div>
           </section>
         </aside>
@@ -105,7 +113,7 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
 }
 
 function ManageTab({ href, label, active = false }: { href: string; label: string; active?: boolean }) {
-  return <Link href={href} className={`relative shrink-0 py-3 text-[12px] font-medium ${active ? "text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"}`}>{label}{active ? <span className="absolute inset-x-0 bottom-[-1px] h-[2px] bg-[var(--bc-accent)]" /> : null}</Link>;
+  return <Link href={href} className={`relative shrink-0 py-3 text-[13px] font-medium ${active ? "text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"}`}>{label}{active ? <span className="absolute inset-x-0 bottom-[-1px] h-[2px] bg-[var(--bc-accent)]" /> : null}</Link>;
 }
 
 function Summary({ label, value }: { label: string; value: string }) {

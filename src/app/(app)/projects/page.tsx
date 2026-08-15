@@ -55,14 +55,14 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       {projects.length === 0 ? (
         <div className="mt-6 border-y border-[var(--bc-line)] py-7">
           <h2 className="text-[16px] font-semibold">Nie widzisz projektu dla siebie?</h2>
-          <p className="mt-1 max-w-[620px] text-[13px] leading-5 text-[var(--bc-muted)]">Zobacz pomysły innych osób albo znajdź ludzi o podobnym kierunku i zacznijcie własny projekt.</p>
-          <div className="mt-4 flex flex-wrap gap-2"><a href="/ideas" className="inline-flex h-9 items-center rounded-[6px] bg-[var(--bc-accent)] px-3.5 text-[13px] font-medium text-[#111]">Zobacz pomysły</a><a href="/build" className="inline-flex h-9 items-center rounded-[6px] border border-[var(--bc-line-strong)] px-3.5 text-[13px] font-medium">Znajdź ludzi</a></div>
+          <p className="mt-1 max-w-[620px] text-sm leading-5 text-[var(--bc-muted)]">Zobacz pomysły innych osób albo znajdź ludzi o podobnym kierunku i zacznijcie własny projekt.</p>
+          <div className="mt-4 flex flex-wrap gap-2"><a href="/ideas" className="inline-flex h-9 items-center rounded-[6px] bg-[var(--bc-accent)] px-3.5 text-sm font-medium text-[#111]">Zobacz pomysły</a><a href="/build" className="inline-flex h-9 items-center rounded-[6px] border border-[var(--bc-line-strong)] px-3.5 text-sm font-medium">Znajdź ludzi</a></div>
         </div>
       ) : (
         <section className="mt-7">
           <div className="mb-3 flex items-center justify-between gap-4">
             <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Otwarte projekty</h2>
-            <span className="text-[12px] tabular-nums text-[var(--bc-faint)]">{projects.length} {projects.length === 1 ? "projekt" : "projektów"}</span>
+            <span className="text-[13px] tabular-nums text-[var(--bc-faint)]">{projects.length} {projects.length === 1 ? "projekt" : "projektów"}</span>
           </div>
           <div className="space-y-2.5">{projects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
         </section>

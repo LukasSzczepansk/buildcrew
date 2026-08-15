@@ -210,7 +210,7 @@ export function OnboardingWizard() {
   return (
     <div className="mx-auto flex w-full max-w-[820px] flex-col gap-6">
       <div>
-        <div className="mb-2 flex items-center justify-between gap-4 text-[12px] text-[var(--bc-muted)]">
+        <div className="mb-2 flex items-center justify-between gap-4 text-[13px] text-[var(--bc-muted)]">
           <span>Krok {step} z {TOTAL_STEPS}</span>
           <div className="flex items-center gap-3">
             <span>{Math.round((step / TOTAL_STEPS) * 100)}%</span>
@@ -224,7 +224,7 @@ export function OnboardingWizard() {
           </div>
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} />
-        <p className="mt-2 text-[11px] leading-4 text-[var(--bc-faint)]">
+        <p className="mt-2 text-[12px] leading-4 text-[var(--bc-faint)]">
           Postęp zapisuje się automatycznie na tym urządzeniu. Możesz wyjść, odświeżyć stronę i wrócić do tego samego kroku.
         </p>
       </div>
@@ -242,7 +242,7 @@ export function OnboardingWizard() {
                   onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))}
                   autoFocus
                 />
-                <p className="text-[11px] leading-4 text-[var(--bc-faint)]">Litery, cyfry i podkreślenia. Nick będzie publiczny.</p>
+                <p className="text-[12px] leading-4 text-[var(--bc-faint)]">Litery, cyfry i podkreślenia. Nick będzie publiczny.</p>
               </div>
 
               <div>
@@ -263,7 +263,7 @@ export function OnboardingWizard() {
               <div className="max-h-[430px] space-y-4 overflow-y-auto pr-1">
                 {Object.entries(SKILL_GROUPS).map(([group, list]) => (
                   <div key={group}>
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{group}</p>
+                    <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{group}</p>
                     <div className="flex flex-wrap gap-2">
                       {list.map((skill) => (
                         <TagToggle key={skill} active={form.skills.includes(skill)} label={skill} onClick={() => setForm((current) => ({ ...current, skills: toggleValue(current.skills, skill) }))} />
@@ -288,8 +288,8 @@ export function OnboardingWizard() {
                           : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)]",
                       )}
                     >
-                      <p className="text-[13px] font-medium">{LEVEL_LABELS[level]}</p>
-                      <p className="mt-0.5 text-[11px] leading-4 text-[var(--bc-muted)]">{LEVEL_DESCRIPTIONS[level]}</p>
+                      <p className="text-sm font-medium">{LEVEL_LABELS[level]}</p>
+                      <p className="mt-0.5 text-[12px] leading-4 text-[var(--bc-muted)]">{LEVEL_DESCRIPTIONS[level]}</p>
                     </button>
                   ))}
                 </div>
@@ -329,7 +329,7 @@ export function OnboardingWizard() {
                       )}
                     >
                       <Checkbox checked={form.lookingFor.includes(option)} onCheckedChange={() => setForm((current) => ({ ...current, lookingFor: toggleValue(current.lookingFor, option) }))} />
-                      <span className="text-[13px] font-medium">{LOOKING_FOR_LABELS[option]}</span>
+                      <span className="text-sm font-medium">{LOOKING_FOR_LABELS[option]}</span>
                     </label>
                   ))}
                 </div>
@@ -373,10 +373,10 @@ export function OnboardingWizard() {
               </div>
 
               <div className="border-t border-[var(--bc-line)] pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Twój profil</p>
+                <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Twój profil</p>
                 <p className="mt-2 text-[18px] font-semibold tracking-[-0.02em]">{form.username || "Twój nick"}</p>
-                <p className="mt-1 text-[13px] text-[var(--bc-muted)]">{form.role ? ROLE_LABELS[form.role] : "Wybierz rolę"}{form.level ? ` · ${LEVEL_LABELS[form.level]}` : ""}</p>
-                <div className="mt-4 space-y-2 text-[12px] leading-5 text-[var(--bc-muted)]">
+                <p className="mt-1 text-sm text-[var(--bc-muted)]">{form.role ? ROLE_LABELS[form.role] : "Wybierz rolę"}{form.level ? ` · ${LEVEL_LABELS[form.level]}` : ""}</p>
+                <div className="mt-4 space-y-2 text-[13px] leading-5 text-[var(--bc-muted)]">
                   <p><span className="font-medium text-[var(--bc-ink)]">Umiejętności:</span> {form.skills.slice(0, 6).join(" · ") || "brak"}</p>
                   <p><span className="font-medium text-[var(--bc-ink)]">Czas:</span> {form.weeklyHours ? COMMITMENT_LABELS[form.weeklyHours] : "brak"}</p>
                   <p><span className="font-medium text-[var(--bc-ink)]">Szukasz:</span> {form.lookingFor.map((item) => LOOKING_FOR_LABELS[item]).join(" · ") || "brak"}</p>
@@ -390,7 +390,7 @@ export function OnboardingWizard() {
       <div className="flex items-center justify-between gap-3">
         <Button variant="ghost" onClick={back} disabled={step === 1 || pending}>Wstecz</Button>
         <div className="flex items-center gap-3">
-          <span className="hidden text-[11px] text-[var(--bc-faint)] sm:inline">{savedAt ? "Szkic zapisany." : "Szkic zapisuje się automatycznie."}</span>
+          <span className="hidden text-[12px] text-[var(--bc-faint)] sm:inline">{savedAt ? "Szkic zapisany." : "Szkic zapisuje się automatycznie."}</span>
           <Button onClick={next} disabled={!canProceed || pending}>
             {pending ? "Szukamy dopasowań…" : step === TOTAL_STEPS ? "Zapisz i pokaż dopasowania" : "Dalej"}
           </Button>
@@ -405,7 +405,7 @@ function StepShell({ title, subtitle, children }: { title: string; subtitle: str
     <div className="flex flex-col gap-6">
       <div className="max-w-[650px]">
         <h2 className="text-[22px] font-semibold tracking-[-0.02em]">{title}</h2>
-        <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{subtitle}</p>
+        <p className="mt-1 text-sm leading-5 text-[var(--bc-muted)]">{subtitle}</p>
       </div>
       {children}
     </div>
@@ -417,7 +417,7 @@ function Field({ id, label, placeholder, value, onChange, hint }: { id: string; 
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{label}</Label>
       <Input id={id} placeholder={placeholder} value={value} onChange={(event) => onChange(event.target.value)} />
-      {hint ? <p className="text-[11px] leading-4 text-[var(--bc-faint)]">{hint}</p> : null}
+      {hint ? <p className="text-[12px] leading-4 text-[var(--bc-faint)]">{hint}</p> : null}
     </div>
   );
 }
@@ -428,7 +428,7 @@ function SelectableTile({ active, label, onClick }: { active: boolean; label: st
       type="button"
       onClick={onClick}
       className={cn(
-        "min-h-11 rounded-[6px] border px-3 py-2.5 text-center text-[13px] font-medium transition-colors",
+        "min-h-11 rounded-[6px] border px-3 py-2.5 text-center text-sm font-medium transition-colors",
         active
           ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]"
           : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)]",
@@ -445,7 +445,7 @@ function TagToggle({ active, label, onClick }: { active: boolean; label: string;
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-[6px] border px-2.5 py-1.5 text-[12px] font-medium transition-colors",
+        "rounded-[6px] border px-2.5 py-1.5 text-[13px] font-medium transition-colors",
         active
           ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]"
           : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]",

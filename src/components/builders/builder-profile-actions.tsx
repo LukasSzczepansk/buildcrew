@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { ReportDialog } from "@/components/moderation/report-dialog";
 import { FriendRelationActions, type FriendRelationState } from "@/components/friends/friend-relation-actions";
+import { FollowButton } from "@/components/network/follow-button";
 import { inviteToProject } from "@/server/actions/projects";
 import { blockUser } from "@/server/actions/moderation";
 
@@ -37,10 +38,12 @@ export function BuilderProfileActions({
   targetUserId,
   myProjects,
   friendState,
+  initialFollowing,
 }: {
   targetUserId: string;
   myProjects: { id: string; name: string }[];
   friendState: FriendRelationState;
+  initialFollowing: boolean;
 }) {
   const [inviteOpen, setInviteOpen] = React.useState(false);
   const [reportOpen, setReportOpen] = React.useState(false);
@@ -70,6 +73,7 @@ export function BuilderProfileActions({
 
   return (
     <Card className="flex flex-col gap-2 p-4">
+      <FollowButton targetUserId={targetUserId} initialFollowing={initialFollowing} />
       <FriendRelationActions targetUserId={targetUserId} state={friendState} />
 
       {myProjects.length > 0 && (

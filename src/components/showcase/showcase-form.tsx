@@ -37,7 +37,7 @@ export function ShowcaseForm({ projects, challenges }: { projects: { id: string;
         <div><Label>GitHub (opcjonalnie)</Label><Input className="mt-1.5" value={form.githubUrl} onChange={(e) => setForm({ ...form, githubUrl: e.target.value })} placeholder="https://github.com/..." /></div>
         <label className="flex items-start gap-3 rounded-[6px] border border-lime-200 bg-lime-50/60 p-4 dark:border-lime-500/20 dark:bg-lime-500/5">
           <input type="checkbox" className="mt-1" checked={looking} onChange={(e) => setLooking(e.target.checked)} />
-          <span><span className="block text-sm font-semibold">Nadal szukamy współtwórców</span><span className="text-xs text-neutral-500">Showcase może sprowadzić kolejną osobę do rozwijania projektu.</span></span>
+          <span><span className="block text-sm font-semibold">Nadal szukamy współtwórców</span><span className="text-[13px] text-neutral-500">Showcase może sprowadzić kolejną osobę do rozwijania projektu.</span></span>
         </label>
         {looking ? <div><Label>Kogo / czego szukacie?</Label><Input className="mt-1.5" value={form.lookingForText} onChange={(e) => setForm({ ...form, lookingForText: e.target.value })} placeholder="Np. Mobile developera do aplikacji iOS/Android" /></div> : null}
       </Card>
@@ -50,7 +50,7 @@ export function ShowcaseForm({ projects, challenges }: { projects: { id: string;
           <div><Label>Status</Label><select className="mt-1.5 h-10 w-full rounded-[6px] border border-neutral-200 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as ShowcaseStatus })}>{Object.entries(SHOWCASE_STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
         </Card>
         <Button type="submit" size="lg" className="w-full" disabled={pending}>{pending ? "Publikowanie…" : "Opublikuj w Showcase"}</Button>
-        <p className="text-xs leading-relaxed text-neutral-400">Showcase służy do pokazania działającego efektu. To może być MVP, eksperyment albo projekt solo — nie musi być gotowym startupem.</p>
+        <p className="text-[13px] leading-relaxed text-neutral-400">Showcase służy do pokazania działającego efektu. To może być MVP, eksperyment albo projekt solo — nie musi być gotowym startupem.</p>
       </div>
     </form>
   );

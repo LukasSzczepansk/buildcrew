@@ -49,14 +49,14 @@ export function AuthForm({
             </a>
           </Button>
           {mode === "signup" && (
-            <p className="-mt-2 text-center text-xs leading-5 text-neutral-500">
+            <p className="-mt-2 text-center text-[13px] leading-5 text-neutral-500">
               Klikając „Załóż konto przez Google”, akceptujesz{" "}
               <Link href="/regulamin" className="text-lime-600 hover:underline dark:text-lime-400">Regulamin</Link>
               {" "}i potwierdzasz zapoznanie się z{" "}
               <Link href="/polityka-prywatnosci" className="text-lime-600 hover:underline dark:text-lime-400">Polityką prywatności</Link>.
             </p>
           )}
-          <div className="flex items-center gap-3 text-xs text-neutral-400">
+          <div className="flex items-center gap-3 text-[13px] text-neutral-400">
             <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
             lub e-mail i hasło
             <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
@@ -80,11 +80,11 @@ export function AuthForm({
             minLength={mode === "signup" ? 12 : undefined}
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
           />
-          {mode === "signup" && <p className="text-xs text-neutral-400">Minimum 12 znaków.</p>}
+          {mode === "signup" && <p className="text-[13px] text-neutral-400">Minimum 12 znaków.</p>}
         </div>
 
         {mode === "signup" && (
-          <label className="flex items-start gap-2.5 text-xs leading-5 text-neutral-600 dark:text-neutral-400">
+          <label className="flex items-start gap-2.5 text-[13px] leading-5 text-neutral-600 dark:text-neutral-400">
             <input
               name="acceptTerms"
               type="checkbox"
@@ -111,7 +111,7 @@ export function AuthForm({
         </Button>
 
         {mode === "login" && (
-          <p className="-mt-2 text-right text-xs">
+          <p className="-mt-2 text-right text-[13px]">
             <Link href="/forgot-password" className="text-lime-600 hover:underline dark:text-lime-400">Nie pamiętam hasła</Link>
           </p>
         )}

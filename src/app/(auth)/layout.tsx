@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </Link>
         </div>
         <div className="border border-neutral-300 bg-white p-7 dark:border-neutral-800 dark:bg-neutral-950 sm:p-8">{children}</div>
-        <div className="mt-6 flex items-center justify-center gap-4 text-xs text-neutral-400">
+        <div className="mt-6 flex items-center justify-center gap-4 text-[13px] text-neutral-400">
           <Link href="/regulamin" className="hover:text-neutral-700 dark:hover:text-neutral-200">Regulamin</Link>
           <Link href="/polityka-prywatnosci" className="hover:text-neutral-700 dark:hover:text-neutral-200">Polityka prywatności</Link>
         </div>

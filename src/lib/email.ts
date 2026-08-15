@@ -88,27 +88,39 @@ export async function sendTransactionalEmail(input: {
   subject: string;
   html: string;
   devPreview?: string;
+  scheduledAt?: string;
+  idempotencyKey?: string;
 }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM || "BuildCrew <onboarding@resend.dev>";
 
   if (!apiKey) {
     if (process.env.NODE_ENV !== "production") {
-      console.log(`\n📨 [DEV EMAIL] To: ${input.to}\nSubject: ${input.subject}\n${input.devPreview ?? ""}\n`);
-      return { ok: true, dev: true } as const;
+      const schedule = input.scheduledAt ? `\nScheduled: ${input.scheduledAt}` : "";
+      console.log(`\n📨 [DEV EMAIL] To: ${input.to}\nSubject: ${input.subject}${schedule}\n${input.devPreview ?? ""}\n`);
+      return { ok: true, dev: true, id: null, scheduled: Boolean(input.scheduledAt) } as const;
     }
     console.error("RESEND_API_KEY is missing in production; email was not sent.");
     return { ok: false, error: "EMAIL_NOT_CONFIGURED" } as const;
   }
 
   try {
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    };
+    if (input.idempotencyKey) headers["Idempotency-Key"] = input.idempotencyKey;
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ from, to: [input.to], subject: input.subject, html: input.html }),
+      headers,
+      body: JSON.stringify({
+        from,
+        to: [input.to],
+        subject: input.subject,
+        html: input.html,
+        ...(input.scheduledAt ? { scheduled_at: input.scheduledAt } : {}),
+      }),
       cache: "no-store",
     });
 
@@ -116,9 +128,48 @@ export async function sendTransactionalEmail(input: {
       console.error("Resend error", response.status, await response.text());
       return { ok: false, error: "SEND_FAILED" } as const;
     }
-    return { ok: true, dev: false } as const;
+
+    const data = await response.json().catch(() => null) as { id?: string } | null;
+    return {
+      ok: true,
+      dev: false,
+      id: data?.id ?? null,
+      scheduled: Boolean(input.scheduledAt),
+    } as const;
   } catch (error) {
     console.error("Email send failed", error);
     return { ok: false, error: "SEND_FAILED" } as const;
+  }
+}
+
+export async function cancelScheduledEmail(emailId: string) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!emailId) return { ok: false, error: "MISSING_EMAIL_ID" } as const;
+
+  if (!apiKey) {
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`📨 [DEV EMAIL] Cancel scheduled email: ${emailId}`);
+      return { ok: true, dev: true } as const;
+    }
+    return { ok: false, error: "EMAIL_NOT_CONFIGURED" } as const;
+  }
+
+  try {
+    const response = await fetch(`https://api.resend.com/emails/${encodeURIComponent(emailId)}/cancel`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      // A scheduled message may have already been sent or canceled. Reading the
+      // conversation must never fail because the provider can no longer cancel it.
+      console.warn("Resend cancel scheduled email", response.status, await response.text());
+      return { ok: false, error: "CANCEL_FAILED" } as const;
+    }
+    return { ok: true, dev: false } as const;
+  } catch (error) {
+    console.warn("Scheduled email cancel failed", error);
+    return { ok: false, error: "CANCEL_FAILED" } as const;
   }
 }

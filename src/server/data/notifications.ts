@@ -11,6 +11,7 @@ export const DEFAULT_NOTIFICATION_PREFERENCES = {
   emailChallenge: true,
   emailShowcaseFeedback: false,
   emailMessages: true,
+  emailWorkspace: true,
   emailMatches: true,
   emailWeeklyDigest: true,
 };

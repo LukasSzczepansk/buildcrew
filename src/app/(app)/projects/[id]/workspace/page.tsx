@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, LockKeyhole } from "lucide-react";
+import { ArrowLeft, ExternalLink, LockKeyhole, Settings2, UserPlus, UsersRound } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
+import { ProjectIdentityMark } from "@/components/projects/project-identity-mark";
 import { ProjectWorkspace } from "@/components/projects/project-workspace";
 import { Button } from "@/components/ui/button";
+import { COMMITMENT_LABELS, PROJECT_TYPE_LABELS, STAGE_LABELS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
 import { getProjectWorkspace } from "@/server/data/project-workspace";
 
@@ -20,21 +22,57 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
   const data = await getProjectWorkspace(id, user.id);
   if (!data) notFound();
 
+  const isOwner = data.project.ownerId === user.id;
+
   return (
     <div>
       <Topbar />
 
-      <header className="border-b border-[var(--bc-line)] pb-6">
-        <Button asChild variant="ghost" size="sm" className="mb-3 -ml-3">
-          <Link href={`/projects/${id}`}><ArrowLeft className="h-3.5 w-3.5" /> Projekt</Link>
-        </Button>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-[28px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)]">Workspace · {data.project.name}</h1>
-              <span className="inline-flex items-center gap-1 border border-[var(--bc-line)] px-2 py-1 text-[10px] font-medium text-[var(--bc-muted)]"><LockKeyhole className="h-3 w-3" /> Tylko dla ekipy</span>
+      <header className="border-b border-[var(--bc-line)] pb-5 pt-1">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <Button asChild variant="ghost" size="sm" className="-ml-3">
+            <Link href={`/projects/${id}`}><ArrowLeft className="h-3.5 w-3.5" /> Projekt</Link>
+          </Button>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {isOwner ? (
+              <Button asChild variant="outline" size="sm">
+                <Link href="/builders"><UserPlus className="h-3.5 w-3.5" /> Znajdź osobę</Link>
+              </Button>
+            ) : null}
+            {isOwner ? (
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/projects/${id}/manage`}><Settings2 className="h-3.5 w-3.5" /> Zarządzaj</Link>
+              </Button>
+            ) : null}
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/projects/${id}`}><ExternalLink className="h-3.5 w-3.5" /> Widok projektu</Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-4">
+          <ProjectIdentityMark
+            name={data.project.name}
+            tagline={data.project.tagline}
+            projectType={data.project.projectType}
+            technologies={data.technologies}
+            size="md"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{data.project.name}</h1>
+              <span className="inline-flex items-center gap-1.5 rounded-[5px] border border-[var(--bc-line)] px-2 py-1 text-[11px] font-medium text-[var(--bc-muted)]">
+                <LockKeyhole className="h-3 w-3" /> Prywatny workspace
+              </span>
             </div>
-            <p className="mt-2 max-w-[760px] text-[13px] leading-5 text-[var(--bc-muted)]">Czat, najbliższy cel, proste zadania i linki potrzebne do pracy nad projektem.</p>
+            <p className="mt-1.5 max-w-[760px] text-sm leading-5 text-[var(--bc-muted)]">{data.project.tagline}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--bc-faint)]">
+              <span>{STAGE_LABELS[data.project.stage]}</span>
+              {data.project.projectType ? <span>{PROJECT_TYPE_LABELS[data.project.projectType]}</span> : null}
+              {data.project.commitment ? <span>{COMMITMENT_LABELS[data.project.commitment]}</span> : null}
+              <span className="inline-flex items-center gap-1"><UsersRound className="h-3.5 w-3.5" /> {data.members.length} {data.members.length === 1 ? "osoba" : data.members.length < 5 ? "osoby" : "osób"}</span>
+            </div>
           </div>
         </div>
       </header>
@@ -47,28 +85,58 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
           userId: member.userId,
           isOwner: member.isOwner,
           roleType: member.roleType,
-          profile: member.profile ? { username: member.profile.username, role: member.profile.role } : null,
+          profile: member.profile ? {
+            username: member.profile.username,
+            role: member.profile.role,
+            lastActiveAt: member.profile.lastActiveAt?.toISOString() ?? null,
+          } : null,
         }))}
         workspace={data.workspace ? {
           currentFocus: data.workspace.currentFocus,
           milestoneTitle: data.workspace.milestoneTitle,
+          milestoneDescription: data.workspace.milestoneDescription,
           milestoneDueAt: data.workspace.milestoneDueAt?.toISOString() ?? null,
+          milestoneStatus: data.workspace.milestoneCompleted ? "DONE" : data.workspace.milestoneStatus,
           milestoneCompleted: data.workspace.milestoneCompleted,
         } : null}
         messages={data.messages.map((message) => ({
           id: message.id,
           senderId: message.senderId,
           body: message.body,
+          replyToId: message.replyToId,
+          editedAt: message.editedAt?.toISOString() ?? null,
+          deletedAt: message.deletedAt?.toISOString() ?? null,
+          pinnedAt: message.pinnedAt?.toISOString() ?? null,
           createdAt: message.createdAt.toISOString(),
           sender: message.sender ? { username: message.sender.username } : null,
+          replyTo: message.replyTo ? {
+            id: message.replyTo.id,
+            senderId: message.replyTo.senderId,
+            body: message.replyTo.body,
+            deletedAt: message.replyTo.deletedAt?.toISOString() ?? null,
+            sender: message.replyTo.sender ? { username: message.replyTo.sender.username } : null,
+          } : null,
+          reactions: message.reactions,
         }))}
+        pinnedMessages={data.pinnedMessages.map((message) => ({
+          id: message.id,
+          body: message.body,
+          sender: message.sender ? { username: message.sender.username } : null,
+          createdAt: message.createdAt.toISOString(),
+        }))}
+        unreadCount={data.unreadCount}
+        lastReadAt={data.lastReadAt?.toISOString() ?? null}
         tasks={data.tasks.map((task) => ({
           id: task.id,
           title: task.title,
+          description: task.description,
           status: task.status,
           assigneeId: task.assigneeId,
+          dueAt: task.dueAt?.toISOString() ?? null,
+          sourceMessageId: task.sourceMessageId,
           createdBy: task.createdBy,
           createdAt: task.createdAt.toISOString(),
+          updatedAt: task.updatedAt.toISOString(),
           assignee: task.assignee ? { username: task.assignee.username } : null,
         }))}
         links={data.links.map((link) => ({
@@ -77,9 +145,11 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
           url: link.url,
           kind: link.kind,
           createdBy: link.createdBy,
+          createdAt: link.createdAt.toISOString(),
         }))}
         activity={data.activity.map((item) => ({
           id: item.id,
+          type: item.type,
           body: item.body,
           createdAt: item.createdAt.toISOString(),
           actor: item.actor ? { username: item.actor.username } : null,

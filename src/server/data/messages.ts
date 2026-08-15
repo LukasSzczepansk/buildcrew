@@ -7,6 +7,7 @@ import { isUuid } from "@/lib/security";
 import { friendPair } from "@/server/data/friends";
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import { getProfileByUserId } from "@/server/data/profiles";
+import { markEntityNotificationsReadAndCancel } from "@/server/services/notifications";
 
 export async function getConversationForUser(conversationId: string, userId: string) {
   if (!isUuid(conversationId) || !isUuid(userId)) return null;
@@ -40,6 +41,7 @@ export async function markConversationRead(conversationId: string, userId: strin
     .update(messages)
     .set({ readAt: new Date() })
     .where(and(eq(messages.conversationId, conversationId), ne(messages.senderId, userId), isNull(messages.readAt)));
+  await markEntityNotificationsReadAndCancel(userId, "conversation", conversationId);
 }
 
 export async function unreadMessagesCount(userId: string) {

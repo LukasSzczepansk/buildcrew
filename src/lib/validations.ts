@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   characterEnum,
+  collaborationEndorsementStrengthEnum,
   collaborationModeEnum,
   collaborationPaceEnum,
   commitmentEnum,
@@ -10,7 +11,9 @@ import {
   projectAssetEnum,
   projectDurationEnum,
   projectLinkKindEnum,
+  projectMilestoneStatusEnum,
   projectTaskStatusEnum,
+  projectWorkspaceReactionEnum,
   projectTypeEnum,
   reportReasonEnum,
   roleTypeEnum,
@@ -107,6 +110,15 @@ export const profileEditSchema = onboardingSchema.partial({
 }).extend({
   lookingFor: z.array(z.enum(lookingForEnum)).min(1, "Zaznacz przynajmniej jedną opcję."),
   bio: z.string().trim().max(280).optional().or(z.literal("")),
+  publicProfile: z.boolean().default(false),
+});
+
+export const collaborationEndorsementSchema = z.object({
+  projectId: z.string().uuid(),
+  targetUserId: z.string().uuid(),
+  strengths: z.array(z.enum(collaborationEndorsementStrengthEnum)).min(1, "Wybierz przynajmniej jedną rzecz.").max(3, "Wybierz maksymalnie 3 rzeczy."),
+  wouldCollaborateAgain: z.boolean(),
+  note: z.string().trim().max(240, "Notatka może mieć maksymalnie 240 znaków.").optional().or(z.literal("")),
 });
 
 export const projectRoleSchema = z.object({
@@ -217,16 +229,26 @@ export const workspaceMessageSchema = z.object({
 export const workspaceOverviewSchema = z.object({
   currentFocus: z.string().trim().max(240, "Aktualny fokus może mieć maks. 240 znaków.").optional().or(z.literal("")),
   milestoneTitle: z.string().trim().max(180, "Nazwa milestone'u może mieć maks. 180 znaków.").optional().or(z.literal("")),
-  milestoneDueAt: z.string().trim().optional().or(z.literal("")),
+  milestoneDescription: z.string().trim().max(600, "Opis milestone'u może mieć maks. 600 znaków.").optional().or(z.literal("")),
+  milestoneDueAt: z.string().trim().regex(/^\\d{4}-\\d{2}-\\d{2}$/, "Podaj poprawną datę.").optional().or(z.literal("")),
+  milestoneStatus: z.enum(projectMilestoneStatusEnum).default("DOING"),
   milestoneCompleted: z.boolean().default(false),
 });
 
 export const workspaceTaskSchema = z.object({
   title: z.string().trim().min(2, "Dodaj krótką nazwę zadania.").max(160, "Zadanie może mieć maks. 160 znaków."),
+  description: z.string().trim().max(800, "Opis zadania może mieć maks. 800 znaków.").optional().or(z.literal("")),
   assigneeId: z.string().uuid().optional().or(z.literal("")),
+  dueAt: z.string().trim().regex(/^\\d{4}-\\d{2}-\\d{2}$/, "Podaj poprawną datę.").optional().or(z.literal("")),
+  sourceMessageId: z.string().uuid().optional().or(z.literal("")),
+});
+
+export const workspaceTaskUpdateSchema = workspaceTaskSchema.partial().extend({
+  status: z.enum(projectTaskStatusEnum).optional(),
 });
 
 export const workspaceTaskStatusSchema = z.enum(projectTaskStatusEnum);
+export const workspaceReactionSchema = z.enum(projectWorkspaceReactionEnum);
 
 export const workspaceLinkSchema = z.object({
   label: z.string().trim().min(2, "Dodaj nazwę linku.").max(60, "Nazwa linku może mieć maks. 60 znaków."),
@@ -283,6 +305,7 @@ export const notificationPreferencesSchema = z.object({
   emailChallenge: z.boolean(),
   emailShowcaseFeedback: z.boolean(),
   emailMessages: z.boolean(),
+  emailWorkspace: z.boolean(),
   emailMatches: z.boolean(),
   emailWeeklyDigest: z.boolean(),
 });

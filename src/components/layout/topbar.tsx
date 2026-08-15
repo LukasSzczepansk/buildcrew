@@ -15,7 +15,7 @@ export async function Topbar({ title, subtitle }: { title?: string; subtitle?: s
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           {title ? <h1 className="bc-page-title">{title}</h1> : null}
-          {subtitle ? <p className="mt-1.5 max-w-[680px] text-[13px] leading-5 text-[var(--bc-muted)]">{subtitle}</p> : null}
+          {subtitle ? <p className="mt-1.5 max-w-[680px] text-sm leading-5 text-[var(--bc-muted)]">{subtitle}</p> : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <Button asChild size="sm" className="hidden sm:inline-flex"><Link href="/projects/new">Dodaj projekt</Link></Button>

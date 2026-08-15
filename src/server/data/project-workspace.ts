@@ -6,9 +6,12 @@ import {
   profiles,
   projectMembers,
   projects,
+  projectTechnologies,
   projectWorkspaceActivity,
   projectWorkspaceLinks,
+  projectWorkspaceMessageReactions,
   projectWorkspaceMessages,
+  projectWorkspaceReads,
   projectWorkspaces,
   projectWorkspaceTasks,
   users,
@@ -38,7 +41,15 @@ export async function getProjectWorkspace(projectId: string, viewerId: string) {
   if (!isUuid(projectId) || !isUuid(viewerId)) return null;
 
   const projectRows = await db
-    .select({ id: projects.id, name: projects.name, tagline: projects.tagline, ownerId: projects.ownerId })
+    .select({
+      id: projects.id,
+      name: projects.name,
+      tagline: projects.tagline,
+      ownerId: projects.ownerId,
+      stage: projects.stage,
+      projectType: projects.projectType,
+      commitment: projects.commitment,
+    })
     .from(projects)
     .where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT")))
     .limit(1);
@@ -58,7 +69,7 @@ export async function getProjectWorkspace(projectId: string, viewerId: string) {
   const memberIds = Array.from(new Set([project.ownerId, ...memberRows.map((row) => row.userId)]));
   if (!memberIds.includes(viewerId)) return null;
 
-  const [profileRows, workspaceRows, messageRowsDesc, taskRows, linkRows, activityRows] = await Promise.all([
+  const [profileRows, workspaceRows, messageRowsDesc, taskRows, linkRows, activityRows, technologyRows, readRows] = await Promise.all([
     db
       .select({
         userId: profiles.userId,
@@ -76,7 +87,7 @@ export async function getProjectWorkspace(projectId: string, viewerId: string) {
       .from(projectWorkspaceMessages)
       .where(eq(projectWorkspaceMessages.projectId, projectId))
       .orderBy(desc(projectWorkspaceMessages.createdAt))
-      .limit(100),
+      .limit(150),
     db
       .select()
       .from(projectWorkspaceTasks)
@@ -92,7 +103,17 @@ export async function getProjectWorkspace(projectId: string, viewerId: string) {
       .from(projectWorkspaceActivity)
       .where(eq(projectWorkspaceActivity.projectId, projectId))
       .orderBy(desc(projectWorkspaceActivity.createdAt))
-      .limit(50),
+      .limit(80),
+    db
+      .select({ name: projectTechnologies.name })
+      .from(projectTechnologies)
+      .where(eq(projectTechnologies.projectId, projectId))
+      .orderBy(asc(projectTechnologies.id)),
+    db
+      .select({ lastReadAt: projectWorkspaceReads.lastReadAt })
+      .from(projectWorkspaceReads)
+      .where(and(eq(projectWorkspaceReads.projectId, projectId), eq(projectWorkspaceReads.userId, viewerId)))
+      .limit(1),
   ]);
 
   const profileMap = new Map(profileRows.map((profile) => [profile.userId, {
@@ -111,10 +132,38 @@ export async function getProjectWorkspace(projectId: string, viewerId: string) {
     };
   });
 
-  const messages = [...messageRowsDesc].reverse().map((message) => ({
-    ...message,
-    sender: profileMap.get(message.senderId) ?? null,
-  }));
+  const rawMessages = [...messageRowsDesc].reverse();
+  const messageIds = rawMessages.map((message) => message.id);
+  const reactionRows = messageIds.length
+    ? await db
+        .select()
+        .from(projectWorkspaceMessageReactions)
+        .where(inArray(projectWorkspaceMessageReactions.messageId, messageIds))
+    : [];
+
+  const reactionMap = new Map<string, { reaction: "CHECK" | "LIKE"; userId: string }[]>();
+  for (const reaction of reactionRows) {
+    const current = reactionMap.get(reaction.messageId) ?? [];
+    current.push({ reaction: reaction.reaction, userId: reaction.userId });
+    reactionMap.set(reaction.messageId, current);
+  }
+
+  const rawMessageMap = new Map(rawMessages.map((message) => [message.id, message]));
+  const messages = rawMessages.map((message) => {
+    const reply = message.replyToId ? rawMessageMap.get(message.replyToId) : null;
+    return {
+      ...message,
+      sender: profileMap.get(message.senderId) ?? null,
+      replyTo: reply ? {
+        id: reply.id,
+        senderId: reply.senderId,
+        body: reply.deletedAt ? "Wiadomość została usunięta." : reply.body,
+        deletedAt: reply.deletedAt,
+        sender: profileMap.get(reply.senderId) ?? null,
+      } : null,
+      reactions: reactionMap.get(message.id) ?? [],
+    };
+  });
 
   const tasks = taskRows.map((task) => ({
     ...task,
@@ -126,13 +175,72 @@ export async function getProjectWorkspace(projectId: string, viewerId: string) {
     actor: item.actorId ? profileMap.get(item.actorId) ?? null : null,
   }));
 
+  const lastReadAt = readRows[0]?.lastReadAt ?? null;
+  const unreadCount = rawMessages.filter((message) => {
+    if (message.senderId === viewerId || message.deletedAt) return false;
+    if (!lastReadAt) return true;
+    return message.createdAt > lastReadAt;
+  }).length;
+
+  const pinnedMessages = messages.filter((message) => Boolean(message.pinnedAt) && !message.deletedAt).slice(-8).reverse();
+
   return {
     project,
+    technologies: technologyRows.map((row) => row.name),
     workspace: workspaceRows[0] ?? null,
     members,
     messages,
+    pinnedMessages,
+    unreadCount,
+    lastReadAt,
     tasks,
     links: linkRows,
     activity,
   };
+}
+
+export async function getWorkspaceSignalsForProjects(projectIds: string[], userId: string) {
+  const validProjectIds = projectIds.filter(isUuid);
+  if (!validProjectIds.length || !isUuid(userId)) return new Map<string, { unreadMessages: number; assignedTasks: number }>();
+
+  const [readRows, messageRows, taskRows] = await Promise.all([
+    db
+      .select({ projectId: projectWorkspaceReads.projectId, lastReadAt: projectWorkspaceReads.lastReadAt })
+      .from(projectWorkspaceReads)
+      .where(and(inArray(projectWorkspaceReads.projectId, validProjectIds), eq(projectWorkspaceReads.userId, userId))),
+    db
+      .select({
+        projectId: projectWorkspaceMessages.projectId,
+        senderId: projectWorkspaceMessages.senderId,
+        createdAt: projectWorkspaceMessages.createdAt,
+        deletedAt: projectWorkspaceMessages.deletedAt,
+      })
+      .from(projectWorkspaceMessages)
+      .where(inArray(projectWorkspaceMessages.projectId, validProjectIds)),
+    db
+      .select({ projectId: projectWorkspaceTasks.projectId, assigneeId: projectWorkspaceTasks.assigneeId, status: projectWorkspaceTasks.status })
+      .from(projectWorkspaceTasks)
+      .where(inArray(projectWorkspaceTasks.projectId, validProjectIds)),
+  ]);
+
+  const readMap = new Map(readRows.map((row) => [row.projectId, row.lastReadAt]));
+  const result = new Map<string, { unreadMessages: number; assignedTasks: number }>();
+  for (const projectId of validProjectIds) result.set(projectId, { unreadMessages: 0, assignedTasks: 0 });
+
+  for (const message of messageRows) {
+    if (message.senderId === userId || message.deletedAt) continue;
+    const lastReadAt = readMap.get(message.projectId);
+    if (!lastReadAt || message.createdAt > lastReadAt) {
+      const current = result.get(message.projectId);
+      if (current) current.unreadMessages += 1;
+    }
+  }
+
+  for (const task of taskRows) {
+    if (task.assigneeId !== userId || task.status === "DONE") continue;
+    const current = result.get(task.projectId);
+    if (current) current.assignedTasks += 1;
+  }
+
+  return result;
 }

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/regulamin" },
 };
 
-const EFFECTIVE_DATE = "12 sierpnia 2026 r.";
+const EFFECTIVE_DATE = "15 sierpnia 2026 r.";
 
 function getOperator() {
   return {
@@ -78,7 +78,10 @@ export default function TermsPage() {
           <li>zgłaszanie się do ról w projektach oraz zapraszanie innych użytkowników;</li>
           <li>publikowanie aktywnego zgłoszenia w Build Pool i odpowiadanie na takie zgłoszenia;</li>
           <li>tworzenie ekip (Crew) i zarządzanie członkostwem w ekipie;</li>
-          <li>dodawanie znajomych oraz prowadzenie prywatnych rozmów 1:1 w zakresie udostępnionym przez Serwis;</li>
+          <li>dodawanie zaakceptowanych kontaktów oraz prowadzenie prywatnych rozmów 1:1 w zakresie udostępnionym przez Serwis;</li>
+          <li>obserwowanie profili bez konieczności wzajemnej akceptacji i otrzymywanie informacji o wybranej aktywności obserwowanych osób;</li>
+          <li>budowanie historii współpracy na podstawie wspólnych projektów oraz wystawianie ograniczonych rekomendacji osobom, z którymi użytkownik rzeczywiście był w jednym projekcie;</li>
+          <li>opcjonalne udostępnianie publicznego profilu buildera dostępnego bez logowania;</li>
           <li>zadawanie pytań i udzielanie odpowiedzi;</li>
           <li>publikowanie informacji o umiejętnościach, doświadczeniu, zainteresowaniach i dostępności;</li>
           <li>publikowanie projektów w Showcase, reakcji i konstruktywnego feedbacku;</li>
@@ -172,6 +175,12 @@ export default function TermsPage() {
           Showcase.
         </p>
         <p>
+          Jeżeli funkcja zdjęcia profilowego jest dostępna, jego dodanie jest dobrowolne. Użytkownik powinien przesyłać zdjęcie
+          przedstawiające jego samego albo materiał, do którego posiada odpowiednie prawa i zezwolenia na wykorzystanie jako avatar.
+          Zdjęcie nie jest publikowane automatycznie: może zostać sprawdzone przez moderatora i zaakceptowane albo odrzucone.
+          Użytkownik może w dowolnym momencie usunąć zaakceptowane zdjęcie i wrócić do avatara opartego na inicjałach.
+        </p>
+        <p>
           Samo opublikowanie opisu pomysłu, projektu lub koncepcji w BuildCrew nie powoduje przeniesienia praw do tego
           pomysłu, projektu lub koncepcji na Operatora ani innych użytkowników. Operator nie nabywa praw do kodu źródłowego,
           projektu ani rezultatów współpracy wyłącznie z powodu poznania się użytkowników za pośrednictwem BuildCrew.
@@ -193,6 +202,40 @@ export default function TermsPage() {
           Jeżeli współpraca pomiędzy użytkownikami ma charakter odpłatny lub komercyjny, użytkownicy samodzielnie odpowiadają
           za zawarcie odpowiednich umów, rozliczenia, podatki, prawa autorskie, poufność i inne obowiązki wynikające z ich
           relacji. BuildCrew nie pośredniczy w płatnościach pomiędzy użytkownikami.
+        </p>
+        <p>
+          Funkcje sieciowe BuildCrew mają służyć przede wszystkim odnajdywaniu osób do współpracy i dokumentowaniu realnych relacji projektowych.
+          Obserwowanie profilu nie oznacza potwierdzenia kompetencji ani rekomendacji Operatora. Rekomendacja współpracy może zostać wystawiona
+          wyłącznie w kontekście projektu, którego członkami byli zarówno wystawiający, jak i odbiorca rekomendacji. Użytkownik odpowiada za
+          zgodność swojej rekomendacji z rzeczywistym przebiegiem współpracy i nie powinien publikować w niej informacji poufnych.
+        </p>
+        <p>
+          Użytkownicy mogą obserwować publiczne projekty, aby łatwiej wracać do interesujących zespołów i otrzymywać informacje o ich aktualizacjach.
+          Twórca projektu może publikować krótkie aktualizacje dotyczące postępu, rekrutacji, milestone&apos;ów lub premiery. Aktualizacje te powinny
+          opisywać rzeczywisty stan projektu, nie mogą wprowadzać w błąd ani naruszać praw osób trzecich.
+        </p>
+        <p>
+          Twórca może oznaczyć projekt jako aktywny, wstrzymany lub ukończony. Przy ukończeniu może podać krótki opis rezultatu. BuildCrew może
+          zachować credit projektu obejmujący osoby należące w tym momencie do zespołu oraz ich role, tak aby utrzymać historię współpracy i umożliwić
+          prezentowanie ukończonego projektu na profilach oraz w sekcji zbudowanych projektów. Credit oznacza zapis członkostwa w projekcie na platformie;
+          nie jest potwierdzeniem stosunku pracy, poziomu kompetencji, autorstwa całego rezultatu ani rekomendacją Operatora. Użytkownicy powinni dbać,
+          aby skład zespołu i role były aktualne przed oznaczeniem projektu jako ukończony.
+        </p>
+        <p>
+          Publiczny profil buildera jest opcjonalny i może zostać wyłączony przez użytkownika. Włączenie tej funkcji oznacza decyzję użytkownika o publicznym
+          wyświetlaniu danych wskazanych w interfejsie tej funkcji, w tym wybranych danych zawodowych, publicznych projektów i zagregowanych sygnałów współpracy.
+        </p>
+        <p>
+          Członkowie projektu mogą korzystać z prywatnego workspace&apos;u obejmującego rozmowę zespołu, zadania, aktualny fokus,
+          milestone, linki oraz historię aktywności. Dostęp do workspace&apos;u jest związany z członkostwem w projekcie i może
+          zostać utracony po opuszczeniu zespołu albo usunięciu z projektu. Wcześniejsze wpisy mogą pozostać w historii projektu
+          w zakresie potrzebnym do zachowania ciągłości współpracy, bezpieczeństwa, rozpatrywania zgłoszeń lub wykonania obowiązków prawnych,
+          zgodnie z Polityką prywatności.
+        </p>
+        <p>
+          Użytkownik nie może publikować w workspace cudzych danych osobowych, materiałów poufnych, haseł, tokenów, kluczy API
+          ani innych informacji, do których udostępnienia nie jest uprawniony. Linki do zewnętrznych narzędzi są udostępniane
+          pozostałym członkom projektu na odpowiedzialność osoby, która je dodała.
         </p>
       </LegalSection>
 
@@ -257,8 +300,10 @@ export default function TermsPage() {
       <LegalSection title="11. Powiadomienia i wiadomości e-mail">
         <p>
           BuildCrew może wysyłać powiadomienia w Serwisie oraz wiadomości e-mail związane z korzystaniem z konta, w
-          szczególności o wiadomości od innego użytkownika, zgłoszeniu lub zaproszeniu do projektu, odpowiedzi w Build Pool, zaproszeniu do Crew, zaakceptowaniu lub odrzuceniu zgłoszenia,
+          szczególności o wiadomości od innego użytkownika, oznaczeniu lub odpowiedzi w workspace, przypisaniu zadania,
+          zgłoszeniu lub zaproszeniu do projektu, odpowiedzi w Build Pool, zaproszeniu do Crew, zaakceptowaniu lub odrzuceniu zgłoszenia,
           mocnym dopasowaniu profilu lub projektu, tygodniowym podsumowaniu, ważnym zdarzeniu w Build Challenge, bezpieczeństwie konta, weryfikacji adresu e-mail lub resecie hasła.
+          Dla prywatnych wiadomości Serwis może stosować opóźnione przypomnienie e-mail i anulować je, jeśli rozmowa zostanie wcześniej odczytana.
         </p>
         <p>
           Użytkownik może zarządzać częścią preferencji dotyczących powiadomień, jeżeli taka funkcja jest dostępna. Wyłączenie
@@ -301,6 +346,11 @@ export default function TermsPage() {
         <p>
           Moderacja BuildCrew jest obecnie wykonywana przez człowieka. Operator nie stosuje automatycznego systemu
           podejmującego ostateczne decyzje o trwałym blokowaniu użytkowników lub usuwaniu treści.
+        </p>
+        <p>
+          Opcjonalne zdjęcia profilowe mogą podlegać ręcznej moderacji przed ich publikacją. Operator może odrzucić zdjęcie,
+          jeżeli narusza Regulamin lub prawo, przedstawia osobę trzecią bez odpowiednich uprawnień, zawiera treści nieodpowiednie
+          albo nie nadaje się do wykorzystania jako zdjęcie profilowe. Samo przesłanie pliku nie gwarantuje jego publikacji.
         </p>
         <p>W przypadku naruszenia Regulaminu, prawa lub praw innych osób Operator może odpowiednio:</p>
         <ul className="list-disc space-y-1 pl-5">

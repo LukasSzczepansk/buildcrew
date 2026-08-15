@@ -34,7 +34,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(resetPasswordAction, {});
   return <form action={action} className="space-y-5">
     <input type="hidden" name="token" value={token} />
-    <div className="space-y-1.5"><Label htmlFor="password">Nowe hasło</Label><Input id="password" name="password" type="password" minLength={12} maxLength={128} autoComplete="new-password" required /><p className="text-xs text-neutral-400">Minimum 12 znaków.</p></div>
+    <div className="space-y-1.5"><Label htmlFor="password">Nowe hasło</Label><Input id="password" name="password" type="password" minLength={12} maxLength={128} autoComplete="new-password" required /><p className="text-[13px] text-neutral-400">Minimum 12 znaków.</p></div>
     <div className="space-y-1.5"><Label htmlFor="confirmPassword">Powtórz hasło</Label><Input id="confirmPassword" name="confirmPassword" type="password" minLength={12} maxLength={128} autoComplete="new-password" required /></div>
     <StateMessage state={state} />
     <Button className="w-full" size="lg" disabled={pending}>{pending ? "Zapisujemy…" : "Ustaw nowe hasło"}</Button>
@@ -66,6 +66,6 @@ export function AdminVerifyForm() {
     <div className="space-y-1.5"><Label htmlFor="code">Kod 2FA</Label><Input id="code" name="code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" placeholder="123456" required /></div>
     <StateMessage state={state} />
     <Button className="w-full" size="lg" disabled={pending}>{pending ? "Sprawdzamy…" : "Potwierdź logowanie"}</Button>
-    <p className="text-center text-xs text-neutral-500">Kod jest ważny 10 minut i działa tylko raz.</p>
+    <p className="text-center text-[13px] text-neutral-500">Kod jest ważny 10 minut i działa tylko raz.</p>
   </form>;
 }

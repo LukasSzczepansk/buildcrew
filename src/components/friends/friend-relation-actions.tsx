@@ -27,7 +27,7 @@ export function FriendRelationActions({ targetUserId, state, compact = false }: 
   if (state.kind === "NONE") {
     return (
       <Button size={compact ? "sm" : "default"} className="gap-2" disabled={pending} onClick={() => run(() => sendFriendRequest(targetUserId), "Zaproszenie wysłane.")}>
-        <UserPlus className="h-4 w-4" /> Dodaj do znajomych
+        <UserPlus className="h-4 w-4" /> Dodaj do kontaktów
       </Button>
     );
   }
@@ -43,7 +43,7 @@ export function FriendRelationActions({ targetUserId, state, compact = false }: 
   if (state.kind === "INCOMING") {
     return (
       <div className="flex flex-wrap gap-2">
-        <Button size={compact ? "sm" : "default"} className="gap-2" disabled={pending} onClick={() => run(() => respondToFriendRequest(state.requestId, "ACCEPTED"), "Jesteście teraz znajomymi.")}>
+        <Button size={compact ? "sm" : "default"} className="gap-2" disabled={pending} onClick={() => run(() => respondToFriendRequest(state.requestId, "ACCEPTED"), "Kontakt dodany.")}>
           <Check className="h-4 w-4" /> Akceptuj
         </Button>
         <Button size={compact ? "sm" : "default"} variant="outline" className="gap-2" disabled={pending} onClick={() => run(() => respondToFriendRequest(state.requestId, "REJECTED"), "Zaproszenie odrzucone.")}>
@@ -66,8 +66,8 @@ export function FriendRelationActions({ targetUserId, state, compact = false }: 
         className="gap-2"
         disabled={pending}
         onClick={() => {
-          if (!window.confirm("Usunąć tę osobę ze znajomych? Historia czatu zostanie usunięta.")) return;
-          void run(() => removeFriend(targetUserId), "Usunięto ze znajomych.");
+          if (!window.confirm("Usunąć tę osobę z kontaktów? Historia czatu zostanie usunięta.")) return;
+          void run(() => removeFriend(targetUserId), "Usunięto z kontaktów.");
         }}
       >
         <UserMinus className="h-4 w-4" /> Usuń

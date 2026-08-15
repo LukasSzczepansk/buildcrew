@@ -39,7 +39,7 @@ export async function sendFriendRequest(targetUserId: string) {
     const result = await db.transaction(async (tx) => {
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${pairKey}))`);
       const existingFriend = await tx.select({ id: friendships.id }).from(friendships).where(and(eq(friendships.userLowId, low), eq(friendships.userHighId, high))).limit(1);
-      if (existingFriend[0]) return { error: "Jesteście już znajomymi." } as const;
+      if (existingFriend[0]) return { error: "Ta osoba jest już w Twoich kontaktach." } as const;
       const pending = await tx.select({ id: friendRequests.id }).from(friendRequests).where(and(eq(friendRequests.pairKey, pairKey), eq(friendRequests.status, "PENDING"))).limit(1);
       if (pending[0]) return { error: "Między Wami jest już oczekujące zaproszenie." } as const;
       const [request] = await tx.insert(friendRequests).values({ senderId: user.id, receiverId: targetUserId, pairKey }).returning({ id: friendRequests.id });
@@ -52,8 +52,8 @@ export async function sendFriendRequest(targetUserId: string) {
   }
 
   const senderProfile = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(targetUserId, "FRIEND_REQUEST", `${senderProfile[0]?.username ?? "Ktoś"} wysłał Ci zaproszenie do znajomych`, undefined, "/friends");
-  revalidatePath("/friends");
+  await createNotification(targetUserId, "FRIEND_REQUEST", `${senderProfile[0]?.username ?? "Ktoś"} wysłał Ci zaproszenie do kontaktów`, undefined, "/network?tab=contacts");
+  revalidatePath("/network?tab=contacts");
   revalidatePath(`/builders/${targetUserId}`);
   return { success: true };
 }
@@ -91,9 +91,9 @@ export async function respondToFriendRequest(requestId: string, decision: "ACCEP
   if ("error" in result) return result;
   if (decision === "ACCEPTED") {
     const profile = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-    await createNotification(result.request.senderId, "FRIEND_ACCEPTED", `${profile[0]?.username ?? "Ktoś"} zaakceptował Twoje zaproszenie`, "Możecie teraz pisać do siebie w BuildCrew.", result.conversationId ? `/messages/${result.conversationId}` : "/friends");
+    await createNotification(result.request.senderId, "FRIEND_ACCEPTED", `${profile[0]?.username ?? "Ktoś"} zaakceptował Twoje zaproszenie do kontaktów`, "Możecie teraz pisać do siebie prywatnie w BuildCrew.", result.conversationId ? `/messages/${result.conversationId}` : "/network?tab=contacts");
   }
-  revalidatePath("/friends");
+  revalidatePath("/network?tab=contacts");
   revalidatePath("/messages");
   revalidatePath(`/builders/${result.request.senderId}`);
   return { success: true, conversationId: result.conversationId };
@@ -109,7 +109,7 @@ export async function cancelFriendRequest(requestId: string) {
     .where(and(eq(friendRequests.id, requestId), eq(friendRequests.senderId, user.id), eq(friendRequests.status, "PENDING")))
     .returning({ receiverId: friendRequests.receiverId });
   if (!result[0]) return { error: "Nie można anulować tego zaproszenia." };
-  revalidatePath("/friends");
+  revalidatePath("/network?tab=contacts");
   revalidatePath(`/builders/${result[0].receiverId}`);
   return { success: true };
 }
@@ -124,7 +124,7 @@ export async function removeFriend(targetUserId: string) {
     await tx.delete(conversations).where(and(eq(conversations.userLowId, low), eq(conversations.userHighId, high)));
     await tx.update(friendRequests).set({ status: "CANCELLED", updatedAt: new Date() }).where(and(eq(friendRequests.pairKey, friendPairKey(user.id, targetUserId)), eq(friendRequests.status, "PENDING")));
   });
-  revalidatePath("/friends");
+  revalidatePath("/network?tab=contacts");
   revalidatePath("/messages");
   revalidatePath(`/builders/${targetUserId}`);
   return { success: true };

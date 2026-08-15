@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ExternalLink, MessageCircle, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, ExternalLink, ShieldCheck, Users } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { ShareProjectButton } from "@/components/projects/share-project-button";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getCurrentUser } from "@/lib/auth";
 import { activityLabel, getActivityState } from "@/lib/activity";
-import { DISCORD_INVITE_URL } from "@/lib/community";
 import {
   COLLABORATION_MODE_LABELS,
   COLLABORATION_PACE_LABELS,
@@ -25,6 +24,7 @@ import {
 } from "@/lib/constants";
 import { SITE_URL, seoUrl, truncateMeta } from "@/lib/seo";
 import { getProjectById } from "@/server/data/projects";
+import { listProjectCredits, listProjectUpdates, PROJECT_UPDATE_KIND_LABELS } from "@/server/data/social-projects";
 
 
 function projectMetaDescription(project: {
@@ -53,11 +53,11 @@ export async function generateMetadata({
   const project = await getProjectById(id);
   if (!project) return { title: "Projekt — BuildCrew", robots: { index: false, follow: false } };
 
-  const requestedRole = query.share === "role"
+  const requestedRole = project.lifecycleStatus === "ACTIVE" && query.share === "role"
     ? project.openRoles.find((role) => role.id === query.role)
     : undefined;
   const roleLabel = requestedRole ? ROLE_LABELS[requestedRole.roleType] : null;
-  const openRoleLabels = project.openRoles.slice(0, 2).map((role) => ROLE_LABELS[role.roleType]);
+  const openRoleLabels = project.lifecycleStatus === "ACTIVE" ? project.openRoles.slice(0, 2).map((role) => ROLE_LABELS[role.roleType]) : [];
   const publicUrl = seoUrl(`/p/${project.id}`);
   const shareUrl = roleLabel
     ? seoUrl(`/p/${project.id}?share=role&role=${encodeURIComponent(requestedRole!.id)}`)
@@ -65,12 +65,16 @@ export async function generateMetadata({
   const imageUrl = roleLabel
     ? seoUrl(`/api/projects/${project.id}/share-card?variant=recruitment&role=${encodeURIComponent(requestedRole!.id)}&v=${project.updatedAt.getTime()}`)
     : seoUrl(`/api/projects/${project.id}/share-card?v=${project.updatedAt.getTime()}`);
-  const title = roleLabel
-    ? `Szukamy ${roleLabel} do ${project.name} | BuildCrew`
-    : openRoleLabels.length
-      ? `${project.name} — szuka ${openRoleLabels.join(" / ")} | BuildCrew`
-      : `${project.name} — projekt na BuildCrew`;
-  const description = projectMetaDescription(project);
+  const title = project.lifecycleStatus === "COMPLETED"
+    ? `${project.name} — ukończony projekt | BuildCrew`
+    : roleLabel
+      ? `Szukamy ${roleLabel} do ${project.name} | BuildCrew`
+      : openRoleLabels.length
+        ? `${project.name} — szuka ${openRoleLabels.join(" / ")} | BuildCrew`
+        : `${project.name} — projekt na BuildCrew`;
+  const description = project.lifecycleStatus === "COMPLETED" && project.outcome
+    ? truncateMeta(`${project.outcome} Zobacz zespół i historię współpracy na BuildCrew.`)
+    : projectMetaDescription(project);
 
   return {
     title,
@@ -99,6 +103,10 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const [project, user] = await Promise.all([getProjectById(id), getCurrentUser()]);
   if (!project) notFound();
+  const [updates, credits] = await Promise.all([
+    listProjectUpdates(project.id, 6),
+    project.lifecycleStatus === "COMPLETED" ? listProjectCredits(project.id) : Promise.resolve([]),
+  ]);
 
   const appPath = `/projects/${project.id}`;
   const signupHref = `/signup?next=${encodeURIComponent(appPath)}`;
@@ -111,7 +119,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: `${project.name} — projekt na BuildCrew`,
-    description: projectMetaDescription(project),
+    description: project.lifecycleStatus === "COMPLETED" && project.outcome ? project.outcome : projectMetaDescription(project),
     url: publicUrl,
     inLanguage: "pl-PL",
     dateCreated: project.createdAt.toISOString(),
@@ -135,9 +143,6 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
             BuildCrew
           </Link>
           <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="hidden sm:flex">
-              <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="gap-1.5"><MessageCircle className="h-4 w-4" /> Discord</a>
-            </Button>
             {user ? (
               <Button asChild size="sm"><Link href={appPath}>Otwórz w BuildCrew</Link></Button>
             ) : (
@@ -151,20 +156,13 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
       </header>
 
       <main className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-12">
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-6 flex flex-col gap-2 rounded-lg border border-lime-200 bg-lime-50 p-4 transition hover:border-lime-300 dark:border-lime-500/20 dark:bg-lime-500/10 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-lime-900 dark:text-lime-200">Discord BuildCrew</p>
-            <p className="mt-0.5 text-xs text-lime-800/80 dark:text-lime-200/70">Poznaj społeczność, szukaj osób do ekipy i śledź aktualne wydarzenia BuildCrew.</p>
-          </div>
-          <span className="flex items-center gap-1 text-sm font-semibold text-lime-900 dark:text-lime-200">Wejdź na Discord <ExternalLink className="h-3.5 w-3.5" /></span>
-        </a>
-
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           <div className="space-y-6">
             <Card className="overflow-hidden p-0">
               <div className="border-b border-neutral-100 bg-[#f7f7f3] p-7 dark:border-neutral-800 dark:bg-neutral-950 sm:p-9">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary">{STAGE_LABELS[project.stage]}</Badge>
+                  {project.lifecycleStatus === "COMPLETED" ? <Badge variant="success">Ukończony</Badge> : project.lifecycleStatus === "PAUSED" ? <Badge variant="outline">Wstrzymany</Badge> : null}
                   <Badge variant="outline"><Users className="mr-1 h-3 w-3" /> Ekipa {crewSize}/{Math.max(totalSlots, crewSize)}</Badge>
                   {project.commitment ? <Badge variant="outline">{COMMITMENT_LABELS[project.commitment]}</Badge> : null}
                 </div>
@@ -175,43 +173,53 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
                 </div>
                 <div className="mt-7 flex flex-wrap gap-2">
                   {user ? (
-                    <Button asChild><Link href={appPath}>Zobacz projekt i ekipę <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
+                    <Button asChild><Link href={appPath}>{project.lifecycleStatus === "COMPLETED" ? "Zobacz rezultat i ekipę" : "Zobacz projekt i ekipę"} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                   ) : (
-                    <Button asChild><Link href={signupHref}>Chcę dołączyć do tej ekipy <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
+                    <Button asChild><Link href={signupHref}>{project.lifecycleStatus === "COMPLETED" ? "Poznaj ludzi, którzy to zbudowali" : "Chcę dołączyć do tej ekipy"} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                   )}
                   <ShareProjectButton projectId={project.id} projectName={project.name} projectTagline={project.tagline} openRoles={project.openRoles.map((role) => ({ id: role.id, roleType: role.roleType }))} />
                 </div>
               </div>
               <div className="p-7 sm:p-9">
                 <h2 className="text-lg font-semibold">O projekcie</h2>
-                <p className="mt-3 whitespace-pre-line leading-7 text-neutral-600 dark:text-neutral-300">{project.description}</p>
+                {project.lifecycleStatus === "COMPLETED" && project.outcome ? <div className="mt-3 border-l-[3px] border-[#C8F169] pl-4"><p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Rezultat</p><p className="mt-1 text-sm leading-6 text-neutral-800 dark:text-neutral-200">{project.outcome}</p></div> : null}
+                <p className="mt-4 whitespace-pre-line leading-7 text-neutral-600 dark:text-neutral-300">{project.description}</p>
                 {project.goal ? (
                   <div className="mt-6 border-l-2 border-[#C8F169] pl-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Najbliższy cel</p>
+                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Najbliższy cel</p>
                     <p className="mt-1 text-sm leading-6">{project.goal}</p>
                   </div>
                 ) : null}
                 {project.existingAssets.length ? (
                   <div className="mt-6">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Co już istnieje</p>
+                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Co już istnieje</p>
                     <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{project.existingAssets.map((item) => PROJECT_ASSET_LABELS[item]).join(" · ")}</p>
                   </div>
                 ) : null}
                 {project.ownerContribution ? (
                   <div className="mt-6 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-900">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Co wnosi autor pomysłu</p>
+                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Co wnosi autor pomysłu</p>
                     <p className="mt-1 text-sm">{project.ownerContribution}</p>
                   </div>
                 ) : null}
               </div>
             </Card>
 
+            {updates.length ? (
+              <Card className="p-7 sm:p-8">
+                <div className="mb-4"><h2 className="text-lg font-semibold">Aktualizacje projektu</h2><p className="mt-1 text-sm text-neutral-500">Krótka historia realnego postępu, nie feed marketingowych postów.</p></div>
+                <div className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+                  {updates.map((update) => <div key={update.id} className="grid gap-2 py-4 sm:grid-cols-[110px_minmax(0,1fr)]"><div><p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{PROJECT_UPDATE_KIND_LABELS[update.kind]}</p><p className="mt-1 text-[11px] text-neutral-400">{update.createdAt.toLocaleDateString("pl-PL", { day: "2-digit", month: "short" })}</p></div><div><p className="text-sm leading-6 text-neutral-700 dark:text-neutral-300">{update.body}</p><p className="mt-1 text-[13px] text-neutral-400">{update.username}</p></div></div>)}
+                </div>
+              </Card>
+            ) : null}
+
             <Card className="p-7 sm:p-8">
               <div className="mb-5">
-                <h2 className="text-lg font-semibold">Kogo szukamy do ekipy?</h2>
+                <h2 className="text-lg font-semibold">{project.lifecycleStatus === "COMPLETED" ? "Zespół projektu" : "Kogo szukamy do ekipy?"}</h2>
                 <p className="mt-1 text-sm text-neutral-500">Nie jest to oferta pracy — chodzi o osoby, które chcą współtworzyć projekt.</p>
               </div>
-              {project.roles.length ? (
+              {project.lifecycleStatus !== "COMPLETED" && project.roles.length ? (
                 <div className="space-y-3">
                   {project.roles.map((role) => (
                     <div key={role.id} className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 sm:flex-row sm:items-center sm:justify-between">
@@ -222,20 +230,21 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
                         </div>
                         {role.description ? <p className="mt-1 text-sm text-neutral-500">{role.description}</p> : null}
                         {role.skills.length ? <TechnologyStack items={role.skills} max={6} compact className="mt-2" /> : null}
-                        {role.preferredLevel ? <p className="mt-1 text-xs text-neutral-400">Preferowany poziom: {LEVEL_LABELS[role.preferredLevel]}</p> : null}
+                        {role.preferredLevel ? <p className="mt-1 text-[13px] text-neutral-400">Preferowany poziom: {LEVEL_LABELS[role.preferredLevel]}</p> : null}
                       </div>
                       {role.open > 0 && !user ? <Button asChild size="sm"><Link href={signupHref}>Chcę dołączyć</Link></Button> : null}
                     </div>
                   ))}
                 </div>
-              ) : <p className="text-sm text-neutral-500">Ta ekipa nie ma obecnie otwartych ról.</p>}
+              ) : project.lifecycleStatus === "COMPLETED" && credits.length ? <div className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">{credits.map((credit) => <div key={credit.id} className="flex items-center justify-between gap-4 py-3 text-sm"><span className="font-medium">{credit.usernameSnapshot}</span><span className="text-[13px] text-neutral-400">{credit.isOwner ? "Autor" : credit.roleType ? ROLE_LABELS[credit.roleType] : "Współtwórca"}</span></div>)}</div> : <p className="text-sm text-neutral-500">Ta ekipa nie ma obecnie otwartych ról.</p>}
             </Card>
           </div>
 
           <aside className="space-y-6">
             <Card className="p-6">
-              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Szczegóły</p>
+              <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Szczegóły</p>
               <dl className="mt-3 space-y-3 text-sm">
+                <PublicDetail label="Status" value={project.lifecycleStatus === "COMPLETED" ? "Ukończony" : project.lifecycleStatus === "PAUSED" ? "Wstrzymany" : "Aktywny"} />
                 {project.projectType ? <PublicDetail label="Typ" value={PROJECT_TYPE_LABELS[project.projectType]} /> : null}
                 <PublicDetail label="Etap" value={STAGE_LABELS[project.stage]} />
                 {project.commitment ? <PublicDetail label="Czas" value={COMMITMENT_LABELS[project.commitment]} /> : null}
@@ -245,7 +254,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
               </dl>
               {project.repositoryUrl || project.demoUrl || project.designUrl || project.docsUrl ? (
                 <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Linki</p>
+                  <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Linki</p>
                   <div className="mt-2 space-y-2 text-sm">
                     {project.repositoryUrl ? <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>Repozytorium</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
                     {project.demoUrl ? <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>Demo / landing</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
@@ -257,26 +266,26 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
             </Card>
 
             <Card className="p-6">
-              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Autor pomysłu</p>
+              <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Autor pomysłu</p>
               <div className="mt-3 flex items-center gap-3">
                 <Avatar username={project.owner?.username ?? "Builder"} seed={project.owner?.userId ?? project.ownerId} />
                 <div>
                   <p className="font-semibold">{project.owner?.username ?? "Builder"}</p>
-                  <p className={`text-xs ${ownerActivity === "TODAY" ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-400"}`}>{activityLabel(project.owner?.lastActiveAt)}</p>
+                  <p className={`text-[13px] ${ownerActivity === "TODAY" ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-400"}`}>{activityLabel(project.owner?.lastActiveAt)}</p>
                 </div>
               </div>
             </Card>
 
             {project.members.length ? (
               <Card className="p-6">
-                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Ekipa</p>
+                <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Ekipa</p>
                 <div className="mt-3 space-y-3">
                   {project.members.slice(0, 8).map((member) => (
                     <div key={member.userId} className="flex items-center gap-3">
                       <Avatar username={member.profile?.username ?? "Builder"} seed={member.userId} size="sm" />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{member.profile?.username ?? "Builder"}</p>
-                        <p className="text-xs text-neutral-400">{member.roleType ? ROLE_LABELS[member.roleType] : member.profile?.role ? ROLE_LABELS[member.profile.role] : "Współtwórca"}</p>
+                        <p className="text-[13px] text-neutral-400">{member.roleType ? ROLE_LABELS[member.roleType] : member.profile?.role ? ROLE_LABELS[member.profile.role] : "Współtwórca"}</p>
                       </div>
                     </div>
                   ))}
@@ -297,5 +306,5 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
 }
 
 function PublicDetail({ label, value }: { label: string; value: string }) {
-  return <div><dt className="text-xs text-neutral-400">{label}</dt><dd className="mt-0.5 text-neutral-800 dark:text-neutral-200">{value}</dd></div>;
+  return <div><dt className="text-[13px] text-neutral-400">{label}</dt><dd className="mt-0.5 text-neutral-800 dark:text-neutral-200">{value}</dd></div>;
 }

@@ -45,10 +45,10 @@ export function IdeaComposer() {
         <span className="absolute inset-y-0 left-0 w-[4px] bg-[var(--bc-accent)]" aria-hidden="true" />
         <div className="grid gap-6 px-5 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="max-w-[720px] pl-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Najprostszy start</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Najprostszy start</p>
             <h2 className="mt-2 text-[21px] font-semibold tracking-[-0.025em]">Masz kierunek? Nie musisz mieć jeszcze pełnego projektu.</h2>
-            <p className="mt-2 max-w-[660px] text-[13px] leading-5 text-[var(--bc-muted)]">Nazwa, dwa zdania i obszary wystarczą. Inni mogą zaznaczyć zainteresowanie, a Ty później rozwiniesz wpis w pełny projekt.</p>
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[11px] text-[var(--bc-faint)]">
+            <p className="mt-2 max-w-[660px] text-sm leading-5 text-[var(--bc-muted)]">Nazwa, dwa zdania i obszary wystarczą. Inni mogą zaznaczyć zainteresowanie, a Ty później rozwiniesz wpis w pełny projekt.</p>
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-[var(--bc-faint)]">
               <span><strong className="font-medium text-[var(--bc-ink)]">01</strong> Opisz kierunek</span>
               <span><strong className="font-medium text-[var(--bc-ink)]">02</strong> Zobacz zainteresowanych</span>
               <span><strong className="font-medium text-[var(--bc-ink)]">03</strong> Rozwiń w projekt</span>
@@ -65,9 +65,9 @@ export function IdeaComposer() {
       <div className="max-w-[800px]">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Nowy kierunek</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Nowy kierunek</p>
             <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.02em]">Dodaj pomysł</h2>
-            <p className="mt-1 text-[12px] leading-5 text-[var(--bc-muted)]">Nie potrzebujesz stacku, roadmapy ani gotowej ekipy. To ma być szybki sygnał: „chcę coś takiego zbudować”.</p>
+            <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">Nie potrzebujesz stacku, roadmapy ani gotowej ekipy. To ma być szybki sygnał: „chcę coś takiego zbudować”.</p>
           </div>
           <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>Anuluj</Button>
         </div>
@@ -78,21 +78,21 @@ export function IdeaComposer() {
             <Input id="idea-name" className="mt-1.5" value={name} onChange={(event) => setName(event.target.value)} placeholder="np. Narzędzie do prostszego planowania pracy freelancerów" maxLength={60} />
           </div>
           <div>
-            <div className="flex items-center justify-between gap-3"><Label htmlFor="idea-summary">Jednym–dwoma zdaniami</Label><span className="text-[11px] tabular-nums text-[var(--bc-faint)]">{summary.length}/320</span></div>
+            <div className="flex items-center justify-between gap-3"><Label htmlFor="idea-summary">Jednym–dwoma zdaniami</Label><span className="text-[12px] tabular-nums text-[var(--bc-faint)]">{summary.length}/320</span></div>
             <Textarea id="idea-summary" className="mt-1.5 min-h-24" value={summary} onChange={(event) => setSummary(event.target.value)} placeholder="Jaki problem chcesz rozwiązać i dla kogo?" maxLength={320} />
           </div>
           <div>
             <Label>Obszary</Label>
-            <p className="mt-1 text-[11px] text-[var(--bc-faint)]">Wybierz maksymalnie 5 — pomogą znaleźć osoby o podobnym kierunku.</p>
+            <p className="mt-1 text-[12px] text-[var(--bc-faint)]">Wybierz maksymalnie 5 — pomogą znaleźć osoby o podobnym kierunku.</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {INTEREST_OPTIONS.map((interest) => {
                 const active = interests.includes(interest);
-                return <button key={interest} type="button" onClick={() => toggleInterest(interest)} className={cn("rounded-[5px] border px-2.5 py-1.5 text-[12px] transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{interest}</button>;
+                return <button key={interest} type="button" onClick={() => toggleInterest(interest)} className={cn("rounded-[5px] border px-2.5 py-1.5 text-[13px] transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{interest}</button>;
               })}
             </div>
           </div>
           <div className="flex flex-col gap-3 border-t border-[var(--bc-line)] pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="max-w-[500px] text-[11px] leading-4 text-[var(--bc-faint)]">Po publikacji wpis trafi do Pomysłów. Gdy pojawią się zainteresowani, możesz jednym kliknięciem zacząć rozwijać go w projekt.</p>
+            <p className="max-w-[500px] text-[12px] leading-4 text-[var(--bc-faint)]">Po publikacji wpis trafi do Pomysłów. Gdy pojawią się zainteresowani, możesz jednym kliknięciem zacząć rozwijać go w projekt.</p>
             <Button type="button" onClick={submit} disabled={pending}>{pending ? "Publikuję…" : "Opublikuj pomysł"}</Button>
           </div>
         </div>

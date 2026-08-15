@@ -122,7 +122,7 @@ export function ShareProjectButton({
         <div className="px-5 py-5 sm:px-6">
           {openRoles.length > 0 ? (
             <div className="mb-5 border-b border-[var(--bc-line)] pb-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Typ udostępnienia</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Typ udostępnienia</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <ModeButton active={mode.type === "project"} onClick={() => setMode({ type: "project" })}>
                   Cały projekt
@@ -153,7 +153,7 @@ export function ShareProjectButton({
 
           <div className="mt-5 grid gap-5 sm:grid-cols-[minmax(0,1fr)_240px]">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Udostępnij</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Udostępnij</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button type="button" size="sm" onClick={() => openShareWindow("facebook")}>Facebook</Button>
                 <Button type="button" size="sm" variant="outline" onClick={() => openShareWindow("linkedin")}>LinkedIn</Button>
@@ -166,7 +166,7 @@ export function ShareProjectButton({
               <button
                 type="button"
                 onClick={nativeShare}
-                className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline"
+                className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 Otwórz systemowe udostępnianie
@@ -174,7 +174,7 @@ export function ShareProjectButton({
             </div>
 
             <div className="border-t border-[var(--bc-line)] pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Link i grafika</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Link i grafika</p>
               <div className="mt-2 space-y-2">
                 <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={() => copy("link")}>
                   {copied === "link" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -204,7 +204,7 @@ function ModeButton({ active, onClick, children }: { active: boolean; onClick: (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-[6px] border px-3 py-2 text-[12px] font-medium transition-colors ${
+      className={`rounded-[6px] border px-3 py-2 text-[13px] font-medium transition-colors ${
         active
           ? "border-[var(--bc-ink)] bg-[var(--bc-ink)] text-[var(--bc-surface)]"
           : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]"

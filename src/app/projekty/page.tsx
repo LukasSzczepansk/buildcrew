@@ -63,7 +63,7 @@ export default async function PublicProjectsPage() {
 
       <main className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         <div className="max-w-3xl">
-          <p className="text-[12px] font-medium text-[var(--bc-muted)]">Publiczne projekty BuildCrew</p>
+          <p className="text-[13px] font-medium text-[var(--bc-muted)]">Publiczne projekty BuildCrew</p>
           <h1 className="mt-3 text-[36px] font-semibold leading-[1.08] tracking-[-0.035em] sm:text-[48px]">Projekty do wspólnego budowania.</h1>
           <p className="mt-4 max-w-2xl text-[15px] leading-7 text-[var(--bc-muted)]">
             Zobacz, co aktualnie buduje społeczność. Każdy projekt pokazuje etap, stack i role, których zespół jeszcze potrzebuje.
@@ -80,26 +80,26 @@ export default async function PublicProjectsPage() {
                     <h2 className="text-[19px] font-semibold tracking-[-0.02em]">
                       <Link href={`/p/${project.id}`} className="hover:underline">{project.name}</Link>
                     </h2>
-                    <span className="text-[11px] text-[var(--bc-faint)]">{STAGE_LABELS[project.stage]}</span>
+                    <span className="text-[12px] text-[var(--bc-faint)]">{STAGE_LABELS[project.stage]}</span>
                   </div>
-                  <p className="mt-2 max-w-3xl text-[13px] leading-6 text-[var(--bc-muted)]">{project.tagline}</p>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--bc-muted)]">{project.tagline}</p>
                   {project.technologies.length ? <TechnologyStack items={project.technologies} max={5} compact className="mt-3" /> : null}
                 </div>
 
-                <div className="text-[12px] leading-5 text-[var(--bc-muted)]">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Otwarte role</p>
+                <div className="text-[13px] leading-5 text-[var(--bc-muted)]">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Otwarte role</p>
                   <p className="mt-1 text-[var(--bc-ink)]">{roles.length ? roles.join(" · ") : "Ekipa kompletna"}</p>
                 </div>
 
                 <div className="lg:text-right">
-                  <Link href={`/p/${project.id}`} className="inline-flex items-center gap-1.5 text-[13px] font-medium hover:underline">
+                  <Link href={`/p/${project.id}`} className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline">
                     Zobacz projekt <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
               </article>
             );
           }) : (
-            <div className="border-b border-[var(--bc-line)] py-8 text-[13px] text-[var(--bc-muted)]">
+            <div className="border-b border-[var(--bc-line)] py-8 text-sm text-[var(--bc-muted)]">
               Nie ma jeszcze publicznych projektów. Po publikacji pojawią się tutaj automatycznie.
             </div>
           )}
@@ -107,7 +107,7 @@ export default async function PublicProjectsPage() {
 
         <div className="mt-12 border-l-2 border-[var(--bc-accent)] pl-4">
           <p className="text-[15px] font-semibold">Nie widzisz projektu dla siebie?</p>
-          <p className="mt-1 text-[13px] leading-6 text-[var(--bc-muted)]">Załóż profil, pokaż czego szukasz i poznaj osoby, z którymi możesz zacząć własny projekt.</p>
+          <p className="mt-1 text-sm leading-6 text-[var(--bc-muted)]">Załóż profil, pokaż czego szukasz i poznaj osoby, z którymi możesz zacząć własny projekt.</p>
           <Button asChild className="mt-4" size="sm"><Link href="/signup">Załóż profil</Link></Button>
         </div>
 

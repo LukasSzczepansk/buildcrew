@@ -142,6 +142,7 @@ export const profiles = pgTable("profiles", {
   githubUrl: text("github_url"),
   portfolioUrl: text("portfolio_url"),
   linkedinUrl: text("linkedin_url"),
+  publicProfile: boolean("public_profile").notNull().default(false),
   avatarEmoji: text("avatar_emoji").notNull().default("🙂"),
   onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
   onboardingStep: integer("onboarding_step").notNull().default(1),
@@ -153,6 +154,31 @@ export const profilePrivate = pgTable("profile_private", {
   userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
   discordUsername: text("discord_username"),
 });
+
+export const profileAvatarStatusEnum = ["PENDING", "APPROVED", "REJECTED", "REMOVED"] as const;
+export type ProfileAvatarStatus = (typeof profileAvatarStatusEnum)[number];
+
+/**
+ * Optional profile photos. The binary payload is stored as base64-encoded WebP so
+ * BuildCrew does not depend on local filesystem storage (which is ephemeral on Vercel).
+ * Rejected/removed rows keep only moderation metadata; imageBase64 is cleared.
+ */
+export const profileAvatars = pgTable("profile_avatars", {
+  id: uuidPk(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  status: text("status").$type<ProfileAvatarStatus>().notNull().default("PENDING"),
+  mimeType: text("mime_type").notNull().default("image/webp"),
+  imageBase64: text("image_base64"),
+  byteSize: integer("byte_size").notNull(),
+  consentAt: timestamp("consent_at", { withTimezone: true }).notNull(),
+  uploadedAt: timestamp("uploaded_at", { withTimezone: true }).notNull().defaultNow(),
+  moderatedAt: timestamp("moderated_at", { withTimezone: true }),
+  moderatedBy: uuid("moderated_by").references(() => users.id, { onDelete: "set null" }),
+  rejectionReason: text("rejection_reason"),
+}, (t) => [
+  index("profile_avatars_user_status_idx").on(t.userId, t.status, t.uploadedAt),
+  index("profile_avatars_status_uploaded_idx").on(t.status, t.uploadedAt),
+]);
 
 export const skills = pgTable("skills", {
   id: serial("id").primaryKey(),
@@ -224,6 +250,12 @@ export type ProjectDuration = (typeof projectDurationEnum)[number];
 export const projectEntryTypeEnum = ["PROJECT", "IDEA"] as const;
 export type ProjectEntryType = (typeof projectEntryTypeEnum)[number];
 
+export const projectLifecycleStatusEnum = ["ACTIVE", "PAUSED", "COMPLETED"] as const;
+export type ProjectLifecycleStatus = (typeof projectLifecycleStatusEnum)[number];
+
+export const projectUpdateKindEnum = ["PROGRESS", "ROLE", "MILESTONE", "LAUNCH"] as const;
+export type ProjectUpdateKind = (typeof projectUpdateKindEnum)[number];
+
 export const crews = pgTable("crews", {
   id: uuidPk(),
   status: text("status").$type<"FORMING" | "CONVERTED_TO_PROJECT" | "ARCHIVED">().notNull().default("FORMING"),
@@ -237,6 +269,7 @@ export const projects = pgTable("projects", {
   ownerId: uuid("owner_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   crewId: uuid("crew_id").references(() => crews.id, { onDelete: "set null" }),
   entryType: text("entry_type").$type<ProjectEntryType>().notNull().default("PROJECT"),
+  lifecycleStatus: text("lifecycle_status").$type<ProjectLifecycleStatus>().notNull().default("ACTIVE"),
   name: text("name").notNull(),
   tagline: text("tagline").notNull(),
   description: text("description").notNull(),
@@ -257,7 +290,9 @@ export const projects = pgTable("projects", {
   docsUrl: text("docs_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index("projects_owner_idx").on(t.ownerId)]);
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  outcome: text("outcome"),
+}, (t) => [index("projects_owner_idx").on(t.ownerId), index("projects_lifecycle_idx").on(t.lifecycleStatus, t.updatedAt)]);
 
 export const projectIdeaInterests = pgTable("project_idea_interests", {
   projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
@@ -266,6 +301,38 @@ export const projectIdeaInterests = pgTable("project_idea_interests", {
 }, (t) => [
   primaryKey({ columns: [t.projectId, t.userId] }),
   index("project_idea_interests_project_idx").on(t.projectId, t.createdAt),
+]);
+
+export const projectFollows = pgTable("project_follows", {
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.projectId, t.userId] }),
+  index("project_follows_user_idx").on(t.userId, t.createdAt),
+  index("project_follows_project_idx").on(t.projectId, t.createdAt),
+]);
+
+export const projectUpdates = pgTable("project_updates", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  authorId: uuid("author_id").references(() => users.id, { onDelete: "set null" }),
+  kind: text("kind").$type<ProjectUpdateKind>().notNull().default("PROGRESS"),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("project_updates_project_created_idx").on(t.projectId, t.createdAt)]);
+
+export const projectCredits = pgTable("project_credits", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  usernameSnapshot: text("username_snapshot").notNull(),
+  roleType: text("role_type").$type<RoleType>(),
+  isOwner: boolean("is_owner").notNull().default(false),
+  creditedAt: timestamp("credited_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("project_credits_project_user_idx").on(t.projectId, t.userId).where(sql`${t.userId} is not null`),
+  index("project_credits_user_idx").on(t.userId, t.creditedAt),
 ]);
 
 export const projectTechnologies = pgTable("project_technologies", {
@@ -304,12 +371,22 @@ export type ProjectTaskStatus = (typeof projectTaskStatusEnum)[number];
 export const projectLinkKindEnum = ["GITHUB", "FIGMA", "NOTION", "DISCORD", "DEMO", "DOCS", "OTHER"] as const;
 export type ProjectLinkKind = (typeof projectLinkKindEnum)[number];
 
+export const projectMilestoneStatusEnum = ["PLANNED", "DOING", "DONE"] as const;
+export type ProjectMilestoneStatus = (typeof projectMilestoneStatusEnum)[number];
+
+export const projectWorkspaceReactionEnum = ["CHECK", "LIKE"] as const;
+export type ProjectWorkspaceReaction = (typeof projectWorkspaceReactionEnum)[number];
+
 export const projectWorkspaceActivityTypeEnum = [
   "FOCUS_UPDATED",
   "MILESTONE_UPDATED",
   "TASK_CREATED",
   "TASK_STATUS_CHANGED",
   "TASK_DELETED",
+  "TASK_UPDATED",
+  "MESSAGE_EDITED",
+  "MESSAGE_PINNED",
+  "MESSAGE_UNPINNED",
   "LINK_ADDED",
   "LINK_REMOVED",
   "MEMBER_REMOVED",
@@ -321,7 +398,9 @@ export const projectWorkspaces = pgTable("project_workspaces", {
   projectId: uuid("project_id").primaryKey().references(() => projects.id, { onDelete: "cascade" }),
   currentFocus: text("current_focus"),
   milestoneTitle: text("milestone_title"),
+  milestoneDescription: text("milestone_description"),
   milestoneDueAt: timestamp("milestone_due_at", { withTimezone: true }),
+  milestoneStatus: text("milestone_status").$type<ProjectMilestoneStatus>().notNull().default("DOING"),
   milestoneCompleted: boolean("milestone_completed").notNull().default(false),
   updatedBy: uuid("updated_by").references(() => users.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -332,18 +411,47 @@ export const projectWorkspaceMessages = pgTable("project_workspace_messages", {
   projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   senderId: uuid("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   body: text("body").notNull(),
+  replyToId: uuid("reply_to_id"),
+  editedAt: timestamp("edited_at", { withTimezone: true }),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  pinnedAt: timestamp("pinned_at", { withTimezone: true }),
+  pinnedBy: uuid("pinned_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("project_workspace_messages_project_created_idx").on(t.projectId, t.createdAt),
   index("project_workspace_messages_sender_idx").on(t.senderId),
+  index("project_workspace_messages_pinned_idx").on(t.projectId, t.pinnedAt),
+]);
+
+export const projectWorkspaceMessageReactions = pgTable("project_workspace_message_reactions", {
+  messageId: uuid("message_id").notNull().references(() => projectWorkspaceMessages.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  reaction: text("reaction").$type<ProjectWorkspaceReaction>().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.messageId, t.userId, t.reaction] }),
+  index("project_workspace_reactions_message_idx").on(t.messageId, t.createdAt),
+]);
+
+export const projectWorkspaceReads = pgTable("project_workspace_reads", {
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  lastReadAt: timestamp("last_read_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.projectId, t.userId] }),
+  index("project_workspace_reads_user_idx").on(t.userId, t.updatedAt),
 ]);
 
 export const projectWorkspaceTasks = pgTable("project_workspace_tasks", {
   id: uuidPk(),
   projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
+  description: text("description"),
   status: text("status").$type<ProjectTaskStatus>().notNull().default("TODO"),
   assigneeId: uuid("assignee_id").references(() => users.id, { onDelete: "set null" }),
+  dueAt: timestamp("due_at", { withTimezone: true }),
+  sourceMessageId: uuid("source_message_id"),
   createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -495,6 +603,44 @@ export const friendships = pgTable("friendships", {
   index("friendships_low_idx").on(t.userLowId),
   index("friendships_high_idx").on(t.userHighId),
   check("friendships_not_self_check", sql`${t.userLowId} <> ${t.userHighId}`),
+]);
+
+export const follows = pgTable("follows", {
+  followerId: uuid("follower_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  followingId: uuid("following_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.followerId, t.followingId] }),
+  index("follows_following_idx").on(t.followingId, t.createdAt),
+  index("follows_follower_idx").on(t.followerId, t.createdAt),
+  check("follows_not_self_check", sql`${t.followerId} <> ${t.followingId}`),
+]);
+
+export const collaborationEndorsementStrengthEnum = [
+  "DELIVERY",
+  "COMMUNICATION",
+  "TECHNICAL",
+  "PRODUCT",
+  "DESIGN",
+  "RELIABILITY",
+] as const;
+export type CollaborationEndorsementStrength = (typeof collaborationEndorsementStrengthEnum)[number];
+
+export const collaborationEndorsements = pgTable("collaboration_endorsements", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  reviewerId: uuid("reviewer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  revieweeId: uuid("reviewee_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  strengths: text("strengths").array().$type<CollaborationEndorsementStrength[]>().notNull().default(sql`'{}'::text[]`),
+  wouldCollaborateAgain: boolean("would_collaborate_again").notNull().default(true),
+  note: text("note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("collaboration_endorsements_unique_idx").on(t.projectId, t.reviewerId, t.revieweeId),
+  index("collaboration_endorsements_reviewee_idx").on(t.revieweeId, t.createdAt),
+  index("collaboration_endorsements_reviewer_idx").on(t.reviewerId, t.createdAt),
+  check("collaboration_endorsements_not_self_check", sql`${t.reviewerId} <> ${t.revieweeId}`),
 ]);
 
 export const conversations = pgTable("conversations", {
@@ -654,6 +800,7 @@ export const notificationPreferences = pgTable("notification_preferences", {
   emailChallenge: boolean("email_challenge").notNull().default(true),
   emailShowcaseFeedback: boolean("email_showcase_feedback").notNull().default(false),
   emailMessages: boolean("email_messages").notNull().default(true),
+  emailWorkspace: boolean("email_workspace").notNull().default(true),
   emailMatches: boolean("email_matches").notNull().default(true),
   emailWeeklyDigest: boolean("email_weekly_digest").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -687,8 +834,24 @@ export const notificationTypeEnum = [
   "IDEA_CONVERTED",
   "PROJECT_MEMBER_REMOVED",
   "PROJECT_MEMBER_LEFT",
+  "FOLLOW_STARTED",
+  "FOLLOWED_USER_PROJECT",
+  "COLLABORATION_ENDORSEMENT",
+  "WORKSPACE_MENTION",
+  "WORKSPACE_REPLY",
+  "WORKSPACE_TASK_ASSIGNED",
+  "PROFILE_AVATAR_APPROVED",
+  "PROFILE_AVATAR_REJECTED",
+  "PROJECT_UPDATE",
+  "PROJECT_COMPLETED",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
+
+export const dashboardVisitState = pgTable("dashboard_visit_state", {
+  userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  lastVisitedAt: timestamp("last_visited_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const notifications = pgTable("notifications", {
   id: uuidPk(),
@@ -703,6 +866,9 @@ export const notifications = pgTable("notifications", {
   isRead: boolean("is_read").notNull().default(false),
   readAt: timestamp("read_at", { withTimezone: true }),
   emailSentAt: timestamp("email_sent_at", { withTimezone: true }),
+  emailProviderId: text("email_provider_id"),
+  emailScheduledFor: timestamp("email_scheduled_for", { withTimezone: true }),
+  emailCanceledAt: timestamp("email_canceled_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("notifications_user_idx").on(t.userId, t.createdAt),
@@ -769,6 +935,16 @@ export const analyticsEventTypeEnum = [
   "idea_interest_removed",
   "project_member_removed",
   "project_member_left",
+  "network_follow",
+  "network_unfollow",
+  "collaboration_endorsed",
+  "public_profile_updated",
+  "profile_avatar_uploaded",
+  "profile_avatar_removed",
+  "project_follow",
+  "project_unfollow",
+  "project_update_published",
+  "project_completed",
 ] as const;
 export type AnalyticsEventType = (typeof analyticsEventTypeEnum)[number];
 

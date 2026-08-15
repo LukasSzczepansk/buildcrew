@@ -8,7 +8,7 @@ export function AdminStatCard({ icon: Icon, label, value, helper }: { icon: Luci
         <div>
           <p className="text-sm text-neutral-500 dark:text-neutral-400">{label}</p>
           <p className="mt-1 text-3xl font-bold tracking-tight">{value}</p>
-          {helper ? <p className="mt-1 text-xs text-neutral-400">{helper}</p> : null}
+          {helper ? <p className="mt-1 text-[13px] text-neutral-400">{helper}</p> : null}
         </div>
         <div className="rounded-[6px] bg-lime-50 p-2.5 text-lime-600 dark:bg-lime-500/10 dark:text-lime-300">
           <Icon className="h-5 w-5" />

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/polityka-prywatnosci" },
 };
 
-const EFFECTIVE_DATE = "12 sierpnia 2026 r.";
+const EFFECTIVE_DATE = "15 sierpnia 2026 r.";
 
 function getOperator() {
   return {
@@ -76,22 +76,51 @@ export default function PrivacyPage() {
           <li>opis użytkownika, rola i poziom doświadczenia;</li>
           <li>umiejętności, technologie, zainteresowania i cele;</li>
           <li>informacje o dostępności i rodzaju poszukiwanej współpracy;</li>
-          <li>avatar lub inne oznaczenie profilu, jeżeli funkcja jest dostępna;</li>
+          <li>opcjonalne zdjęcie profilowe, jeżeli użytkownik zdecyduje się je przesłać, oraz dane techniczne i moderacyjne związane z jego akceptacją lub odrzuceniem;</li>
           <li>linki lub identyfikatory GitHub, Discord, portfolio albo innych usług podane dobrowolnie przez użytkownika;</li>
-          <li>inne informacje dobrowolnie umieszczone w profilu.</li>
+          <li>inne informacje dobrowolnie umieszczone w profilu;</li>
+          <li>ustawienie określające, czy użytkownik chce udostępniać publiczny profil buildera dostępny także bez logowania.</li>
         </ul>
 
         <p><strong>D. Dane dotyczące projektów, ekip i Build Pool</strong></p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>utworzone projekty, ich opisy i role;</li>
+          <li>utworzone projekty, ich opisy, role, status cyklu życia projektu i opcjonalny rezultat po jego zakończeniu;</li>
+          <li>obserwowanie projektów oraz data rozpoczęcia obserwowania;</li>
+          <li>publiczne aktualizacje projektów publikowane przez ich twórców, w tym rodzaj aktualizacji, treść, autor i czas publikacji;</li>
           <li>zgłoszenia do projektów, zaproszenia i decyzje dotyczące zgłoszeń;</li>
           <li>członkostwo w ekipach i zaproszenia do Crew;</li>
           <li>informacje publikowane w Build Pool i propozycje wspólnego budowania;</li>
-          <li>relacje pomiędzy użytkownikami, w tym znajomi i blokady;</li>
+          <li>relacje pomiędzy użytkownikami, w tym zaakceptowane kontakty, obserwowanie profili i blokady;</li>
+          <li>historia wspólnych projektów wynikająca z członkostwa w tym samym zespole;</li>
+          <li>po ukończeniu projektu — zapis creditów projektu obejmujący członków zespołu, ich rolę oraz nazwę użytkownika z chwili zakończenia projektu, w celu zachowania historii współpracy i prezentacji dorobku;</li>
+          <li>rekomendacje współpracy wystawiane wyłącznie przez osoby, które były członkami tego samego projektu, w tym wskazane mocne strony i deklaracja chęci ponownej współpracy;</li>
           <li>pytania, odpowiedzi oraz inne informacje związane z korzystaniem z funkcji społecznościowych.</li>
         </ul>
+        <p>
+          Obserwowanie profilu nie ujawnia prywatnych danych kontaktowych i nie tworzy automatycznie prywatnego kanału rozmowy.
+          Publiczny profil jest funkcją opcjonalną. Po jej włączeniu wybrane dane profilu, publiczna historia projektów, zagregowane
+          informacje o współpracy, credity ukończonych projektów oraz dobrowolnie podane publiczne linki mogą być dostępne bez logowania i indeksowane przez wyszukiwarki.
+          Obserwowane projekty mogą pojawiać się w spersonalizowanych widokach użytkownika i służyć do wysyłania powiadomień o ich publicznych aktualizacjach.
+          Prywatny identyfikator Discord oraz treść wiadomości nie są publikowane w publicznym profilu.
+        </p>
 
-        <p><strong>E. Dane Showcase</strong></p>
+        <p><strong>E. Dane prywatnych workspace&apos;ów projektowych</strong></p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>wiadomości wysyłane w prywatnej rozmowie zespołu, wraz z informacją o autorze, czasie wysłania, edycji, odpowiedzi, przypięciu lub usunięciu;</li>
+          <li>proste reakcje na wiadomości oraz informacje o oznaczeniach członków zespołu;</li>
+          <li>informacje o tym, do kiedy użytkownik odczytał rozmowę, wykorzystywane do prezentowania liczby nieprzeczytanych wiadomości;</li>
+          <li>zadania zespołu, ich opis, status, osoba przypisana, opcjonalny termin oraz powiązanie z wiadomością, jeżeli zadanie powstało z rozmowy;</li>
+          <li>aktualny fokus projektu, informacje o najbliższym milestone&apos;ie i jego statusie;</li>
+          <li>linki zespołu do zewnętrznych narzędzi, takich jak repozytorium, Figma, Notion, Discord, demo lub dokumentacja;</li>
+          <li>techniczna historia aktywności workspace&apos;u, np. zmiany planu, zadań, linków lub członkostwa.</li>
+        </ul>
+        <p>
+          Workspace jest przeznaczony dla członków danego projektu. BuildCrew nie publikuje jego treści w publicznym katalogu
+          projektów i oznacza strony workspace jako nieprzeznaczone do indeksowania przez wyszukiwarki. Użytkownik nie powinien
+          umieszczać w workspace haseł, kluczy API, danych uwierzytelniających ani innych sekretów, których zespół nie potrzebuje.
+        </p>
+
+        <p><strong>F. Dane Showcase</strong></p>
         <ul className="list-disc space-y-1 pl-5">
           <li>nazwa, tagline i opis prezentowanego projektu;</li>
           <li>screenshot lub adres materiału graficznego;</li>
@@ -106,7 +135,7 @@ export default function PrivacyPage() {
           których nie ma prawa ujawniać.
         </p>
 
-        <p><strong>F. Dane Build Challenges i dopasowania</strong></p>
+        <p><strong>G. Dane Build Challenges i dopasowania</strong></p>
         <ul className="list-disc space-y-1 pl-5">
           <li>informacja o udziale w Challenge;</li>
           <li>wybrany sposób udziału, np. z ekipą albo z prośbą o znalezienie ekipy;</li>
@@ -115,7 +144,7 @@ export default function PrivacyPage() {
           <li>informacje o zaakceptowaniu albo odrzuceniu zaproszenia lub propozycji dopasowania.</li>
         </ul>
 
-        <p><strong>G. Prywatne wiadomości</strong></p>
+        <p><strong>H. Prywatne wiadomości</strong></p>
         <p>
           Jeżeli użytkownicy korzystają z prywatnych wiadomości, BuildCrew przetwarza treść wiadomości oraz informacje
           techniczne niezbędne do ich dostarczenia, wyświetlenia historii i obsługi statusu odczytu. Treść wiadomości nie jest
@@ -126,17 +155,18 @@ export default function PrivacyPage() {
           problemu technicznego, rozpatrzenia zgłoszenia, przeciwdziałania nadużyciom lub wykonania obowiązku prawnego.
         </p>
 
-        <p><strong>H. Powiadomienia i preferencje</strong></p>
+        <p><strong>I. Powiadomienia i preferencje</strong></p>
         <ul className="list-disc space-y-1 pl-5">
           <li>typ i treść powiadomienia;</li>
           <li>użytkownik, którego dotyczy zdarzenie, oraz — jeżeli ma to zastosowanie — użytkownik inicjujący zdarzenie;</li>
-          <li>powiązanie powiadomienia z projektem, Crew, Showcase, Challenge lub inną funkcją;</li>
+          <li>powiązanie powiadomienia z projektem, workspace, zadaniem, Crew, Showcase, Challenge lub inną funkcją;</li>
+          <li>informacja o oznaczeniu użytkownika, odpowiedzi na jego wiadomość albo przypisaniu zadania, jeżeli takie zdarzenie wystąpiło;</li>
           <li>status odczytu i czas utworzenia;</li>
           <li>preferencje dotyczące otrzymywania wybranych wiadomości e-mail;</li>
-          <li>informacja techniczna o wysłaniu wiadomości e-mail, jeżeli jest potrzebna do działania systemu.</li>
+          <li>informacja techniczna o zaplanowaniu, wysłaniu lub anulowaniu wiadomości e-mail, w tym identyfikator techniczny dostawcy, jeżeli jest potrzebny do działania systemu.</li>
         </ul>
 
-        <p><strong>I. Dane dotyczące zgłoszeń i moderacji</strong></p>
+        <p><strong>J. Dane dotyczące zgłoszeń i moderacji</strong></p>
         <ul className="list-disc space-y-1 pl-5">
           <li>treść zgłoszenia i dane osoby zgłaszającej;</li>
           <li>informacje dotyczące zgłaszanego konta lub treści;</li>
@@ -144,18 +174,19 @@ export default function PrivacyPage() {
           <li>korespondencja dotycząca wyjaśnienia lub zakwestionowania decyzji.</li>
         </ul>
 
-        <p><strong>J. Dane techniczne i bezpieczeństwa</strong></p>
+        <p><strong>K. Dane techniczne i bezpieczeństwa</strong></p>
         <ul className="list-disc space-y-1 pl-5">
           <li>adres IP;</li>
           <li>data i czas połączenia;</li>
           <li>data ostatniej aktywności konta używana do prezentowania przybliżonego statusu, np. „aktywny dziś” albo „aktywny w tym tygodniu”;</li>
+          <li>czas ostatniego otwarcia ekranu Start, wykorzystywany do pokazania użytkownikowi sekcji „Od ostatniej wizyty”;</li>
           <li>informacje o urządzeniu i przeglądarce;</li>
           <li>logi serwerowe i informacje dotyczące błędów;</li>
           <li>identyfikatory sesji;</li>
           <li>informacje potrzebne do zabezpieczenia konta, limitowania nadużyć i ochrony Serwisu.</li>
         </ul>
 
-        <p><strong>K. Korespondencja</strong></p>
+        <p><strong>L. Korespondencja</strong></p>
         <p>
           Jeżeli użytkownik kontaktuje się z Administratorem, przetwarzane mogą być adres e-mail, treść wiadomości,
           załączniki oraz inne informacje przekazane dobrowolnie w korespondencji.
@@ -170,9 +201,15 @@ export default function PrivacyPage() {
             umowy o korzystanie z BuildCrew, na podstawie art. 6 ust. 1 lit. b RODO.
           </li>
           <li>
-            <strong>Realizacja funkcji społecznościowych</strong>, w tym profilu, projektów, Crew, Build Pool, znajomych,
+            <strong>Realizacja funkcji społecznościowych</strong>, w tym profilu, projektów, Crew, Build Pool, kontaktów, obserwowania profili, historii współpracy,
             wiadomości, Showcase, feedbacku i Build Challenges — na podstawie art. 6 ust. 1 lit. b RODO w zakresie
             niezbędnym do świadczenia funkcji wybranych przez użytkownika.
+          </li>
+          <li>
+            <strong>Wyświetlanie opcjonalnego zdjęcia profilowego</strong> — na podstawie zgody użytkownika, art. 6 ust. 1 lit. a RODO.
+            Zgoda jest udzielana przy przesłaniu zdjęcia i może zostać wycofana przez jego usunięcie. Ręczna moderacja zdjęcia przed
+            publikacją służy ochronie użytkowników i integralności Serwisu i może opierać się również na prawnie uzasadnionym interesie
+            Administratora, art. 6 ust. 1 lit. f RODO.
           </li>
           <li>
             <strong>Powiadomienia transakcyjne i wiadomości dotyczące konta</strong>, np. o zgłoszeniu do projektu,
@@ -236,8 +273,10 @@ export default function PrivacyPage() {
           Część informacji publikowanych w BuildCrew jest przeznaczona do udostępniania innym użytkownikom, a wybrane
           treści mogą być dostępne także dla osób niezalogowanych. Dotyczy to w szczególności projektów udostępnionych
           publicznym linkiem oraz treści publikowanych w Showcase. Publiczna strona projektu może zawierać m.in. nazwę,
-          opis, technologie, etap projektu, informacje o wolnych rolach, nazwę wyświetlaną lub avatar twórcy oraz informacje
-          o członkach ekipy w zakresie prezentowanym przez daną funkcję.
+          opis, technologie, etap i status projektu, publiczne aktualizacje, informacje o wolnych rolach, nazwę wyświetlaną lub avatar twórcy oraz informacje
+          o członkach ekipy w zakresie prezentowanym przez daną funkcję. W przypadku ukończonego projektu publiczna strona może również pokazywać rezultat
+          projektu oraz credity osób, które w chwili zakończenia należały do zespołu. Taki credit opisuje historię członkostwa w projekcie i nie stanowi
+          weryfikacji zatrudnienia, kompetencji ani jakości pracy przez Operatora.
         </p>
         <p>
           BuildCrew może generować kartę podglądu publicznego projektu do udostępnienia w zewnętrznych serwisach. Po
@@ -249,6 +288,12 @@ export default function PrivacyPage() {
           W celu ograniczenia kontaktowania się z nieaktywnymi kontami BuildCrew może prezentować innym użytkownikom
           przybliżony status aktywności, np. „aktywny dziś”, „aktywny w tym tygodniu” lub informację o mniejszej aktywności.
           Dokładna data i godzina ostatniej aktywności nie jest prezentowana jako publiczny znacznik czasu.
+        </p>
+        <p>
+          Zaakceptowane zdjęcie profilowe może być widoczne dla zalogowanych użytkowników BuildCrew. Jeżeli użytkownik dodatkowo
+          włączy publiczny profil buildera, zaakceptowane zdjęcie może być wyświetlane również osobom niezalogowanym jako element
+          tego publicznego profilu. Zdjęcia oczekujące na moderację nie są publikowane innym użytkownikom. BuildCrew nie wykorzystuje
+          zdjęć profilowych do rozpoznawania twarzy, identyfikacji biometrycznej ani tworzenia szablonów biometrycznych.
         </p>
         <p>
           Użytkownik powinien uważać, aby w publicznych częściach BuildCrew nie umieszczać informacji, których nie chce
@@ -303,8 +348,17 @@ export default function PrivacyPage() {
         </p>
         <p>
           Powiadomienia i informacje o ich odczytaniu mogą być przechowywane przez okres potrzebny do zapewnienia historii
-          powiadomień i prawidłowego działania funkcji. Dane o preferencjach powiadomień są przechowywane do czasu zmiany
+          powiadomień i prawidłowego działania funkcji. Techniczne dane o zaplanowanym lub anulowanym e-mailu są przechowywane
+          w powiązaniu z powiadomieniem przez okres potrzebny do obsługi tej funkcji. Czas ostatniego otwarcia ekranu Start jest
+          aktualizowany przy kolejnych wizytach i służy wyłącznie do ustalenia, co wydarzyło się od poprzedniego wejścia. Dane o preferencjach powiadomień są przechowywane do czasu zmiany
           preferencji, usunięcia konta lub utraty potrzeby ich przetwarzania.
+        </p>
+        <p>
+          Zdjęcie profilowe oczekujące na moderację jest przechowywane do czasu decyzji użytkownika lub moderatora, nie dłużej niż
+          30 dni bez decyzji. Po odrzuceniu albo usunięciu zdjęcia właściwe dane obrazu są usuwane z aktywnego rekordu. Minimalne
+          informacje o zgłoszeniu i decyzji moderacyjnej mogą być przechowywane do 12 miesięcy w celu rozliczalności, bezpieczeństwa
+          i przeciwdziałania nadużyciom, a następnie są usuwane w ramach retencji. Zaakceptowane zdjęcie jest przechowywane do czasu
+          jego usunięcia, zastąpienia innym zaakceptowanym zdjęciem, usunięcia konta albo utraty podstawy przetwarzania.
         </p>
         <p>
           Dane dotyczące zgłoszeń, bezpieczeństwa i roszczeń mogą być przechowywane dłużej, jeżeli jest to konieczne do
@@ -339,6 +393,7 @@ export default function PrivacyPage() {
           <li>przeniesienia danych;</li>
           <li>wniesienia sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie;</li>
           <li>wycofania zgody, jeżeli określone przetwarzanie odbywa się na jej podstawie.</li>
+          <li>w przypadku zdjęcia profilowego — wycofania zgody przez usunięcie zdjęcia z ustawień profilu, bez wpływu na zgodność z prawem wcześniejszego przetwarzania.</li>
         </ul>
         <p>
           Żądanie można przesłać na adres {" "}
@@ -377,6 +432,8 @@ export default function PrivacyPage() {
           BuildCrew może wysyłać wiadomości e-mail związane z bezpieczeństwem i obsługą konta oraz — zgodnie z preferencjami
           użytkownika — wybranymi zdarzeniami społecznościowymi, takimi jak wiadomość od innego użytkownika, zgłoszenie lub zaproszenie do projektu, odpowiedź w Build Pool,
           zaproszenie do Crew, mocne dopasowanie profilu lub projektu, tygodniowe podsumowanie, zdarzenie Build Challenge albo feedback w Showcase.
+          W przypadku prywatnej rozmowy BuildCrew może zaplanować e-mail z opóźnieniem i anulować go, jeżeli użytkownik wcześniej odczyta rozmowę.
+          Domyślny e-mail przypominający o prywatnej rozmowie nie musi zawierać treści samej wiadomości.
         </p>
         <p>
           Użytkownik może zarządzać częścią preferencji e-mailowych w Serwisie, jeżeli dana opcja jest dostępna. Wiadomości
@@ -444,6 +501,11 @@ export default function PrivacyPage() {
           produkcyjnym. Żaden system internetowy nie gwarantuje jednak całkowitego wyeliminowania ryzyka.
         </p>
         <p>Użytkownik powinien chronić dane logowania i nie przekazywać innym osobom haseł, kodów ani innych sekretów.</p>
+        <p>
+          W przypadku zdjęć profilowych BuildCrew ogranicza format i rozmiar pliku, a interfejs przed wysłaniem ponownie koduje
+          obraz do WebP i zmniejsza go do rozmiaru avatara. Ma to ograniczyć zbędne metadane pliku, takie jak typowe dane EXIF.
+          Moderacja zdjęcia jest wykonywana ręcznie; funkcja nie korzysta z rozpoznawania twarzy.
+        </p>
       </LegalSection>
 
       <LegalSection title="20. Zmiany Polityki prywatności i kontakt">

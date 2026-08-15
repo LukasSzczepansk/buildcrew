@@ -1,4 +1,4 @@
-export const LEGAL_EFFECTIVE_DATE = "7 sierpnia 2026";
+export const LEGAL_EFFECTIVE_DATE = "15 sierpnia 2026";
 
 export function getLegalConfig() {
   return {

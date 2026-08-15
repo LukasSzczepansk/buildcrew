@@ -82,7 +82,7 @@ export default async function BuildPoolPage({ searchParams }: { searchParams: Pr
               <h2 className="text-[18px] font-semibold tracking-[-0.015em]">Najlepsze dopasowania</h2>
               
             </div>
-            <span className="text-[13px] text-[var(--bc-faint)]">{ranked.length} aktywnych</span>
+            <span className="text-sm text-[var(--bc-faint)]">{ranked.length} aktywnych</span>
           </div>
           <div className="space-y-2.5">
             {ranked.map((item) => (

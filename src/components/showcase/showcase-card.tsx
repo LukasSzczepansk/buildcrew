@@ -78,22 +78,22 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
           {entry.challengeId ? <Badge variant="warning">Challenge</Badge> : null}
         </div>
         <Link href={`/showcase/${entry.id}`}><h3 className="mt-3 text-[17px] font-semibold tracking-[-0.015em] hover:underline">{entry.title}</h3></Link>
-        <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[var(--bc-muted)]">{entry.tagline}</p>
+        <p className="mt-1 line-clamp-2 text-sm leading-5 text-[var(--bc-muted)]">{entry.tagline}</p>
 
         <div className="mt-3 flex items-center justify-between gap-3 border-t border-[var(--bc-line)] pt-3">
-          <div className="flex -space-x-2">{entry.team.slice(0, 4).map((member) => <div key={member.userId} title={member.username}><Avatar username={member.username} seed={member.userId} size="sm" className="h-7 w-7 border-2 border-[var(--bc-surface)] text-[10px]" /></div>)}</div>
-          <div className="flex items-center gap-1.5 text-[11px] text-[var(--bc-faint)]"><Users className="h-3.5 w-3.5" /> {Math.max(1, entry.team.length)}</div>
+          <div className="flex -space-x-2">{entry.team.slice(0, 4).map((member) => <div key={member.userId} title={member.username}><Avatar username={member.username} seed={member.userId} size="sm" className="h-7 w-7 border-2 border-[var(--bc-surface)] text-[11px]" /></div>)}</div>
+          <div className="flex items-center gap-1.5 text-[12px] text-[var(--bc-faint)]"><Users className="h-3.5 w-3.5" /> {Math.max(1, entry.team.length)}</div>
         </div>
 
-        {entry.lookingForCollaborators ? <p className="mt-3 line-clamp-2 border-l-2 border-[var(--bc-accent)] pl-3 text-[12px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">Szukają współtwórców.</span>{entry.lookingForText ? ` ${entry.lookingForText}` : ""}</p> : null}
+        {entry.lookingForCollaborators ? <p className="mt-3 line-clamp-2 border-l-2 border-[var(--bc-accent)] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">Szukają współtwórców.</span>{entry.lookingForText ? ` ${entry.lookingForText}` : ""}</p> : null}
 
         <div className="mt-3 grid grid-cols-3 gap-1.5">
           {reactions.map(({ key, Icon, label }) => (
-            <button key={key} disabled={pending === key} onClick={() => react(key)} className={`flex h-9 items-center justify-center gap-1.5 rounded-[6px] border text-[11px] transition-colors ${active.has(key) ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)]"}`} title={label}><Icon className="h-3.5 w-3.5" /><span className="font-semibold">{counts[key]}</span></button>
+            <button key={key} disabled={pending === key} onClick={() => react(key)} className={`flex h-9 items-center justify-center gap-1.5 rounded-[6px] border text-[12px] transition-colors ${active.has(key) ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)]"}`} title={label}><Icon className="h-3.5 w-3.5" /><span className="font-semibold">{counts[key]}</span></button>
           ))}
         </div>
 
-        <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--bc-faint)]">
+        <div className="mt-3 flex items-center justify-between text-[12px] text-[var(--bc-faint)]">
           <span>{entry.feedbackCount} feedbacków{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% zainteresowanych` : ""}</span>
           <div className="flex gap-2">{entry.githubUrl ? <a href={entry.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><ExternalLink className="h-3.5 w-3.5" /></a> : null}{entry.liveUrl ? <a href={entry.liveUrl} target="_blank" rel="noreferrer" aria-label="Otwórz projekt"><ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
         </div>

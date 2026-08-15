@@ -25,14 +25,14 @@ export function AutoVerifyEmail({ token, nextPath }: { token: string; nextPath?:
           <LoaderCircle className="h-4 w-4 animate-spin text-[var(--bc-muted)]" aria-hidden="true" />
           {pending ? "Potwierdzamy adres e-mail…" : state.error ? "Nie udało się potwierdzić adresu" : "Potwierdzamy adres e-mail…"}
         </div>
-        <p className="mt-2 text-[13px] leading-5 text-[var(--bc-muted)]">
+        <p className="mt-2 text-sm leading-5 text-[var(--bc-muted)]">
           Nie zamykaj tej karty. Po poprawnej weryfikacji przejdziemy dalej automatycznie.
         </p>
       </div>
 
       {state.error ? (
         <div className="space-y-3">
-          <p className="text-[13px] leading-5 text-red-600 dark:text-red-400">{state.error}</p>
+          <p className="text-sm leading-5 text-red-600 dark:text-red-400">{state.error}</p>
           <Button type="submit" className="w-full" disabled={pending}>
             Spróbuj ponownie
           </Button>

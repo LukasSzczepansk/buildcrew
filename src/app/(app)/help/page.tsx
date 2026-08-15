@@ -40,12 +40,12 @@ export default async function HelpPage() {
                     <p className="mt-1 line-clamp-2 text-sm text-[var(--bc-muted)]">{question.description}</p>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       {question.tags.map((tag) => <Badge key={tag} variant="outline">{tag}</Badge>)}
-                      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--bc-faint)]"><Avatar username={question.author?.username ?? "Builder"} seed={question.author?.userId ?? question.authorId} size="sm" className="h-6 w-6 text-[9px]" />{question.author?.username ?? "Builder"} · {timeAgo(question.createdAt)}</span>
+                      <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--bc-faint)]"><Avatar username={question.author?.username ?? "Builder"} seed={question.author?.userId ?? question.authorId} size="sm" className="h-6 w-6 text-[11px]" />{question.author?.username ?? "Builder"} · {timeAgo(question.createdAt)}</span>
                     </div>
                   </div>
                   <div className="shrink-0 rounded-[6px] bg-neutral-50 px-3 py-2 text-center dark:bg-neutral-800">
                     <p className="text-lg font-semibold">{question.answerCount}</p>
-                    <p className="text-[11px] text-[var(--bc-faint)]">odpowiedzi</p>
+                    <p className="text-[12px] text-[var(--bc-faint)]">odpowiedzi</p>
                   </div>
                 </div>
               </div>

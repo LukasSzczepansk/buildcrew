@@ -66,7 +66,7 @@ export const GOAL_OPTIONS = Object.keys(GOAL_LABELS) as Goal[];
 export const LOOKING_FOR_LABELS: Record<LookingFor, string> = {
   HAS_PROJECT: "Mam projekt i szukam ludzi",
   WANTS_PROJECT: "Chcę dołączyć do projektu",
-  OPEN_TO_BUILD: "Nie mam pomysłu, ale chcę coś zbudować",
+  OPEN_TO_BUILD: "Chcę poznać ludzi i wspólnie coś zbudować",
 };
 export const LOOKING_FOR_OPTIONS = Object.keys(LOOKING_FOR_LABELS) as LookingFor[];
 

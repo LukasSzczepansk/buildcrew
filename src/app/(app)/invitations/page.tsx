@@ -22,7 +22,7 @@ export default async function InvitationsPage() {
       <Topbar title="Zaproszenia" subtitle="Propozycje współpracy, ekip i projektów." />
 
       {pending.count === 0 ? (
-        <div className="border-y border-[var(--bc-line)] py-10 text-center"><Inbox className="mx-auto h-7 w-7 text-[var(--bc-faint)]" /><h2 className="mt-3 font-semibold">Brak oczekujących zaproszeń</h2><p className="mt-1 text-[13px] text-[var(--bc-muted)]">Sprawdź <Link href="/build" className="font-medium text-[var(--bc-ink)] hover:underline">Build Pool</Link> lub <Link href="/projects" className="font-medium text-[var(--bc-ink)] hover:underline">projekty</Link>.</p></div>
+        <div className="border-y border-[var(--bc-line)] py-10 text-center"><Inbox className="mx-auto h-7 w-7 text-[var(--bc-faint)]" /><h2 className="mt-3 font-semibold">Brak oczekujących zaproszeń</h2><p className="mt-1 text-sm text-[var(--bc-muted)]">Sprawdź <Link href="/build" className="font-medium text-[var(--bc-ink)] hover:underline">Build Pool</Link> lub <Link href="/projects" className="font-medium text-[var(--bc-ink)] hover:underline">projekty</Link>.</p></div>
       ) : (
         <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
           {pending.buildProposals.map((item) => <InvitationRow key={item.id} username={item.senderUsername} userId={item.senderId} title={`${item.senderUsername} chce coś z Tobą zbudować`} meta={`${item.senderRole ? ROLE_LABELS[item.senderRole] : "Builder"} · ${timeAgo(item.createdAt)}`} message={item.message}><InvitationActions type="BUILD_PROPOSAL" id={item.id} /></InvitationRow>)}
@@ -35,5 +35,5 @@ export default async function InvitationsPage() {
 }
 
 function InvitationRow({ username, userId, title, meta, message, children }: { username: string; userId: string; title: string; meta: string; message?: string | null; children: React.ReactNode }) {
-  return <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center"><Avatar username={username} seed={userId} /><div className="min-w-0 flex-1"><p className="font-semibold">{title}</p><p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{meta}</p>{message ? <p className="mt-1.5 line-clamp-2 text-[13px] text-[var(--bc-muted)]">{message}</p> : null}</div><div className="shrink-0">{children}</div></div>;
+  return <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center"><Avatar username={username} seed={userId} /><div className="min-w-0 flex-1"><p className="font-semibold">{title}</p><p className="mt-0.5 text-[13px] text-[var(--bc-faint)]">{meta}</p>{message ? <p className="mt-1.5 line-clamp-2 text-sm text-[var(--bc-muted)]">{message}</p> : null}</div><div className="shrink-0">{children}</div></div>;
 }

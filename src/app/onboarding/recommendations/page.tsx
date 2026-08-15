@@ -129,20 +129,20 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2.5">
                       <Link href={`/projects/${project.id}`} className="text-[17px] font-semibold tracking-[-0.018em] hover:underline">{project.name}</Link>
-                      <span className="text-[11px] text-[var(--bc-faint)]">{STAGE_LABELS[project.stage]}</span>
+                      <span className="text-[12px] text-[var(--bc-faint)]">{STAGE_LABELS[project.stage]}</span>
                     </div>
-                    <p className="mt-1.5 line-clamp-2 text-[13px] leading-5 text-[var(--bc-muted)]">{project.tagline}</p>
+                    <p className="mt-1.5 line-clamp-2 text-sm leading-5 text-[var(--bc-muted)]">{project.tagline}</p>
                     {project.technologies.length ? <TechnologyStack items={project.technologies} max={5} compact className="mt-3" /> : null}
                   </div>
 
                   <div className="border-t border-[var(--bc-line)] pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Dlaczego pasuje</p>
-                    <p className="mt-1.5 text-[12px] leading-5 text-[var(--bc-muted)]">{match.reasons[0] || "Projekt ma otwarte role i warto go sprawdzić."}</p>
-                    {project.commitment ? <p className="mt-2 inline-flex items-center gap-1 text-[11px] text-[var(--bc-faint)]"><Clock3 className="h-3 w-3" />{COMMITMENT_LABELS[project.commitment]}</p> : null}
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Dlaczego pasuje</p>
+                    <p className="mt-1.5 text-[13px] leading-5 text-[var(--bc-muted)]">{match.reasons[0] || "Projekt ma otwarte role i warto go sprawdzić."}</p>
+                    {project.commitment ? <p className="mt-2 inline-flex items-center gap-1 text-[12px] text-[var(--bc-faint)]"><Clock3 className="h-3 w-3" />{COMMITMENT_LABELS[project.commitment]}</p> : null}
                   </div>
 
                   <div className="border-t border-[var(--bc-line)] pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Match</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Match</p>
                     <p className="mt-1 text-[24px] font-semibold tracking-[-0.03em] text-[#94bf28] dark:text-[var(--bc-accent)]">{match.score}%</p>
                   </div>
 
@@ -163,8 +163,8 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
             <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
               {ideaMatches.map((idea) => (
                 <Link key={idea.id} href={`/ideas/${idea.id}`} className="grid gap-2 py-4 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                  <div><p className="text-[14px] font-semibold">{idea.name}</p><p className="mt-1 line-clamp-2 text-[12px] leading-5 text-[var(--bc-muted)]">{idea.tagline}</p><p className="mt-1 text-[11px] text-[var(--bc-faint)]">{idea.interests.slice(0, 3).join(" · ")} · {idea.interestedCount} zainteresowanych</p></div>
-                  <span className="text-[12px] font-medium">Sprawdź →</span>
+                  <div><p className="text-[14px] font-semibold">{idea.name}</p><p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[var(--bc-muted)]">{idea.tagline}</p><p className="mt-1 text-[12px] text-[var(--bc-faint)]">{idea.interests.slice(0, 3).join(" · ")} · {idea.interestedCount} zainteresowanych</p></div>
+                  <span className="text-[13px] font-medium">Sprawdź →</span>
                 </Link>
               ))}
             </div>
@@ -173,7 +173,7 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
         </section>
 
         <footer className="mt-10 flex flex-col gap-3 border-t border-[var(--bc-line-strong)] pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-[560px] text-[12px] leading-5 text-[var(--bc-muted)]">To dopiero pierwszy ranking. Im więcej realnej aktywności pojawi się w BuildCrew, tym lepsze będą kolejne rekomendacje.</p>
+          <p className="max-w-[560px] text-[13px] leading-5 text-[var(--bc-muted)]">To dopiero pierwszy ranking. Im więcej realnej aktywności pojawi się w BuildCrew, tym lepsze będą kolejne rekomendacje.</p>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline"><Link href="/ideas">Dodaj pomysł</Link></Button>
             <Button asChild><Link href={nextPath}>{nextPath === "/dashboard" ? "Przejdź do Start" : "Kontynuuj"} <ArrowRight className="h-4 w-4" /></Link></Button>
@@ -222,13 +222,13 @@ function SectionHeader({ title, meta, href }: { title: string; meta: string; hre
     <div className="flex items-end justify-between gap-4">
       <div>
         <h2 className="text-[20px] font-semibold tracking-[-0.018em]">{title}</h2>
-        <p className="mt-0.5 text-[11px] text-[var(--bc-faint)]">{meta}</p>
+        <p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{meta}</p>
       </div>
-      <Link href={href} className="text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Zobacz wszystkie</Link>
+      <Link href={href} className="text-[13px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">Zobacz wszystkie</Link>
     </div>
   );
 }
 
 function EmptyLine({ text }: { text: string }) {
-  return <div className="mt-3 border-y border-[var(--bc-line)] py-6 text-[13px] text-[var(--bc-muted)]">{text}</div>;
+  return <div className="mt-3 border-y border-[var(--bc-line)] py-6 text-sm text-[var(--bc-muted)]">{text}</div>;
 }

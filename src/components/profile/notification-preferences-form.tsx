@@ -13,12 +13,14 @@ type Prefs = {
   emailChallenge: boolean;
   emailShowcaseFeedback: boolean;
   emailMessages: boolean;
+  emailWorkspace: boolean;
   emailMatches: boolean;
   emailWeeklyDigest: boolean;
 };
 
 const labels: [keyof Prefs, string, string][] = [
-  ["emailMessages", "Nowe wiadomości", "Mail tylko gdy nie jesteś aktywny i nie masz już nieprzeczytanej wiadomości w tej rozmowie."],
+  ["emailMessages", "Prywatne wiadomości", "E-mail dopiero po około 15 minutach, jeśli rozmowa nadal jest nieprzeczytana. Treść prywatnej wiadomości nie jest umieszczana w mailu."],
+  ["emailWorkspace", "Ważne rzeczy w workspace", "Odpowiedzi, oznaczenia @ i przypisane zadania. Te sygnały mogą przyjść szybciej, bo wymagają konkretnej reakcji."],
   ["emailProjectApplications", "Zaproszenia i zgłoszenia do projektów", "Ktoś chce dołączyć do projektu albo zaprasza Cię do swojej ekipy."],
   ["emailProjectAccepted", "Decyzje dotyczące zgłoszeń", "Akceptacja lub odrzucenie Twojego zgłoszenia do projektu."],
   ["emailMatches", "Nowe mocne dopasowania", "Najlepiej dopasowani builderzy i projekty. Maksymalnie jeden taki mail na kilka dni."],
@@ -45,7 +47,7 @@ export function NotificationPreferencesForm({ initial }: { initial: Prefs }) {
     <section className="border-t border-[var(--bc-line)] pt-5">
       <div className="max-w-[720px]">
         <h2 className="text-[16px] font-semibold">Powiadomienia e-mail</h2>
-        <p className="mt-1 text-[12px] leading-5 text-[var(--bc-muted)]">Wysyłamy tylko wiadomości związane z realną aktywnością na koncie. Możesz wyłączyć dowolną kategorię.</p>
+        <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">Wysyłamy tylko wiadomości związane z realną aktywnością na koncie. Możesz wyłączyć dowolną kategorię.</p>
       </div>
 
       <div className="mt-4 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
@@ -53,7 +55,7 @@ export function NotificationPreferencesForm({ initial }: { initial: Prefs }) {
           <label key={key} className="flex cursor-pointer items-start justify-between gap-5 py-3.5">
             <span className="min-w-0">
               <span className="block text-[13px] font-medium text-[var(--bc-ink)]">{title}</span>
-              <span className="mt-0.5 block max-w-[680px] text-[11px] leading-4 text-[var(--bc-faint)]">{description}</span>
+              <span className="mt-0.5 block max-w-[680px] text-[12px] leading-5 text-[var(--bc-faint)]">{description}</span>
             </span>
             <input
               type="checkbox"

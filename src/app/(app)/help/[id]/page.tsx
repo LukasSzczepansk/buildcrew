@@ -57,7 +57,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-medium">{answer.author?.username ?? "Builder"}</p>
-                    <span className="text-xs text-neutral-400">{timeAgo(answer.createdAt)}</span>
+                    <span className="text-[13px] text-neutral-400">{timeAgo(answer.createdAt)}</span>
                     {answer.isHelpful && (
                       <Badge variant="success" className="gap-1"><CheckCircle2 className="h-3 w-3" /> Pomogło autorowi</Badge>
                     )}

@@ -25,8 +25,8 @@ export default async function MessagesPage() {
         <Card className="p-12 text-center">
           <MessageCircle className="mx-auto h-10 w-10 text-[var(--bc-faint)]" />
           <h2 className="mt-4 text-[18px] font-semibold">Nie masz jeszcze rozmów</h2>
-          <p className="mt-1 text-sm text-[var(--bc-muted)]">Dodaj kogoś do znajomych, a po akceptacji będziecie mogli pisać.</p>
-          <Link href="/friends" className="mt-4 inline-block text-sm font-medium text-[var(--bc-ink)] hover:underline">Przejdź do znajomych</Link>
+          <p className="mt-1 text-sm text-[var(--bc-muted)]">Dodaj kogoś do kontaktów, a po akceptacji będziecie mogli pisać.</p>
+          <Link href="/network?tab=contacts" className="mt-4 inline-block text-sm font-medium text-[var(--bc-ink)] hover:underline">Przejdź do kontaktów</Link>
         </Card>
       ) : (
         <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
@@ -38,7 +38,7 @@ export default async function MessagesPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-3">
                       <p className="truncate font-semibold text-[var(--bc-ink)]">{conversation.profile.username}</p>
-                      <span className="shrink-0 text-xs text-[var(--bc-faint)]">{timeAgo(conversation.lastMessage?.createdAt ?? conversation.updatedAt)}</span>
+                      <span className="shrink-0 text-[13px] text-[var(--bc-faint)]">{timeAgo(conversation.lastMessage?.createdAt ?? conversation.updatedAt)}</span>
                     </div>
                     <div className="mt-1 flex items-center gap-2">
                       <p className="min-w-0 flex-1 truncate text-sm text-[var(--bc-muted)]">{conversation.lastMessage ? `${conversation.lastMessage.senderId === user.id ? "Ty: " : ""}${conversation.lastMessage.body}` : "Rozpocznij rozmowę"}</p>

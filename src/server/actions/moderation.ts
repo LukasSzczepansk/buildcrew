@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { blocks, conversations, friendRequests, friendships, reports, users } from "@/db/schema";
+import { blocks, conversations, follows, friendRequests, friendships, reports, users } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
 import { enforceUserRateLimit } from "@/lib/security";
 import { reportSchema, uuidSchema } from "@/lib/validations";
@@ -25,12 +25,14 @@ export async function blockUser(blockedId: string) {
     await tx.insert(blocks).values({ blockerId: user.id, blockedId }).onConflictDoNothing();
     await tx.delete(friendships).where(and(eq(friendships.userLowId, low), eq(friendships.userHighId, high)));
     await tx.delete(conversations).where(and(eq(conversations.userLowId, low), eq(conversations.userHighId, high)));
+    await tx.delete(follows).where(and(eq(follows.followerId, user.id), eq(follows.followingId, blockedId)));
+    await tx.delete(follows).where(and(eq(follows.followerId, blockedId), eq(follows.followingId, user.id)));
     await tx.update(friendRequests).set({ status: "CANCELLED", updatedAt: new Date() }).where(and(eq(friendRequests.pairKey, pairKey), eq(friendRequests.status, "PENDING")));
   });
   revalidatePath("/builders");
   revalidatePath("/build");
   revalidatePath("/projects");
-  revalidatePath("/friends");
+  revalidatePath("/network");
   revalidatePath("/messages");
   return { success: true };
 }

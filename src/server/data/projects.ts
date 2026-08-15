@@ -68,7 +68,7 @@ async function attachRelations(projectRows: (typeof projects.$inferSelect)[]) {
 }
 
 export async function listProjects(filters: ProjectFilters = {}, viewerId?: string) {
-  const conditions = [eq(projects.entryType, "PROJECT")] as ReturnType<typeof eq>[];
+  const conditions = [eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE")] as ReturnType<typeof eq>[];
   if (filters.stage) conditions.push(eq(projects.stage, filters.stage));
   if (filters.commitment) conditions.push(eq(projects.commitment, filters.commitment));
   if (filters.search) {
@@ -119,7 +119,7 @@ export async function listPublicProjectsForLanding(limit = 3) {
   const rows = await db
     .select()
     .from(projects)
-    .where(eq(projects.entryType, "PROJECT"))
+    .where(and(eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE")))
     .orderBy(desc(projects.updatedAt))
     .limit(limit);
 

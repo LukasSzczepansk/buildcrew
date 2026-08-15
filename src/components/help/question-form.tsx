@@ -46,7 +46,7 @@ export function QuestionForm() {
             placeholder="Np. Jak najlepiej zrobić auth w Next.js?"
             maxLength={140}
           />
-          <p className="text-xs text-neutral-400">Napisz konkretnie, z czym utknąłeś.</p>
+          <p className="text-[13px] text-neutral-400">Napisz konkretnie, z czym utknąłeś.</p>
         </div>
 
         <div className="grid gap-1.5">
@@ -87,7 +87,7 @@ export function QuestionForm() {
                   key={tag}
                   type="button"
                   onClick={() => setTags((prev) => prev.filter((item) => item !== tag))}
-                  className="inline-flex items-center gap-1 rounded-full bg-lime-50 px-3 py-1 text-xs font-medium text-lime-700 hover:bg-lime-100 dark:bg-lime-500/10 dark:text-lime-300"
+                  className="inline-flex items-center gap-1 rounded-full bg-lime-50 px-3 py-1 text-[13px] font-medium text-lime-700 hover:bg-lime-100 dark:bg-lime-500/10 dark:text-lime-300"
                 >
                   {tag} <X className="h-3 w-3" />
                 </button>

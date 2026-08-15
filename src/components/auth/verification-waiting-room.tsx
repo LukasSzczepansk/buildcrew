@@ -107,14 +107,14 @@ export function VerificationWaitingRoom({
   if (verified) {
     return (
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Weryfikacja konta</p>
+        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Weryfikacja konta</p>
         <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">E-mail zweryfikowany</h1>
         <div className="mt-6 border-y border-[var(--bc-line)] py-5">
           <div className="flex items-center gap-2.5 text-[14px] font-medium text-[var(--bc-ink)]">
             <Check className="h-4 w-4 text-[#2F7D4A]" aria-hidden="true" />
             Adres został potwierdzony.
           </div>
-          <p className="mt-2 text-[13px] leading-5 text-[var(--bc-muted)]">Przechodzimy do konfiguracji Twojego profilu…</p>
+          <p className="mt-2 text-sm leading-5 text-[var(--bc-muted)]">Przechodzimy do konfiguracji Twojego profilu…</p>
         </div>
       </div>
     );
@@ -122,7 +122,7 @@ export function VerificationWaitingRoom({
 
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Weryfikacja konta</p>
+      <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Weryfikacja konta</p>
       <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">Sprawdź swoją skrzynkę</h1>
       <p className="mt-3 text-[14px] leading-6 text-[var(--bc-muted)]">
         Wysłaliśmy link potwierdzający na <span className="font-medium text-[var(--bc-ink)]">{email}</span>.
@@ -134,7 +134,7 @@ export function VerificationWaitingRoom({
           Oczekujemy na potwierdzenie
           {checking ? <LoaderCircle className="h-3.5 w-3.5 animate-spin text-[var(--bc-faint)]" aria-hidden="true" /> : null}
         </div>
-        <p className="mt-2 max-w-[360px] text-[13px] leading-5 text-[var(--bc-muted)]">
+        <p className="mt-2 max-w-[360px] text-sm leading-5 text-[var(--bc-muted)]">
           Możesz zostawić tę kartę otwartą. Po kliknięciu linku w e-mailu BuildCrew wykryje weryfikację i automatycznie przejdzie dalej.
         </p>
       </div>
@@ -150,15 +150,15 @@ export function VerificationWaitingRoom({
           </Button>
         </form>
 
-        {state.error ? <p className="text-[12px] leading-5 text-red-600 dark:text-red-400">{state.error}</p> : null}
-        {state.success ? <p className="text-[12px] leading-5 text-[#2F7D4A] dark:text-lime-300">{state.success}</p> : null}
+        {state.error ? <p className="text-[13px] leading-5 text-red-600 dark:text-red-400">{state.error}</p> : null}
+        {state.success ? <p className="text-[13px] leading-5 text-[#2F7D4A] dark:text-lime-300">{state.success}</p> : null}
 
-        <p className="text-[12px] leading-5 text-[var(--bc-faint)]">
+        <p className="text-[13px] leading-5 text-[var(--bc-faint)]">
           Nie widzisz wiadomości? Sprawdź folder Spam lub Oferty.
         </p>
 
         <form action={logoutAction}>
-          <button type="submit" className="text-[12px] font-medium text-[var(--bc-muted)] underline-offset-4 hover:text-[var(--bc-ink)] hover:underline">
+          <button type="submit" className="text-[13px] font-medium text-[var(--bc-muted)] underline-offset-4 hover:text-[var(--bc-ink)] hover:underline">
             Zły adres e-mail? Wróć do logowania
           </button>
         </form>

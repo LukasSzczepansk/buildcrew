@@ -27,14 +27,14 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
       <DropdownMenuTrigger asChild>
         <button className="relative flex h-10 w-10 items-center justify-center rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]" aria-label="Powiadomienia">
           <Bell className="h-4.5 w-4.5" />
-          {unread > 0 ? <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#7ea819] px-1 text-[10px] font-semibold text-white">{unread > 99 ? "99+" : unread}</span> : null}
+          {unread > 0 ? <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#7ea819] px-1 text-[11px] font-semibold text-white">{unread > 99 ? "99+" : unread}</span> : null}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[360px] rounded-[8px] border-[var(--bc-line)] bg-[var(--bc-surface)] p-0 shadow-[0_14px_36px_rgba(0,0,0,0.12)]">
         <div className="flex items-center justify-between border-b border-[var(--bc-line)] px-4 py-3.5">
           <p className="text-sm font-semibold">Powiadomienia</p>
           {unread > 0 ? (
-            <Button variant="ghost" size="sm" className="h-auto px-0 text-xs text-[var(--bc-muted)] hover:bg-transparent hover:text-[var(--bc-ink)] hover:underline" onClick={async () => { await markAllNotificationsRead(); }}>
+            <Button variant="ghost" size="sm" className="h-auto px-0 text-[13px] text-[var(--bc-muted)] hover:bg-transparent hover:text-[var(--bc-ink)] hover:underline" onClick={async () => { await markAllNotificationsRead(); }}>
               Oznacz wszystkie
             </Button>
           ) : null}
@@ -58,13 +58,13 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
               <span className="flex-1">
                 <span className="block font-medium text-[var(--bc-ink)]">{n.title}</span>
                 {n.body ? <span className="mt-0.5 block text-[var(--bc-muted)]">{n.body}</span> : null}
-                <span className="mt-1 block text-xs text-[var(--bc-faint)]">{timeAgo(n.createdAt)}</span>
+                <span className="mt-1 block text-[13px] text-[var(--bc-faint)]">{timeAgo(n.createdAt)}</span>
               </span>
             </Link>
           ))}
         </div>
         <div className="border-t border-[var(--bc-line)] p-2.5">
-          <Link href="/notifications" onClick={() => setOpen(false)} className="block rounded-[7px] px-3 py-2 text-center text-xs font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">Zobacz wszystkie powiadomienia</Link>
+          <Link href="/notifications" onClick={() => setOpen(false)} className="block rounded-[7px] px-3 py-2 text-center text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">Zobacz wszystkie powiadomienia</Link>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

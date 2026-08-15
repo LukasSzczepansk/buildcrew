@@ -16,7 +16,7 @@ export default async function VerifyEmailPage({
   if (token) {
     return (
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Weryfikacja konta</p>
+        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Weryfikacja konta</p>
         <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">Potwierdzamy Twój e-mail</h1>
         <p className="mt-3 mb-6 text-[14px] leading-6 text-[var(--bc-muted)]">To potrwa tylko chwilę.</p>
         <AutoVerifyEmail token={token} nextPath={next} />
