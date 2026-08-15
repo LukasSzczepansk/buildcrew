@@ -284,3 +284,53 @@ export function teamMissingRoles(members: { role: RoleType | null }[]) {
   const preferred: RoleType[] = ["FRONTEND", "BACKEND", "UI_UX", "AI_ML", "PRODUCT", "FULLSTACK", "MOBILE", "MARKETING"];
   return preferred.filter((role) => !roles.has(role));
 }
+
+export async function getPublicHackathonTeam(hackathonId: string, teamId: string) {
+  if (!isUuid(hackathonId) || !isUuid(teamId)) return null;
+  const teamRows = await db.select().from(hackathonTeams)
+    .where(and(eq(hackathonTeams.id, teamId), eq(hackathonTeams.hackathonId, hackathonId), ne(hackathonTeams.status, "ARCHIVED")))
+    .limit(1);
+  const team = teamRows[0];
+  if (!team) return null;
+  const members = await db.select({
+    userId: hackathonTeamMembers.userId,
+    role: hackathonTeamMembers.role,
+    isLead: hackathonTeamMembers.isLead,
+    username: profiles.username,
+    avatarEmoji: profiles.avatarEmoji,
+    publicProfile: profiles.publicProfile,
+  })
+    .from(hackathonTeamMembers)
+    .innerJoin(profiles, eq(profiles.userId, hackathonTeamMembers.userId))
+    .innerJoin(users, eq(users.id, hackathonTeamMembers.userId))
+    .where(and(eq(hackathonTeamMembers.teamId, teamId), eq(users.isSuspended, false)))
+    .orderBy(desc(hackathonTeamMembers.isLead), asc(hackathonTeamMembers.joinedAt));
+  return { ...team, members };
+}
+
+export async function getHackathonOrganizerSnapshot(hackathonId: string) {
+  if (!isUuid(hackathonId)) return null;
+  const event = await getHackathonById(hackathonId);
+  if (!event) return null;
+  const [stats, roleCounts, teams] = await Promise.all([
+    getHackathonStats(hackathonId),
+    getHackathonRoleCounts(hackathonId),
+    listHackathonTeams(hackathonId),
+  ]);
+  const openTeams = teams.filter((team) => team.members.length < team.targetSize);
+  const fullTeams = teams.filter((team) => team.members.length >= team.targetSize);
+  return {
+    event,
+    stats: {
+      ...stats,
+      openTeamCount: openTeams.length,
+      fullTeamCount: fullTeams.length,
+    },
+    roleCounts,
+    teams: teams.map((team) => ({
+      ...team,
+      missingRoles: teamMissingRoles(team.members),
+      missingSeats: Math.max(0, team.targetSize - team.members.length),
+    })),
+  };
+}
