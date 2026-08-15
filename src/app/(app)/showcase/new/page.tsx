@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { listProjectsForMember } from "@/server/data/projects";
 import { getChallengeParticipation, listChallenges } from "@/server/data/showcase";
 
-export const metadata: Metadata = { title: "Pokaż projekt — BuildCrew" };
+export const metadata: Metadata = { title: "Pokaż projekt - BuildCrew" };
 
 export default async function NewShowcasePage() {
   const user = await getCurrentUser(); if (!user) redirect("/login");

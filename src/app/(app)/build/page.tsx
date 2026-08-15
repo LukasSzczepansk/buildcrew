@@ -14,7 +14,7 @@ import { getBuildPoolListingForUser, listActiveBuildPoolListings } from "@/serve
 import { computeMatch } from "@/lib/matching";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Build Pool — BuildCrew" };
+export const metadata: Metadata = { title: "Build Pool - BuildCrew" };
 
 export default async function BuildPoolPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getCurrentUser();
@@ -51,7 +51,7 @@ export default async function BuildPoolPage({ searchParams }: { searchParams: Pr
 
   return (
     <div>
-      <Topbar title="Build Pool" subtitle="Znajdź osoby gotowe do wspólnego projektu — także wtedy, gdy nie masz jeszcze konkretnego pomysłu." />
+      <Topbar title="Build Pool" subtitle="Znajdź osoby gotowe do wspólnego projektu - także wtedy, gdy nie masz jeszcze konkretnego pomysłu." />
       <DiscoveryTabs active="people" />
 
       <div className="mt-6">

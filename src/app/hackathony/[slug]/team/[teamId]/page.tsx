@@ -13,9 +13,9 @@ import { getHackathonBySlug, getPublicHackathonTeam, teamMissingRoles } from "@/
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; teamId: string }> }): Promise<Metadata> {
   const { slug, teamId } = await params;
   const event = await getHackathonBySlug(slug);
-  if (!event) return { title: "Team hackathonowy — BuildCrew", robots: { index: false, follow: false } };
+  if (!event) return { title: "Team hackathonowy - BuildCrew", robots: { index: false, follow: false } };
   const team = await getPublicHackathonTeam(event.id, teamId);
-  if (!team) return { title: `${event.name} — BuildCrew`, robots: { index: false, follow: false } };
+  if (!team) return { title: `${event.name} - BuildCrew`, robots: { index: false, follow: false } };
   const title = `${team.name} szuka teamu na ${event.name} | BuildCrew`;
   const description = `${team.members.length}/${team.targetSize} osób w teamie. Zobacz brakujące role i dołącz przez BuildCrew.`;
   return { title, description, robots: { index: false, follow: true }, openGraph: { title, description, type: "website" }, twitter: { card: "summary", title, description } };

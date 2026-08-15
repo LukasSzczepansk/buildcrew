@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "node scripts/check-punctuation.mjs && tsc --noEmit",
     "db:push": "drizzle-kit push --config=drizzle.config.ts",
     "db:seed": "node scripts/seed-demo.mjs",
     "db:studio": "drizzle-kit studio --config=drizzle.config.ts",
@@ -14,7 +14,8 @@
     "db:maintenance": "node scripts/maintenance.mjs",
     "admin:promote": "node scripts/promote-admin.mjs",
     "showcase:seed-demo": "node scripts/seed-showcase-demo.mjs",
-    "db:seed:hackathons": "node scripts/seed-hackathons-2026.mjs"
+    "db:seed:hackathons": "node scripts/seed-hackathons-2026.mjs",
+    "check:punctuation": "node scripts/check-punctuation.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DiscoveryTabs } from "@/components/discovery/discovery-tabs";
 import { listPublishedHackathons } from "@/server/data/hackathons";
 
-export const metadata: Metadata = { title: "Hackathony — BuildCrew" };
+export const metadata: Metadata = { title: "Hackathony - BuildCrew" };
 
 function eventWord(count: number) {
   if (count === 1) return "hackathon";
@@ -57,7 +57,7 @@ export default async function HackathonsPage() {
               {headline}
             </h2>
             <p className="mt-2 max-w-[760px] text-[13px] leading-5 text-[var(--bc-muted)]">
-              BuildCrew pomaga znaleźć team — rejestracja na samo wydarzenie nadal odbywa się po stronie organizatora.
+              BuildCrew pomaga znaleźć team - rejestracja na samo wydarzenie nadal odbywa się po stronie organizatora.
             </p>
           </div>
 

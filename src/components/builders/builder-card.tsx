@@ -18,10 +18,13 @@ export type BuilderCardData = {
   lookingFor: LookingFor[];
   isDemo?: boolean;
   lastActiveAt?: Date | string | null;
+  createdAt?: Date | string | null;
 };
 
 export function BuilderCard({ builder, action, matchScore, matchReasons = [] }: { builder: BuilderCardData; action?: React.ReactNode; matchScore?: number; matchReasons?: string[] }) {
   const openToBuild = builder.lookingFor.includes("OPEN_TO_BUILD") || builder.lookingFor.includes("WANTS_PROJECT");
+  const createdAt = builder.createdAt ? new Date(builder.createdAt) : null;
+  const isNew = createdAt && !Number.isNaN(createdAt.getTime()) && Date.now() - createdAt.getTime() <= 7 * 24 * 60 * 60 * 1000;
   const activityState = getActivityState(builder.lastActiveAt);
   const activityColor = activityState === "TODAY" ? "bg-[#9bc432]" : activityState === "THIS_WEEK" ? "bg-amber-400" : "bg-neutral-400 dark:bg-neutral-600";
   const score = typeof matchScore === "number" ? Math.min(100, Math.max(0, matchScore)) : null;
@@ -39,6 +42,7 @@ export function BuilderCard({ builder, action, matchScore, matchReasons = [] }: 
             <div className="flex min-w-0 items-center gap-2">
               <Link href={`/builders/${builder.userId}`} className="truncate text-[17px] font-semibold tracking-[-0.018em] text-[var(--bc-ink)] hover:underline">{builder.username}</Link>
               {builder.isDemo ? <span className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">demo</span> : null}
+              {isNew ? <span className="rounded-[5px] border border-[var(--bc-line)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--bc-muted)]">Nowy</span> : null}
             </div>
             <p className="mt-0.5 truncate text-sm text-[var(--bc-muted)]">{builder.role ? ROLE_LABELS[builder.role] : "Builder"}</p>
             <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-[var(--bc-muted)]">

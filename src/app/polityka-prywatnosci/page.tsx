@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = {
-  title: "Polityka prywatności — BuildCrew",
+  title: "Polityka prywatności - BuildCrew",
   description: "Informacje o przetwarzaniu danych osobowych w BuildCrew.",
   alternates: { canonical: "/polityka-prywatnosci" },
 };
@@ -92,7 +92,7 @@ export default function PrivacyPage() {
           <li>informacje publikowane w Build Pool i propozycje wspólnego budowania;</li>
           <li>relacje pomiędzy użytkownikami, w tym zaakceptowane kontakty, obserwowanie profili i blokady;</li>
           <li>historia wspólnych projektów wynikająca z członkostwa w tym samym zespole;</li>
-          <li>po ukończeniu projektu — zapis creditów projektu obejmujący członków zespołu, ich rolę oraz nazwę użytkownika z chwili zakończenia projektu, w celu zachowania historii współpracy i prezentacji dorobku;</li>
+          <li>po ukończeniu projektu - zapis creditów projektu obejmujący członków zespołu, ich rolę oraz nazwę użytkownika z chwili zakończenia projektu, w celu zachowania historii współpracy i prezentacji dorobku;</li>
           <li>rekomendacje współpracy wystawiane wyłącznie przez osoby, które były członkami tego samego projektu, w tym wskazane mocne strony i deklaracja chęci ponownej współpracy;</li>
           <li>pytania, odpowiedzi oraz inne informacje związane z korzystaniem z funkcji społecznościowych.</li>
         </ul>
@@ -160,7 +160,7 @@ export default function PrivacyPage() {
         <p><strong>I. Powiadomienia i preferencje</strong></p>
         <ul className="list-disc space-y-1 pl-5">
           <li>typ i treść powiadomienia;</li>
-          <li>użytkownik, którego dotyczy zdarzenie, oraz — jeżeli ma to zastosowanie — użytkownik inicjujący zdarzenie;</li>
+          <li>użytkownik, którego dotyczy zdarzenie, oraz - jeżeli ma to zastosowanie - użytkownik inicjujący zdarzenie;</li>
           <li>powiązanie powiadomienia z projektem, workspace, zadaniem, Crew, Showcase, Challenge lub inną funkcją;</li>
           <li>informacja o oznaczeniu użytkownika, odpowiedzi na jego wiadomość albo przypisaniu zadania, jeżeli takie zdarzenie wystąpiło;</li>
           <li>status odczytu i czas utworzenia;</li>
@@ -199,48 +199,48 @@ export default function PrivacyPage() {
         <p>Dane osobowe mogą być przetwarzane w następujących celach:</p>
         <ul className="list-disc space-y-2 pl-5">
           <li>
-            <strong>Utworzenie i prowadzenie konta oraz świadczenie funkcji BuildCrew</strong> — w celu zawarcia i wykonania
+            <strong>Utworzenie i prowadzenie konta oraz świadczenie funkcji BuildCrew</strong> - w celu zawarcia i wykonania
             umowy o korzystanie z BuildCrew, na podstawie art. 6 ust. 1 lit. b RODO.
           </li>
           <li>
             <strong>Realizacja funkcji społecznościowych</strong>, w tym profilu, projektów, Crew, Build Pool, kontaktów, obserwowania profili, historii współpracy,
-            wiadomości, Showcase, feedbacku, Build Challenges i dobierania teamów na hackathony — na podstawie art. 6 ust. 1 lit. b RODO w zakresie
+            wiadomości, Showcase, feedbacku, Build Challenges i dobierania teamów na hackathony - na podstawie art. 6 ust. 1 lit. b RODO w zakresie
             niezbędnym do świadczenia funkcji wybranych przez użytkownika.
           </li>
           <li>
-            <strong>Wyświetlanie opcjonalnego zdjęcia profilowego</strong> — na podstawie zgody użytkownika, art. 6 ust. 1 lit. a RODO.
+            <strong>Wyświetlanie opcjonalnego zdjęcia profilowego</strong> - na podstawie zgody użytkownika, art. 6 ust. 1 lit. a RODO.
             Zgoda jest udzielana przy przesłaniu zdjęcia i może zostać wycofana przez jego usunięcie. Ręczna moderacja zdjęcia przed
             publikacją służy ochronie użytkowników i integralności Serwisu i może opierać się również na prawnie uzasadnionym interesie
             Administratora, art. 6 ust. 1 lit. f RODO.
           </li>
           <li>
             <strong>Powiadomienia transakcyjne i wiadomości dotyczące konta</strong>, np. o zgłoszeniu do projektu,
-            zaproszeniu do Crew, odpowiedzi w Build Pool, zdarzeniu Challenge lub zaproszeniu do teamu na hackathon, weryfikacji e-maila lub resecie hasła — w
+            zaproszeniu do Crew, odpowiedzi w Build Pool, zdarzeniu Challenge lub zaproszeniu do teamu na hackathon, weryfikacji e-maila lub resecie hasła - w
             celu wykonania umowy i zapewnienia działania żądanych funkcji.
           </li>
           <li>
-            <strong>Bezpieczeństwo i przeciwdziałanie nadużyciom</strong> — na podstawie prawnie uzasadnionego interesu
+            <strong>Bezpieczeństwo i przeciwdziałanie nadużyciom</strong> - na podstawie prawnie uzasadnionego interesu
             Administratora polegającego na ochronie użytkowników, kont i infrastruktury, art. 6 ust. 1 lit. f RODO.
           </li>
           <li>
-            <strong>Prezentowanie przybliżonego statusu aktywności</strong> — w celu ograniczenia kontaktowania się z
+            <strong>Prezentowanie przybliżonego statusu aktywności</strong> - w celu ograniczenia kontaktowania się z
             nieaktywnymi kontami i poprawy jakości dopasowań, na podstawie prawnie uzasadnionego interesu Administratora,
             art. 6 ust. 1 lit. f RODO.
           </li>
           <li>
-            <strong>Moderacja, obsługa zgłoszeń i egzekwowanie Regulaminu</strong> — na podstawie wykonania umowy,
+            <strong>Moderacja, obsługa zgłoszeń i egzekwowanie Regulaminu</strong> - na podstawie wykonania umowy,
             prawnie uzasadnionego interesu Administratora lub obowiązku prawnego, zależnie od konkretnej sytuacji.
           </li>
           <li>
-            <strong>Obsługa pytań i reklamacji</strong> — na podstawie art. 6 ust. 1 lit. b, c lub f RODO, zależnie od
+            <strong>Obsługa pytań i reklamacji</strong> - na podstawie art. 6 ust. 1 lit. b, c lub f RODO, zależnie od
             charakteru sprawy.
           </li>
           <li>
-            <strong>Ustalenie, dochodzenie lub obrona przed roszczeniami</strong> — na podstawie prawnie uzasadnionego
+            <strong>Ustalenie, dochodzenie lub obrona przed roszczeniami</strong> - na podstawie prawnie uzasadnionego
             interesu Administratora, art. 6 ust. 1 lit. f RODO.
           </li>
           <li>
-            <strong>Wykonanie obowiązków prawnych</strong> — na podstawie art. 6 ust. 1 lit. c RODO, jeżeli przepisy
+            <strong>Wykonanie obowiązków prawnych</strong> - na podstawie art. 6 ust. 1 lit. c RODO, jeżeli przepisy
             wymagają przechowania, ujawnienia lub innego przetwarzania określonych danych.
           </li>
         </ul>
@@ -314,10 +314,10 @@ export default function PrivacyPage() {
           konfiguracji dane mogą być powierzane lub udostępniane w niezbędnym zakresie następującym kategoriom odbiorców:
         </p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><strong>Vercel</strong> — hosting i infrastruktura służąca do udostępniania aplikacji;</li>
-          <li><strong>Neon</strong> — infrastruktura bazy danych PostgreSQL;</li>
-          <li><strong>Resend</strong> — dostarczanie wiadomości e-mail związanych z kontem i wybranymi powiadomieniami;</li>
-          <li><strong>Google</strong> — uwierzytelnianie, jeżeli użytkownik dobrowolnie wybierze logowanie Google;</li>
+          <li><strong>Vercel</strong> - hosting i infrastruktura służąca do udostępniania aplikacji;</li>
+          <li><strong>Neon</strong> - infrastruktura bazy danych PostgreSQL;</li>
+          <li><strong>Resend</strong> - dostarczanie wiadomości e-mail związanych z kontem i wybranymi powiadomieniami;</li>
+          <li><strong>Google</strong> - uwierzytelnianie, jeżeli użytkownik dobrowolnie wybierze logowanie Google;</li>
           <li>dostawcy infrastruktury i podwykonawcy powyższych podmiotów w zakresie wynikającym z ich aktualnych warunków świadczenia usług.</li>
         </ul>
         <p>
@@ -331,8 +331,8 @@ export default function PrivacyPage() {
           Część dostawców technologii lub ich podwykonawców może przetwarzać dane poza Europejskim Obszarem Gospodarczym,
           w szczególności w Stanach Zjednoczonych. W takim przypadku Administrator korzysta z mechanizmów przewidzianych w
           rozdziale V RODO odpowiednich dla danego transferu. Może to obejmować decyzję Komisji Europejskiej stwierdzającą
-          odpowiedni stopień ochrony — w tym EU-U.S. Data Privacy Framework, gdy dany odbiorca jest objęty ważną
-          certyfikacją — albo odpowiednie zabezpieczenia, takie jak standardowe klauzule umowne Komisji Europejskiej.
+          odpowiedni stopień ochrony - w tym EU-U.S. Data Privacy Framework, gdy dany odbiorca jest objęty ważną
+          certyfikacją - albo odpowiednie zabezpieczenia, takie jak standardowe klauzule umowne Komisji Europejskiej.
         </p>
         <p>
           Informację o mechanizmie mającym zastosowanie do konkretnego odbiorcy oraz, gdy przepisy tego wymagają, możliwość
@@ -395,7 +395,7 @@ export default function PrivacyPage() {
           <li>przeniesienia danych;</li>
           <li>wniesienia sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie;</li>
           <li>wycofania zgody, jeżeli określone przetwarzanie odbywa się na jej podstawie.</li>
-          <li>w przypadku zdjęcia profilowego — wycofania zgody przez usunięcie zdjęcia z ustawień profilu, bez wpływu na zgodność z prawem wcześniejszego przetwarzania.</li>
+          <li>w przypadku zdjęcia profilowego - wycofania zgody przez usunięcie zdjęcia z ustawień profilu, bez wpływu na zgodność z prawem wcześniejszego przetwarzania.</li>
         </ul>
         <p>
           Żądanie można przesłać na adres {" "}
@@ -431,8 +431,8 @@ export default function PrivacyPage() {
 
       <LegalSection title="15. Powiadomienia i wiadomości e-mail">
         <p>
-          BuildCrew może wysyłać wiadomości e-mail związane z bezpieczeństwem i obsługą konta oraz — zgodnie z preferencjami
-          użytkownika — wybranymi zdarzeniami społecznościowymi, takimi jak wiadomość od innego użytkownika, zgłoszenie lub zaproszenie do projektu, odpowiedź w Build Pool,
+          BuildCrew może wysyłać wiadomości e-mail związane z bezpieczeństwem i obsługą konta oraz - zgodnie z preferencjami
+          użytkownika - wybranymi zdarzeniami społecznościowymi, takimi jak wiadomość od innego użytkownika, zgłoszenie lub zaproszenie do projektu, odpowiedź w Build Pool,
           zaproszenie do Crew, zaproszenie lub zgłoszenie do teamu hackathonowego, mocne dopasowanie profilu lub projektu, tygodniowe podsumowanie, zdarzenie Build Challenge albo feedback w Showcase.
           W przypadku prywatnej rozmowy BuildCrew może zaplanować e-mail z opóźnieniem i anulować go, jeżeli użytkownik wcześniej odczyta rozmowę.
           Domyślny e-mail przypominający o prywatnej rozmowie nie musi zawierać treści samej wiadomości.

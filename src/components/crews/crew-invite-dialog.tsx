@@ -73,7 +73,7 @@ export function CrewInviteDialog({
             <SelectContent>
               {candidates.map((c) => (
                 <SelectItem key={c.userId} value={c.userId}>
-                  {c.username} {c.role ? `— ${ROLE_LABELS[c.role]}` : ""}
+                  {c.username} {c.role ? `- ${ROLE_LABELS[c.role]}` : ""}
                 </SelectItem>
               ))}
             </SelectContent>

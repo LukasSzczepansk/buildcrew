@@ -233,7 +233,7 @@ export function ProjectWizard({
   const qualityHints = React.useMemo(() => {
     const hints: string[] = [];
     if (!form.ownerContribution.trim()) hints.push("Dodaj krótko, za co odpowiadasz jako autor projektu.");
-    if (!form.existingAssets.length) hints.push("Zaznacz, co już istnieje — ułatwia ocenę, czy projekt żyje.");
+    if (!form.existingAssets.length) hints.push("Zaznacz, co już istnieje - ułatwia ocenę, czy projekt żyje.");
     if (!form.repositoryUrl && !form.demoUrl && !form.designUrl) hints.push("Jeśli możesz, dodaj repo, demo albo projekt w Figmie.");
     if (form.roles.some((role) => !role.description.trim())) hints.push("Dopisz zakres odpowiedzialności przynajmniej do najważniejszej roli.");
     if (form.roles.some((role) => role.skills.length === 0)) hints.push("Dodaj technologie lub umiejętności do ról, żeby poprawić przyszłe dopasowania.");
@@ -705,14 +705,14 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
         <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-6 text-[var(--bc-muted)]">{form.description}</p>
 
         <div className="mt-6 grid gap-px border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-3">
-          <PreviewCell label="Najbliższy cel" value={form.goal || "—"} />
-          <PreviewCell label="Tryb" value={form.collaborationMode ? COLLABORATION_MODE_LABELS[form.collaborationMode] : "—"} />
-          <PreviewCell label="Horyzont" value={form.duration ? PROJECT_DURATION_LABELS[form.duration] : "—"} />
+          <PreviewCell label="Najbliższy cel" value={form.goal || "-"} />
+          <PreviewCell label="Tryb" value={form.collaborationMode ? COLLABORATION_MODE_LABELS[form.collaborationMode] : "-"} />
+          <PreviewCell label="Horyzont" value={form.duration ? PROJECT_DURATION_LABELS[form.duration] : "-"} />
         </div>
 
         <div className="mt-6">
           <p className="text-[12px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">Stack</p>
-          <p className="mt-2 text-sm leading-6">{form.technologies.join(" · ") || "—"}</p>
+          <p className="mt-2 text-sm leading-6">{form.technologies.join(" · ") || "-"}</p>
         </div>
       </div>
 
@@ -740,7 +740,7 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
           <>
             <p className="text-sm font-semibold">Możesz opublikować teraz. Warto jeszcze rozważyć:</p>
             <ul className="mt-2 space-y-1.5 text-[13px] leading-5 text-[var(--bc-muted)]">
-              {qualityHints.slice(0, 4).map((hint) => <li key={hint}>— {hint}</li>)}
+              {qualityHints.slice(0, 4).map((hint) => <li key={hint}>- {hint}</li>)}
             </ul>
           </>
         ) : (

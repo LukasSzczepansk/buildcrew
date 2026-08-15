@@ -13,7 +13,7 @@ import { listFollowing } from "@/server/data/network";
 import { FollowButton } from "@/components/network/follow-button";
 import type { Commitment, Goal, Level, LookingFor, RoleType } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Builderzy — BuildCrew" };
+export const metadata: Metadata = { title: "Builderzy - BuildCrew" };
 
 export default async function BuildersPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getCurrentUser();
@@ -63,7 +63,7 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <Topbar title="Ludzie" subtitle="Poznawaj builderów, z którymi realnie możesz coś zbudować — nie kolekcjonuj pustych kontaktów." />
+      <Topbar title="Ludzie" subtitle="Poznawaj builderów, z którymi realnie możesz coś zbudować - nie kolekcjonuj pustych kontaktów." />
 
       <div className="mb-5 flex gap-1 border-b border-[var(--bc-line)] text-[13px] font-medium"><Link href="/builders" className="relative px-3 py-2.5 text-[var(--bc-ink)]">Odkrywaj ludzi<span className="absolute inset-x-2 bottom-0 h-[2px] bg-[var(--bc-accent)]" /></Link><Link href="/network" className="px-3 py-2.5 text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">Moja sieć</Link></div>
 
@@ -101,7 +101,7 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
           </div>
           <div className="space-y-2.5">
             {ranked.map(({ builder: b, score, reasons }) => (
-              <BuilderCard key={b.userId} matchScore={score} matchReasons={reasons} action={<FollowButton targetUserId={b.userId} initialFollowing={followingIds.has(b.userId)} compact />} builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, lastActiveAt: b.lastActiveAt }} />
+              <BuilderCard key={b.userId} matchScore={score} matchReasons={reasons} action={<FollowButton targetUserId={b.userId} initialFollowing={followingIds.has(b.userId)} compact />} builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, lastActiveAt: b.lastActiveAt, createdAt: b.createdAt }} />
             ))}
           </div>
         </section>

@@ -12,7 +12,7 @@ import { listApplicationsForProject } from "@/server/data/applications";
 import { getProjectById } from "@/server/data/projects";
 
 export const metadata: Metadata = {
-  title: "Zarządzaj projektem — BuildCrew",
+  title: "Zarządzaj projektem - BuildCrew",
   robots: { index: false, follow: false },
 };
 

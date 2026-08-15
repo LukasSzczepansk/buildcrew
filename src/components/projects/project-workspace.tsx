@@ -598,7 +598,7 @@ export function ProjectWorkspace({
               ) : null}
 
               <div className="pt-5">
-                <SectionHeading title="Kolejne kroki" description="Otwarte zadania tworzą prosty plan pracy — bez dodatkowego systemu roadmap." />
+                <SectionHeading title="Kolejne kroki" description="Otwarte zadania tworzą prosty plan pracy - bez dodatkowego systemu roadmap." />
                 <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
                   {openTasks.length ? openTasks.slice(0, 8).map((task) => (
                     <button key={task.id} type="button" onClick={() => setTab("tasks")} className="grid w-full gap-1 py-3 text-left sm:grid-cols-[1fr_150px_130px] sm:items-center">

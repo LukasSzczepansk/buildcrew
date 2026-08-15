@@ -69,7 +69,7 @@ export const STARTER_IDEAS: StarterIdea[] = [
     lookingFor: ["Frontend", "Backend"],
     interests: ["Creator tools", "SaaS", "Productivity"],
     commitment: "około 5h / tydzień",
-    note: "Bez rozbudowanego project managementu — tylko prosty rytm, który pomaga nie porzucać projektu po pierwszym tygodniu.",
+    note: "Bez rozbudowanego project managementu - tylko prosty rytm, który pomaga nie porzucać projektu po pierwszym tygodniu.",
     interestedCount: 2,
   },
   {

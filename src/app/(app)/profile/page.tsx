@@ -20,7 +20,7 @@ import { getBuilderBadges, listShowcaseForUser } from "@/server/data/showcase";
 import { listCreditsForUser } from "@/server/data/social-projects";
 import { logoutAction } from "@/server/actions/auth";
 
-export const metadata: Metadata = { title: "Profil — BuildCrew" };
+export const metadata: Metadata = { title: "Profil - BuildCrew" };
 
 export default async function ProfilePage() {
   const user = await getCurrentUser();

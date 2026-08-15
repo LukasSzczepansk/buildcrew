@@ -14,7 +14,7 @@ import type { RoleType } from "@/db/schema";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const idea = await getIdeaById(id);
-  return { title: idea ? `${idea.name} — pomysł na BuildCrew` : "Pomysł — BuildCrew", description: idea?.tagline };
+  return { title: idea ? `${idea.name} - pomysł na BuildCrew` : "Pomysł - BuildCrew", description: idea?.tagline };
 }
 
 export default async function IdeaDetailPage({ params }: { params: Promise<{ id: string }> }) {

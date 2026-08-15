@@ -1,4 +1,4 @@
-# BuildCrew — retention email patch
+# BuildCrew - retention email patch
 
 Ten patch dodaje powiadomienia e-mail, których celem jest przywracanie użytkownika wtedy, gdy na BuildCrew wydarzyło się coś realnie wartego sprawdzenia.
 

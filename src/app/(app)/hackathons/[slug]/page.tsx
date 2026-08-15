@@ -35,7 +35,7 @@ import {
   teamMissingRoles,
 } from "@/server/data/hackathons";
 
-export const metadata: Metadata = { title: "Znajdź team na hackathon — BuildCrew" };
+export const metadata: Metadata = { title: "Znajdź team na hackathon - BuildCrew" };
 
 export default async function HackathonDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const user = await getCurrentUser();

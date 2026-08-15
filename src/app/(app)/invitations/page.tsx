@@ -10,7 +10,7 @@ import { ROLE_LABELS } from "@/lib/constants";
 import { timeAgo } from "@/lib/utils";
 import { listPendingInvitations } from "@/server/data/invitations";
 
-export const metadata: Metadata = { title: "Zaproszenia — BuildCrew" };
+export const metadata: Metadata = { title: "Zaproszenia - BuildCrew" };
 
 export default async function InvitationsPage() {
   const user = await getCurrentUser();

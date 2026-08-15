@@ -189,6 +189,17 @@ export function isAdmin(email: string | null | undefined, systemRole?: SystemRol
   return admins.includes(email.toLowerCase());
 }
 
+export function isFounder(email: string | null | undefined, systemRole?: SystemRole | null) {
+  if (systemRole !== "ADMIN") return false;
+  const raw = process.env.FOUNDER_EMAILS?.trim();
+  // Small deployments often have one admin who is also the founder. As soon as
+  // FOUNDER_EMAILS is configured, only explicitly listed admins receive the badge.
+  if (!raw) return true;
+  if (!email) return false;
+  const founders = raw.split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
+  return founders.includes(email.toLowerCase());
+}
+
 export function isModerator(systemRole?: SystemRole | null) {
   return systemRole === "ADMIN" || systemRole === "MODERATOR";
 }

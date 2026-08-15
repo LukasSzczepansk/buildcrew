@@ -38,7 +38,7 @@ export async function setChallengeStatus(challengeId: string, status: "OPEN" | "
   if (!rows[0]) return { error: "Challenge nie istnieje." };
 
   const participants = await db.select({ userId: challengeParticipants.userId }).from(challengeParticipants).where(eq(challengeParticipants.challengeId, challengeId));
-  await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status został zmieniony`, status === "BUILDING" ? "Czas budować. Powodzenia!" : status === "VOTING" ? "Możecie publikować projekty i głosować." : status === "CLOSED" ? "Challenge zakończony — zobacz wyniki." : "Zapisy są otwarte.", `/showcase/challenges/${challengeId}`, { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge" })));
+  await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status został zmieniony`, status === "BUILDING" ? "Czas budować. Powodzenia!" : status === "VOTING" ? "Możecie publikować projekty i głosować." : status === "CLOSED" ? "Challenge zakończony - zobacz wyniki." : "Zapisy są otwarte.", `/showcase/challenges/${challengeId}`, { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge" })));
   revalidatePath(`/showcase/challenges/${challengeId}`);
   revalidatePath("/showcase/challenges");
   revalidatePath("/admin/challenges");

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { getConversationForUser, listConversationMessages, markConversationRead } from "@/server/data/messages";
 
-export const metadata: Metadata = { title: "Rozmowa — BuildCrew" };
+export const metadata: Metadata = { title: "Rozmowa - BuildCrew" };
 
 export default async function ConversationPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();

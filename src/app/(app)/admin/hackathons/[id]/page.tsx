@@ -8,7 +8,7 @@ import { ROLE_LABELS } from "@/lib/constants";
 import { getHackathonPhase, HACKATHON_PHASE_LABELS, hackathonDateLabel, hackathonLocationLabel } from "@/lib/hackathons";
 import { getHackathonOrganizerSnapshot } from "@/server/data/hackathons";
 
-export const metadata: Metadata = { title: "Team Finder — Admin BuildCrew" };
+export const metadata: Metadata = { title: "Team Finder - Admin BuildCrew" };
 
 export default async function HackathonOrganizerSnapshotPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -41,7 +41,7 @@ export default async function HackathonOrganizerSnapshotPage({ params }: { param
       <div className="mt-7 grid gap-7 xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside>
           <div className="border-t border-[var(--bc-line-strong)] pt-4"><p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Role w puli</p><div className="mt-2 space-y-2">{roleCounts.map((row) => <div key={row.role} className="flex items-center justify-between text-[13px]"><span className="text-[var(--bc-muted)]">{ROLE_LABELS[row.role]}</span><span className="font-semibold tabular-nums">{row.count}</span></div>)}{!roleCounts.length ? <p className="text-[13px] text-[var(--bc-muted)]">Pula jest jeszcze pusta.</p> : null}</div></div>
-          <div className="mt-5 border-t border-[var(--bc-line)] pt-4"><p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Do pokazania partnerowi</p><p className="mt-2 text-[12px] leading-5 text-[var(--bc-muted)]">Ten ekran celowo pokazuje liczby, skład teamów i brakujące role — bez treści wiadomości i prywatnych rozmów.</p></div>
+          <div className="mt-5 border-t border-[var(--bc-line)] pt-4"><p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Do pokazania partnerowi</p><p className="mt-2 text-[12px] leading-5 text-[var(--bc-muted)]">Ten ekran celowo pokazuje liczby, skład teamów i brakujące role - bez treści wiadomości i prywatnych rozmów.</p></div>
         </aside>
 
         <section>

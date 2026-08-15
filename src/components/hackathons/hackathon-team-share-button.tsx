@@ -24,7 +24,7 @@ export function HackathonTeamShareButton({
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: `${teamName} — ${eventName}`, text, url });
+        await navigator.share({ title: `${teamName} - ${eventName}`, text, url });
         return;
       } catch {
         // User may cancel the native share sheet. Fall back only when sharing is unavailable.

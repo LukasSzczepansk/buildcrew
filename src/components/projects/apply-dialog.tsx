@@ -61,13 +61,13 @@ export function ApplyDialog({
           <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Twoje dane</p>
           <div className="flex flex-col gap-1.5">
             <p>
-              <span className="text-neutral-400">Rola:</span> {myProfile.role ? ROLE_LABELS[myProfile.role] : "—"}
+              <span className="text-neutral-400">Rola:</span> {myProfile.role ? ROLE_LABELS[myProfile.role] : "-"}
             </p>
             <p>
-              <span className="text-neutral-400">Poziom:</span> {myProfile.level ? LEVEL_LABELS[myProfile.level] : "—"}
+              <span className="text-neutral-400">Poziom:</span> {myProfile.level ? LEVEL_LABELS[myProfile.level] : "-"}
             </p>
             <p>
-              <span className="text-neutral-400">Dostępność:</span> {myProfile.weeklyHours ? COMMITMENT_LABELS[myProfile.weeklyHours] : "—"}
+              <span className="text-neutral-400">Dostępność:</span> {myProfile.weeklyHours ? COMMITMENT_LABELS[myProfile.weeklyHours] : "-"}
             </p>
             <div className="flex flex-wrap gap-1.5 pt-1">
               {myProfile.skills.slice(0, 6).map((s) => (

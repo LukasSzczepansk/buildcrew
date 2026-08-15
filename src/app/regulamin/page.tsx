@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = {
-  title: "Regulamin — BuildCrew",
+  title: "Regulamin - BuildCrew",
   description: "Regulamin korzystania z platformy BuildCrew.",
   alternates: { canonical: "/regulamin" },
 };
@@ -42,8 +42,8 @@ export default function TermsPage() {
         <p>Operator jest osobą fizyczną nieprowadzącą działalności gospodarczej.</p>
         <p>
           Elektronicznym punktem kontaktowym w sprawach dotyczących działania Serwisu, zgłoszeń treści oraz kontaktu z
-          właściwymi organami — w zakresie, w jakim obowiązek taki wynika z przepisów, w tym z Aktu o usługach cyfrowych
-          (DSA) — jest adres {" "}
+          właściwymi organami - w zakresie, w jakim obowiązek taki wynika z przepisów, w tym z Aktu o usługach cyfrowych
+          (DSA) - jest adres {" "}
           <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>
             {operator.email}
           </a>
@@ -117,7 +117,7 @@ export default function TermsPage() {
         </p>
         <p>
           Osoba, która nie posiada pełnej zdolności do czynności prawnych, może korzystać z BuildCrew wyłącznie w zakresie,
-          w jakim pozwalają na to obowiązujące przepisy, a jeżeli jest to wymagane — za zgodą przedstawiciela ustawowego.
+          w jakim pozwalają na to obowiązujące przepisy, a jeżeli jest to wymagane - za zgodą przedstawiciela ustawowego.
         </p>
       </LegalSection>
 
@@ -383,7 +383,7 @@ export default function TermsPage() {
         </p>
         <p>
           Jeżeli Operator ograniczy treść lub konto z powodu uznania treści za nielegalną albo niezgodną z Regulaminem,
-          przekaże zainteresowanemu użytkownikowi — jeżeli jest to wymagane przez prawo i technicznie możliwe — informację o
+          przekaże zainteresowanemu użytkownikowi - jeżeli jest to wymagane przez prawo i technicznie możliwe - informację o
           decyzji, jej zasadniczych powodach i dostępnych sposobach zakwestionowania decyzji.
         </p>
         <p>
@@ -451,7 +451,7 @@ export default function TermsPage() {
         </p>
         <p>
           Reklamacja powinna zawierać informacje umożliwiające ustalenie, czego dotyczy, w szczególności adres e-mail konta,
-          jeżeli reklamacja dotyczy konkretnego konta, opis problemu oraz — w miarę możliwości — informacje pozwalające
+          jeżeli reklamacja dotyczy konkretnego konta, opis problemu oraz - w miarę możliwości - informacje pozwalające
           odtworzyć problem. Użytkownik nie powinien przesyłać hasła, kodów jednorazowych, kluczy API ani innych sekretów
           uwierzytelniających.
         </p>

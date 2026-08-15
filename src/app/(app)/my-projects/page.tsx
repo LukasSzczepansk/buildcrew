@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, FolderKanban, UsersRound } from "lucide-react";
+import { ArrowRight, FolderKanban, RefreshCw, UsersRound } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { ProjectIdentityMark } from "@/components/projects/project-identity-mark";
 import { Button } from "@/components/ui/button";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { ROLE_LABELS, STAGE_LABELS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
+import { getProjectFreshness } from "@/lib/project-freshness";
 import { listApplicationsForProject } from "@/server/data/applications";
 import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
 import { getWorkspaceSignalsForProjects } from "@/server/data/project-workspace";
+import { refreshProjectRecruitmentAction } from "@/server/actions/projects";
 
-export const metadata: Metadata = { title: "Moje projekty — BuildCrew" };
+export const metadata: Metadata = { title: "Moje projekty - BuildCrew" };
 
 type View = "owned" | "joined";
 
@@ -52,7 +54,7 @@ export default async function MyProjectsPage({
     <div>
       <Topbar
         title="Moje projekty"
-        subtitle="Projekty, które prowadzisz, i zespoły, do których należysz — bez szukania ich w katalogu."
+        subtitle="Projekty, które prowadzisz, i zespoły, do których należysz - bez szukania ich w katalogu."
       />
 
       <nav aria-label="Widok moich projektów" className="mb-5 flex items-center gap-6 border-b border-[var(--bc-line)]">
@@ -140,6 +142,9 @@ function OwnedProjects({
           const signals = workspaceSignals.get(project.id) ?? { unreadMessages: 0, assignedTasks: 0 };
           const memberCount = Math.max(project.members.length, 1);
           const openRoleCount = project.openRoles.length;
+          const openSlots = project.openRoles.reduce((sum, role) => sum + Math.max(0, role.open ?? 0), 0);
+          const freshness = getProjectFreshness(project.updatedAt);
+          const staleRecruitment = project.lifecycleStatus === "ACTIVE" && openSlots > 0 && freshness.stale;
           const openRoleNames = project.openRoles
             .slice(0, 2)
             .map((role) => ROLE_LABELS[role.roleType])
@@ -190,6 +195,8 @@ function OwnedProjects({
                     ) : (
                       <span>Ekipa kompletna</span>
                     )}
+                    {openSlots === 1 ? <span className="rounded-[5px] bg-[#C8F169] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-neutral-950">Ostatnie miejsce</span> : null}
+                    {openRoleCount > 0 ? <span className={staleRecruitment ? "font-medium text-amber-700 dark:text-amber-300" : ""}>{freshness.shortLabel}</span> : null}
                   </div>
                 </div>
               </div>
@@ -214,9 +221,20 @@ function OwnedProjects({
                 ) : openRoleCount > 0 ? (
                   <>
                     <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">
-                      {openRoleCount} {openRoleCount === 1 ? "otwarta rola" : "otwarte role"}
+                      {staleRecruitment ? "Czy nadal szukasz ludzi?" : `${openRoleCount} ${openRoleCount === 1 ? "otwarta rola" : "otwarte role"}`}
                     </p>
-                    <p className="mt-1 line-clamp-1 text-[12px] text-[var(--bc-muted)]">{openRoleNames}</p>
+                    <p className={`mt-1 line-clamp-2 text-[12px] ${staleRecruitment ? "text-amber-700 dark:text-amber-300" : "text-[var(--bc-muted)]"}`}>
+                      {staleRecruitment ? freshness.label : openRoleNames}
+                    </p>
+                    {staleRecruitment ? (
+                      <form action={refreshProjectRecruitmentAction} className="mt-2">
+                        <input type="hidden" name="projectId" value={project.id} />
+                        <Button type="submit" variant="outline" size="sm" className="h-8 gap-1.5 px-2.5 text-[12px]">
+                          <RefreshCw className="h-3.5 w-3.5" />
+                          Nadal szukam
+                        </Button>
+                      </form>
+                    ) : null}
                   </>
                 ) : (
                   <>

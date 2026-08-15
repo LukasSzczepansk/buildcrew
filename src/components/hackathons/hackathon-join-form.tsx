@@ -216,8 +216,8 @@ export function HackathonJoinForm({
               <div>
                 <p className="text-[14px] font-semibold">Masz już pomysł?</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => setHasIdea(false)} className={cn("rounded-[6px] border px-3 py-2 text-[13px] font-medium", !hasIdea ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)]")}>Nie — jestem otwarty</button>
-                  <button type="button" onClick={() => setHasIdea(true)} className={cn("rounded-[6px] border px-3 py-2 text-[13px] font-medium", hasIdea ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)]")}>Tak — mam kierunek</button>
+                  <button type="button" onClick={() => setHasIdea(false)} className={cn("rounded-[6px] border px-3 py-2 text-[13px] font-medium", !hasIdea ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)]")}>Nie - jestem otwarty</button>
+                  <button type="button" onClick={() => setHasIdea(true)} className={cn("rounded-[6px] border px-3 py-2 text-[13px] font-medium", hasIdea ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)]")}>Tak - mam kierunek</button>
                 </div>
                 {hasIdea ? (
                   <div className="mt-4">

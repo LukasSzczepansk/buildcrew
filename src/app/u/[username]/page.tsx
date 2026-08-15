@@ -5,6 +5,7 @@ import { ExternalLink } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TechnologyStack } from "@/components/ui/technology-badge";
+import { UserRoleBadge } from "@/components/ui/user-role-badge";
 import { COMMITMENT_LABELS, GOAL_LABELS, LOOKING_FOR_LABELS, ROLE_LABELS } from "@/lib/constants";
 import { SITE_URL } from "@/lib/seo";
 import { getActivityState, activityLabel } from "@/lib/activity";
@@ -20,18 +21,18 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   const role = profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder";
   const description = profile.bio?.trim() || `${role} na BuildCrew. Umiejętności: ${profile.skills.slice(0, 5).join(", ") || "profil buildera"}.`;
   return {
-    title: `${profile.username} — ${role} | BuildCrew`,
+    title: `${profile.username} - ${role} | BuildCrew`,
     description,
     alternates: { canonical: `/u/${profile.username}` },
     robots: { index: true, follow: true },
     openGraph: {
       type: "website",
       url: `/u/${profile.username}`,
-      title: `${profile.username} — ${role}`,
+      title: `${profile.username} - ${role}`,
       description,
       siteName: "BuildCrew",
     },
-    twitter: { card: "summary", title: `${profile.username} — ${role}`, description },
+    twitter: { card: "summary", title: `${profile.username} - ${role}`, description },
   };
 }
 
@@ -75,13 +76,14 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
         <section className="grid gap-8 border-b border-[var(--bc-line)] pb-8 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div>
             <div className="flex items-start gap-4">
-              <Avatar username={profile.username} seed={profile.userId} size="lg" />
+              <Avatar username={profile.username} seed={profile.userId} size="lg" className={profile.isFounder ? "ring-2 ring-[#C8F169] ring-offset-2 ring-offset-[var(--bc-canvas)]" : undefined} />
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2"><h1 className="text-[30px] font-semibold tracking-[-0.03em]">{profile.username}</h1>{openToBuild ? <span className="inline-flex items-center gap-1.5 text-[12px] font-medium"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />Open to build</span> : null}</div>
+                <div className="flex flex-wrap items-center gap-2"><h1 className="text-[30px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{openToBuild ? <span className="inline-flex items-center gap-1.5 text-[12px] font-medium"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />Open to build</span> : null}</div>
                 <p className="mt-1 text-sm text-[var(--bc-muted)]">{profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder"} · {activityState === "TODAY" ? activityLabel(profile.lastActiveAt) : "profil BuildCrew"}</p>
               </div>
             </div>
             {profile.bio ? <p className="mt-5 max-w-[760px] text-[15px] leading-6 text-[var(--bc-muted)]">{profile.bio}</p> : null}
+            {profile.isFounder ? <p className="mt-3 max-w-[760px] border-l-2 border-[#C8F169] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]"><strong className="font-semibold text-[var(--bc-ink)]">Founder BuildCrew.</strong> Buduję platformę i zbieram feedback od społeczności.</p> : null}
             <div className="mt-5"><TechnologyStack items={profile.skills} max={8} compact /></div>
           </div>
 
@@ -96,7 +98,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
           <div className="space-y-8">
             <PublicSection title="Szukam teraz">
               <p className="text-sm leading-6 text-[var(--bc-muted)]">{profile.lookingFor.map((item) => LOOKING_FOR_LABELS[item]).join(" · ") || "Brak informacji"}</p>
-              <p className="mt-2 text-[13px] text-[var(--bc-faint)]">Dostępność: {profile.weeklyHours ? COMMITMENT_LABELS[profile.weeklyHours] : "—"}</p>
+              <p className="mt-2 text-[13px] text-[var(--bc-faint)]">Dostępność: {profile.weeklyHours ? COMMITMENT_LABELS[profile.weeklyHours] : "-"}</p>
             </PublicSection>
 
             {completedCredits.length ? (
@@ -117,7 +119,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
           <aside>
             <div className="border-y border-[var(--bc-line)] py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Kierunek</p>
-              <dl className="mt-3 space-y-3 text-[13px]"><div><dt className="text-[11px] text-[var(--bc-faint)]">Obszary</dt><dd className="mt-0.5 text-[var(--bc-ink)]">{profile.interests.join(" · ") || "—"}</dd></div><div><dt className="text-[11px] text-[var(--bc-faint)]">Cele</dt><dd className="mt-0.5 text-[var(--bc-ink)]">{profile.goals.map((goal) => GOAL_LABELS[goal]).join(" · ") || "—"}</dd></div></dl>
+              <dl className="mt-3 space-y-3 text-[13px]"><div><dt className="text-[11px] text-[var(--bc-faint)]">Obszary</dt><dd className="mt-0.5 text-[var(--bc-ink)]">{profile.interests.join(" · ") || "-"}</dd></div><div><dt className="text-[11px] text-[var(--bc-faint)]">Cele</dt><dd className="mt-0.5 text-[var(--bc-ink)]">{profile.goals.map((goal) => GOAL_LABELS[goal]).join(" · ") || "-"}</dd></div></dl>
             </div>
             {(profile.githubUrl || profile.portfolioUrl || profile.linkedinUrl) ? <div className="border-b border-[var(--bc-line)] py-4"><p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Linki</p><div className="mt-3 space-y-2 text-[13px]">{profile.githubUrl ? <PublicLink href={profile.githubUrl}>GitHub</PublicLink> : null}{profile.portfolioUrl ? <PublicLink href={profile.portfolioUrl}>Portfolio</PublicLink> : null}{profile.linkedinUrl ? <PublicLink href={profile.linkedinUrl}>LinkedIn</PublicLink> : null}</div></div> : null}
           </aside>

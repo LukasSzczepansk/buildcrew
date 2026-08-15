@@ -82,7 +82,7 @@ export async function listProjects(filters: ProjectFilters = {}, viewerId?: stri
     .select()
     .from(projects)
     .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(desc(projects.createdAt));
+    .orderBy(desc(projects.updatedAt));
 
   let withRelations = (await attachRelations(rows)).filter((p) => !p.owner?.isSuspended);
 

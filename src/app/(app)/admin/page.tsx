@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, FileQuestion, Flag, FolderKanban, Image as ImageIcon, Users, UsersRound } from "lucide-react";
+import { Activity, CheckCircle2, FileQuestion, Flag, FolderKanban, Image as ImageIcon, UserPlus, UserRoundCheck, Users, UsersRound, type LucideIcon } from "lucide-react";
 import { AdminStatCard } from "@/components/admin/stat-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getAdminOverview } from "@/server/data/admin";
 
-export const metadata: Metadata = { title: "Admin — BuildCrew" };
+export const metadata: Metadata = { title: "Admin - BuildCrew" };
 
 function date(value: Date) {
   return new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(value);
@@ -26,6 +26,23 @@ export default async function AdminPage() {
         <AdminStatCard icon={FileQuestion} label="Pytania" value={data.questions} helper={`${data.answers} odpowiedzi`} />
         <AdminStatCard icon={Activity} label="Akcje produktu / 7 dni" value={data.events7d} helper="Eventy zapisane w analytics_events" />
       </div>
+
+      <section className="border-y border-[var(--bc-line)] py-5">
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Współprace / 7 dni</p>
+            <h2 className="mt-1 text-[17px] font-semibold">Czy ludzie naprawdę zaczynają razem budować?</h2>
+          </div>
+          <Link href="/admin/activity" className="hidden text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline sm:inline">Pełne eventy</Link>
+        </div>
+        <div className="grid gap-px overflow-hidden rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-2 xl:grid-cols-5">
+          <FunnelStat icon={Users} value={data.activeUsers7d} label="aktywnych osób" helper={`+${data.newUsers7d} nowych kont`} />
+          <FunnelStat icon={UserPlus} value={data.projectApplications7d} label="zgłoszeń do projektów" helper="realna intencja dołączenia" />
+          <FunnelStat icon={UserRoundCheck} value={data.acceptedApplications7d} label="przyjęć do teamów" helper={data.projectApplications7d > 0 ? `${Math.round((data.acceptedApplications7d / data.projectApplications7d) * 100)}% zgłoszeń` : "brak zgłoszeń"} />
+          <FunnelStat icon={UsersRound} value={data.teamsFormed7d} label="nowych ekip" helper="Build Pool + hackathony" />
+          <FunnelStat icon={CheckCircle2} value={data.completedProjects7d} label="ukończonych projektów" helper="najmocniejszy sygnał wartości" />
+        </div>
+      </section>
 
       <div className="grid gap-5 xl:grid-cols-2">
         <Card className="overflow-hidden">
@@ -94,6 +111,19 @@ export default async function AdminPage() {
           )) : <p className="px-5 py-8 text-center text-sm text-neutral-400">Log administracyjny jest jeszcze pusty.</p>}
         </div>
       </Card>
+    </div>
+  );
+}
+
+function FunnelStat({ icon: Icon, value, label, helper }: { icon: LucideIcon; value: number; label: string; helper: string }) {
+  return (
+    <div className="bg-[var(--bc-surface)] p-4">
+      <div className="flex items-center justify-between gap-3">
+        <Icon className="h-4 w-4 text-[var(--bc-muted)]" />
+        <span className="text-[22px] font-semibold tabular-nums tracking-[-0.03em]">{value}</span>
+      </div>
+      <p className="mt-3 text-[12px] font-medium text-[var(--bc-ink)]">{label}</p>
+      <p className="mt-1 text-[11px] leading-4 text-[var(--bc-faint)]">{helper}</p>
     </div>
   );
 }

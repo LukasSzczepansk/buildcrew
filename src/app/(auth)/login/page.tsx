@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { safeInternalRedirect } from "@/lib/redirects";
 import { loginAction } from "@/server/actions/auth";
 
-export const metadata: Metadata = { title: "Zaloguj się — BuildCrew" };
+export const metadata: Metadata = { title: "Zaloguj się - BuildCrew" };
 
 const GOOGLE_ERRORS: Record<string, string> = {
   "access-denied": "Logowanie przez Google zostało anulowane.",

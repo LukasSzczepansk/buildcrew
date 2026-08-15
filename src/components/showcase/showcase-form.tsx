@@ -50,7 +50,7 @@ export function ShowcaseForm({ projects, challenges }: { projects: { id: string;
           <div><Label>Status</Label><select className="mt-1.5 h-10 w-full rounded-[6px] border border-neutral-200 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as ShowcaseStatus })}>{Object.entries(SHOWCASE_STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
         </Card>
         <Button type="submit" size="lg" className="w-full" disabled={pending}>{pending ? "Publikowanie…" : "Opublikuj w Showcase"}</Button>
-        <p className="text-[13px] leading-relaxed text-neutral-400">Showcase służy do pokazania działającego efektu. To może być MVP, eksperyment albo projekt solo — nie musi być gotowym startupem.</p>
+        <p className="text-[13px] leading-relaxed text-neutral-400">Showcase służy do pokazania działającego efektu. To może być MVP, eksperyment albo projekt solo - nie musi być gotowym startupem.</p>
       </div>
     </form>
   );

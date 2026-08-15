@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { moderateProfileAvatar } from "@/server/actions/profile-avatar";
 import { listPendingProfileAvatars } from "@/server/data/profile-avatars";
 
-export const metadata: Metadata = { title: "Zdjęcia profilowe — Admin BuildCrew" };
+export const metadata: Metadata = { title: "Zdjęcia profilowe - Admin BuildCrew" };
 
 function date(value: Date) {
   return new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(value);

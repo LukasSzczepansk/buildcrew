@@ -18,7 +18,7 @@ export function ShowcaseFeedbackForm({ entryId }: { entryId: string }) {
     const result = await submitShowcaseFeedback(entryId, { liked, improve, wouldUse });
     setPending(false);
     if (result?.error) { toast.error(result.error); return; }
-    toast.success("Dzięki — feedback trafił do twórców.");
+    toast.success("Dzięki - feedback trafił do twórców.");
   }
 
   return <form onSubmit={submit} className="space-y-4">

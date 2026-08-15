@@ -83,7 +83,7 @@ export function IdeaComposer() {
           </div>
           <div>
             <Label>Obszary</Label>
-            <p className="mt-1 text-[12px] text-[var(--bc-faint)]">Wybierz maksymalnie 5 — pomogą znaleźć osoby o podobnym kierunku.</p>
+            <p className="mt-1 text-[12px] text-[var(--bc-faint)]">Wybierz maksymalnie 5 - pomogą znaleźć osoby o podobnym kierunku.</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {INTEREST_OPTIONS.map((interest) => {
                 const active = interests.includes(interest);

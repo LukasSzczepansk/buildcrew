@@ -5,7 +5,7 @@ export const SITE_URL = (
 ).replace(/\/$/, "");
 
 export const DEFAULT_SEO_TITLE =
-  "BuildCrew — projekty do portfolio i ludzie do wspólnego budowania";
+  "BuildCrew - projekty do portfolio i ludzie do wspólnego budowania";
 
 export const DEFAULT_SEO_DESCRIPTION =
   "Znajdź ludzi do projektu, zbudujcie coś razem i twórz historię realnej współpracy. Projekty do portfolio, zespoły i sieć builderów w jednym miejscu.";

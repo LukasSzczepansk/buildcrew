@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TechnologyStack } from "@/components/ui/technology-badge";
+import { UserRoleBadge } from "@/components/ui/user-role-badge";
 import { COMMITMENT_LABELS, GOAL_LABELS, LEVEL_LABELS, LOOKING_FOR_LABELS, ROLE_LABELS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
 import { getProfileByUserId } from "@/server/data/profiles";
@@ -26,7 +27,7 @@ import type { RoleType } from "@/db/schema";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const profile = await getProfileByUserId(id);
-  return { title: profile ? `${profile.username} — BuildCrew` : "Profil — BuildCrew" };
+  return { title: profile ? `${profile.username} - BuildCrew` : "Profil - BuildCrew" };
 }
 
 export default async function BuilderProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -53,24 +54,25 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
         <main className="min-w-0">
           <section className="border-b border-[var(--bc-line)] pb-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <Avatar username={profile.username} seed={profile.userId} size="lg" />
+              <Avatar username={profile.username} seed={profile.userId} size="lg" className={profile.isFounder ? "ring-2 ring-[#C8F169] ring-offset-2 ring-offset-[var(--bc-canvas)]" : undefined} />
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2"><h1 className="text-[28px] font-semibold tracking-[-0.03em]">{profile.username}</h1>{profile.isDemo ? <Badge variant="outline">Demo</Badge> : null}</div>
+                <div className="flex flex-wrap items-center gap-2"><h1 className="text-[28px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{profile.isDemo ? <Badge variant="outline">Demo</Badge> : null}</div>
                 <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--bc-muted)]"><span>{profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder"}</span><span>{profile.level ? LEVEL_LABELS[profile.level] : ""}</span><span className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${activityState === "TODAY" ? "bg-[var(--bc-accent-strong)]" : "bg-[var(--bc-line-strong)]"}`} />{activityLabel(profile.lastActiveAt)}</span></div>
                 {(profile.lookingFor.includes("OPEN_TO_BUILD") || profile.lookingFor.includes("WANTS_PROJECT")) ? <div className="mt-2 inline-flex items-center gap-2 text-[12px] font-medium text-[var(--bc-ink)]"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />Open to build · otwarty na nowy projekt</div> : null}
                 {badges.length ? <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{badges.slice(0, 3).map((badge) => badge.label).join(" · ")}</p> : null}
               </div>
             </div>
             {profile.bio ? <p className="mt-5 max-w-[760px] text-[14px] leading-6 text-[var(--bc-muted)]">{profile.bio}</p> : null}
+            {profile.isFounder ? <div className="mt-4 max-w-[760px] rounded-[7px] border border-[#b6dc55] bg-[#C8F169]/25 px-3.5 py-3 text-[13px] leading-5 text-[var(--bc-ink)]"><strong className="font-semibold">Buduję BuildCrew.</strong> Masz feedback, zauważyłeś problem albo masz pomysł na platformę? Napisz do mnie.</div> : null}
           </section>
 
           <ProfileSection title="Umiejętności"><TechnologyStack items={profile.skills} max={10} compact /></ProfileSection>
           <ProfileSection title="Dostępność i kierunek">
             <div className="grid gap-4 text-sm sm:grid-cols-2">
-              <div><p className="text-[12px] text-[var(--bc-faint)]">Czas</p><p className="mt-1 font-medium">{profile.weeklyHours ? COMMITMENT_LABELS[profile.weeklyHours] : "—"}</p></div>
-              <div><p className="text-[12px] text-[var(--bc-faint)]">Szukam teraz</p><p className="mt-1 font-medium">{profile.lookingFor.length ? profile.lookingFor.map((item) => LOOKING_FOR_LABELS[item]).join(" · ") : "—"}</p></div>
-              <div><p className="text-[12px] text-[var(--bc-faint)]">Obszary</p><p className="mt-1 text-[var(--bc-muted)]">{profile.interests.join(" · ") || "—"}</p></div>
-              <div><p className="text-[12px] text-[var(--bc-faint)]">Cele</p><p className="mt-1 text-[var(--bc-muted)]">{profile.goals.map((goal) => GOAL_LABELS[goal]).join(" · ") || "—"}</p></div>
+              <div><p className="text-[12px] text-[var(--bc-faint)]">Czas</p><p className="mt-1 font-medium">{profile.weeklyHours ? COMMITMENT_LABELS[profile.weeklyHours] : "-"}</p></div>
+              <div><p className="text-[12px] text-[var(--bc-faint)]">Szukam teraz</p><p className="mt-1 font-medium">{profile.lookingFor.length ? profile.lookingFor.map((item) => LOOKING_FOR_LABELS[item]).join(" · ") : "-"}</p></div>
+              <div><p className="text-[12px] text-[var(--bc-faint)]">Obszary</p><p className="mt-1 text-[var(--bc-muted)]">{profile.interests.join(" · ") || "-"}</p></div>
+              <div><p className="text-[12px] text-[var(--bc-faint)]">Cele</p><p className="mt-1 text-[var(--bc-muted)]">{profile.goals.map((goal) => GOAL_LABELS[goal]).join(" · ") || "-"}</p></div>
             </div>
           </ProfileSection>
 

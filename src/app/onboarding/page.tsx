@@ -5,7 +5,7 @@ import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Onboarding — BuildCrew",
+  title: "Onboarding - BuildCrew",
   robots: { index: false, follow: false },
 };
 

@@ -13,7 +13,7 @@ import { getCrewById } from "@/server/data/crews";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
 import type { RoleType } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Wasza ekipa — BuildCrew" };
+export const metadata: Metadata = { title: "Wasza ekipa - BuildCrew" };
 
 export default async function CrewPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -83,7 +83,7 @@ export default async function CrewPage({ params }: { params: Promise<{ id: strin
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-neutral-400">Brak wspólnych zainteresowań — porozmawiajcie, żeby je znaleźć!</p>
+              <p className="text-sm text-neutral-400">Brak wspólnych zainteresowań - porozmawiajcie, żeby je znaleźć!</p>
             )}
           </Card>
 

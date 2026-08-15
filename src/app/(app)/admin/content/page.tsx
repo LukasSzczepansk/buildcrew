@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { deleteQuestionAdminAction } from "@/server/actions/admin";
 import { listAdminQuestions } from "@/server/data/admin";
 
-export const metadata: Metadata = { title: "Treści — Admin BuildCrew" };
+export const metadata: Metadata = { title: "Treści - Admin BuildCrew" };
 
 export default async function AdminContentPage() {
   const questions = await listAdminQuestions();

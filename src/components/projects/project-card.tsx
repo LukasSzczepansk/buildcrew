@@ -11,6 +11,8 @@ import {
 } from "@/lib/constants";
 import type { Character, Commitment, ProjectType, RoleType, Stage } from "@/db/schema";
 import { ShareProjectButton } from "@/components/projects/share-project-button";
+import { activityLabel, getActivityState } from "@/lib/activity";
+import { getProjectFreshness } from "@/lib/project-freshness";
 import {
   inferProjectCategoryLabel,
   inferProjectVisualKind,
@@ -22,13 +24,14 @@ export type ProjectCardData = {
   name: string;
   tagline: string;
   stage: Stage;
+  updatedAt: Date | string;
   commitment: Commitment | null;
   technologies: string[];
   projectType?: ProjectType | null;
   character?: Character[] | null;
-  openRoles: { id: string; roleType: RoleType }[];
+  openRoles: { id: string; roleType: RoleType; open?: number }[];
   members: { userId: string; profile: { avatarEmoji: string; username?: string } | null }[];
-  owner: { avatarEmoji: string; username: string } | null;
+  owner: { avatarEmoji: string; username: string; lastActiveAt?: Date | string | null } | null;
 };
 
 export function ProjectCard({ project }: { project: ProjectCardData }) {
@@ -41,6 +44,9 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
   const typeLabel = project.projectType ? PROJECT_TYPE_LABELS[project.projectType] : inferTypeLabel(visualKind);
   const characterLabel = project.character?.[0] ? CHARACTER_LABELS[project.character[0]] : null;
   const identityLabels = uniqueLabels([typeLabel, categoryLabel, characterLabel]).slice(0, 3);
+  const openSlots = project.openRoles.reduce((sum, role) => sum + Math.max(1, role.open ?? 1), 0);
+  const ownerActivity = getActivityState(project.owner?.lastActiveAt);
+  const freshness = getProjectFreshness(project.updatedAt);
 
   return (
     <article className="group overflow-hidden rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
@@ -93,6 +99,7 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--bc-faint)]">Szukamy</p>
                 <div className="mt-1.5 flex min-h-7 flex-wrap items-center gap-1.5">
+                  {openSlots === 1 ? <span className="inline-flex h-6 items-center rounded-[5px] bg-[#C8F169] px-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-neutral-950">Ostatnie miejsce</span> : null}
                   {visibleRoles.length > 0 ? (
                     <>
                       {visibleRoles.map((role) => (
@@ -117,6 +124,11 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
                   <span className="inline-flex items-center gap-1.5">
                     <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
                     {teamSize}
+                  </span>
+                  {project.owner?.lastActiveAt && ownerActivity !== "INACTIVE" && ownerActivity !== "UNKNOWN" ? <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />Owner: {activityLabel(project.owner.lastActiveAt).toLowerCase()}</span> : null}
+                  <span className={`inline-flex items-center gap-1.5 ${freshness.stale && openSlots > 0 ? "font-medium text-amber-700 dark:text-amber-300" : ""}`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${freshness.recent ? "bg-[var(--bc-accent-strong)]" : freshness.stale && openSlots > 0 ? "bg-amber-400" : "bg-[var(--bc-line-strong)]"}`} />
+                    {freshness.shortLabel}
                   </span>
                 </div>
               </div>

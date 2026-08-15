@@ -11,6 +11,7 @@ import { ShareProjectButton } from "@/components/projects/share-project-button";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getCurrentUser } from "@/lib/auth";
 import { activityLabel, getActivityState } from "@/lib/activity";
+import { getProjectFreshness } from "@/lib/project-freshness";
 import {
   COLLABORATION_MODE_LABELS,
   COLLABORATION_PACE_LABELS,
@@ -51,7 +52,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const project = await getProjectById(id);
-  if (!project) return { title: "Projekt — BuildCrew", robots: { index: false, follow: false } };
+  if (!project) return { title: "Projekt - BuildCrew", robots: { index: false, follow: false } };
 
   const requestedRole = project.lifecycleStatus === "ACTIVE" && query.share === "role"
     ? project.openRoles.find((role) => role.id === query.role)
@@ -66,12 +67,12 @@ export async function generateMetadata({
     ? seoUrl(`/api/projects/${project.id}/share-card?variant=recruitment&role=${encodeURIComponent(requestedRole!.id)}&v=${project.updatedAt.getTime()}`)
     : seoUrl(`/api/projects/${project.id}/share-card?v=${project.updatedAt.getTime()}`);
   const title = project.lifecycleStatus === "COMPLETED"
-    ? `${project.name} — ukończony projekt | BuildCrew`
+    ? `${project.name} - ukończony projekt | BuildCrew`
     : roleLabel
       ? `Szukamy ${roleLabel} do ${project.name} | BuildCrew`
       : openRoleLabels.length
-        ? `${project.name} — szuka ${openRoleLabels.join(" / ")} | BuildCrew`
-        : `${project.name} — projekt na BuildCrew`;
+        ? `${project.name} - szuka ${openRoleLabels.join(" / ")} | BuildCrew`
+        : `${project.name} - projekt na BuildCrew`;
   const description = project.lifecycleStatus === "COMPLETED" && project.outcome
     ? truncateMeta(`${project.outcome} Zobacz zespół i historię współpracy na BuildCrew.`)
     : projectMetaDescription(project);
@@ -88,7 +89,7 @@ export async function generateMetadata({
       type: "website",
       locale: "pl_PL",
       siteName: "BuildCrew",
-      images: [{ url: imageUrl, width: 1200, height: 630, alt: `${project.name} — karta projektu BuildCrew` }],
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: `${project.name} - karta projektu BuildCrew` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -99,8 +100,14 @@ export async function generateMetadata({
   };
 }
 
-export default async function PublicProjectPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function PublicProjectPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ share?: string; role?: string }>;
+}) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   const [project, user] = await Promise.all([getProjectById(id), getCurrentUser()]);
   if (!project) notFound();
   const [updates, credits] = await Promise.all([
@@ -108,17 +115,22 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
     project.lifecycleStatus === "COMPLETED" ? listProjectCredits(project.id) : Promise.resolve([]),
   ]);
 
+  const requestedRole = project.lifecycleStatus === "ACTIVE" && query.share === "role"
+    ? project.openRoles.find((role) => role.id === query.role)
+    : undefined;
+  const requestedRoleLabel = requestedRole ? ROLE_LABELS[requestedRole.roleType] : null;
   const appPath = `/projects/${project.id}`;
   const signupHref = `/signup?next=${encodeURIComponent(appPath)}`;
   const loginHref = `/login?next=${encodeURIComponent(appPath)}`;
   const crewSize = Math.max(project.members.length, project.owner ? 1 : 0);
   const totalSlots = project.roles.reduce((sum, role) => sum + role.slots, 0) + 1;
   const ownerActivity = getActivityState(project.owner?.lastActiveAt);
+  const projectFreshness = getProjectFreshness(project.updatedAt);
   const publicUrl = seoUrl(`/p/${project.id}`);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: `${project.name} — projekt na BuildCrew`,
+    name: `${project.name} - projekt na BuildCrew`,
     description: project.lifecycleStatus === "COMPLETED" && project.outcome ? project.outcome : projectMetaDescription(project),
     url: publicUrl,
     inLanguage: "pl-PL",
@@ -171,11 +183,21 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
                 <div className="mt-5 flex flex-wrap gap-2">
                   {project.technologies.map((technology) => <Badge key={technology} variant="outline">{technology}</Badge>)}
                 </div>
+                {requestedRole ? (
+                  <div className="mt-6 border-l-[3px] border-[#C8F169] bg-white/70 px-4 py-3 dark:bg-neutral-900/60">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-neutral-500">Zaproszenie do roli</p>
+                    <p className="mt-1 text-[16px] font-semibold">Szukamy: {requestedRoleLabel}</p>
+                    <p className="mt-1 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                      {requestedRole.description || "Ta rola jest nadal otwarta. Zobacz projekt, ekipę i napisz do autora w BuildCrew."}
+                    </p>
+                  </div>
+                ) : null}
+
                 <div className="mt-7 flex flex-wrap gap-2">
                   {user ? (
                     <Button asChild><Link href={appPath}>{project.lifecycleStatus === "COMPLETED" ? "Zobacz rezultat i ekipę" : "Zobacz projekt i ekipę"} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                   ) : (
-                    <Button asChild><Link href={signupHref}>{project.lifecycleStatus === "COMPLETED" ? "Poznaj ludzi, którzy to zbudowali" : "Chcę dołączyć do tej ekipy"} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
+                    <Button asChild><Link href={signupHref}>{project.lifecycleStatus === "COMPLETED" ? "Poznaj ludzi, którzy to zbudowali" : requestedRoleLabel ? `Dołącz jako ${requestedRoleLabel}` : "Chcę dołączyć do tej ekipy"} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                   )}
                   <ShareProjectButton projectId={project.id} projectName={project.name} projectTagline={project.tagline} openRoles={project.openRoles.map((role) => ({ id: role.id, roleType: role.roleType }))} />
                 </div>
@@ -217,12 +239,12 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
             <Card className="p-7 sm:p-8">
               <div className="mb-5">
                 <h2 className="text-lg font-semibold">{project.lifecycleStatus === "COMPLETED" ? "Zespół projektu" : "Kogo szukamy do ekipy?"}</h2>
-                <p className="mt-1 text-sm text-neutral-500">Nie jest to oferta pracy — chodzi o osoby, które chcą współtworzyć projekt.</p>
+                <p className="mt-1 text-sm text-neutral-500">Nie jest to oferta pracy - chodzi o osoby, które chcą współtworzyć projekt.</p>
               </div>
               {project.lifecycleStatus !== "COMPLETED" && project.roles.length ? (
                 <div className="space-y-3">
                   {project.roles.map((role) => (
-                    <div key={role.id} className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 sm:flex-row sm:items-center sm:justify-between">
+                    <div key={role.id} className={`flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between ${requestedRole?.id === role.id ? "border-[#b6dc55] bg-[#C8F169]/10" : "border-neutral-200 dark:border-neutral-800"}`}>
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="font-medium">{ROLE_LABELS[role.roleType]}</p>
@@ -247,6 +269,7 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
                 <PublicDetail label="Status" value={project.lifecycleStatus === "COMPLETED" ? "Ukończony" : project.lifecycleStatus === "PAUSED" ? "Wstrzymany" : "Aktywny"} />
                 {project.projectType ? <PublicDetail label="Typ" value={PROJECT_TYPE_LABELS[project.projectType]} /> : null}
                 <PublicDetail label="Etap" value={STAGE_LABELS[project.stage]} />
+                {project.lifecycleStatus === "ACTIVE" ? <PublicDetail label="Aktualność" value={projectFreshness.shortLabel} /> : null}
                 {project.commitment ? <PublicDetail label="Czas" value={COMMITMENT_LABELS[project.commitment]} /> : null}
                 {project.collaborationMode ? <PublicDetail label="Tryb" value={COLLABORATION_MODE_LABELS[project.collaborationMode]} /> : null}
                 {project.collaborationPace ? <PublicDetail label="Tempo" value={COLLABORATION_PACE_LABELS[project.collaborationPace]} /> : null}

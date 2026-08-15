@@ -14,7 +14,7 @@ import { listIdeas, listProjects } from "@/server/data/projects";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
 export const metadata: Metadata = {
-  title: "Pierwsze dopasowania — BuildCrew",
+  title: "Pierwsze dopasowania - BuildCrew",
   robots: { index: false, follow: false },
 };
 
@@ -111,6 +111,7 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
                     interests: builder.interests,
                     lookingFor: builder.lookingFor,
                     lastActiveAt: builder.lastActiveAt,
+                    createdAt: builder.createdAt,
                   }}
                 />
               ))}

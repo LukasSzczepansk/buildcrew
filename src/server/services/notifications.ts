@@ -97,7 +97,7 @@ export async function createNotification(
     }),
     scheduledAt: scheduledFor?.toISOString(),
     idempotencyKey: `notification-${created.id}`,
-    devPreview: `${emailTitle}${emailIntro ? ` — ${emailIntro}` : ""}\n${link ?? "/dashboard"}`,
+    devPreview: `${emailTitle}${emailIntro ? ` - ${emailIntro}` : ""}\n${link ?? "/dashboard"}`,
   });
 
   if (result.ok) {

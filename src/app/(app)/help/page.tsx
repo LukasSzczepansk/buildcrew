@@ -10,7 +10,7 @@ import { timeAgo } from "@/lib/utils";
 import { getCurrentUser } from "@/lib/auth";
 import { listQuestions } from "@/server/data/help";
 
-export const metadata: Metadata = { title: "Pomoc — BuildCrew" };
+export const metadata: Metadata = { title: "Pomoc - BuildCrew" };
 
 export default async function HelpPage() {
   const user = await getCurrentUser();

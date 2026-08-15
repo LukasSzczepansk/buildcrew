@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getAdminAnalytics, listAdminActivity } from "@/server/data/admin";
 
-export const metadata: Metadata = { title: "Aktywność — Admin BuildCrew" };
+export const metadata: Metadata = { title: "Aktywność - Admin BuildCrew" };
 
 const eventLabels: Record<string, string> = {
   profile_created: "Utworzone profile",

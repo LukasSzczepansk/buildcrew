@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { timeAgo } from "@/lib/utils";
 import { listNotifications } from "@/server/data/notifications";
 
-export const metadata: Metadata = { title: "Powiadomienia — BuildCrew" };
+export const metadata: Metadata = { title: "Powiadomienia - BuildCrew" };
 
 export default async function NotificationsPage() {
   const user = await getCurrentUser();

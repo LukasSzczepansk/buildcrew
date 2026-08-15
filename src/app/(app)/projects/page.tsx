@@ -12,7 +12,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { listProjects } from "@/server/data/projects";
 import type { Commitment, Level, RoleType, Stage } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Projekty — BuildCrew" };
+export const metadata: Metadata = { title: "Projekty - BuildCrew" };
 
 export default async function ProjectsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getCurrentUser();
@@ -31,7 +31,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <Topbar title="Projekty" subtitle="Sprawdź stack, otwarte role i wymagany czas — bez przeklikiwania każdej karty." />
+      <Topbar title="Projekty" subtitle="Sprawdź stack, otwarte role i wymagany czas - bez przeklikiwania każdej karty." />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <DiscoveryTabs active="projects" />
         <Button asChild variant="outline" size="sm"><Link href="/my-projects">Moje projekty</Link></Button>

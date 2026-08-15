@@ -41,7 +41,7 @@ export async function followProject(projectId: string) {
   const row = await db.select({ id: projects.id, ownerId: projects.ownerId }).from(projects)
     .where(and(eq(projects.id, parsed.data), eq(projects.entryType, "PROJECT"))).limit(1);
   if (!row[0]) return { error: "Projekt nie istnieje." };
-  if (row[0].ownerId === user.id) return { error: "To Twój projekt — nie musisz go obserwować." };
+  if (row[0].ownerId === user.id) return { error: "To Twój projekt - nie musisz go obserwować." };
 
   await db.insert(projectFollows).values({ projectId: parsed.data, userId: user.id }).onConflictDoNothing();
   await logEvent("project_follow", user.id, { projectId: parsed.data });

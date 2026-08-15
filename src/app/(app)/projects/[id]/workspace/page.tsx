@@ -11,7 +11,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getProjectWorkspace } from "@/server/data/project-workspace";
 
 export const metadata: Metadata = {
-  title: "Workspace projektu — BuildCrew",
+  title: "Workspace projektu - BuildCrew",
   robots: { index: false, follow: false },
 };
 

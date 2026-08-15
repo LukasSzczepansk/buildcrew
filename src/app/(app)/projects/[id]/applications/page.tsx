@@ -9,7 +9,7 @@ import { listApplicationsForProject } from "@/server/data/applications";
 import { getProfileByUserId } from "@/server/data/profiles";
 import type { RoleType } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Zgłoszenia — BuildCrew" };
+export const metadata: Metadata = { title: "Zgłoszenia - BuildCrew" };
 
 export default async function ProjectApplicationsPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -31,7 +31,7 @@ export default async function ProjectApplicationsPage({ params }: { params: Prom
 
   return (
     <div>
-      <Topbar title={`Zgłoszenia — ${project.name}`} subtitle={`${applications.filter((application) => application.status === "PENDING").length} osób czeka na decyzję. Zobacz, co mogą wnieść do ekipy.`} />
+      <Topbar title={`Zgłoszenia - ${project.name}`} subtitle={`${applications.filter((application) => application.status === "PENDING").length} osób czeka na decyzję. Zobacz, co mogą wnieść do ekipy.`} />
 
       {applications.length === 0 ? (
         <EmptyState

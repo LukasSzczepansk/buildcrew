@@ -5,7 +5,7 @@ import { ProjectWizard } from "@/components/projects/project-wizard";
 import { getCurrentUser } from "@/lib/auth";
 import { getIdeaById } from "@/server/data/projects";
 
-export const metadata: Metadata = { title: "Dodaj projekt — BuildCrew" };
+export const metadata: Metadata = { title: "Dodaj projekt - BuildCrew" };
 
 export default async function NewProjectPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getCurrentUser();

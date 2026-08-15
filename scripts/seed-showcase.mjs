@@ -252,7 +252,7 @@ const projects = [
     ownerId: builders[3].id,
     name: "Briefly",
     tagline: "Jeden prosty brief dla małych zespołów zamiast informacji rozsianych po czatach.",
-    description: "MVP ma pozwalać stworzyć brief projektu, dopisać decyzje, linki i najbliższy cel. Chcę uniknąć rozbudowanego project managementu — to ma być lekkie miejsce startowe dla 2–5 osób.",
+    description: "MVP ma pozwalać stworzyć brief projektu, dopisać decyzje, linki i najbliższy cel. Chcę uniknąć rozbudowanego project managementu - to ma być lekkie miejsce startowe dla 2–5 osób.",
     stage: "BUILDING",
     interests: ["SaaS", "Productivity"],
     commitment: "5-10",
@@ -270,7 +270,7 @@ const projects = [
     ownerId: builders[7].id,
     name: "SkillSprint",
     tagline: "Małe 14-dniowe wyzwania do nauki konkretnej umiejętności w grupie 3–5 osób.",
-    description: "Użytkownik wybiera cel, dołącza do małej grupy i codziennie zaznacza krótki postęp. MVP bez feedu i gamifikacji — tylko wspólny cel, check-in i podsumowanie sprintu.",
+    description: "Użytkownik wybiera cel, dołącza do małej grupy i codziennie zaznacza krótki postęp. MVP bez feedu i gamifikacji - tylko wspólny cel, check-in i podsumowanie sprintu.",
     stage: "DESIGN",
     interests: ["Education", "Social"],
     commitment: "3-5",
@@ -306,7 +306,7 @@ const projects = [
     ownerId: builders[5].id,
     name: "DocLens",
     tagline: "Wyszukiwanie odpowiedzi w małym zestawie dokumentów technicznych z podaniem źródła.",
-    description: "Chcę zrobić małe narzędzie do wrzucenia 20–50 dokumentów i zadawania pytań z cytowaniem konkretnych fragmentów. Bez agentów i automatyzacji — skupiamy się na jakości retrievalu i ocenie odpowiedzi.",
+    description: "Chcę zrobić małe narzędzie do wrzucenia 20–50 dokumentów i zadawania pytań z cytowaniem konkretnych fragmentów. Bez agentów i automatyzacji - skupiamy się na jakości retrievalu i ocenie odpowiedzi.",
     stage: "TESTING",
     interests: ["AI", "Developer Tools"],
     commitment: "5-10",
@@ -411,7 +411,7 @@ const projects = [
 const questions = [
   ["74000000-0000-4000-8000-000000000001", builders[4].id, "Jak najlepiej walidować formularz w Next.js: tylko Zod na serwerze czy też klient?", "Mam formularz tworzenia projektu. Chcę mieć szybkie błędy w UI, ale nie dublować całej logiki. Jak sensownie podzielić walidację?", ["Next.js", "Zod", "Forms"]],
   ["74000000-0000-4000-8000-000000000002", builders[1].id, "Kiedy indeks w PostgreSQL faktycznie pomaga przy małej aplikacji?", "Mam kilka tabel po kilkanaście tysięcy rekordów. Czy indeksować wszystkie foreign keys i pola używane w filtrach, czy najpierw mierzyć zapytania?", ["PostgreSQL", "Backend", "Performance"]],
-  ["74000000-0000-4000-8000-000000000003", builders[6].id, "Expo push notifications — od czego zacząć bez komplikowania backendu?", "Potrzebuję tylko jednego typu przypomnienia dziennie. Czy na MVP wystarczy Expo Push Service i prosty cron?", ["Expo", "Mobile", "Notifications"]],
+  ["74000000-0000-4000-8000-000000000003", builders[6].id, "Expo push notifications - od czego zacząć bez komplikowania backendu?", "Potrzebuję tylko jednego typu przypomnienia dziennie. Czy na MVP wystarczy Expo Push Service i prosty cron?", ["Expo", "Mobile", "Notifications"]],
   ["74000000-0000-4000-8000-000000000004", builders[5].id, "Jak dobrać rozmiar chunków do RAG dla dokumentacji technicznej?", "Przy 300–400 tokenach gubię czasem kontekst, a przy większych chunkach retrieval robi się mniej precyzyjny. Jak to sensownie testować?", ["RAG", "AI", "Search"]],
   ["74000000-0000-4000-8000-000000000005", builders[2].id, "Jak mały powinien być design system na MVP?", "Mamy około 12 ekranów i dwie osoby na frontendzie. Nie chcę budować biblioteki komponentów przez tydzień, ale bez zasad UI szybko się rozjeżdża.", ["Figma", "UI", "Design System"]],
   ["74000000-0000-4000-8000-000000000006", builders[8].id, "Czy warto od razu dodawać Redis do rate limitingu?", "Aplikacja stoi na Vercelu i PostgreSQL. Ruch jest jeszcze mały. Czy trzymanie bucketów rate limit w Postgresie jest wystarczające na start?", ["Redis", "PostgreSQL", "Rate Limiting"]],
@@ -474,9 +474,9 @@ const buildPoolListings = [
   ["79000000-0000-4000-8000-000000000002", builders[1].id, "Backend + baza: dołączę do produktu z konkretnym problemem", "BACKEND", ["Node.js", "PostgreSQL", "Docker"], "Najchętniej API, automatyzacja albo fintech. Mogę ogarnąć model danych, auth, integracje i deployment.", "Bez rozbudowanego mikroserwisowego setupu na start.", "3-5", 2, "EXPERIENCED", "Szukam jednej lub dwóch osób, które chcą szybko przejść od pomysłu do działającej wersji."],
   ["79000000-0000-4000-8000-000000000003", builders[2].id, "UX/UI do ekipy budującej użyteczne MVP", "UI_UX", ["Figma", "UI Design", "Design Systems"], "Chcę zaprojektować flow produktu od pierwszego szkicu po testowalny interfejs. Najbardziej interesują mnie edukacja, zdrowie i productivity.", "Nie interesuje mnie samo robienie landing page bez pracy nad produktem.", "3-5", 3, "BUILDING", "Mogę prowadzić szybkie prototypy i testy użyteczności."],
   ["79000000-0000-4000-8000-000000000004", builders[5].id, "Zbudujmy praktyczne AI zamiast kolejnego wrappera", "AI_ML", ["Python", "RAG", "FastAPI", "pgvector"], "Szukam pomysłu, gdzie AI rozwiązuje konkretny workflow: wyszukiwanie, ekstrakcja dokumentów, automatyzacja albo asystent oparty o własne dane.", "Nie chcę robić projektu opartego wyłącznie na jednym promptcie bez własnej wartości.", "5-10", 3, "BUILDING", "Mogę wziąć część AI/backend i przygotować pierwszą ewaluację jakości."],
-  ["79000000-0000-4000-8000-000000000005", builders[6].id, "React Native / Expo — szukam małej aplikacji mobilnej", "MOBILE", ["React Native", "Expo", "TypeScript"], "Chcę zbudować apkę, którą da się naprawdę zainstalować i przetestować. Fitness, zdrowie, travel albo proste narzędzie użytkowe.", "Bez ogromnego scope i dziesiątek ekranów w pierwszej wersji.", "3-5", 3, "BUILDING", "Najbardziej zależy mi na publicznym MVP i pracy z realnym feedbackiem."],
+  ["79000000-0000-4000-8000-000000000005", builders[6].id, "React Native / Expo - szukam małej aplikacji mobilnej", "MOBILE", ["React Native", "Expo", "TypeScript"], "Chcę zbudować apkę, którą da się naprawdę zainstalować i przetestować. Fitness, zdrowie, travel albo proste narzędzie użytkowe.", "Bez ogromnego scope i dziesiątek ekranów w pierwszej wersji.", "3-5", 3, "BUILDING", "Najbardziej zależy mi na publicznym MVP i pracy z realnym feedbackiem."],
   ["79000000-0000-4000-8000-000000000006", builders[7].id, "Product person szuka technicznej ekipy do walidacji pomysłu", "PRODUCT", ["Product Discovery", "User Research", "Analytics"], "Chcę wspólnie znaleźć problem, zrobić kilka rozmów z użytkownikami i zbudować minimalną wersję do sprawdzenia jednej hipotezy.", "Nie chcę zaczynać od wielkiej roadmapy ani monetyzacji bez walidacji.", "3-5", 3, "EXPERIENCED", "Mogę prowadzić discovery, scope MVP i pierwsze testy z użytkownikami."],
-  ["79000000-0000-4000-8000-000000000007", builders[13].id, "Full-stack na szybkie MVP — mogę dowozić regularnie", "FULLSTACK", ["Next.js", "TypeScript", "PostgreSQL", "Drizzle ORM"], "Szukam 1–2 osób do produktu webowego, który można rozwijać co tydzień. SaaS, developer tools albo automatyzacja brzmią najlepiej.", "Nie szukam projektu, w którym przez miesiąc tylko planujemy.", "10+", 3, "BUILDING", "Mogę postawić bazę, backend, frontend i pierwsze wdrożenie."],
+  ["79000000-0000-4000-8000-000000000007", builders[13].id, "Full-stack na szybkie MVP - mogę dowozić regularnie", "FULLSTACK", ["Next.js", "TypeScript", "PostgreSQL", "Drizzle ORM"], "Szukam 1–2 osób do produktu webowego, który można rozwijać co tydzień. SaaS, developer tools albo automatyzacja brzmią najlepiej.", "Nie szukam projektu, w którym przez miesiąc tylko planujemy.", "10+", 3, "BUILDING", "Mogę postawić bazę, backend, frontend i pierwsze wdrożenie."],
 ];
 
 function allShowcaseIds() {

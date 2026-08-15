@@ -20,7 +20,7 @@ const uuidPk = () =>
     .$defaultFn(() => crypto.randomUUID());
 
 // ---------------------------------------------------------------------------
-// Auth (minimal, self-hosted — see README for the Supabase Auth equivalent)
+// Auth (minimal, self-hosted - see README for the Supabase Auth equivalent)
 // ---------------------------------------------------------------------------
 
 export const systemRoleEnum = ["USER", "MODERATOR", "ADMIN"] as const;
@@ -1053,7 +1053,7 @@ export const adminAuditLogs = pgTable("admin_audit_logs", {
 }, (t) => [index("admin_audit_created_idx").on(t.createdAt)]);
 
 // ---------------------------------------------------------------------------
-// Analytics (lightweight event log — see section 38 of the spec)
+// Analytics (lightweight event log - see section 38 of the spec)
 // ---------------------------------------------------------------------------
 
 export const analyticsEventTypeEnum = [
@@ -1085,6 +1085,7 @@ export const analyticsEventTypeEnum = [
   "project_unfollow",
   "project_update_published",
   "project_completed",
+  "project_recruitment_refreshed",
   "hackathon_joined",
   "hackathon_team_created",
   "hackathon_team_invite_sent",

@@ -14,7 +14,7 @@ import { CHALLENGE_STATUS_LABELS } from "@/lib/constants";
 import { getCrewById, getMembershipCrewForUser } from "@/server/data/crews";
 import { getChallenge, getChallengeParticipantCount, getChallengeParticipation, listChallengeMatches, listShowcaseEntries } from "@/server/data/showcase";
 
-export const metadata: Metadata = { title: "Build Challenge — BuildCrew" };
+export const metadata: Metadata = { title: "Build Challenge - BuildCrew" };
 export default async function ChallengePage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser(); if (!user) redirect("/login"); const { id } = await params;
   const challenge = await getChallenge(id); if (!challenge) notFound();

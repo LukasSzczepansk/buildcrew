@@ -21,7 +21,7 @@ import {
 } from "@/server/data/network";
 import type { RoleType } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Moja sieć — BuildCrew" };
+export const metadata: Metadata = { title: "Moja sieć - BuildCrew" };
 
 type Tab = "collaborators" | "following" | "followers" | "contacts";
 

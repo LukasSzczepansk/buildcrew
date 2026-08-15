@@ -107,7 +107,7 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
             {listing ? <Badge variant="secondary">{STATUS_LABELS[listing.status]}</Badge> : null}
           </div>
           <p className="mt-1 text-sm text-neutral-500">
-            {activeCrew ? "Masz aktywną ekipę — nadal możesz zapraszać innych." : "Wystaw się, jeśli jesteś gotowy na wspólne budowanie."}
+            {activeCrew ? "Masz aktywną ekipę - nadal możesz zapraszać innych." : "Wystaw się, jeśli jesteś gotowy na wspólne budowanie."}
           </p>
           {listing ? <p className="mt-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">{listing.headline}</p> : null}
         </div>

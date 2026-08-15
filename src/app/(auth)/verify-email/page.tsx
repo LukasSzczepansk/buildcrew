@@ -4,7 +4,7 @@ import { AutoVerifyEmail } from "@/components/auth/auto-verify-email";
 import { VerificationWaitingRoom } from "@/components/auth/verification-waiting-room";
 import { getCurrentUser } from "@/lib/auth";
 
-export const metadata: Metadata = { title: "Potwierdź e-mail — BuildCrew" };
+export const metadata: Metadata = { title: "Potwierdź e-mail - BuildCrew" };
 
 export default async function VerifyEmailPage({
   searchParams,

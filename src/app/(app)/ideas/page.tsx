@@ -15,7 +15,7 @@ import { listIdeas } from "@/server/data/projects";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
 import type { RoleType } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Pomysły — BuildCrew" };
+export const metadata: Metadata = { title: "Pomysły - BuildCrew" };
 
 export default async function IdeasPage() {
   const user = await getCurrentUser();

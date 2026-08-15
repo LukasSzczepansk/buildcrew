@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { QuestionForm } from "@/components/help/question-form";
 
-export const metadata: Metadata = { title: "Zadaj pytanie — BuildCrew" };
+export const metadata: Metadata = { title: "Zadaj pytanie - BuildCrew" };
 
 export default function NewQuestionPage() {
   return (

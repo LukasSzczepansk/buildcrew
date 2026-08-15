@@ -421,3 +421,38 @@ export async function leaveProject(projectId: string) {
   revalidatePath("/my-projects");
   return { success: true };
 }
+
+export async function refreshProjectRecruitmentAction(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  if (!uuidSchema.safeParse(projectId).success) return;
+
+  const user = await getVerifiedCurrentUser();
+  if (!user) return;
+
+  const rateError = await enforceUserRateLimit("action:project:refresh-recruitment", user.id, 20, 24 * 60 * 60);
+  if (rateError) return;
+
+  const projectRows = await db
+    .select({ id: projects.id, ownerId: projects.ownerId, lifecycleStatus: projects.lifecycleStatus })
+    .from(projects)
+    .where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT")))
+    .limit(1);
+  const project = projectRows[0];
+
+  if (!project || project.ownerId !== user.id || project.lifecycleStatus !== "ACTIVE") return;
+
+  const roleRows = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(projectRoles)
+    .where(eq(projectRoles.projectId, projectId));
+  if ((roleRows[0]?.count ?? 0) === 0) return;
+
+  await db.update(projects).set({ updatedAt: new Date() }).where(eq(projects.id, projectId));
+  await logEvent("project_recruitment_refreshed", user.id, { projectId });
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/p/${projectId}`);
+  revalidatePath("/projects");
+  revalidatePath("/my-projects");
+  revalidatePath("/dashboard");
+}

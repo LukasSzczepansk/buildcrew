@@ -47,7 +47,7 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile): Mat
       `${other.role ? ROLE_LABELS[other.role] : "Ich rola"} uzupełnia Twoją (${me.role ? ROLE_LABELS[me.role] : "brak"})`,
     );
   } else if (me.role && other.role && me.role === other.role) {
-    reasons.push(`Oboje jesteście ${ROLE_LABELS[me.role]} — możecie się wspierać`);
+    reasons.push(`Oboje jesteście ${ROLE_LABELS[me.role]} - możecie się wspierać`);
     score += 8;
   }
 

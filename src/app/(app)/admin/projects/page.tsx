@@ -8,7 +8,7 @@ import { STAGE_LABELS, COMMITMENT_LABELS } from "@/lib/constants";
 import { deleteProjectAdminAction } from "@/server/actions/admin";
 import { listAdminProjects } from "@/server/data/admin";
 
-export const metadata: Metadata = { title: "Projekty — Admin BuildCrew" };
+export const metadata: Metadata = { title: "Projekty - Admin BuildCrew" };
 
 export default async function AdminProjectsPage() {
   const rows = await listAdminProjects();
@@ -26,7 +26,7 @@ export default async function AdminProjectsPage() {
                 <td className="px-4 py-4"><Badge variant="secondary">{STAGE_LABELS[project.stage]}</Badge></td>
                 <td className="px-4 py-4"><p>{project.memberCount} osób</p><p className="text-[13px] text-neutral-400">{project.openRoleDefinitions} ról</p></td>
                 <td className="px-4 py-4">{project.applicationCount}</td>
-                <td className="px-4 py-4">{project.commitment ? COMMITMENT_LABELS[project.commitment] : "—"}</td>
+                <td className="px-4 py-4">{project.commitment ? COMMITMENT_LABELS[project.commitment] : "-"}</td>
                 <td className="px-5 py-4"><div className="flex justify-end gap-2"><Link href={`/projects/${project.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-200 px-3 text-[13px] font-medium hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"><ExternalLink className="h-3.5 w-3.5"/> Otwórz</Link><form action={deleteProjectAdminAction}><input type="hidden" name="projectId" value={project.id}/><ConfirmSubmit message={`Usunąć projekt „${project.name}”? Tej operacji nie można cofnąć.`} variant="destructive" size="sm"><Trash2 className="h-3.5 w-3.5"/> Usuń</ConfirmSubmit></form></div></td>
               </tr>)}
             </tbody>

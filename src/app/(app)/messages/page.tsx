@@ -10,7 +10,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { timeAgo } from "@/lib/utils";
 import { listConversationSummaries } from "@/server/data/messages";
 
-export const metadata: Metadata = { title: "Wiadomości — BuildCrew" };
+export const metadata: Metadata = { title: "Wiadomości - BuildCrew" };
 
 export default async function MessagesPage() {
   const user = await getCurrentUser();

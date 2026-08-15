@@ -6,6 +6,7 @@ import { CalendarRange, CircleHelp, ExternalLink, FolderKanban, LayoutDashboard,
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { UserRoleBadge } from "@/components/ui/user-role-badge";
 import { logoutAction } from "@/server/actions/auth";
 import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
 
@@ -37,13 +38,13 @@ function NavGroup({ label, items, pathname, unreadMessages }: { label: string; i
               key={item.href}
               href={item.href}
               className={cn(
-                "group relative flex h-10 items-center gap-2.5 rounded-[6px] px-3 text-sm font-medium transition-colors",
+                "group relative flex min-h-10 items-center gap-2.5 rounded-[8px] px-3 text-sm font-medium transition-colors",
                 active ? "bg-[var(--bc-surface)] text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)]",
               )}
             >
-              {active ? <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-[var(--bc-accent)]" /> : null}
-              <Icon className="h-[15px] w-[15px]" strokeWidth={1.8} />
-              <span className="flex-1">{item.label}</span>
+              {active ? <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-full bg-[var(--bc-accent)]" /> : null}
+              <Icon className="h-[15px] w-[15px] shrink-0" strokeWidth={1.8} />
+              <span className="min-w-0 flex-1">{item.label}</span>
               {item.href === "/messages" && unreadMessages > 0 ? <span className="min-w-5 rounded-full bg-[var(--bc-accent)] px-1.5 py-0.5 text-center text-[11px] font-semibold text-neutral-950">{unreadMessages > 99 ? "99+" : unreadMessages}</span> : null}
             </Link>
           );
@@ -53,14 +54,14 @@ function NavGroup({ label, items, pathname, unreadMessages }: { label: string; i
   );
 }
 
-export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages = 0 }: { username: string; avatarEmoji: string; admin?: boolean; unreadMessages?: number }) {
+export function Sidebar({ username, avatarEmoji, admin = false, founder = false, unreadMessages = 0 }: { username: string; avatarEmoji: string; admin?: boolean; founder?: boolean; unreadMessages?: number }) {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-[224px] shrink-0 flex-col border-r border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-4 py-5 lg:flex">
+    <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 overflow-y-auto border-r border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-4 py-5 lg:flex lg:flex-col xl:w-[256px]">
       <Link href="/dashboard" className="mb-7 flex items-center gap-3 px-1 text-[16px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[6px] bg-neutral-950 text-white dark:bg-white dark:text-neutral-950">BC</span>
-        <span>BuildCrew</span>
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] bg-neutral-950 text-white dark:bg-white dark:text-neutral-950">BC</span>
+        <span className="truncate">BuildCrew</span>
       </Link>
 
       <div className="space-y-7">
@@ -70,40 +71,56 @@ export function Sidebar({ username, avatarEmoji, admin = false, unreadMessages =
 
       {admin ? (
         <div className="mt-7 border-t border-[var(--bc-line)] pt-4">
-          <Link href="/admin" className={cn("flex h-10 items-center gap-2.5 rounded-[6px] px-3 text-sm font-medium transition-colors", pathname.startsWith("/admin") ? "bg-neutral-950 text-white dark:bg-white dark:text-neutral-950" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)]")}>
-            <ShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.8} />
-            Panel admina
+          <Link
+            href="/admin"
+            className={cn(
+              "flex min-h-10 items-center gap-2.5 rounded-[8px] px-3 text-sm font-medium transition-colors",
+              pathname.startsWith("/admin") ? "bg-neutral-950 text-white dark:bg-white dark:text-neutral-950" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)]",
+            )}
+          >
+            <ShieldCheck className="h-[15px] w-[15px] shrink-0" strokeWidth={1.8} />
+            <span className="min-w-0 truncate">Panel admina</span>
           </Link>
         </div>
       ) : null}
 
       <div className="min-h-6 flex-1" />
 
-      {isAiContestActive() ? (
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mb-4 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-3 text-[12px] leading-4 text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">
-          <span className="block font-semibold text-[var(--bc-ink)]">{AI_CONTEST.shortTitle}</span>
-          <span className="mt-1 inline-flex items-center gap-1">do {AI_CONTEST.deadlineLabel} <ExternalLink className="h-3 w-3" /></span>
-        </a>
-      ) : null}
+      <div className="mt-auto space-y-4 pb-2">
+        {isAiContestActive() ? (
+          <a
+            href={DISCORD_INVITE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-3 text-[12px] leading-4 text-[var(--bc-muted)] transition-colors hover:text-[var(--bc-ink)]"
+          >
+            <span className="block font-semibold text-[var(--bc-ink)]">{AI_CONTEST.shortTitle}</span>
+            <span className="mt-1 inline-flex items-center gap-1">do {AI_CONTEST.deadlineLabel} <ExternalLink className="h-3 w-3" /></span>
+          </a>
+        ) : null}
 
-      <div className="mb-4 flex items-center gap-4 px-2 text-[13px] text-[var(--bc-faint)]">
-        <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--bc-ink)] hover:underline">Discord</a>
-        <Link href="/help" className="inline-flex items-center gap-1 hover:text-[var(--bc-ink)] hover:underline"><CircleHelp className="h-3.5 w-3.5" /> Pomoc</Link>
-      </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-2 text-[13px] text-[var(--bc-faint)]">
+          <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--bc-ink)] hover:underline">Discord</a>
+          <Link href="/help" className="inline-flex items-center gap-1 hover:text-[var(--bc-ink)] hover:underline"><CircleHelp className="h-3.5 w-3.5 shrink-0" /> Pomoc</Link>
+        </div>
 
-      <div className="border-t border-[var(--bc-line)] pt-3">
-        <Link href="/profile" className="flex items-center gap-3 rounded-[8px] px-2 py-2.5 transition-colors hover:bg-[var(--bc-surface)]">
-          <Avatar username={username} seed={avatarEmoji || username} size="sm" className="h-8 w-8 text-[13px]" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{username}</p>
-            <p className="text-[12px] text-[var(--bc-faint)]">Profil i ustawienia</p>
-          </div>
-        </Link>
-        <form action={logoutAction}>
-          <Button type="submit" variant="ghost" size="sm" className="mt-1 w-full justify-start gap-2 px-2 text-[var(--bc-muted)] hover:text-[var(--bc-danger)]">
-            <LogOut className="h-3.5 w-3.5" /> Wyloguj
-          </Button>
-        </form>
+        <div className="border-t border-[var(--bc-line)] pt-3">
+          <Link href="/profile" className="flex items-center gap-3 rounded-[8px] px-2 py-2.5 transition-colors hover:bg-[var(--bc-surface)]">
+            <Avatar username={username} seed={avatarEmoji || username} size="sm" className={cn("h-10 w-10 shrink-0 text-[14px]", founder && "ring-2 ring-[#C8F169] ring-offset-2 ring-offset-[var(--bc-surface-subtle)]")} />
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{username}</p>
+                {founder ? <UserRoleBadge founder compact /> : admin ? <UserRoleBadge systemRole="ADMIN" compact /> : null}
+              </div>
+              <p className="text-[12px] text-[var(--bc-faint)]">Profil i ustawienia</p>
+            </div>
+          </Link>
+          <form action={logoutAction}>
+            <Button type="submit" variant="ghost" size="sm" className="mt-1 w-full justify-start gap-2 px-2 text-[var(--bc-muted)] hover:text-[var(--bc-danger)]">
+              <LogOut className="h-3.5 w-3.5 shrink-0" /> Wyloguj
+            </Button>
+          </form>
+        </div>
       </div>
     </aside>
   );

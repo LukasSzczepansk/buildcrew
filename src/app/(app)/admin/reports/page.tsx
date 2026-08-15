@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { updateReportAction } from "@/server/actions/admin";
 import { listAdminReports } from "@/server/data/admin";
 
-export const metadata: Metadata = { title: "Zgłoszenia — Admin BuildCrew" };
+export const metadata: Metadata = { title: "Zgłoszenia - Admin BuildCrew" };
 
 const statusLabel: Record<string, string> = { open: "Otwarte", in_review: "W trakcie", resolved: "Rozwiązane", dismissed: "Odrzucone" };
 const reasonLabel: Record<string, string> = { spam: "Spam", scam: "Scam / oszustwo", harassment: "Nękanie", inappropriate: "Nieodpowiednie treści", other: "Inne" };

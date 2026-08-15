@@ -15,8 +15,8 @@ import { getHackathonBySlug, getHackathonRoleCounts, getHackathonStats, listHack
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const event = await getHackathonBySlug(slug);
-  if (!event) return { title: "Hackathon — BuildCrew", robots: { index: false, follow: false } };
-  const title = `${event.name} — znajdź zespół | BuildCrew`;
+  if (!event) return { title: "Hackathon - BuildCrew", robots: { index: false, follow: false } };
+  const title = `${event.name} - znajdź zespół | BuildCrew`;
   const description = `${event.summary} Znajdź osoby i teamy, które kompletują skład na to samo wydarzenie.`;
   return {
     title,

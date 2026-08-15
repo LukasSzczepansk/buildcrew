@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { safeInternalRedirect } from "@/lib/redirects";
 import { signupAction } from "@/server/actions/auth";
 
-export const metadata: Metadata = { title: "Załóż konto — BuildCrew" };
+export const metadata: Metadata = { title: "Załóż konto - BuildCrew" };
 
 const GOOGLE_ERRORS: Record<string, string> = {
   "account-missing": "Nie masz jeszcze konta BuildCrew. Możesz je utworzyć przez Google poniżej.",

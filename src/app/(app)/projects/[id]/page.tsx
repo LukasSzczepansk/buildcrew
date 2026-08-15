@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ExternalLink, ShieldAlert } from "lucide-react";
+import { ExternalLink, RefreshCw, ShieldAlert } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,16 +26,18 @@ import {
   STAGE_LABELS,
 } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
+import { getProjectFreshness } from "@/lib/project-freshness";
 import { getProjectById } from "@/server/data/projects";
 import { getProjectFollowState, listProjectCredits, listProjectUpdates, PROJECT_UPDATE_KIND_LABELS } from "@/server/data/social-projects";
 import { getProfileByUserId } from "@/server/data/profiles";
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import type { Level, RoleType } from "@/db/schema";
+import { refreshProjectRecruitmentAction } from "@/server/actions/projects";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const project = await getProjectById(id);
-  return { title: project ? `${project.name} — BuildCrew` : "Projekt — BuildCrew" };
+  return { title: project ? `${project.name} - BuildCrew` : "Projekt - BuildCrew" };
 }
 
 export default async function ProjectDetailPage({
@@ -65,6 +67,9 @@ export default async function ProjectDetailPage({
 
   const isOwner = project.ownerId === user.id;
   const isMember = project.members.some((member) => member.userId === user.id);
+  const openSlots = project.openRoles.reduce((sum, role) => sum + Math.max(0, role.open ?? 0), 0);
+  const freshness = getProjectFreshness(project.updatedAt);
+  const staleRecruitment = project.lifecycleStatus === "ACTIVE" && openSlots > 0 && freshness.stale;
 
   return (
     <div>
@@ -88,6 +93,7 @@ export default async function ProjectDetailPage({
                 </h1>
                 <Badge variant="secondary">{STAGE_LABELS[project.stage]}</Badge>
                 {project.lifecycleStatus === "COMPLETED" ? <Badge variant="success">Ukończony</Badge> : project.lifecycleStatus === "PAUSED" ? <Badge variant="outline">Wstrzymany</Badge> : null}
+                {project.lifecycleStatus === "ACTIVE" ? <Badge variant={staleRecruitment ? "outline" : "secondary"}>{freshness.shortLabel}</Badge> : null}
               </div>
 
               <p className="mt-2 max-w-[760px] text-[15px] leading-[22px] text-[var(--bc-muted)]">
@@ -112,6 +118,23 @@ export default async function ProjectDetailPage({
           />
         </div>
       </section>
+
+      {isOwner && staleRecruitment ? (
+        <section className="mt-5 border-l-[3px] border-amber-400 bg-amber-50/70 px-4 py-3 dark:bg-amber-500/5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-[var(--bc-ink)]">Czy nadal rekrutujesz do tego projektu?</p>
+              <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{freshness.label}. Potwierdź rekrutację, żeby inni widzieli, że role są nadal aktualne.</p>
+            </div>
+            <form action={refreshProjectRecruitmentAction}>
+              <input type="hidden" name="projectId" value={project.id} />
+              <Button type="submit" size="sm" className="gap-1.5">
+                <RefreshCw className="h-3.5 w-3.5" /> Nadal szukam
+              </Button>
+            </form>
+          </div>
+        </section>
+      ) : null}
 
       {query.created === "1" && isOwner ? (
         <section className="mt-5 border-l-2 border-[var(--bc-accent)] bg-[var(--bc-surface-subtle)] px-4 py-3">

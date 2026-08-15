@@ -17,7 +17,7 @@ import { getDashboardAttention, listFollowedProjectUpdates, PROJECT_UPDATE_KIND_
 import { listIdeas, listProjects } from "@/server/data/projects";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
-export const metadata: Metadata = { title: "Start — BuildCrew" };
+export const metadata: Metadata = { title: "Start - BuildCrew" };
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
           <SectionHeading title="Ludzie do rozmowy" href="/builders" label="Wszyscy builderzy" />
           <div className="mt-3 space-y-2.5">
             {matchingBuilders.map(({ builder, match }) => (
-              <BuilderCard key={builder.userId} matchScore={match.score} matchReasons={match.reasons} builder={{ userId: builder.userId, username: builder.username, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, lastActiveAt: builder.lastActiveAt }} />
+              <BuilderCard key={builder.userId} matchScore={match.score} matchReasons={match.reasons} builder={{ userId: builder.userId, username: builder.username, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, lastActiveAt: builder.lastActiveAt, createdAt: builder.createdAt }} />
             ))}
           </div>
         </section>

@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { isAdmin } from "@/lib/auth";
+import { isAdmin, isFounder } from "@/lib/auth";
 import { isUuid, safeHttpUrl } from "@/lib/security";
 import {
   blocks,
@@ -19,7 +19,7 @@ export type ProfileSummary = Awaited<ReturnType<typeof getProfileByUserId>>;
 export async function getProfileByUserId(userId: string) {
   if (!isUuid(userId)) return null;
   const rows = await db
-    .select({ profile: profiles, email: users.email, lastActiveAt: users.lastActiveAt, lastLoginAt: users.lastLoginAt })
+    .select({ profile: profiles, email: users.email, systemRole: users.systemRole, lastActiveAt: users.lastActiveAt, lastLoginAt: users.lastLoginAt })
     .from(profiles)
     .innerJoin(users, eq(users.id, profiles.userId))
     .where(and(eq(profiles.userId, userId), eq(users.isSuspended, false)))
@@ -44,6 +44,8 @@ export async function getProfileByUserId(userId: string) {
     ...row.profile,
     lastActiveAt: row.lastActiveAt ?? row.lastLoginAt,
     isDemo: row.email.toLowerCase().endsWith(".invalid"),
+    systemRole: row.systemRole,
+    isFounder: isFounder(row.email, row.systemRole),
     githubUrl: safeHttpUrl(row.profile.githubUrl),
     portfolioUrl: safeHttpUrl(row.profile.portfolioUrl),
     linkedinUrl: safeHttpUrl(row.profile.linkedinUrl),
@@ -105,6 +107,8 @@ export async function listBuilderProfiles(excludeUserId?: string) {
       ...r.profile,
       lastActiveAt: r.lastActiveAt ?? r.lastLoginAt,
       isDemo: r.email.toLowerCase().endsWith(".invalid"),
+      systemRole: r.systemRole,
+      isFounder: isFounder(r.email, r.systemRole),
       skills: skillMap.get(r.profile.userId) ?? [],
       interests: interestMap.get(r.profile.userId) ?? [],
     }));

@@ -10,7 +10,7 @@ import { SHOWCASE_CATEGORY_LABELS } from "@/lib/constants";
 import { listShowcaseEntries, type ShowcaseTab } from "@/server/data/showcase";
 import { listCompletedProjects } from "@/server/data/social-projects";
 
-export const metadata: Metadata = { title: "Showcase — BuildCrew" };
+export const metadata: Metadata = { title: "Showcase - BuildCrew" };
 
 export default async function ShowcasePage({ searchParams }: { searchParams: Promise<{ tab?: string; category?: string }> }) {
   const user = await getCurrentUser();
@@ -40,7 +40,7 @@ export default async function ShowcasePage({ searchParams }: { searchParams: Pro
       ) : null}
 
       {entries.some((entry) => entry.isDemo) ? <div className="mb-5 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-4 py-3 text-[13px] text-[var(--bc-muted)]"><span className="font-semibold text-[var(--bc-ink)]">Demo</span> oznacza przykładową zawartość.</div> : null}
-      {entries.length === 0 ? <EmptyState title="Jeszcze nie ma projektów w tej sekcji." description="Jeśli masz działające MVP, eksperyment albo projekt solo — pokaż go społeczności i zbierz feedback." ctaLabel="Dodaj pierwszy projekt" ctaHref="/showcase/new" /> : <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{entries.map((entry) => <ShowcaseCard key={entry.id} currentUserId={user?.id} entry={{ ...entry, viewerReactions: Array.from(entry.viewerReactions) }} />)}</div>}
+      {entries.length === 0 ? <EmptyState title="Jeszcze nie ma projektów w tej sekcji." description="Jeśli masz działające MVP, eksperyment albo projekt solo - pokaż go społeczności i zbierz feedback." ctaLabel="Dodaj pierwszy projekt" ctaHref="/showcase/new" /> : <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{entries.map((entry) => <ShowcaseCard key={entry.id} currentUserId={user?.id} entry={{ ...entry, viewerReactions: Array.from(entry.viewerReactions) }} />)}</div>}
     </div>
   );
 }

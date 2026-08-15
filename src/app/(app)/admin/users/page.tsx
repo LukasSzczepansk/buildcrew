@@ -12,7 +12,7 @@ import { ROLE_LABELS, LEVEL_LABELS } from "@/lib/constants";
 import { setUserSuspensionAction } from "@/server/actions/admin";
 import { listAdminUsers } from "@/server/data/admin";
 
-export const metadata: Metadata = { title: "Użytkownicy — Admin BuildCrew" };
+export const metadata: Metadata = { title: "Użytkownicy - Admin BuildCrew" };
 
 export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;
@@ -38,7 +38,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                 const adminAccount = isAdmin(user.email, user.systemRole);
                 return <tr key={user.id} className="align-top hover:bg-neutral-50/60 dark:hover:bg-neutral-800/30">
                   <td className="px-5 py-4"><div className="flex gap-3"><Avatar username={user.username ?? "Nieukończony profil"} seed={user.id} size="sm" /><div><Link href={`/builders/${user.id}`} className="font-medium hover:text-lime-600">{user.username ?? "Nieukończony profil"}</Link><p className="text-[13px] text-neutral-400">{user.email}</p>{!user.onboardingCompleted ? <Badge variant="warning" className="mt-1">Onboarding nieukończony</Badge> : null}</div></div></td>
-                  <td className="px-4 py-4"><p>{user.role ? ROLE_LABELS[user.role] : "—"}</p><p className="text-[13px] text-neutral-400">{user.level ? LEVEL_LABELS[user.level] : "Brak poziomu"}</p></td>
+                  <td className="px-4 py-4"><p>{user.role ? ROLE_LABELS[user.role] : "-"}</p><p className="text-[13px] text-neutral-400">{user.level ? LEVEL_LABELS[user.level] : "Brak poziomu"}</p></td>
                   <td className="px-4 py-4"><p>{user.ownedProjects} własnych</p><p className="text-[13px] text-neutral-400">{user.projectMemberships} członkostw</p></td>
                   <td className="px-4 py-4">{user.applications}</td>
                   <td className="px-4 py-4">{user.reportsReceived ? <Badge variant="destructive">{user.reportsReceived}</Badge> : <span className="text-neutral-400">0</span>}</td>

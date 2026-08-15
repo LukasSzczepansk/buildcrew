@@ -94,7 +94,7 @@ export function ShareProjectButton({
     }
 
     try {
-      await navigator.share({ title: `${projectName} — BuildCrew`, text: getShareText(), url });
+      await navigator.share({ title: `${projectName} - BuildCrew`, text: getShareText(), url });
     } catch (error) {
       if ((error as DOMException)?.name !== "AbortError") await copy("link");
     }

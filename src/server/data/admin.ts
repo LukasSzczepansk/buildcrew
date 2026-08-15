@@ -45,11 +45,24 @@ export async function getAdminOverview() {
       .where(sql`${analyticsEvents.createdAt} >= now() - interval '7 days'`),
   ]);
 
-  const [recentReports, recentUsers, recentEvents] = await Promise.all([
+  const [recentReports, recentUsers, recentEvents, activeUsers7dRows, newUsers7dRows, funnelRows] = await Promise.all([
     listAdminReports(5),
     listAdminUsers(undefined, 5),
     listAdminActivity(8),
+    db.select({ count: sql<number>`count(*)::int` }).from(users).where(sql`${users.lastActiveAt} >= now() - interval '7 days'`),
+    db.select({ count: sql<number>`count(*)::int` }).from(users).where(sql`${users.createdAt} >= now() - interval '7 days'`),
+    db
+      .select({ eventType: analyticsEvents.eventType, count: sql<number>`count(*)::int` })
+      .from(analyticsEvents)
+      .where(sql`${analyticsEvents.createdAt} >= now() - interval '7 days'`)
+      .groupBy(analyticsEvents.eventType),
   ]);
+
+  const funnel = new Map(funnelRows.map((row) => [row.eventType, row.count]));
+  const projectApplications7d = funnel.get("project_application_sent") ?? 0;
+  const acceptedApplications7d = funnel.get("project_application_accepted") ?? 0;
+  const teamsFormed7d = (funnel.get("crew_created") ?? 0) + (funnel.get("hackathon_team_created") ?? 0);
+  const completedProjects7d = funnel.get("project_completed") ?? 0;
 
   return {
     users: userCount[0]?.count ?? 0,
@@ -62,6 +75,12 @@ export async function getAdminOverview() {
     openReports: openReportCount[0]?.count ?? 0,
     pendingAvatars: pendingAvatarCount[0]?.count ?? 0,
     events7d: eventCount[0]?.count ?? 0,
+    activeUsers7d: activeUsers7dRows[0]?.count ?? 0,
+    newUsers7d: newUsers7dRows[0]?.count ?? 0,
+    projectApplications7d,
+    acceptedApplications7d,
+    teamsFormed7d,
+    completedProjects7d,
     recentReports,
     recentUsers,
     recentEvents,

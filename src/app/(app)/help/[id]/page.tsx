@@ -12,7 +12,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { timeAgo } from "@/lib/utils";
 import { getQuestionById } from "@/server/data/help";
 
-export const metadata: Metadata = { title: "Pytanie — BuildCrew" };
+export const metadata: Metadata = { title: "Pytanie - BuildCrew" };
 
 export default async function QuestionPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
