@@ -698,6 +698,143 @@ export const answers = pgTable("answers", {
 });
 
 // ---------------------------------------------------------------------------
+// External hackathons & team matching
+// ---------------------------------------------------------------------------
+
+export const hackathonLocationTypeEnum = ["ONLINE", "ONSITE", "HYBRID"] as const;
+export type HackathonLocationType = (typeof hackathonLocationTypeEnum)[number];
+
+export const hackathonGoalEnum = ["COMPETE", "BUILD", "NETWORK"] as const;
+export type HackathonGoal = (typeof hackathonGoalEnum)[number];
+
+export const hackathonAvailabilityEnum = ["FULL_EVENT", "MOST_EVENT", "LIMITED"] as const;
+export type HackathonAvailability = (typeof hackathonAvailabilityEnum)[number];
+
+export const hackathonParticipantStatusEnum = ["LOOKING", "IN_TEAM", "PAUSED"] as const;
+export type HackathonParticipantStatus = (typeof hackathonParticipantStatusEnum)[number];
+
+export const hackathonTeamStatusEnum = ["FORMING", "FULL", "CONFIRMED", "ARCHIVED"] as const;
+export type HackathonTeamStatus = (typeof hackathonTeamStatusEnum)[number];
+
+/**
+ * Public information about an external hackathon. BuildCrew is not assumed to
+ * be the organizer or partner. Optional artwork is displayed only after an
+ * administrator explicitly confirms the right to use it.
+ */
+export const hackathons = pgTable("hackathons", {
+  id: uuidPk(),
+  slug: text("slug").notNull(),
+  name: text("name").notNull(),
+  summary: text("summary").notNull(),
+  description: text("description"),
+  organizerName: text("organizer_name"),
+  organizerUrl: text("organizer_url"),
+  officialUrl: text("official_url").notNull(),
+  registrationUrl: text("registration_url"),
+  locationType: text("location_type").$type<HackathonLocationType>().notNull().default("ONSITE"),
+  city: text("city"),
+  venue: text("venue"),
+  startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+  endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+  registrationDeadline: timestamp("registration_deadline", { withTimezone: true }),
+  minTeamSize: integer("min_team_size").notNull().default(2),
+  maxTeamSize: integer("max_team_size").notNull().default(4),
+  themes: text("themes").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
+  coverImageUrl: text("cover_image_url"),
+  mediaRightsConfirmed: boolean("media_rights_confirmed").notNull().default(false),
+  isPartner: boolean("is_partner").notNull().default(false),
+  isCancelled: boolean("is_cancelled").notNull().default(false),
+  isPublished: boolean("is_published").notNull().default(true),
+  createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("hackathons_slug_idx").on(t.slug),
+  index("hackathons_published_start_idx").on(t.isPublished, t.startsAt),
+  check("hackathons_team_size_check", sql`${t.minTeamSize} between 2 and 8 and ${t.maxTeamSize} between ${t.minTeamSize} and 8`),
+]);
+
+export const hackathonParticipants = pgTable("hackathon_participants", {
+  hackathonId: uuid("hackathon_id").notNull().references(() => hackathons.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: text("role").$type<RoleType>().notNull(),
+  technologies: text("technologies").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
+  themes: text("themes").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
+  hasIdea: boolean("has_idea").notNull().default(false),
+  ideaSummary: text("idea_summary"),
+  goal: text("goal").$type<HackathonGoal>().notNull().default("BUILD"),
+  availability: text("availability").$type<HackathonAvailability>().notNull().default("FULL_EVENT"),
+  preferredTeamSize: integer("preferred_team_size").notNull().default(4),
+  status: text("status").$type<HackathonParticipantStatus>().notNull().default("LOOKING"),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.hackathonId, t.userId] }),
+  index("hackathon_participants_lookup_idx").on(t.hackathonId, t.status, t.role),
+  index("hackathon_participants_user_idx").on(t.userId, t.updatedAt),
+  check("hackathon_participant_team_size_check", sql`${t.preferredTeamSize} between 2 and 8`),
+]);
+
+export const hackathonTeams = pgTable("hackathon_teams", {
+  id: uuidPk(),
+  hackathonId: uuid("hackathon_id").notNull().references(() => hackathons.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  ideaTitle: text("idea_title"),
+  ideaSummary: text("idea_summary"),
+  targetSize: integer("target_size").notNull().default(4),
+  status: text("status").$type<HackathonTeamStatus>().notNull().default("FORMING"),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("hackathon_teams_hackathon_status_idx").on(t.hackathonId, t.status, t.createdAt),
+  check("hackathon_teams_target_size_check", sql`${t.targetSize} between 2 and 8`),
+]);
+
+export const hackathonTeamMembers = pgTable("hackathon_team_members", {
+  teamId: uuid("team_id").notNull().references(() => hackathonTeams.id, { onDelete: "cascade" }),
+  hackathonId: uuid("hackathon_id").notNull().references(() => hackathons.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: text("role").$type<RoleType>(),
+  isLead: boolean("is_lead").notNull().default(false),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.teamId, t.userId] }),
+  uniqueIndex("hackathon_team_members_one_team_idx").on(t.hackathonId, t.userId),
+  index("hackathon_team_members_team_idx").on(t.teamId, t.joinedAt),
+]);
+
+export const hackathonTeamInvites = pgTable("hackathon_team_invites", {
+  id: uuidPk(),
+  teamId: uuid("team_id").notNull().references(() => hackathonTeams.id, { onDelete: "cascade" }),
+  hackathonId: uuid("hackathon_id").notNull().references(() => hackathons.id, { onDelete: "cascade" }),
+  inviterId: uuid("inviter_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  inviteeId: uuid("invitee_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  message: text("message"),
+  status: text("status").$type<ApplicationStatus>().notNull().default("PENDING"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  respondedAt: timestamp("responded_at", { withTimezone: true }),
+}, (t) => [
+  uniqueIndex("hackathon_team_invites_pending_idx").on(t.teamId, t.inviteeId).where(sql`${t.status} = 'PENDING'`),
+  index("hackathon_team_invites_invitee_idx").on(t.inviteeId, t.status, t.createdAt),
+]);
+
+export const hackathonTeamRequests = pgTable("hackathon_team_requests", {
+  id: uuidPk(),
+  teamId: uuid("team_id").notNull().references(() => hackathonTeams.id, { onDelete: "cascade" }),
+  hackathonId: uuid("hackathon_id").notNull().references(() => hackathons.id, { onDelete: "cascade" }),
+  applicantId: uuid("applicant_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  message: text("message"),
+  status: text("status").$type<ApplicationStatus>().notNull().default("PENDING"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  respondedAt: timestamp("responded_at", { withTimezone: true }),
+}, (t) => [
+  uniqueIndex("hackathon_team_requests_pending_idx").on(t.teamId, t.applicantId).where(sql`${t.status} = 'PENDING'`),
+  index("hackathon_team_requests_applicant_idx").on(t.applicantId, t.status, t.createdAt),
+]);
+
+// ---------------------------------------------------------------------------
 // Showcase & Build Challenges
 // ---------------------------------------------------------------------------
 
@@ -844,6 +981,9 @@ export const notificationTypeEnum = [
   "PROFILE_AVATAR_REJECTED",
   "PROJECT_UPDATE",
   "PROJECT_COMPLETED",
+  "HACKATHON_TEAM_INVITE",
+  "HACKATHON_TEAM_REQUEST",
+  "HACKATHON_TEAM_JOINED",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
 
@@ -945,6 +1085,10 @@ export const analyticsEventTypeEnum = [
   "project_unfollow",
   "project_update_published",
   "project_completed",
+  "hackathon_joined",
+  "hackathon_team_created",
+  "hackathon_team_invite_sent",
+  "hackathon_team_joined",
 ] as const;
 export type AnalyticsEventType = (typeof analyticsEventTypeEnum)[number];
 

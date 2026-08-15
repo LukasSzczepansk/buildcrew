@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Flag, FolderKanban, Image as ImageIcon, LayoutDashboard, MessageSquareText, Trophy, Users } from "lucide-react";
+import { Activity, CalendarRange, Flag, FolderKanban, Image as ImageIcon, LayoutDashboard, MessageSquareText, Trophy, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -10,6 +10,7 @@ const items = [
   { href: "/admin/users", label: "Użytkownicy", icon: Users },
   { href: "/admin/avatars", label: "Zdjęcia", icon: ImageIcon },
   { href: "/admin/projects", label: "Projekty", icon: FolderKanban },
+  { href: "/admin/hackathons", label: "Hackathony", icon: CalendarRange },
   { href: "/admin/challenges", label: "Challenges", icon: Trophy },
   { href: "/admin/reports", label: "Zgłoszenia", icon: Flag },
   { href: "/admin/content", label: "Treści", icon: MessageSquareText },

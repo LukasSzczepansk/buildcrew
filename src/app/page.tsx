@@ -55,6 +55,7 @@ export default async function LandingPage() {
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-neutral-600 md:flex dark:text-neutral-400">
             <Link href="/projekty" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Projekty</Link>
+            <Link href="/hackathony" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Hackathony</Link>
             <a href="#jak-to-dziala" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Jak działa</a>
             <a href="#dla-kogo" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Dla kogo</a>
             <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Discord</a>
@@ -126,6 +127,7 @@ export default async function LandingPage() {
               <StartRow index="01" title="Mam projekt" text="Opisz kierunek, etap i role, których potrzebujesz." />
               <StartRow index="02" title="Chcę dołączyć" text="Przeglądaj projekty po technologii, roli i czasie." />
               <StartRow index="03" title="Szukam ludzi" text="Znajdź osoby o pasującym profilu i zacznij rozmowę." />
+              <StartRow index="04" title="Jadę na hackathon" text="Wybierz wydarzenie, dołącz do puli i znajdź team z uzupełniającymi się rolami." />
             </div>
           </div>
         </section>
@@ -163,6 +165,7 @@ export default async function LandingPage() {
           <p>© {new Date().getFullYear()} BuildCrew</p>
           <div className="flex flex-wrap gap-5">
             <Link href="/projekty" className="hover:underline">Projekty</Link>
+            <Link href="/hackathony" className="hover:underline">Hackathony</Link>
             <Link href="/regulamin" className="hover:underline">Regulamin</Link>
             <Link href="/polityka-prywatnosci" className="hover:underline">Prywatność</Link>
             <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:underline">Discord</a>

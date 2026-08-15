@@ -27,7 +27,7 @@ const labels: [keyof Prefs, string, string][] = [
   ["emailWeeklyDigest", "Tygodniowe podsumowanie", "Krótki digest: najlepsi ludzie, projekty i nieprzeczytane wiadomości."],
   ["emailBuildPool", "Build Pool", "Ktoś chce zbudować coś razem z Tobą."],
   ["emailCrew", "Crew", "Zaproszenia i ważne zmiany w ekipach."],
-  ["emailChallenge", "Build Challenge", "Start i ważne zmiany statusu challenge."],
+  ["emailChallenge", "Hackathony i Build Challenges", "Zaproszenia do teamu, ważne zmiany wydarzeń i challenge."],
   ["emailShowcaseFeedback", "Feedback do Showcase", "Opcjonalny mail o nowym konstruktywnym feedbacku."],
 ];
 

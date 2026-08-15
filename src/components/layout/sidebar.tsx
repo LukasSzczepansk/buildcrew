@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CircleHelp, ExternalLink, FolderKanban, LayoutDashboard, Lightbulb, LogOut, MessageCircle, ShieldCheck, Trophy, UserRoundCheck, Users } from "lucide-react";
+import { CalendarRange, CircleHelp, ExternalLink, FolderKanban, LayoutDashboard, Lightbulb, LogOut, MessageCircle, ShieldCheck, Trophy, UserRoundCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ const PRIMARY_NAV = [
   { href: "/dashboard", label: "Start", icon: LayoutDashboard },
   { href: "/builders", label: "Ludzie", icon: Users },
   { href: "/projects", label: "Projekty", icon: FolderKanban },
+  { href: "/hackathons", label: "Hackathony", icon: CalendarRange },
   { href: "/ideas", label: "Pomysły", icon: Lightbulb },
 ];
 

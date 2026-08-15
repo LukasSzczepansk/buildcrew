@@ -5,6 +5,9 @@ import type {
   CollaborationPace,
   Commitment,
   Goal,
+  HackathonAvailability,
+  HackathonGoal,
+  HackathonLocationType,
   Level,
   LookingFor,
   ProjectAsset,
@@ -242,6 +245,24 @@ export const SHOWCASE_REACTION_LABELS: Record<ShowcaseReaction, string> = {
   APPLAUSE: "Dobra robota",
   IDEA: "Ciekawy pomysł",
   POTENTIAL: "Ma potencjał",
+};
+
+export const HACKATHON_LOCATION_LABELS: Record<HackathonLocationType, string> = {
+  ONLINE: "Online",
+  ONSITE: "Stacjonarnie",
+  HYBRID: "Hybrydowo",
+};
+
+export const HACKATHON_GOAL_LABELS: Record<HackathonGoal, string> = {
+  COMPETE: "Chcę powalczyć o wynik",
+  BUILD: "Chcę przede wszystkim coś zbudować",
+  NETWORK: "Networking i poznanie ludzi",
+};
+
+export const HACKATHON_AVAILABILITY_LABELS: Record<HackathonAvailability, string> = {
+  FULL_EVENT: "Całe wydarzenie",
+  MOST_EVENT: "Większość wydarzenia",
+  LIMITED: "Ograniczona dostępność",
 };
 
 export const CHALLENGE_STATUS_LABELS: Record<ChallengeStatus, string> = {

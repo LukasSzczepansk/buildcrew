@@ -135,13 +135,15 @@ export default function PrivacyPage() {
           których nie ma prawa ujawniać.
         </p>
 
-        <p><strong>G. Dane Build Challenges i dopasowania</strong></p>
+        <p><strong>G. Dane Build Challenges, hackathonów i dopasowania</strong></p>
         <ul className="list-disc space-y-1 pl-5">
           <li>informacja o udziale w Challenge;</li>
           <li>wybrany sposób udziału, np. z ekipą albo z prośbą o znalezienie ekipy;</li>
           <li>powiązanie z Crew i projektem zgłoszonym do Challenge;</li>
           <li>informacje używane do proponowania potencjalnych współtwórców, np. rola, zainteresowania, poziom i dostępność;</li>
-          <li>informacje o zaakceptowaniu albo odrzuceniu zaproszenia lub propozycji dopasowania.</li>
+          <li>informacje o zaakceptowaniu albo odrzuceniu zaproszenia lub propozycji dopasowania;</li>
+          <li>w przypadku zewnętrznego hackathonu: wybrana rola, stack, zainteresowania, dostępność, preferowany rozmiar teamu, cel udziału i opcjonalny opis pomysłu;</li>
+          <li>członkostwo w teamie hackathonowym, zaproszenia do teamu i prośby o dołączenie.</li>
         </ul>
 
         <p><strong>H. Prywatne wiadomości</strong></p>
@@ -202,7 +204,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>Realizacja funkcji społecznościowych</strong>, w tym profilu, projektów, Crew, Build Pool, kontaktów, obserwowania profili, historii współpracy,
-            wiadomości, Showcase, feedbacku i Build Challenges — na podstawie art. 6 ust. 1 lit. b RODO w zakresie
+            wiadomości, Showcase, feedbacku, Build Challenges i dobierania teamów na hackathony — na podstawie art. 6 ust. 1 lit. b RODO w zakresie
             niezbędnym do świadczenia funkcji wybranych przez użytkownika.
           </li>
           <li>
@@ -213,7 +215,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>Powiadomienia transakcyjne i wiadomości dotyczące konta</strong>, np. o zgłoszeniu do projektu,
-            zaproszeniu do Crew, odpowiedzi w Build Pool, zdarzeniu Challenge, weryfikacji e-maila lub resecie hasła — w
+            zaproszeniu do Crew, odpowiedzi w Build Pool, zdarzeniu Challenge lub zaproszeniu do teamu na hackathon, weryfikacji e-maila lub resecie hasła — w
             celu wykonania umowy i zapewnienia działania żądanych funkcji.
           </li>
           <li>
@@ -251,7 +253,7 @@ export default function PrivacyPage() {
       <LegalSection title="5. Czy podanie danych jest obowiązkowe">
         <p>
           Podanie danych wymaganych podczas rejestracji jest dobrowolne, ale konieczne do utworzenia i korzystania z konta.
-          Podawanie dodatkowych informacji w profilu, linków do innych serwisów, udział w Showcase, Build Challenges i innych
+          Podawanie dodatkowych informacji w profilu, linków do innych serwisów, udział w Showcase, Build Challenges, pulach hackathonów i innych
           funkcjach opcjonalnych jest dobrowolne, ale część danych może być konieczna do skorzystania z konkretnej funkcji.
         </p>
       </LegalSection>
@@ -342,7 +344,7 @@ export default function PrivacyPage() {
       <LegalSection title="10. Okres przechowywania danych">
         <p>Dane konta i profilu są co do zasady przetwarzane przez czas istnienia konta.</p>
         <p>
-          Dane dotyczące projektów, Crew, Build Pool, Showcase, Build Challenges, wiadomości, relacji i aktywności są
+          Dane dotyczące projektów, Crew, Build Pool, Showcase, Build Challenges, udziału w pulach hackathonów, teamów hackathonowych, wiadomości, relacji i aktywności są
           przechowywane przez okres potrzebny do świadczenia funkcji, z których użytkownik korzysta, lub do czasu ich usunięcia
           zgodnie z funkcjami Serwisu.
         </p>
@@ -431,7 +433,7 @@ export default function PrivacyPage() {
         <p>
           BuildCrew może wysyłać wiadomości e-mail związane z bezpieczeństwem i obsługą konta oraz — zgodnie z preferencjami
           użytkownika — wybranymi zdarzeniami społecznościowymi, takimi jak wiadomość od innego użytkownika, zgłoszenie lub zaproszenie do projektu, odpowiedź w Build Pool,
-          zaproszenie do Crew, mocne dopasowanie profilu lub projektu, tygodniowe podsumowanie, zdarzenie Build Challenge albo feedback w Showcase.
+          zaproszenie do Crew, zaproszenie lub zgłoszenie do teamu hackathonowego, mocne dopasowanie profilu lub projektu, tygodniowe podsumowanie, zdarzenie Build Challenge albo feedback w Showcase.
           W przypadku prywatnej rozmowy BuildCrew może zaplanować e-mail z opóźnieniem i anulować go, jeżeli użytkownik wcześniej odczyta rozmowę.
           Domyślny e-mail przypominający o prywatnej rozmowie nie musi zawierać treści samej wiadomości.
         </p>

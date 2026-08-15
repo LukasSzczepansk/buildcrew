@@ -4,11 +4,12 @@ export function DiscoveryTabs({
   active,
   counts,
 }: {
-  active: "projects" | "ideas" | "people";
-  counts?: Partial<Record<"projects" | "ideas" | "people", number>>;
+  active: "projects" | "hackathons" | "ideas" | "people";
+  counts?: Partial<Record<"projects" | "hackathons" | "ideas" | "people", number>>;
 }) {
   const tabs = [
     { key: "projects", label: "Projekty", href: "/projects" },
+    { key: "hackathons", label: "Hackathony", href: "/hackathons" },
     { key: "ideas", label: "Pomysły", href: "/ideas" },
     { key: "people", label: "Ludzie chcący budować", href: "/build" },
   ] as const;

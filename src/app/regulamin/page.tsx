@@ -85,7 +85,7 @@ export default function TermsPage() {
           <li>zadawanie pytań i udzielanie odpowiedzi;</li>
           <li>publikowanie informacji o umiejętnościach, doświadczeniu, zainteresowaniach i dostępności;</li>
           <li>publikowanie projektów w Showcase, reakcji i konstruktywnego feedbacku;</li>
-          <li>udział w Build Challenges, w tym zgłaszanie się z ekipą albo korzystanie z mechanizmu dopasowania uczestników;</li>
+          <li>udział w Build Challenges oraz korzystanie z katalogu zewnętrznych hackathonów i mechanizmu dobierania zespołów dla konkretnego wydarzenia;</li>
           <li>otrzymywanie powiadomień w Serwisie i wybranych wiadomości e-mail związanych z aktywnością konta;</li>
           <li>udostępnianie linków do zewnętrznych serwisów, np. GitHub, Discord lub portfolio.</li>
         </ul>
@@ -262,7 +262,7 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Build Challenges">
+      <LegalSection title="9. Build Challenges i hackathony">
         <p>
           Build Challenges są wydarzeniami społecznościowymi, w których użytkownicy mogą tworzyć projekty w określonym
           czasie lub wokół określonego tematu. Użytkownik może zgłosić się z istniejącą ekipą albo, jeżeli funkcja jest
@@ -280,6 +280,22 @@ export default function TermsPage() {
           warunki udziału, termin, sposób zgłoszenia, kryteria wyboru, zasady dotyczące nagrody oraz tryb reklamacyjny.
           Sam komunikat promujący wydarzenie w BuildCrew lub na Discordzie nie stanowi przyrzeczenia nagrody ani pełnego
           regulaminu konkursu.
+        </p>
+        <p>
+          BuildCrew może również prezentować informacje o hackathonach organizowanych przez podmioty zewnętrzne oraz udostępniać
+          funkcję „znajdź team” dla osób planujących udział w tym samym wydarzeniu. O ile przy wydarzeniu nie wskazano wyraźnie inaczej,
+          BuildCrew nie jest jego organizatorem ani oficjalnym partnerem. Oficjalna rejestracja, zasady udziału, opłaty, nagrody, wymagania
+          i decyzje organizatora są określane na jego stronie i w jego regulaminie.
+        </p>
+        <p>
+          Nazwy, logotypy, grafiki i inne materiały organizatorów pozostają własnością uprawnionych podmiotów. BuildCrew może wyświetlać
+          materiały graficzne wydarzenia tylko wtedy, gdy Operator ma podstawę do ich użycia; w przeciwnym razie Serwis korzysta z własnego
+          neutralnego oznaczenia. Link do oficjalnej strony wydarzenia nie oznacza partnerstwa ani rekomendacji.
+        </p>
+        <p>
+          Użytkownik dołączający do puli hackathonu może podać rolę, stack, preferowany rozmiar zespołu, zainteresowania, dostępność, cel udziału
+          i opcjonalny opis pomysłu. Dane te służą do proponowania osób lub teamów w obrębie tego samego wydarzenia. Propozycja dopasowania nie
+          gwarantuje kompetencji, obecności na wydarzeniu ani zgodności współpracy; dołączenie do puli BuildCrew nie stanowi rejestracji na hackathon.
         </p>
       </LegalSection>
 
@@ -302,7 +318,7 @@ export default function TermsPage() {
           BuildCrew może wysyłać powiadomienia w Serwisie oraz wiadomości e-mail związane z korzystaniem z konta, w
           szczególności o wiadomości od innego użytkownika, oznaczeniu lub odpowiedzi w workspace, przypisaniu zadania,
           zgłoszeniu lub zaproszeniu do projektu, odpowiedzi w Build Pool, zaproszeniu do Crew, zaakceptowaniu lub odrzuceniu zgłoszenia,
-          mocnym dopasowaniu profilu lub projektu, tygodniowym podsumowaniu, ważnym zdarzeniu w Build Challenge, bezpieczeństwie konta, weryfikacji adresu e-mail lub resecie hasła.
+          mocnym dopasowaniu profilu lub projektu, tygodniowym podsumowaniu, ważnym zdarzeniu w Build Challenge lub zaproszeniu do teamu na hackathon, bezpieczeństwie konta, weryfikacji adresu e-mail lub resecie hasła.
           Dla prywatnych wiadomości Serwis może stosować opóźnione przypomnienie e-mail i anulować je, jeśli rozmowa zostanie wcześniej odczytana.
         </p>
         <p>

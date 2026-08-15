@@ -6,6 +6,9 @@ import {
   collaborationPaceEnum,
   commitmentEnum,
   goalEnum,
+  hackathonAvailabilityEnum,
+  hackathonGoalEnum,
+  hackathonLocationTypeEnum,
   levelEnum,
   lookingForEnum,
   projectAssetEnum,
@@ -295,6 +298,70 @@ export const challengeJoinSchema = z.object({
   challengeId: z.string().uuid(),
   mode: z.enum(["HAS_CREW", "FIND_CREW"]),
   crewId: z.string().uuid().optional().or(z.literal("")),
+});
+
+export const hackathonAdminSchema = z.object({
+  name: z.string().trim().min(3, "Podaj nazwę hackathonu.").max(120),
+  summary: z.string().trim().min(10, "Dodaj krótki opis wydarzenia.").max(240),
+  description: z.string().trim().max(3000, "Opis może mieć maksymalnie 3000 znaków.").optional().or(z.literal("")),
+  organizerName: z.string().trim().max(120).optional().or(z.literal("")),
+  organizerUrl: httpUrl.optional().or(z.literal("")),
+  officialUrl: httpUrl.refine(Boolean, "Dodaj oficjalną stronę wydarzenia."),
+  registrationUrl: httpUrl.optional().or(z.literal("")),
+  locationType: z.enum(hackathonLocationTypeEnum),
+  city: z.string().trim().max(100).optional().or(z.literal("")),
+  venue: z.string().trim().max(160).optional().or(z.literal("")),
+  startsAt: z.coerce.date(),
+  endsAt: z.coerce.date(),
+  registrationDeadline: z.union([z.coerce.date(), z.literal(""), z.null()]).optional(),
+  minTeamSize: z.coerce.number().int().min(2).max(8),
+  maxTeamSize: z.coerce.number().int().min(2).max(8),
+  themes: z.array(z.string().trim().min(1).max(40)).max(10).default([]),
+  coverImageUrl: httpUrl.optional().or(z.literal("")),
+  mediaRightsConfirmed: z.boolean().default(false),
+  isPartner: z.boolean().default(false),
+  isCancelled: z.boolean().default(false),
+  isPublished: z.boolean().default(true),
+}).superRefine((data, ctx) => {
+  if (data.endsAt <= data.startsAt) ctx.addIssue({ code: "custom", message: "Koniec musi być później niż start.", path: ["endsAt"] });
+  if (data.maxTeamSize < data.minTeamSize) ctx.addIssue({ code: "custom", message: "Maksymalny zespół nie może być mniejszy od minimalnego.", path: ["maxTeamSize"] });
+  if (data.coverImageUrl && !data.mediaRightsConfirmed) ctx.addIssue({ code: "custom", message: "Potwierdź prawo do użycia grafiki albo usuń jej URL.", path: ["mediaRightsConfirmed"] });
+});
+
+export const hackathonJoinSchema = z.object({
+  hackathonId: uuidSchema,
+  role: z.enum(roleTypeEnum),
+  technologies: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
+  themes: z.array(z.string().trim().min(1).max(40)).max(8).default([]),
+  hasIdea: z.boolean().default(false),
+  ideaSummary: z.string().trim().max(360).optional().or(z.literal("")),
+  goal: z.enum(hackathonGoalEnum),
+  availability: z.enum(hackathonAvailabilityEnum),
+  preferredTeamSize: z.coerce.number().int().min(2).max(8),
+});
+
+export const hackathonTeamCreateSchema = z.object({
+  hackathonId: uuidSchema,
+  name: z.string().trim().min(2, "Dodaj nazwę teamu.").max(60),
+  ideaTitle: z.string().trim().max(100).optional().or(z.literal("")),
+  ideaSummary: z.string().trim().max(500).optional().or(z.literal("")),
+  targetSize: z.coerce.number().int().min(2).max(8),
+});
+
+export const hackathonTeamInviteSchema = z.object({
+  teamId: uuidSchema,
+  inviteeId: uuidSchema,
+  message: z.string().trim().max(280).optional().or(z.literal("")),
+});
+
+export const hackathonTeamRequestSchema = z.object({
+  teamId: uuidSchema,
+  message: z.string().trim().max(280).optional().or(z.literal("")),
+});
+
+export const hackathonDecisionSchema = z.object({
+  id: uuidSchema,
+  decision: z.enum(["ACCEPTED", "REJECTED"]),
 });
 
 export const notificationPreferencesSchema = z.object({
