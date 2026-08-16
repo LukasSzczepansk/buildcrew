@@ -7,6 +7,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { labelsFor } from "@/lib/constants-i18n";
+import {
+  COUNTRY_OPTIONS,
+  FUNDING_STAGE_OPTIONS,
+  PROJECT_LANGUAGE_OPTIONS,
+  PROJECT_MARKET_SCOPE_OPTIONS,
+  PROJECT_NEED_OPTIONS,
+  internationalLabels,
+} from "@/lib/international";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,6 +61,10 @@ import type {
   ProjectType,
   RoleType,
   Stage,
+  FundingStage,
+  ProjectLanguage,
+  ProjectMarketScope,
+  ProjectNeed,
 } from "@/db/schema";
 import { createProject } from "@/server/actions/projects";
 
@@ -90,6 +102,14 @@ type FormState = {
   collaborationPace: CollaborationPace | "";
   duration: ProjectDuration | "";
   character: Character[];
+  projectLanguage: ProjectLanguage;
+  country: string;
+  marketScope: ProjectMarketScope;
+  needs: ProjectNeed[];
+  fundingStage: FundingStage | "";
+  fundingAmount: string;
+  fundingUse: string;
+  pitchDeckUrl: string;
 };
 
 const EMPTY_ROLE: RoleDraft = {
@@ -121,6 +141,14 @@ const EMPTY_FORM: FormState = {
   collaborationPace: "REGULAR",
   duration: "3_6_MONTHS",
   character: [],
+  projectLanguage: "PL",
+  country: "",
+  marketScope: "LOCAL",
+  needs: ["TEAMMATES"],
+  fundingStage: "",
+  fundingAmount: "",
+  fundingUse: "",
+  pitchDeckUrl: "",
 };
 
 function toggleValue<T>(arr: T[], value: T): T[] {
@@ -155,6 +183,8 @@ export function ProjectWizard({
   const storageKey = `${DRAFT_KEY_PREFIX}:${draftKey}${sourceIdeaId ? `:idea:${sourceIdeaId}` : ""}`;
   const initialForm: FormState = {
     ...EMPTY_FORM,
+    projectLanguage: locale === "en" ? "EN" : "PL",
+    marketScope: locale === "en" ? "WORLDWIDE" : "LOCAL",
     ...initialData,
     interests: initialData?.interests ?? EMPTY_FORM.interests,
   };
@@ -181,6 +211,7 @@ export function ProjectWizard({
           technologies: Array.isArray(parsed.technologies) ? parsed.technologies : [],
           existingAssets: Array.isArray(parsed.existingAssets) ? parsed.existingAssets : [],
           character: Array.isArray(parsed.character) ? parsed.character : [],
+          needs: Array.isArray(parsed.needs) && parsed.needs.length ? parsed.needs : ["TEAMMATES"],
         };
         if (hasUsefulDraft(restored)) {
           setForm(restored);
@@ -228,7 +259,7 @@ export function ProjectWizard({
       case 3:
         return form.roles.length >= 1 && form.roles.every((role) => Boolean(role.roleType));
       case 4:
-        return Boolean(form.commitment && form.collaborationMode && form.collaborationPace && form.duration) && form.character.length >= 1;
+        return Boolean(form.commitment && form.collaborationMode && form.collaborationPace && form.duration && form.projectLanguage && form.marketScope) && form.character.length >= 1 && form.needs.length >= 1;
       default:
         return true;
     }
@@ -293,6 +324,14 @@ export function ProjectWizard({
       })),
       commitment: form.commitment as Commitment,
       collaborationMode: form.collaborationMode as CollaborationMode,
+      projectLanguage: form.projectLanguage,
+      country: form.country.trim(),
+      marketScope: form.marketScope,
+      needs: form.needs,
+      fundingStage: form.needs.includes("FUNDING") && form.fundingStage ? form.fundingStage : undefined,
+      fundingAmount: form.needs.includes("FUNDING") ? form.fundingAmount.trim() : "",
+      fundingUse: form.needs.includes("FUNDING") ? form.fundingUse.trim() : "",
+      pitchDeckUrl: form.needs.includes("FUNDING") ? form.pitchDeckUrl.trim() : "",
       collaborationPace: form.collaborationPace as CollaborationPace,
       duration: form.duration as ProjectDuration,
       character: form.character,
@@ -643,6 +682,7 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
   const locale = useLocale();
   const copy = useCopy();
   const labels = labelsFor(locale);
+  const intl = internationalLabels(locale);
   return (
     <StepShell
       eyebrow={copy("04 / Współpraca", "04 / Collaboration")}
@@ -679,6 +719,58 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
         </Field>
       </div>
 
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label={copy("Język projektu", "Project language")} required>
+          <Select value={form.projectLanguage} onValueChange={(value) => setForm((current) => ({ ...current, projectLanguage: value as ProjectLanguage }))}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>{PROJECT_LANGUAGE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{intl.projectLanguage[option]}</SelectItem>)}</SelectContent>
+          </Select>
+        </Field>
+        <Field label={copy("Zasięg współpracy", "Collaboration reach")} required>
+          <Select value={form.marketScope} onValueChange={(value) => setForm((current) => ({ ...current, marketScope: value as ProjectMarketScope }))}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>{PROJECT_MARKET_SCOPE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{intl.marketScope[option]}</SelectItem>)}</SelectContent>
+          </Select>
+        </Field>
+      </div>
+
+      <Field label={copy("Kraj / baza projektu", "Project country / base")} description={copy("Opcjonalne. Przy projektach zdalnych pomaga zrozumieć strefę czasową i kontekst.", "Optional. For remote projects it helps people understand timezone and context.")}>
+        <select value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} className="h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm">
+          <option value="">{copy("Nie określono", "Not specified")}</option>
+          {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
+        </select>
+      </Field>
+
+      <Field label={copy("Czego projekt teraz potrzebuje?", "What does the project need right now?")} required description={copy("To może być coś więcej niż kolejna rola w zespole.", "This can be more than another open role on the team.")}>
+        <div className="flex flex-wrap gap-2">
+          {PROJECT_NEED_OPTIONS.map((need) => (
+            <ToggleButton key={need} active={form.needs.includes(need)} onClick={() => setForm((current) => ({ ...current, needs: toggleValue(current.needs, need) }))}>
+              {intl.needs[need]}
+            </ToggleButton>
+          ))}
+        </div>
+      </Field>
+
+      {form.needs.includes("FUNDING") ? (
+        <div className="grid gap-4 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-4 sm:grid-cols-2">
+          <Field label={copy("Etap finansowania", "Funding stage")} compact>
+            <Select value={form.fundingStage || undefined} onValueChange={(value) => setForm((current) => ({ ...current, fundingStage: value as FundingStage }))}>
+              <SelectTrigger><SelectValue placeholder={copy("Wybierz etap", "Choose a stage")} /></SelectTrigger>
+              <SelectContent>{FUNDING_STAGE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{intl.fundingStage[option]}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label={copy("Kwota (opcjonalnie)", "Amount (optional)")} compact>
+            <Input value={form.fundingAmount} onChange={(event) => setForm((current) => ({ ...current, fundingAmount: event.target.value }))} placeholder={copy("np. 250 000 PLN", "e.g. €50k–€100k")} />
+          </Field>
+          <Field label={copy("Na co środki?", "Use of funds")} compact>
+            <Textarea value={form.fundingUse} onChange={(event) => setForm((current) => ({ ...current, fundingUse: event.target.value }))} rows={3} maxLength={400} placeholder={copy("np. rozwój produktu i pozyskanie pierwszych klientów", "e.g. product development and first customer acquisition")} />
+          </Field>
+          <Field label={copy("Pitch deck", "Pitch deck")} compact>
+            <Input type="url" value={form.pitchDeckUrl} onChange={(event) => setForm((current) => ({ ...current, pitchDeckUrl: event.target.value }))} placeholder="https://…" />
+          </Field>
+        </div>
+      ) : null}
+
       <Field label={copy("Charakter projektu", "Project character")} required description={copy("Wybierz maksymalnie 3. To opis intencji projektu, nie model prawny współpracy.", "Choose up to 3. This describes the project’s intent, not the legal model of collaboration.")}>
         <div className="flex flex-wrap gap-2">
           {CHARACTER_OPTIONS.map((character) => (
@@ -705,6 +797,7 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
   const locale = useLocale();
   const copy = useCopy();
   const labels = labelsFor(locale);
+  const intl = internationalLabels(locale);
   return (
     <StepShell
       eyebrow={copy("05 / Podgląd", "05 / Preview")}
@@ -727,6 +820,11 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
           <PreviewCell label={copy("Najbliższy cel", "Next goal")} value={form.goal || "-"} />
           <PreviewCell label={copy("Tryb", "Mode")} value={form.collaborationMode ? labels.collaborationModes[form.collaborationMode] : "-"} />
           <PreviewCell label={copy("Horyzont", "Horizon")} value={form.duration ? labels.durations[form.duration] : "-"} />
+        </div>
+        <div className="mt-px grid gap-px border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-3">
+          <PreviewCell label={copy("Język", "Language")} value={intl.projectLanguage[form.projectLanguage]} />
+          <PreviewCell label={copy("Zasięg", "Reach")} value={intl.marketScope[form.marketScope]} />
+          <PreviewCell label={copy("Potrzeby", "Needs")} value={form.needs.map((need) => intl.needs[need]).join(" · ")} />
         </div>
 
         <div className="mt-6">

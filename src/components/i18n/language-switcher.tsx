@@ -16,12 +16,17 @@ export function LanguageSwitcher({ compact = false, className }: { compact?: boo
   const locale = useLocale();
   const pathname = usePathname();
 
-  function switchLocale(nextLocale: AppLocale) {
+  async function switchLocale(nextLocale: AppLocale) {
     if (nextLocale === locale) return;
     try {
       document.cookie = `buildcrew-locale=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax`;
     } catch {
       // The production domains still determine the locale when cookies are unavailable.
+    }
+    try {
+      await fetch("/api/locale", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ locale: nextLocale }), keepalive: true });
+    } catch {
+      // Domain routing and the local cookie still keep the switch functional.
     }
     const query = window.location.search.replace(/^\?/, "");
     window.location.assign(targetUrl(nextLocale, pathname, query));

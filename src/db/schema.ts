@@ -26,9 +26,13 @@ const uuidPk = () =>
 export const systemRoleEnum = ["USER", "MODERATOR", "ADMIN"] as const;
 export type SystemRole = (typeof systemRoleEnum)[number];
 
+export const appLocaleEnum = ["pl", "en"] as const;
+export type AppLocaleDb = (typeof appLocaleEnum)[number];
+
 export const users = pgTable("users", {
   id: uuidPk(),
   email: text("email").notNull(),
+  preferredLocale: text("preferred_locale").$type<AppLocaleDb>().notNull().default("pl"),
   passwordHash: text("password_hash"),
   systemRole: text("system_role").$type<SystemRole>().notNull().default("USER"),
   emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
@@ -130,6 +134,9 @@ export type Goal = (typeof goalEnum)[number];
 export const lookingForEnum = ["HAS_PROJECT", "WANTS_PROJECT", "OPEN_TO_BUILD"] as const;
 export type LookingFor = (typeof lookingForEnum)[number];
 
+export const workModePreferenceEnum = ["REMOTE", "HYBRID", "ON_SITE", "FLEXIBLE"] as const;
+export type WorkModePreference = (typeof workModePreferenceEnum)[number];
+
 export const profiles = pgTable("profiles", {
   userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
   username: text("username").notNull(),
@@ -137,6 +144,11 @@ export const profiles = pgTable("profiles", {
   level: text("level").$type<Level>(),
   weeklyHours: text("weekly_hours").$type<Commitment>(),
   bio: text("bio"),
+  headline: text("headline"),
+  country: text("country"),
+  city: text("city"),
+  languages: text("languages").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
+  workModePreference: text("work_mode_preference").$type<WorkModePreference>().notNull().default("FLEXIBLE"),
   lookingFor: text("looking_for").array().$type<LookingFor[]>().notNull().default(sql`'{}'::text[]`),
   goals: text("goals").array().$type<Goal[]>().notNull().default(sql`'{}'::text[]`),
   githubUrl: text("github_url"),
@@ -253,6 +265,18 @@ export type ProjectEntryType = (typeof projectEntryTypeEnum)[number];
 export const projectLifecycleStatusEnum = ["ACTIVE", "PAUSED", "COMPLETED"] as const;
 export type ProjectLifecycleStatus = (typeof projectLifecycleStatusEnum)[number];
 
+export const projectLanguageEnum = ["PL", "EN", "MULTI"] as const;
+export type ProjectLanguage = (typeof projectLanguageEnum)[number];
+
+export const projectMarketScopeEnum = ["LOCAL", "EUROPE", "WORLDWIDE"] as const;
+export type ProjectMarketScope = (typeof projectMarketScopeEnum)[number];
+
+export const projectNeedEnum = ["TEAMMATES", "FEEDBACK", "BETA_TESTERS", "MENTOR", "BUSINESS_PARTNER", "FUNDING"] as const;
+export type ProjectNeed = (typeof projectNeedEnum)[number];
+
+export const fundingStageEnum = ["GRANT", "ANGEL", "PRE_SEED", "SEED", "OTHER"] as const;
+export type FundingStage = (typeof fundingStageEnum)[number];
+
 export const projectUpdateKindEnum = ["PROGRESS", "ROLE", "MILESTONE", "LAUNCH"] as const;
 export type ProjectUpdateKind = (typeof projectUpdateKindEnum)[number];
 
@@ -282,6 +306,14 @@ export const projects = pgTable("projects", {
   projectType: text("project_type").$type<ProjectType>(),
   existingAssets: text("existing_assets").array().$type<ProjectAsset[]>().notNull().default(sql`'{}'::text[]`),
   collaborationMode: text("collaboration_mode").$type<CollaborationMode>(),
+  projectLanguage: text("project_language").$type<ProjectLanguage>().notNull().default("PL"),
+  country: text("country"),
+  marketScope: text("market_scope").$type<ProjectMarketScope>().notNull().default("LOCAL"),
+  needs: text("needs").array().$type<ProjectNeed[]>().notNull().default(sql`'{"TEAMMATES"}'::text[]`),
+  fundingStage: text("funding_stage").$type<FundingStage>(),
+  fundingAmount: text("funding_amount"),
+  fundingUse: text("funding_use"),
+  pitchDeckUrl: text("pitch_deck_url"),
   collaborationPace: text("collaboration_pace").$type<CollaborationPace>(),
   duration: text("duration").$type<ProjectDuration>(),
   repositoryUrl: text("repository_url"),

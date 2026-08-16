@@ -15,6 +15,9 @@ import {
   type Level,
   type RoleType,
   type Stage,
+  type ProjectLanguage,
+  type ProjectMarketScope,
+  type ProjectNeed,
 } from "@/db/schema";
 
 export type ProjectFilters = {
@@ -24,6 +27,10 @@ export type ProjectFilters = {
   interest?: string;
   commitment?: Commitment;
   stage?: Stage;
+  projectLanguage?: ProjectLanguage;
+  marketScope?: ProjectMarketScope;
+  need?: ProjectNeed;
+  country?: string;
   search?: string;
 };
 
@@ -71,6 +78,10 @@ export async function listProjects(filters: ProjectFilters = {}, viewerId?: stri
   const conditions = [eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE")] as ReturnType<typeof eq>[];
   if (filters.stage) conditions.push(eq(projects.stage, filters.stage));
   if (filters.commitment) conditions.push(eq(projects.commitment, filters.commitment));
+  if (filters.projectLanguage) conditions.push(eq(projects.projectLanguage, filters.projectLanguage));
+  if (filters.marketScope) conditions.push(eq(projects.marketScope, filters.marketScope));
+  if (filters.country) conditions.push(eq(projects.country, filters.country));
+  if (filters.need) conditions.push(sql`${filters.need} = any(${projects.needs})` as unknown as ReturnType<typeof eq>);
   if (filters.search) {
     conditions.push(sql`(${projects.name} ilike ${"%" + filters.search + "%"} or ${projects.tagline} ilike ${"%" + filters.search + "%"})` as unknown as ReturnType<typeof eq>);
   }

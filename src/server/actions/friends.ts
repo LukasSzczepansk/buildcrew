@@ -52,7 +52,7 @@ export async function sendFriendRequest(targetUserId: string) {
   }
 
   const senderProfile = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(targetUserId, "FRIEND_REQUEST", `${senderProfile[0]?.username ?? "Ktoś"} wysłał Ci zaproszenie do kontaktów`, undefined, "/network?tab=contacts");
+  await createNotification(targetUserId, "FRIEND_REQUEST", `${senderProfile[0]?.username ?? "Ktoś"} wysłał Ci zaproszenie do kontaktów`, undefined, "/network?tab=contacts", { titleEn: `${senderProfile[0]?.username ?? "Someone"} sent you a connection request` });
   revalidatePath("/network?tab=contacts");
   revalidatePath(`/builders/${targetUserId}`);
   return { success: true };
@@ -91,7 +91,7 @@ export async function respondToFriendRequest(requestId: string, decision: "ACCEP
   if ("error" in result) return result;
   if (decision === "ACCEPTED") {
     const profile = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-    await createNotification(result.request.senderId, "FRIEND_ACCEPTED", `${profile[0]?.username ?? "Ktoś"} zaakceptował Twoje zaproszenie do kontaktów`, "Możecie teraz pisać do siebie prywatnie w BuildCrew.", result.conversationId ? `/messages/${result.conversationId}` : "/network?tab=contacts");
+    await createNotification(result.request.senderId, "FRIEND_ACCEPTED", `${profile[0]?.username ?? "Ktoś"} zaakceptował Twoje zaproszenie do kontaktów`, "Możecie teraz pisać do siebie prywatnie w BuildCrew.", result.conversationId ? `/messages/${result.conversationId}` : "/network?tab=contacts", { titleEn: `${profile[0]?.username ?? "Someone"} accepted your connection request`, bodyEn: "You can now message each other privately on BuildCrew." });
   }
   revalidatePath("/network?tab=contacts");
   revalidatePath("/messages");

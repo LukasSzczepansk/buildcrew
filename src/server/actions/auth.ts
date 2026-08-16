@@ -108,6 +108,7 @@ async function issuePasswordResetEmail(userId: string, email: string) {
 }
 
 export async function signupAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
+  const locale = await getRequestLocale();
   const rawNext = String(formData.get("next") ?? "").trim();
   const nextPath = rawNext ? safeInternalRedirect(rawNext, "") : "";
   const ip = await getRequestIp();
@@ -131,6 +132,7 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
     const acceptedAt = new Date();
     inserted = await db.insert(users).values({
       email,
+      preferredLocale: locale,
       passwordHash,
       termsAcceptedAt: acceptedAt,
       privacyAcceptedAt: acceptedAt,
@@ -149,6 +151,7 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
 }
 
 export async function loginAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
+  const locale = await getRequestLocale();
   const rawNext = String(formData.get("next") ?? "").trim();
   const nextPath = rawNext ? safeInternalRedirect(rawNext, "") : "";
   const parsed = loginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
@@ -171,7 +174,7 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
   if (user.isSuspended) return { error: "To konto zostało zawieszone przez administrację." };
 
   if (!user.emailVerifiedAt) {
-    await db.update(users).set({ lastActiveAt: new Date() }).where(eq(users.id, user.id));
+    await db.update(users).set({ lastActiveAt: new Date(), preferredLocale: locale }).where(eq(users.id, user.id));
     await createSessionForUser(user.id);
     if (nextPath) await setPostAuthRedirect(nextPath);
     redirect("/verify-email");
@@ -201,7 +204,7 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
   }
 
   const loginAt = new Date();
-  await db.update(users).set({ lastLoginAt: loginAt, lastActiveAt: loginAt }).where(eq(users.id, user.id));
+  await db.update(users).set({ lastLoginAt: loginAt, lastActiveAt: loginAt, preferredLocale: locale }).where(eq(users.id, user.id));
   await createSessionForUser(user.id);
 
   const profileRows = await db

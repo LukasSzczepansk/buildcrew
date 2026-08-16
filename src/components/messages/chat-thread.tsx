@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 
 type ChatMessage = {
   id: string;
@@ -28,6 +29,8 @@ export function ChatThread({
   otherUser: { username: string; avatarEmoji: string };
   initialMessages: ChatMessage[];
 }) {
+  const copy = useCopy();
+  const locale = useLocale();
   const [messages, setMessages] = React.useState(initialMessages);
   const [body, setBody] = React.useState("");
   const [sending, setSending] = React.useState(false);
@@ -68,13 +71,13 @@ export function ChatThread({
       });
       const payload = await response.json() as { message?: ChatMessage; error?: string };
       if (!response.ok || !payload.message) {
-        toast.error(payload.error ?? "Nie udało się wysłać wiadomości.");
+        toast.error(payload.error ?? copy("Nie udało się wysłać wiadomości.", "Could not send the message."));
         return;
       }
       setMessages((current) => current.some((item) => item.id === payload.message!.id) ? current : [...current, payload.message!]);
       setBody("");
     } catch {
-      toast.error("Nie udało się wysłać wiadomości.");
+      toast.error(copy("Nie udało się wysłać wiadomości.", "Could not send the message."));
     } finally {
       setSending(false);
     }
@@ -87,7 +90,7 @@ export function ChatThread({
           <Avatar username={otherUser.username} size="sm" />
           <div>
             <p className="font-semibold">{otherUser.username}</p>
-            <p className="text-[13px] text-neutral-400">Wiadomości odświeżają się co kilka sekund</p>
+            <p className="text-[13px] text-neutral-400">{copy("Wiadomości odświeżają się co kilka sekund", "Messages refresh every few seconds")}</p>
           </div>
         </div>
       </div>
@@ -95,7 +98,7 @@ export function ChatThread({
       <div className="h-[55vh] min-h-[360px] overflow-y-auto bg-neutral-50/60 p-4 dark:bg-neutral-950/40">
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-center text-sm text-neutral-400">
-            <p>Napisz pierwszą wiadomość do {otherUser.username}.</p>
+            <p>{copy(`Napisz pierwszą wiadomość do ${otherUser.username}.`, `Send the first message to ${otherUser.username}.`)}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -111,8 +114,8 @@ export function ChatThread({
                   )}>
                     <p className="whitespace-pre-wrap break-words">{message.body}</p>
                     <p className={cn("mt-1 text-[11px]", mine ? "text-lime-100" : "text-neutral-400")}>
-                      {new Date(message.createdAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}
-                      {mine ? ` · ${message.readAt ? "Odczytano" : "Wysłano"}` : ""}
+                      {new Date(message.createdAt).toLocaleTimeString(locale === "en" ? "en-US" : "pl-PL", { hour: "2-digit", minute: "2-digit" })}
+                      {mine ? ` · ${message.readAt ? copy("Odczytano", "Read") : copy("Wysłano", "Sent")}` : ""}
                     </p>
                   </div>
                 </div>
@@ -128,10 +131,10 @@ export function ChatThread({
           value={body}
           onChange={(event) => setBody(event.target.value)}
           maxLength={800}
-          placeholder="Napisz wiadomość…"
+          placeholder={copy("Napisz wiadomość...", "Write a message...")}
           autoComplete="off"
         />
-        <Button type="submit" size="icon" disabled={sending || !body.trim()} aria-label="Wyślij wiadomość">
+        <Button type="submit" size="icon" disabled={sending || !body.trim()} aria-label={copy("Wyślij wiadomość", "Send message")}>
           <Send className="h-4 w-4" />
         </Button>
       </form>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarRange, CircleHelp, ExternalLink, FolderKanban, LayoutDashboard, Lightbulb, LogOut, MessageCircle, ShieldCheck, Trophy, UserRoundCheck, Users } from "lucide-react";
+import { CalendarRange, CircleHelp, ExternalLink, FolderKanban, LayoutDashboard, LogOut, MessageCircle, ShieldCheck, Trophy, UserRoundCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ const PRIMARY_NAV = [
   { href: "/builders", key: "people", icon: Users },
   { href: "/projects", key: "projects", icon: FolderKanban },
   { href: "/hackathons", key: "hackathons", icon: CalendarRange },
-  { href: "/ideas", key: "ideas", icon: Lightbulb },
 ] as const;
 
 const COMMUNITY_NAV = [
@@ -63,7 +62,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
   const copy = useCopy();
   const labels = {
     start: copy("Start", "Home"), people: copy("Ludzie", "People"), projects: copy("Projekty", "Projects"),
-    hackathons: copy("Hackathony", "Hackathons"), ideas: copy("Pomysły", "Ideas"), network: copy("Moja sieć", "My network"),
+    hackathons: copy("Hackathony", "Hackathons"), network: copy("Moja sieć", "My network"),
     myProjects: copy("Moje projekty", "My projects"), messages: copy("Wiadomości", "Messages"), built: copy("Zbudowane", "Built"),
   };
 

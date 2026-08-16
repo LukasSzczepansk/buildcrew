@@ -15,6 +15,7 @@ import { activityLabel, getActivityState } from "@/lib/activity";
 import { getProjectFreshness } from "@/lib/project-freshness";
 import { ROLE_LABELS } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
+import { internationalLabels } from "@/lib/international";
 import { truncateMeta } from "@/lib/seo";
 import { getRequestLocale } from "@/lib/site-server";
 import { localeCode, openGraphLocale, siteUrlForLocale } from "@/lib/site-config";
@@ -116,6 +117,7 @@ export default async function PublicProjectPage({
   const [project, user] = await Promise.all([getProjectById(id), getCurrentUser()]);
   const en = locale === "en";
   const labels = labelsFor(locale);
+  const intl = internationalLabels(locale);
   if (!project) notFound();
   const [updates, credits] = await Promise.all([
     listProjectUpdates(project.id, 6),
@@ -281,9 +283,22 @@ export default async function PublicProjectPage({
                 {project.lifecycleStatus === "ACTIVE" ? <PublicDetail label={en ? "Freshness" : "Aktualność"} value={en ? (projectFreshness.daysAgo === 0 ? "Active today" : projectFreshness.daysAgo === 1 ? "Active yesterday" : `${projectFreshness.daysAgo} days ago`) : projectFreshness.shortLabel} /> : null}
                 {project.commitment ? <PublicDetail label={en ? "Time" : "Czas"} value={labels.commitments[project.commitment]} /> : null}
                 {project.collaborationMode ? <PublicDetail label={en ? "Mode" : "Tryb"} value={labels.collaborationModes[project.collaborationMode]} /> : null}
+                <PublicDetail label={en ? "Project language" : "Język projektu"} value={intl.projectLanguage[project.projectLanguage]} />
+                <PublicDetail label={en ? "Reach" : "Zasięg"} value={intl.marketScope[project.marketScope]} />
+                {project.country ? <PublicDetail label={en ? "Country" : "Kraj"} value={project.country} /> : null}
                 {project.collaborationPace ? <PublicDetail label={en ? "Pace" : "Tempo"} value={labels.collaborationPaces[project.collaborationPace]} /> : null}
                 {project.duration ? <PublicDetail label={en ? "Horizon" : "Horyzont"} value={labels.durations[project.duration]} /> : null}
               </dl>
+              {project.needs.length ? <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+                <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Looking for" : "Potrzebujemy"}</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">{project.needs.map((need) => <Badge key={need} variant="outline">{intl.needs[need]}</Badge>)}</div>
+                {project.needs.includes("FUNDING") ? <div className="mt-3 space-y-1 text-[12px] leading-5 text-neutral-500">
+                  {project.fundingStage ? <p>{intl.fundingStage[project.fundingStage]}</p> : null}
+                  {project.fundingAmount ? <p>{en ? "Target" : "Kwota"}: {project.fundingAmount}</p> : null}
+                  {project.pitchDeckUrl ? <a href={project.pitchDeckUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-medium text-neutral-700 hover:underline dark:text-neutral-200">Pitch deck <ExternalLink className="h-3 w-3" /></a> : null}
+                </div> : null}
+              </div> : null}
+
               {project.repositoryUrl || project.demoUrl || project.designUrl || project.docsUrl ? (
                 <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
                   <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Links" : "Linki"}</p>

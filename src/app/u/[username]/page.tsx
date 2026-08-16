@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { UserRoleBadge } from "@/components/ui/user-role-badge";
 import { labelsFor } from "@/lib/constants-i18n";
+import { internationalLabels } from "@/lib/international";
 import { getRequestLocale } from "@/lib/site-server";
 import { siteUrlForLocale } from "@/lib/site-config";
 import { getActivityState, activityLabel } from "@/lib/activity";
@@ -44,6 +45,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
   const [{ username }, locale] = await Promise.all([params, getRequestLocale()]);
   const en = locale === "en";
   const labels = labelsFor(locale);
+  const intl = internationalLabels(locale);
   const profile = await getPublicProfileByUsername(decodeURIComponent(username));
   if (!profile) notFound();
   const [ownedProjects, memberProjects, counts, endorsements, completedCredits] = await Promise.all([
@@ -85,7 +87,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
               <Avatar username={profile.username} seed={profile.userId} size="lg" className={profile.isFounder ? "ring-2 ring-[#C8F169] ring-offset-2 ring-offset-[var(--bc-canvas)]" : undefined} />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2"><h1 className="text-[30px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{openToBuild ? <span className="inline-flex items-center gap-1.5 text-[12px] font-medium"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />Open to build</span> : null}</div>
-                <p className="mt-1 text-sm text-[var(--bc-muted)]">{profile.role ? labels.roles[profile.role as RoleType] : "Builder"} · {activityState === "TODAY" ? activityLabel(profile.lastActiveAt, locale) : (en ? "BuildCrew profile" : "profil BuildCrew")}</p>
+                <p className="mt-1 text-sm text-[var(--bc-muted)]">{profile.headline || (profile.role ? labels.roles[profile.role as RoleType] : "Builder")} · {activityState === "TODAY" ? activityLabel(profile.lastActiveAt, locale) : (en ? "BuildCrew profile" : "profil BuildCrew")}</p>
               </div>
             </div>
             {profile.bio ? <p className="mt-5 max-w-[760px] text-[15px] leading-6 text-[var(--bc-muted)]">{profile.bio}</p> : null}
@@ -105,6 +107,11 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
             <PublicSection title={en ? "Looking for" : "Szukam teraz"}>
               <p className="text-sm leading-6 text-[var(--bc-muted)]">{profile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || (en ? "No information" : "Brak informacji")}</p>
               <p className="mt-2 text-[13px] text-[var(--bc-faint)]">{en ? "Availability:" : "Dostępność:"} {profile.weeklyHours ? labels.commitments[profile.weeklyHours] : "-"}</p>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-[var(--bc-faint)]">
+                {profile.languages.length ? <span>{en ? "Languages:" : "Języki:"} {profile.languages.join(", ")}</span> : null}
+                {(profile.city || profile.country) ? <span>{[profile.city, profile.country].filter(Boolean).join(", ")}</span> : null}
+                {profile.workModePreference ? <span>{intl.workMode[profile.workModePreference]}</span> : null}
+              </div>
             </PublicSection>
 
             {completedCredits.length ? (

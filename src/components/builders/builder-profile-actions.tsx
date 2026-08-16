@@ -33,6 +33,7 @@ import { FriendRelationActions, type FriendRelationState } from "@/components/fr
 import { FollowButton } from "@/components/network/follow-button";
 import { inviteToProject } from "@/server/actions/projects";
 import { blockUser } from "@/server/actions/moderation";
+import { useCopy } from "@/components/i18n/locale-provider";
 
 export function BuilderProfileActions({
   targetUserId,
@@ -45,6 +46,7 @@ export function BuilderProfileActions({
   friendState: FriendRelationState;
   initialFollowing: boolean;
 }) {
+  const copy = useCopy();
   const [inviteOpen, setInviteOpen] = React.useState(false);
   const [reportOpen, setReportOpen] = React.useState(false);
   const [projectId, setProjectId] = React.useState<string>(myProjects[0]?.id ?? "");
@@ -60,7 +62,7 @@ export function BuilderProfileActions({
       toast.error(res.error);
       return;
     }
-    toast.success("Zaproszenie wysłane!");
+    toast.success(copy("Zaproszenie wysłane!", "Invitation sent!"));
     setInviteOpen(false);
     setMessage("");
   }
@@ -68,7 +70,7 @@ export function BuilderProfileActions({
   async function handleBlock() {
     const res = await blockUser(targetUserId);
     if (res?.error) toast.error(res.error);
-    else toast.success("Użytkownik zablokowany.");
+    else toast.success(copy("Użytkownik zablokowany.", "User blocked."));
   }
 
   return (
@@ -80,18 +82,18 @@ export function BuilderProfileActions({
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
-              <UserPlus className="h-4 w-4" /> Zaproś do projektu
+              <UserPlus className="h-4 w-4" /> {copy("Zaproś do projektu", "Invite to project")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Zaproś do projektu</DialogTitle>
-              <DialogDescription>Wybierz projekt i dodaj krótką wiadomość.</DialogDescription>
+              <DialogTitle>{copy("Zaproś do projektu", "Invite to project")}</DialogTitle>
+              <DialogDescription>{copy("Wybierz projekt i dodaj krótką wiadomość.", "Choose a project and add a short message.")}</DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-4">
               <Select value={projectId} onValueChange={setProjectId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Wybierz projekt" />
+                  <SelectValue placeholder={copy("Wybierz projekt", "Choose a project")} />
                 </SelectTrigger>
                 <SelectContent>
                   {myProjects.map((p) => (
@@ -102,7 +104,7 @@ export function BuilderProfileActions({
                 </SelectContent>
               </Select>
               <Textarea
-                placeholder="Cześć! Szukamy kogoś takiego jak Ty…"
+                placeholder={copy("Cześć! Szukamy kogoś takiego jak Ty...", "Hi! We are looking for someone with your profile...")}
                 maxLength={300}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -110,7 +112,7 @@ export function BuilderProfileActions({
             </div>
             <DialogFooter>
               <Button onClick={handleInvite} disabled={pending || !projectId}>
-                {pending ? "Wysyłanie…" : "Wyślij zaproszenie"}
+                {pending ? copy("Wysyłanie...", "Sending...") : copy("Wyślij zaproszenie", "Send invitation")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -120,13 +122,13 @@ export function BuilderProfileActions({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="gap-2">
-            <MoreHorizontal className="h-4 w-4" /> Więcej opcji
+            <MoreHorizontal className="h-4 w-4" /> {copy("Więcej opcji", "More options")}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => setReportOpen(true)}>Zgłoś użytkownika</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setReportOpen(true)}>{copy("Zgłoś użytkownika", "Report user")}</DropdownMenuItem>
           <DropdownMenuItem onClick={handleBlock} className="text-red-600">
-            Zablokuj użytkownika
+            {copy("Zablokuj użytkownika", "Block user")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

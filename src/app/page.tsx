@@ -11,6 +11,7 @@ import { labelsFor } from "@/lib/constants-i18n";
 import { getRequestLocale } from "@/lib/site-server";
 import { localeCode, openGraphLocale, siteUrlForLocale } from "@/lib/site-config";
 import { listPublicProjectsForLanding } from "@/server/data/projects";
+import { listPublicBuildersForLanding } from "@/server/data/profiles";
 
 const COPY = {
   pl: {
@@ -37,6 +38,7 @@ const COPY = {
     ],
     closing: "Nie zbieraj kontaktów. Buduj sieć ludzi, z którymi naprawdę coś zrobiłeś.",
     terms: "Regulamin", privacy: "Prywatność", auth: "Logowanie", until: "do",
+    buildersTitle: "Ludzie otwarci na projekt", buildersLead: "Aktywni builderzy, którzy chcą dołączyć do projektu albo zbudować coś nowego.", viewProfile: "Zobacz profil",
   },
   en: {
     title: "BuildCrew - find people to build projects with",
@@ -62,6 +64,7 @@ const COPY = {
     ],
     closing: "Don't collect contacts. Build a network of people you've actually shipped things with.",
     terms: "Terms", privacy: "Privacy", auth: "Login", until: "until",
+    buildersTitle: "Builders open to projects", buildersLead: "Active builders looking to join a project or start something new.", viewProfile: "View profile",
   },
 } as const;
 
@@ -82,7 +85,7 @@ export default async function LandingPage() {
   const [user, locale] = await Promise.all([getCurrentUser(), getRequestLocale()]);
   if (user) redirect(user.onboardingCompleted ? "/dashboard" : "/onboarding");
 
-  const featuredProjects = await listPublicProjectsForLanding(3);
+  const [featuredProjects, featuredBuilders] = await Promise.all([listPublicProjectsForLanding(3), listPublicBuildersForLanding(4)]);
   const copy = COPY[locale];
   const labels = labelsFor(locale);
   const publicProjectsHref = locale === "en" ? "/explore/projects" : "/projekty";
@@ -135,6 +138,24 @@ export default async function LandingPage() {
               const stack = project.technologies.slice(0, 3).join(" · ") || copy.communityProject;
               return <PreviewRow key={project.id} href={`/p/${project.id}`} name={project.name} meta={`${labels.stages[project.stage]} · ${roles || copy.completeTeam}`} stack={stack} />;
             }) : <div className="border-b border-[#d8d8d0] py-5 text-[13px] leading-5 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">{copy.noProjects}</div>}
+          </div>
+        </section>
+
+        <section className="border-y border-[#d8d8d0] bg-white dark:border-[#34342f] dark:bg-[#171715]">
+          <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 lg:px-10">
+            <div className="mb-7 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+              <div><p className="text-[13px] font-medium text-neutral-500">BuildCrew network</p><h2 className="mt-1 text-[28px] font-semibold tracking-[-0.025em]">{copy.buildersTitle}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">{copy.buildersLead}</p></div>
+              <Link href="/signup" className="text-sm font-medium hover:underline">{copy.createProfile} <ArrowRight className="inline h-3.5 w-3.5" /></Link>
+            </div>
+            {featuredBuilders.length ? <div className="grid gap-px overflow-hidden border border-[#d8d8d0] bg-[#d8d8d0] sm:grid-cols-2 lg:grid-cols-4 dark:border-neutral-700 dark:bg-neutral-700">
+              {featuredBuilders.map((builder) => <Link key={builder.userId} href={`/u/${builder.username}`} className="bg-white p-5 transition-colors hover:bg-[#f7f7f3] dark:bg-[#171715] dark:hover:bg-[#1d1d1a]">
+                <div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{builder.username}</h3><p className="mt-0.5 text-[12px] text-neutral-500">{builder.role ? labels.roles[builder.role] : "Builder"}</p></div><span className="h-2 w-2 rounded-full bg-[#a8d62f]" /></div>
+                {builder.headline ? <p className="mt-4 line-clamp-2 min-h-10 text-[13px] leading-5 text-neutral-600 dark:text-neutral-300">{builder.headline}</p> : <div className="mt-4 min-h-10" />}
+                <p className="mt-4 text-[12px] text-neutral-500">{builder.skills.slice(0, 3).join(" · ") || (locale === "en" ? "Open to building" : "Otwarty na budowanie")}</p>
+                <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-500">{builder.country ? <span>{builder.country}</span> : null}{builder.languages.length ? <span>{builder.languages.slice(0,2).join(", ")}</span> : null}</div>
+                <p className="mt-5 text-[12px] font-medium">{copy.viewProfile} →</p>
+              </Link>)}
+            </div> : <div className="border-y border-[#d8d8d0] py-6 text-sm text-neutral-500 dark:border-neutral-700">{locale === "en" ? "Create a profile and be among the first builders visible here." : "Załóż profil i pojaw się wśród pierwszych builderów w tej sekcji."}</div>}
           </div>
         </section>
 

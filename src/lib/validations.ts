@@ -25,6 +25,11 @@ import {
   showcaseStatusEnum,
   showcaseWouldUseEnum,
   stageEnum,
+  workModePreferenceEnum,
+  projectLanguageEnum,
+  projectMarketScopeEnum,
+  projectNeedEnum,
+  fundingStageEnum,
 } from "@/db/schema";
 
 const httpUrl = z.string().trim().refine((value) => {
@@ -106,6 +111,11 @@ export const onboardingSchema = z.object({
   portfolioUrl: httpUrl.optional().or(z.literal("")),
   linkedinUrl: linkedinUrl.optional().or(z.literal("")),
   discordUsername: z.string().trim().max(40).optional().or(z.literal("")),
+  headline: z.string().trim().max(100).optional().or(z.literal("")),
+  country: z.string().trim().max(80).optional().or(z.literal("")),
+  city: z.string().trim().max(80).optional().or(z.literal("")),
+  languages: z.array(z.string().trim().min(2).max(20)).min(1, "Wybierz przynajmniej jeden język.").max(8),
+  workModePreference: z.enum(workModePreferenceEnum).default("FLEXIBLE"),
 });
 
 export const profileEditSchema = onboardingSchema.partial({
@@ -145,6 +155,14 @@ export const projectCreateSchema = z.object({
   roles: z.array(projectRoleSchema).min(1, "Dodaj przynajmniej jedną otwartą rolę.").max(8),
   commitment: z.enum(commitmentEnum),
   collaborationMode: z.enum(collaborationModeEnum),
+  projectLanguage: z.enum(projectLanguageEnum).default("PL"),
+  country: z.string().trim().max(80).optional().or(z.literal("")),
+  marketScope: z.enum(projectMarketScopeEnum).default("LOCAL"),
+  needs: z.array(z.enum(projectNeedEnum)).min(1).default(["TEAMMATES"]),
+  fundingStage: z.enum(fundingStageEnum).optional(),
+  fundingAmount: z.string().trim().max(80).optional().or(z.literal("")),
+  fundingUse: z.string().trim().max(400).optional().or(z.literal("")),
+  pitchDeckUrl: httpUrl.optional().or(z.literal("")),
   collaborationPace: z.enum(collaborationPaceEnum),
   duration: z.enum(projectDurationEnum),
   goal: z.string().trim().min(3, "Podaj najbliższy cel projektu.").max(240),
@@ -157,6 +175,16 @@ export const projectCreateSchema = z.object({
   sourceIdeaId: z.string().uuid().optional(),
 });
 
+export const projectInternationalSettingsSchema = z.object({
+  projectLanguage: z.enum(projectLanguageEnum),
+  country: z.string().trim().max(80).optional().or(z.literal("")),
+  marketScope: z.enum(projectMarketScopeEnum),
+  needs: z.array(z.enum(projectNeedEnum)).min(1),
+  fundingStage: z.enum(fundingStageEnum).optional(),
+  fundingAmount: z.string().trim().max(80).optional().or(z.literal("")),
+  fundingUse: z.string().trim().max(400).optional().or(z.literal("")),
+  pitchDeckUrl: httpUrl.optional().or(z.literal("")),
+});
 
 export const ideaCreateSchema = z.object({
   name: z.string().trim().min(2, "Podaj nazwę pomysłu.").max(60),

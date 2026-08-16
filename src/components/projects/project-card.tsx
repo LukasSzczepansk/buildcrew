@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Clock3, ExternalLink, Globe2, Tags, UsersRound } from "lucide-react";
+import { ArrowRight, Clock3, ExternalLink, Globe2, Languages, MapPin, Sparkles, Tags, UsersRound } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { labelsFor } from "@/lib/constants-i18n";
+import { internationalLabels } from "@/lib/international";
 import type { AppLocale } from "@/lib/site-config";
-import type { Character, Commitment, ProjectType, RoleType, Stage } from "@/db/schema";
+import type { Character, Commitment, ProjectLanguage, ProjectMarketScope, ProjectNeed, ProjectType, RoleType, Stage } from "@/db/schema";
 import { ShareProjectButton } from "@/components/projects/share-project-button";
 import { activityLabel, getActivityState } from "@/lib/activity";
 import { getProjectFreshness } from "@/lib/project-freshness";
@@ -24,13 +25,28 @@ export type ProjectCardData = {
   technologies: string[];
   projectType?: ProjectType | null;
   character?: Character[] | null;
+  projectLanguage?: ProjectLanguage;
+  marketScope?: ProjectMarketScope;
+  country?: string | null;
+  needs?: ProjectNeed[];
   openRoles: { id: string; roleType: RoleType; open?: number }[];
   members: { userId: string; profile: { avatarEmoji: string; username?: string } | null }[];
   owner: { avatarEmoji: string; username: string; lastActiveAt?: Date | string | null } | null;
 };
 
-export function ProjectCard({ project, locale = "pl" }: { project: ProjectCardData; locale?: AppLocale }) {
+export function ProjectCard({
+  project,
+  locale = "pl",
+  matchScore,
+  matchReasons = [],
+}: {
+  project: ProjectCardData;
+  locale?: AppLocale;
+  matchScore?: number;
+  matchReasons?: string[];
+}) {
   const labels = labelsFor(locale);
+  const intl = internationalLabels(locale);
   const en = locale === "en";
   const visibleRoles = project.openRoles.slice(0, 2);
   const remainingRoles = Math.max(0, project.openRoles.length - visibleRoles.length);
@@ -44,10 +60,15 @@ export function ProjectCard({ project, locale = "pl" }: { project: ProjectCardDa
   const openSlots = project.openRoles.reduce((sum, role) => sum + Math.max(1, role.open ?? 1), 0);
   const ownerActivity = getActivityState(project.owner?.lastActiveAt);
   const freshness = getProjectFreshness(project.updatedAt, new Date(), locale);
+  const score = typeof matchScore === "number" ? Math.min(100, Math.max(0, matchScore)) : null;
+  const strongMatch = score !== null && score >= 70;
+  const projectLanguage = project.projectLanguage ?? "PL";
+  const marketScope = project.marketScope ?? "LOCAL";
+  const needs = project.needs ?? ["TEAMMATES"];
 
   return (
     <article className="group overflow-hidden rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
-      <div className="grid lg:grid-cols-[minmax(0,1fr)_460px]">
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_480px]">
         <div className="min-w-0 p-4 sm:p-5">
           <div className="flex items-start gap-4">
             <ProjectIdentityMark
@@ -69,6 +90,11 @@ export function ProjectCard({ project, locale = "pl" }: { project: ProjectCardDa
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent)]" />
                   {labels.stages[project.stage]}
                 </span>
+                {score !== null ? (
+                  <span className={`inline-flex h-6 items-center gap-1 rounded-[6px] border px-2 text-[11px] font-semibold ${strongMatch ? "border-[#b8db5a] bg-[#f1f8db] text-[#66890e] dark:border-[#759624] dark:bg-[#202810] dark:text-[#c8f169]" : "border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] text-[var(--bc-muted)]"}`}>
+                    <Sparkles className="h-3 w-3" /> {score}% {en ? "match" : "dopasowania"}
+                  </span>
+                ) : null}
               </div>
 
               {identityLabels.length > 0 ? (
@@ -85,6 +111,16 @@ export function ProjectCard({ project, locale = "pl" }: { project: ProjectCardDa
 
               {project.technologies.length > 0 ? (
                 <TechnologyStack items={project.technologies} max={4} compact className="mt-3 gap-1.5" />
+              ) : null}
+
+              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 text-[11px] text-[var(--bc-faint)]">
+                <span className="inline-flex items-center gap-1"><Languages className="h-3 w-3" />{intl.projectLanguage[projectLanguage]}</span>
+                <span className="inline-flex items-center gap-1"><Globe2 className="h-3 w-3" />{intl.marketScope[marketScope]}</span>
+                {project.country ? <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{project.country}</span> : null}
+              </div>
+
+              {matchReasons.length ? (
+                <p className="mt-3 text-[12px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{en ? "Why it fits:" : "Dlaczego pasuje:"}</span> {matchReasons.slice(0, 2).join(" · ")}</p>
               ) : null}
             </div>
           </div>
@@ -113,6 +149,10 @@ export function ProjectCard({ project, locale = "pl" }: { project: ProjectCardDa
                   )}
                 </div>
 
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {needs.slice(0, 3).map((need) => <span key={need} className="rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-1 text-[10px] font-medium text-[var(--bc-muted)]">{intl.needs[need]}</span>)}
+                </div>
+
                 <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-[var(--bc-muted)]">
                   <span className="inline-flex items-center gap-1.5">
                     <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -122,7 +162,7 @@ export function ProjectCard({ project, locale = "pl" }: { project: ProjectCardDa
                     <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
                     {teamSize}
                   </span>
-                  {project.owner?.lastActiveAt && ownerActivity !== "INACTIVE" && ownerActivity !== "UNKNOWN" ? <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />Owner: {activityLabel(project.owner.lastActiveAt, locale).toLowerCase()}</span> : null}
+                  {project.owner?.lastActiveAt && ownerActivity !== "INACTIVE" && ownerActivity !== "UNKNOWN" ? <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />{en ? "Owner" : "Autor"}: {activityLabel(project.owner.lastActiveAt, locale).toLowerCase()}</span> : null}
                   <span className={`inline-flex items-center gap-1.5 ${freshness.stale && openSlots > 0 ? "font-medium text-amber-700 dark:text-amber-300" : ""}`}>
                     <span className={`h-1.5 w-1.5 rounded-full ${freshness.recent ? "bg-[var(--bc-accent-strong)]" : freshness.stale && openSlots > 0 ? "bg-amber-400" : "bg-[var(--bc-line-strong)]"}`} />
                     {freshness.shortLabel}

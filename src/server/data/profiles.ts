@@ -113,3 +113,15 @@ export async function listBuilderProfiles(excludeUserId?: string) {
       interests: interestMap.get(r.profile.userId) ?? [],
     }));
 }
+
+export async function listPublicBuildersForLanding(limit = 4) {
+  const builders = await listBuilderProfiles();
+  return builders
+    .filter((builder) => builder.onboardingCompleted && builder.publicProfile && (builder.lookingFor.includes("OPEN_TO_BUILD") || builder.lookingFor.includes("WANTS_PROJECT")))
+    .sort((a, b) => {
+      const aTime = a.lastActiveAt ? new Date(a.lastActiveAt).getTime() : 0;
+      const bTime = b.lastActiveAt ? new Date(b.lastActiveAt).getTime() : 0;
+      return bTime - aTime;
+    })
+    .slice(0, limit);
+}

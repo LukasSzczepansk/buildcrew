@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Clock3 } from "lucide-react";
+import { ArrowRight, Clock3, Globe2, MapPin } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { LOOKING_FOR_LABELS } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
 import type { AppLocale } from "@/lib/site-config";
 import { activityLabel, getActivityState } from "@/lib/activity";
-import type { Commitment, Level, LookingFor, RoleType } from "@/db/schema";
+import type { Commitment, Level, LookingFor, RoleType, WorkModePreference } from "@/db/schema";
 
 export type BuilderCardData = {
   userId: string;
@@ -18,6 +18,10 @@ export type BuilderCardData = {
   skills: string[];
   interests: string[];
   lookingFor: LookingFor[];
+  languages?: string[];
+  country?: string | null;
+  city?: string | null;
+  workModePreference?: WorkModePreference | null;
   isDemo?: boolean;
   lastActiveAt?: Date | string | null;
   createdAt?: Date | string | null;
@@ -54,6 +58,8 @@ export function BuilderCard({ builder, action, matchScore, matchReasons = [], lo
               {openToBuild ? <span className="font-medium text-[var(--bc-ink)]">{en ? "Open to collaborate" : "Otwarty na współpracę"}</span> : null}
               {builder.weeklyHours ? <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{labels.commitments[builder.weeklyHours]}</span> : null}
               {builder.level ? <span className="hidden 2xl:inline">{labels.levels[builder.level]}</span> : null}
+              {(builder.city || builder.country) ? <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{[builder.city, builder.country].filter(Boolean).join(", ")}</span> : null}
+              {builder.languages?.length ? <span className="inline-flex items-center gap-1"><Globe2 className="h-3 w-3" />{builder.languages.slice(0, 2).join(", ")}</span> : null}
             </div>
           </div>
         </div>

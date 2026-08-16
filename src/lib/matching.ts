@@ -1,7 +1,7 @@
 import { LEVEL_ORDER } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
 import type { AppLocale } from "@/lib/site-config";
-import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
+import type { Commitment, Goal, Level, RoleType, WorkModePreference } from "@/db/schema";
 
 export type MatchableProfile = {
   userId: string;
@@ -11,6 +11,9 @@ export type MatchableProfile = {
   weeklyHours: Commitment | null;
   interests: string[];
   goals: Goal[];
+  languages?: string[];
+  workModePreference?: WorkModePreference | null;
+  country?: string | null;
 };
 
 const COMPLEMENTARY_PAIRS: [RoleType, RoleType][] = [
@@ -46,7 +49,7 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile, loca
   const reasons: string[] = [];
 
   if (rolesComplementary(me.role, other.role)) {
-    score += 30;
+    score += 25;
     reasons.push(
       en
         ? `${other.role ? labels.roles[other.role] : "Their role"} complements yours (${me.role ? labels.roles[me.role] : "not set"})`
@@ -59,29 +62,50 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile, loca
 
   const sharedInterests = me.interests.filter((i) => other.interests.includes(i));
   if (sharedInterests.length > 0) {
-    const interestScore = Math.min(25, sharedInterests.length * 10);
+    const interestScore = Math.min(20, sharedInterests.length * 8);
     score += interestScore;
     reasons.push(en ? `You’re both interested in ${sharedInterests.slice(0, 2).join(", ")}` : `Oboje interesujecie się ${sharedInterests.slice(0, 2).join(", ")}`);
   }
 
   if (me.weeklyHours && other.weeklyHours && me.weeklyHours === other.weeklyHours) {
-    score += 15;
-    reasons.push(en ? `You both have ${labels.commitments[other.weeklyHours]}` : `Oboje macie ${other.weeklyHours}h tygodniowo`);
+    score += 12;
+    reasons.push(en ? `You both have ${labels.commitments[other.weeklyHours]}` : `Oboje macie ${labels.commitments[other.weeklyHours]}`);
   }
 
   const sharedGoals = me.goals.filter((g) => other.goals.includes(g));
   if (sharedGoals.length > 0) {
-    score += 15;
+    score += 12;
     reasons.push(en ? `Similar goal: ${labels.goals[sharedGoals[0]].toLowerCase()}` : `Podobny cel: ${labels.goals[sharedGoals[0]].toLowerCase()}`);
   }
 
   if (me.level && other.level) {
     const diff = Math.abs(LEVEL_ORDER[me.level] - LEVEL_ORDER[other.level]);
     if (diff <= 1) {
-      score += 15;
+      score += 10;
       reasons.push(en ? "Similar experience level" : "Podobny poziom doświadczenia");
     }
   }
 
-  return { score, reasons };
+  const sharedLanguages = (me.languages ?? []).filter((language) => (other.languages ?? []).includes(language));
+  if (sharedLanguages.length > 0) {
+    score += 12;
+    reasons.push(en ? `You can collaborate in ${sharedLanguages.slice(0, 2).join(" / ")}` : `Możecie współpracować po: ${sharedLanguages.slice(0, 2).join(" / ")}`);
+  } else if ((me.languages?.length ?? 0) > 0 && (other.languages?.length ?? 0) > 0) {
+    score = Math.max(0, score - 12);
+  }
+
+  if (me.workModePreference && other.workModePreference) {
+    const compatible = me.workModePreference === "FLEXIBLE" || other.workModePreference === "FLEXIBLE" || me.workModePreference === other.workModePreference;
+    if (compatible) {
+      score += 6;
+      reasons.push(en ? "Compatible work-mode preference" : "Pasujący tryb współpracy");
+    }
+  }
+
+  if (me.country && other.country && me.country === other.country) {
+    score += 3;
+    reasons.push(en ? `Same country: ${me.country}` : `Ten sam kraj: ${me.country}`);
+  }
+
+  return { score: Math.min(100, score), reasons };
 }

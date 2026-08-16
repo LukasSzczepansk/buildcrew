@@ -63,3 +63,20 @@ Cookie sesyjne `__Host-...` jest host-only. To prawidłowe i bezpieczne. Użytko
 ## Ważne przed większym EN launch'em
 
 Część głębszych ekranów (workspace/admin/niektóre dialogi i background notifications) nadal może zawierać polskie teksty. Dokumenty prawne wymagają osobnej, profesjonalnej wersji EN. Szczegóły są w `DUAL-DOMAIN-SETUP.md`.
+
+## International EN production upgrade
+
+This version extends the original dual-domain patch with international user/project metadata and matching:
+
+- persisted `preferredLocale`,
+- profile headline, country, city, languages and work mode,
+- project language, market reach, country and needs,
+- optional funding metadata,
+- international People/Projects filters,
+- builder-project match explanations,
+- richer EN landing with real public projects/builders,
+- locale-aware key notifications/messages/invitations,
+- international project settings for existing projects,
+- updated deployment instructions in `INTERNATIONAL-EN-SETUP.md`.
+
+Database schema changes are included. Back up the DB and run `npm run db:push` before production rollout.

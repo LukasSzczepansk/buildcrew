@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { and, eq, lt } from "drizzle-orm";
 import { db } from "@/db";
-import { profiles, sessions, users, type SystemRole } from "@/db/schema";
+import { profiles, sessions, users, type SystemRole, type AppLocaleDb } from "@/db/schema";
 import { safeInternalRedirect } from "@/lib/redirects";
 import { randomToken, sha256 } from "@/lib/security";
 
@@ -112,6 +112,7 @@ export type CurrentUser = {
   emailVerified: boolean;
   systemRole: SystemRole;
   hasPassword: boolean;
+  preferredLocale: AppLocaleDb;
 };
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -124,6 +125,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     .select({
       userId: users.id,
       email: users.email,
+      preferredLocale: users.preferredLocale,
       systemRole: users.systemRole,
       emailVerifiedAt: users.emailVerifiedAt,
       passwordHash: users.passwordHash,
@@ -169,6 +171,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     emailVerified: Boolean(row.emailVerifiedAt),
     systemRole: row.systemRole,
     hasPassword: Boolean(row.passwordHash),
+    preferredLocale: row.preferredLocale,
   };
 }
 

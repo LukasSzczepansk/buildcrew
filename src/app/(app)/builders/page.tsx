@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { FilterBar } from "@/components/filters/filter-bar";
 import { INTEREST_OPTIONS, SKILL_GROUPS } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
+import { COUNTRY_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/international";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { computeMatch } from "@/lib/matching";
@@ -37,6 +38,8 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
   if (params.level) builders = builders.filter((b) => b.level === params.level);
   if (params.interest) builders = builders.filter((b) => b.interests.includes(params.interest!));
   if (params.intent) builders = builders.filter((b) => b.lookingFor.includes(params.intent as LookingFor));
+  if (params.language) builders = builders.filter((b) => b.languages.includes(params.language!));
+  if (params.country) builders = builders.filter((b) => b.country === params.country);
   if (params.q) {
     const query = params.q.trim().toLowerCase();
     builders = builders.filter((b) => {
@@ -50,8 +53,8 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
   const ranked = builders
     .map((builder) => {
       const match = computeMatch(
-        { userId: myProfile.userId, username: myProfile.username, role: myProfile.role as RoleType | null, level: myProfile.level as Level | null, weeklyHours: myProfile.weeklyHours as Commitment | null, interests: myProfile.interests, goals: myProfile.goals as Goal[] },
-        { userId: builder.userId, username: builder.username, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, interests: builder.interests, goals: builder.goals as Goal[] },
+        { userId: myProfile.userId, username: myProfile.username, role: myProfile.role as RoleType | null, level: myProfile.level as Level | null, weeklyHours: myProfile.weeklyHours as Commitment | null, interests: myProfile.interests, goals: myProfile.goals as Goal[], languages: myProfile.languages, workModePreference: myProfile.workModePreference, country: myProfile.country },
+        { userId: builder.userId, username: builder.username, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, interests: builder.interests, goals: builder.goals as Goal[], languages: builder.languages, workModePreference: builder.workModePreference, country: builder.country },
         locale,
       );
       return { builder, ...match };
@@ -100,6 +103,8 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
           { key: "level", label: en ? "Level" : "Poziom", options: Object.entries(labels.levels).map(([value, label]) => ({ value, label })) },
           { key: "interest", label: en ? "Area" : "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
           { key: "intent", label: en ? "Looking for" : "Szukam teraz", options: Object.entries(labels.lookingFor).map(([value, label]) => ({ value, label })) },
+          { key: "language", label: en ? "Language" : "Język", options: LANGUAGE_OPTIONS.map((value) => ({ value, label: value })) },
+          { key: "country", label: en ? "Country" : "Kraj", options: COUNTRY_OPTIONS.map((value) => ({ value, label: value })) },
         ]}
       />
 
@@ -113,7 +118,7 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
           </div>
           <div className="space-y-2.5">
             {ranked.map(({ builder: b, score, reasons }) => (
-              <BuilderCard locale={locale} key={b.userId} matchScore={score} matchReasons={reasons} action={<FollowButton targetUserId={b.userId} initialFollowing={followingIds.has(b.userId)} compact />} builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, lastActiveAt: b.lastActiveAt, createdAt: b.createdAt }} />
+              <BuilderCard locale={locale} key={b.userId} matchScore={score} matchReasons={reasons} action={<FollowButton targetUserId={b.userId} initialFollowing={followingIds.has(b.userId)} compact />} builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, languages: b.languages, country: b.country, city: b.city, workModePreference: b.workModePreference, lastActiveAt: b.lastActiveAt, createdAt: b.createdAt }} />
             ))}
           </div>
         </section>

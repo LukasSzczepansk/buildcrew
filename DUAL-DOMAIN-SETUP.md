@@ -200,3 +200,13 @@ npm run build
 Następnie deploy/redeploy na Vercelu.
 
 W środowisku, w którym przygotowywany był patch, pełny `npm ci` nie mógł zostać dokończony z powodu braku dostępu do registry. Został wykonany parser/syntax check wszystkich plików TypeScript/TSX oraz projektowy `scripts/check-punctuation.mjs`.
+
+---
+
+## Aktualizacja: International EN production patch
+
+Nowsza wersja patcha rozszerza także schemat bazy o locale, languages, location, project language/reach/needs oraz funding metadata. Dlatego sekcje powyżej opisujące brak zmian w bazie są nieaktualne dla tej wersji.
+
+Przed wdrożeniem tej wersji użyj instrukcji:
+
+`INTERNATIONAL-EN-SETUP.md`

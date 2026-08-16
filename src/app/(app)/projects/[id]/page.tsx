@@ -14,6 +14,7 @@ import { ProjectFollowButton } from "@/components/projects/project-follow-button
 import { ProjectUpdateComposer } from "@/components/projects/project-update-composer";
 import { LeaveProjectButton } from "@/components/projects/project-team-manager";
 import { labelsFor } from "@/lib/constants-i18n";
+import { internationalLabels } from "@/lib/international";
 import { getRequestLocale } from "@/lib/site-server";
 import type { AppLocale } from "@/lib/site-config";
 import { getCurrentUser } from "@/lib/auth";
@@ -44,6 +45,7 @@ export default async function ProjectDetailPage({
   const locale = await getRequestLocale();
   const en = locale === "en";
   const labels = labelsFor(locale);
+  const intl = internationalLabels(locale);
   const { id } = await params;
   const query = await searchParams;
   const project = await getProjectById(id);
@@ -314,12 +316,25 @@ export default async function ProjectDetailPage({
               {project.projectType ? <Detail label={en ? "Type" : "Typ"} value={labels.projectTypes[project.projectType]} /> : null}
               {project.commitment ? <Detail label={en ? "Time" : "Czas"} value={labels.commitments[project.commitment]} /> : null}
               {project.collaborationMode ? <Detail label={en ? "Mode" : "Tryb"} value={labels.collaborationModes[project.collaborationMode]} /> : null}
+              <Detail label={en ? "Project language" : "Język projektu"} value={intl.projectLanguage[project.projectLanguage]} />
+              <Detail label={en ? "Collaboration reach" : "Zasięg współpracy"} value={intl.marketScope[project.marketScope]} />
+              {project.country ? <Detail label={en ? "Country" : "Kraj"} value={project.country} /> : null}
               {project.collaborationPace ? <Detail label={en ? "Pace" : "Tempo"} value={labels.collaborationPaces[project.collaborationPace]} /> : null}
               {project.duration ? <Detail label={en ? "Duration" : "Horyzont"} value={labels.durations[project.duration]} /> : null}
               {project.character.length ? (
                 <Detail label={en ? "Character" : "Charakter"} value={project.character.map((item) => labels.characters[item]).join(" · ")} />
               ) : null}
             </dl>
+          </SideSection>
+
+          <SideSection title={en ? "What this project needs" : "Czego projekt potrzebuje"}>
+            <div className="flex flex-wrap gap-1.5">{project.needs.map((need) => <Badge key={need} variant="outline">{intl.needs[need]}</Badge>)}</div>
+            {project.needs.includes("FUNDING") ? <div className="mt-3 space-y-1.5 text-[12px] leading-5 text-[var(--bc-muted)]">
+              {project.fundingStage ? <p><span className="font-medium text-[var(--bc-ink)]">{en ? "Stage:" : "Etap:"}</span> {intl.fundingStage[project.fundingStage]}</p> : null}
+              {project.fundingAmount ? <p><span className="font-medium text-[var(--bc-ink)]">{en ? "Target:" : "Kwota:"}</span> {project.fundingAmount}</p> : null}
+              {project.fundingUse ? <p>{project.fundingUse}</p> : null}
+              {project.pitchDeckUrl ? <ExternalProjectLink href={project.pitchDeckUrl} label={en ? "Pitch deck" : "Pitch deck"} /> : null}
+            </div> : null}
           </SideSection>
 
           {project.repositoryUrl || project.demoUrl || project.designUrl || project.docsUrl ? (

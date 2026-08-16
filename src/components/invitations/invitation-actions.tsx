@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useCopy } from "@/components/i18n/locale-provider";
 import { respondToBuildProposal, respondToCrewInvite } from "@/server/actions/crews";
 import { respondToProjectInvite } from "@/server/actions/projects";
 
@@ -14,6 +15,7 @@ type Props =
 
 export function InvitationActions(props: Props) {
   const router = useRouter();
+  const copy = useCopy();
   const [pending, setPending] = React.useState<"accept" | "reject" | null>(null);
 
   async function respond(decision: "ACCEPTED" | "REJECTED") {
@@ -21,30 +23,39 @@ export function InvitationActions(props: Props) {
     try {
       if (props.type === "BUILD_PROPOSAL") {
         const result = await respondToBuildProposal(props.id, decision);
-        if (result?.error) return toast.error(result.error);
+        if ("error" in result && result.error) {
+          toast.error(result.error);
+          return;
+        }
         if (decision === "ACCEPTED" && result?.crewId) {
-          toast.success("Ekipa utworzona 🎉");
+          toast.success(copy("Ekipa utworzona!", "Team created!"));
           router.push(`/crews/${result.crewId}`);
           return;
         }
       } else if (props.type === "CREW_INVITE") {
         const result = await respondToCrewInvite(props.id, decision);
-        if (result?.error) return toast.error(result.error);
+        if ("error" in result && result.error) {
+          toast.error(result.error);
+          return;
+        }
         if (decision === "ACCEPTED") {
-          toast.success("Dołączyłeś do ekipy 🎉");
+          toast.success(copy("Dołączyłeś do ekipy!", "You joined the team!"));
           router.push(`/crews/${props.crewId}`);
           return;
         }
       } else {
         const result = await respondToProjectInvite(props.id, decision);
-        if (result?.error) return toast.error(result.error);
+        if ("error" in result && result.error) {
+          toast.error(result.error);
+          return;
+        }
         if (decision === "ACCEPTED") {
-          toast.success("Dołączyłeś do projektu 🎉");
+          toast.success(copy("Dołączyłeś do projektu!", "You joined the project!"));
           router.push(`/projects/${props.projectId}`);
           return;
         }
       }
-      toast.success(decision === "ACCEPTED" ? "Zaakceptowano." : "Odrzucono.");
+      toast.success(decision === "ACCEPTED" ? copy("Zaakceptowano.", "Accepted.") : copy("Odrzucono.", "Declined."));
       router.refresh();
     } finally {
       setPending(null);
@@ -54,10 +65,10 @@ export function InvitationActions(props: Props) {
   return (
     <div className="flex gap-2">
       <Button size="sm" onClick={() => respond("ACCEPTED")} disabled={pending !== null}>
-        {pending === "accept" ? "Akceptowanie…" : "Jasne"}
+        {pending === "accept" ? copy("Akceptowanie...", "Accepting...") : copy("Akceptuj", "Accept")}
       </Button>
       <Button size="sm" variant="outline" onClick={() => respond("REJECTED")} disabled={pending !== null}>
-        {pending === "reject" ? "Odrzucanie…" : "Nie tym razem"}
+        {pending === "reject" ? copy("Odrzucanie...", "Declining...") : copy("Odrzuć", "Decline")}
       </Button>
     </div>
   );

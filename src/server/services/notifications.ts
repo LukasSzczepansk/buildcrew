@@ -4,6 +4,7 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { notificationPreferences, notifications, users, type NotificationType } from "@/db/schema";
 import { buildCrewEmail, cancelScheduledEmail, escapeEmailHtml, sendTransactionalEmail } from "@/lib/email";
+import { siteUrlForLocale } from "@/lib/site-config";
 
 type EmailPreferenceKey =
   | "emailProjectApplications"
@@ -23,6 +24,9 @@ export type NotificationOptions = {
   entityId?: string;
   emailPreference?: EmailPreferenceKey;
   emailCtaLabel?: string;
+  titleEn?: string;
+  bodyEn?: string | null;
+  emailCtaLabelEn?: string;
   /**
    * Delay a transactional email without a cron job. Resend keeps the message
    * scheduled; BuildCrew cancels it if the notification is read first.
@@ -31,6 +35,8 @@ export type NotificationOptions = {
   /** Separate copy for email so private message previews do not need to leave BuildCrew. */
   emailTitle?: string;
   emailIntro?: string | null;
+  emailTitleEn?: string;
+  emailIntroEn?: string | null;
 };
 
 const DEFAULT_EMAIL_PREFERENCES: Record<EmailPreferenceKey, boolean> = {
@@ -54,45 +60,52 @@ export async function createNotification(
   link?: string,
   options: NotificationOptions = {},
 ) {
+  const recipientRows = await db.select({ email: users.email, emailVerifiedAt: users.emailVerifiedAt, isSuspended: users.isSuspended, preferredLocale: users.preferredLocale })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  const target = recipientRows[0];
+  const locale = target?.preferredLocale === "en" ? "en" : "pl";
+  const resolvedTitle = locale === "en" ? (options.titleEn ?? title) : title;
+  const resolvedBody = locale === "en" ? (options.bodyEn === undefined ? body : options.bodyEn ?? undefined) : body;
+
   const [created] = await db.insert(notifications).values({
     userId,
     actorId: options.actorId ?? null,
     type,
     entityType: options.entityType ?? null,
     entityId: options.entityId ?? null,
-    title,
-    body: body ?? null,
+    title: resolvedTitle,
+    body: resolvedBody ?? null,
     link: link ?? null,
   }).returning({ id: notifications.id });
 
   if (!created || !options.emailPreference) return created;
 
-  const [recipient, prefs] = await Promise.all([
-    db.select({ email: users.email, emailVerifiedAt: users.emailVerifiedAt, isSuspended: users.isSuspended })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1),
-    db.select().from(notificationPreferences).where(eq(notificationPreferences.userId, userId)).limit(1),
-  ]);
+  const prefs = await db.select().from(notificationPreferences).where(eq(notificationPreferences.userId, userId)).limit(1);
 
   const preference = prefs[0]?.[options.emailPreference] ?? DEFAULT_EMAIL_PREFERENCES[options.emailPreference];
-  const target = recipient[0];
   if (!preference || !target?.email || !target.emailVerifiedAt || target.isSuspended) return created;
 
   const delayMinutes = Math.max(0, Math.min(options.emailDelayMinutes ?? 0, 30 * 24 * 60));
   const scheduledFor = delayMinutes > 0 ? new Date(Date.now() + delayMinutes * 60 * 1000) : null;
-  const emailTitle = options.emailTitle ?? title;
-  const emailIntro = options.emailIntro === undefined ? body : options.emailIntro;
+  const emailTitle = locale === "en" ? (options.emailTitleEn ?? options.titleEn ?? options.emailTitle ?? title) : (options.emailTitle ?? title);
+  const emailIntro = locale === "en"
+    ? (options.emailIntroEn === undefined ? (options.bodyEn === undefined ? body : options.bodyEn) : options.emailIntroEn)
+    : (options.emailIntro === undefined ? body : options.emailIntro);
+  const baseUrl = siteUrlForLocale(locale);
 
   const result = await sendTransactionalEmail({
     to: target.email,
     subject: emailTitle,
     html: buildCrewEmail({
-      eyebrow: delayMinutes > 0 ? "Nieprzeczytane na BuildCrew" : "Nowe na BuildCrew",
+      locale,
+      baseUrl,
+      eyebrow: delayMinutes > 0 ? (locale === "en" ? "Unread on BuildCrew" : "Nieprzeczytane na BuildCrew") : (locale === "en" ? "New on BuildCrew" : "Nowe na BuildCrew"),
       title: emailTitle,
       intro: emailIntro ?? undefined,
       content: emailIntro ? undefined : `<p style="font-size:14px;line-height:1.6;color:#66665f;margin:0">${escapeEmailHtml(emailTitle)}</p>`,
-      ctaLabel: options.emailCtaLabel ?? "Otwórz w BuildCrew",
+      ctaLabel: locale === "en" ? (options.emailCtaLabelEn ?? options.emailCtaLabel ?? "Open in BuildCrew") : (options.emailCtaLabel ?? "Otwórz w BuildCrew"),
       ctaHref: link ?? "/dashboard",
     }),
     scheduledAt: scheduledFor?.toISOString(),

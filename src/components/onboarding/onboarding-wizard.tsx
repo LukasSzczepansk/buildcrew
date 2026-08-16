@@ -25,9 +25,10 @@ import {
   ROLE_OPTIONS,
   SKILL_GROUPS,
 } from "@/lib/constants";
-import type { Commitment, Goal, Level, LookingFor, RoleType } from "@/db/schema";
+import type { Commitment, Goal, Level, LookingFor, RoleType, WorkModePreference } from "@/db/schema";
 import { completeOnboarding } from "@/server/actions/profile";
 import { labelsFor } from "@/lib/constants-i18n";
+import { COUNTRY_OPTIONS, LANGUAGE_OPTIONS, WORK_MODE_OPTIONS, internationalLabels } from "@/lib/international";
 
 type FormState = {
   username: string;
@@ -42,6 +43,11 @@ type FormState = {
   portfolioUrl: string;
   linkedinUrl: string;
   discordUsername: string;
+  headline: string;
+  country: string;
+  city: string;
+  languages: string[];
+  workModePreference: WorkModePreference;
 };
 
 const TOTAL_STEPS = 5;
@@ -78,6 +84,11 @@ const emptyForm: FormState = {
   portfolioUrl: "",
   linkedinUrl: "",
   discordUsername: "",
+  headline: "",
+  country: "",
+  city: "",
+  languages: [],
+  workModePreference: "FLEXIBLE",
 };
 
 export function OnboardingWizard() {
@@ -85,6 +96,7 @@ export function OnboardingWizard() {
   const locale = useLocale();
   const copy = useCopy();
   const labels = labelsFor(locale);
+  const intl = internationalLabels(locale);
   const [step, setStep] = React.useState(1);
   const [pending, setPending] = React.useState(false);
   const [draftReady, setDraftReady] = React.useState(false);
@@ -113,9 +125,13 @@ export function OnboardingWizard() {
     } catch {
       // Nie blokujemy onboardingu, jeśli lokalny szkic jest uszkodzony.
     } finally {
+      setForm((current) => current.languages.length ? current : {
+        ...current,
+        languages: [locale === "en" ? "English" : "Polish"],
+      });
       setDraftReady(true);
     }
-  }, []);
+  }, [locale]);
 
   const saveDraftNow = React.useCallback(() => {
     if (!draftReady) return;
@@ -151,6 +167,8 @@ export function OnboardingWizard() {
         return form.skills.length >= 1 && !!form.level;
       case 3:
         return !!form.weeklyHours && form.lookingFor.length >= 1;
+      case 4:
+        return form.languages.length >= 1;
       default:
         return true;
     }
@@ -172,6 +190,11 @@ export function OnboardingWizard() {
         portfolioUrl: form.portfolioUrl,
         linkedinUrl: form.linkedinUrl,
         discordUsername: form.discordUsername,
+        headline: form.headline,
+        country: form.country,
+        city: form.city,
+        languages: form.languages,
+        workModePreference: form.workModePreference,
       });
 
       if (result?.error) {
@@ -344,8 +367,46 @@ export function OnboardingWizard() {
         ) : null}
 
         {step === 4 ? (
-          <StepShell title={copy("Co chcesz budować", "What do you want to build?")} subtitle={copy("Opcjonalne, ale pomaga odróżnić przypadkowe profile od osób, z którymi naprawdę warto porozmawiać.", "Optional, but it helps distinguish random profiles from people genuinely worth talking to.")}>
+          <StepShell title={copy("Jak chcesz współpracować", "How do you want to collaborate?")} subtitle={copy("Język, lokalizacja i tryb pracy pomagają uniknąć dopasowań, które od początku nie mają szans zadziałać.", "Language, location and work mode help avoid matches that were never going to work.")}>
             <div className="space-y-7">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <Label>{copy("Języki współpracy", "Collaboration languages")}</Label>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {LANGUAGE_OPTIONS.map((language) => (
+                      <TagToggle key={language} active={form.languages.includes(language)} label={language} onClick={() => setForm((current) => ({ ...current, languages: toggleValue(current.languages, language) }))} />
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{copy("Wybierz co najmniej jeden język, w którym możesz pracować z zespołem.", "Choose at least one language you can use with a team.")}</p>
+                </div>
+                <div>
+                  <Label>{copy("Preferowany tryb", "Preferred work mode")}</Label>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {WORK_MODE_OPTIONS.map((mode) => (
+                      <SelectableTile key={mode} active={form.workModePreference === mode} label={intl.workMode[mode]} onClick={() => setForm((current) => ({ ...current, workModePreference: mode }))} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label>{copy("Kraj", "Country")}</Label>
+                  <select value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} className="mt-2 h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm outline-none focus:border-[var(--bc-line-strong)]">
+                    <option value="">{copy("Wybierz kraj", "Select country")}</option>
+                    {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label>{copy("Miasto (opcjonalnie)", "City (optional)")}</Label>
+                  <Input className="mt-2" value={form.city} onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))} placeholder={copy("np. Warszawa", "e.g. Amsterdam")} />
+                </div>
+              </div>
+
+              <div>
+                <Label>{copy("Headline (opcjonalnie)", "Headline (optional)")}</Label>
+                <Input className="mt-2" value={form.headline} onChange={(event) => setForm((current) => ({ ...current, headline: event.target.value }))} maxLength={100} placeholder={copy("np. Full-stack developer budujący SaaS-y", "e.g. Full-stack developer building SaaS products")} />
+              </div>
               <div>
                 <Label>{copy("Zainteresowania", "Interests")}</Label>
                 <div className="mt-2 flex flex-wrap gap-2">

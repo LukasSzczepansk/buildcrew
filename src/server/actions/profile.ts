@@ -12,6 +12,8 @@ import { logEvent } from "@/lib/analytics";
 import { onboardingSchema, profileEditSchema } from "@/lib/validations";
 import { ensureInterests, ensureSkills } from "@/server/data/lookups";
 import { z } from "zod";
+import { getRequestLocale } from "@/lib/site-server";
+import { appMessage } from "@/lib/server-copy";
 
 export type ProfileFormState = { error?: string; success?: boolean };
 
@@ -35,14 +37,15 @@ async function syncSkillsAndInterests(userId: string, skillNames: string[], inte
 export async function completeOnboarding(
   input: z.infer<typeof onboardingSchema>,
 ): Promise<ProfileFormState> {
+  const locale = await getRequestLocale();
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: appMessage("Musisz być zalogowany.", locale) };
   const rateError = await enforceUserRateLimit("action:profile:onboarding", user.id, 10, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const parsed = onboardingSchema.safeParse(input);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Sprawdź wypełnione pola." };
+    return { error: appMessage(parsed.error.issues[0]?.message, locale, "Check the fields and try again.") };
   }
   const data = parsed.data;
 
@@ -51,7 +54,7 @@ export async function completeOnboarding(
     .from(profiles)
     .where(eq(profiles.username, data.username));
   if (existingUsername.length > 0 && existingUsername[0].userId !== user.id) {
-    return { error: "Ten nick jest już zajęty. Wybierz inny." };
+    return { error: appMessage("Ten nick jest już zajęty. Wybierz inny.", locale) };
   }
 
   try {
@@ -63,6 +66,11 @@ export async function completeOnboarding(
         role: data.role,
         level: data.level,
         weeklyHours: data.weeklyHours,
+        headline: data.headline || null,
+        country: data.country || null,
+        city: data.city || null,
+        languages: data.languages,
+        workModePreference: data.workModePreference,
         lookingFor: data.lookingFor,
         goals: data.goals,
         githubUrl: data.githubUrl || null,
@@ -79,6 +87,11 @@ export async function completeOnboarding(
           role: data.role,
           level: data.level,
           weeklyHours: data.weeklyHours,
+          headline: data.headline || null,
+          country: data.country || null,
+          city: data.city || null,
+          languages: data.languages,
+          workModePreference: data.workModePreference,
           lookingFor: data.lookingFor,
           goals: data.goals,
           githubUrl: data.githubUrl || null,
@@ -102,7 +115,7 @@ export async function completeOnboarding(
     await logEvent("profile_created", user.id, { username: data.username, role: data.role });
   } catch (err) {
     console.error(err);
-    return { error: "Coś poszło nie tak. Spróbuj ponownie." };
+    return { error: appMessage("Coś poszło nie tak. Spróbuj ponownie.", locale) };
   }
 
   revalidatePath("/dashboard");
@@ -111,18 +124,19 @@ export async function completeOnboarding(
 }
 
 export async function updateProfile(input: z.infer<typeof profileEditSchema>): Promise<ProfileFormState> {
+  const locale = await getRequestLocale();
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: appMessage("Musisz być zalogowany.", locale) };
   const rateError = await enforceUserRateLimit("action:profile:update", user.id, 30, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const parsed = profileEditSchema.safeParse(input);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Sprawdź wypełnione pola." };
+    return { error: appMessage(parsed.error.issues[0]?.message, locale, "Check the fields and try again.") };
   }
   const data = parsed.data;
   if (!data.username || !data.role || !data.level || !data.weeklyHours || !data.skills) {
-    return { error: "Uzupełnij wszystkie wymagane pola." };
+    return { error: appMessage("Uzupełnij wszystkie wymagane pola.", locale) };
   }
 
   const existingUsername = await db
@@ -130,7 +144,7 @@ export async function updateProfile(input: z.infer<typeof profileEditSchema>): P
     .from(profiles)
     .where(eq(profiles.username, data.username));
   if (existingUsername.length > 0 && existingUsername[0].userId !== user.id) {
-    return { error: "Ten nick jest już zajęty." };
+    return { error: appMessage("Ten nick jest już zajęty.", locale) };
   }
 
   await db
@@ -140,6 +154,11 @@ export async function updateProfile(input: z.infer<typeof profileEditSchema>): P
       role: data.role,
       level: data.level,
       weeklyHours: data.weeklyHours,
+      headline: data.headline || null,
+      country: data.country || null,
+      city: data.city || null,
+      languages: data.languages ?? [],
+      workModePreference: data.workModePreference ?? "FLEXIBLE",
       lookingFor: data.lookingFor,
       goals: data.goals ?? [],
       bio: data.bio || null,

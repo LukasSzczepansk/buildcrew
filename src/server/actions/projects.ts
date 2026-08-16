@@ -22,11 +22,13 @@ import {
 import { getVerifiedCurrentUser } from "@/lib/auth";
 import { logEvent } from "@/lib/analytics";
 import { enforceUserRateLimit } from "@/lib/security";
-import { applicationSchema, decisionSchema, projectCreateSchema, projectInviteSchema, uuidSchema } from "@/lib/validations";
+import { applicationSchema, decisionSchema, projectCreateSchema, projectInternationalSettingsSchema, projectInviteSchema, uuidSchema } from "@/lib/validations";
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import { createNotification } from "@/server/services/notifications";
 import { ROLE_LABELS } from "@/lib/constants";
 import { listFollowerIds } from "@/server/data/network";
+import { getRequestLocale } from "@/lib/site-server";
+import { appMessage } from "@/lib/server-copy";
 
 export type ActionState = { error?: string; success?: boolean };
 
@@ -35,13 +37,14 @@ function isUniqueViolation(error: unknown) {
 }
 
 export async function createProject(input: z.infer<typeof projectCreateSchema>) {
+  const locale = await getRequestLocale();
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: appMessage("Musisz być zalogowany.", locale) };
   const rateError = await enforceUserRateLimit("action:project:create", user.id, 10, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const parsed = projectCreateSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź wypełnione pola." };
+  if (!parsed.success) return { error: appMessage(parsed.error.issues[0]?.message, locale, "Check the fields and try again.") };
   const data = parsed.data;
 
   const result = await db.transaction(async (tx) => {
@@ -49,7 +52,7 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
     if (data.sourceIdeaId) {
       const sourceRows = await tx.select().from(projects).where(and(eq(projects.id, data.sourceIdeaId), eq(projects.entryType, "IDEA"))).limit(1);
       const sourceIdea = sourceRows[0];
-      if (!sourceIdea || sourceIdea.ownerId !== user.id) return { error: "Nie możesz przekształcić tego pomysłu w projekt." } as const;
+      if (!sourceIdea || sourceIdea.ownerId !== user.id) return { error: appMessage("Nie możesz przekształcić tego pomysłu w projekt.", locale) } as const;
       const interestRows = await tx.select({ userId: projectIdeaInterests.userId }).from(projectIdeaInterests).where(eq(projectIdeaInterests.projectId, data.sourceIdeaId));
       sourceIdeaInterestUserIds = interestRows.map((row) => row.userId);
     }
@@ -59,13 +62,13 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
       await tx.execute(sql`select id from crews where id = ${data.crewId} for update`);
       const crewRows = await tx.select().from(crews).where(eq(crews.id, data.crewId)).limit(1);
       const crew = crewRows[0];
-      if (!crew || crew.status !== "FORMING") return { error: "Ta ekipa nie może już zostać zamieniona w projekt." } as const;
+      if (!crew || crew.status !== "FORMING") return { error: appMessage("Ta ekipa nie może już zostać zamieniona w projekt.", locale) } as const;
       const members = await tx
         .select({ userId: crewMembers.userId, roleType: profiles.role })
         .from(crewMembers)
         .leftJoin(profiles, eq(profiles.userId, crewMembers.userId))
         .where(eq(crewMembers.crewId, data.crewId));
-      if (!members.some((m) => m.userId === user.id)) return { error: "Nie należysz do tej ekipy." } as const;
+      if (!members.some((m) => m.userId === user.id)) return { error: appMessage("Nie należysz do tej ekipy.", locale) } as const;
       crewMembersList = members;
     }
 
@@ -85,6 +88,14 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
       projectType: data.projectType,
       existingAssets: data.existingAssets,
       collaborationMode: data.collaborationMode,
+      projectLanguage: data.projectLanguage,
+      country: data.country || null,
+      marketScope: data.marketScope,
+      needs: data.needs,
+      fundingStage: data.fundingStage ?? null,
+      fundingAmount: data.fundingAmount || null,
+      fundingUse: data.fundingUse || null,
+      pitchDeckUrl: data.pitchDeckUrl || null,
       collaborationPace: data.collaborationPace,
       duration: data.duration,
       repositoryUrl: data.repositoryUrl || null,
@@ -157,9 +168,10 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
 }
 
 export async function applyToProject(projectId: string, input: z.infer<typeof applicationSchema>) {
-  if (!uuidSchema.safeParse(projectId).success) return { error: "Nieprawidłowy projekt." };
+  const locale = await getRequestLocale();
+  if (!uuidSchema.safeParse(projectId).success) return { error: appMessage("Nieprawidłowy projekt.", locale) };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: appMessage("Musisz być zalogowany.", locale) };
   const rateError = await enforceUserRateLimit("action:project:apply", user.id, 20, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
@@ -168,34 +180,35 @@ export async function applyToProject(projectId: string, input: z.infer<typeof ap
 
   const projectRows = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT"))).limit(1);
   const project = projectRows[0];
-  if (!project) return { error: "Projekt nie istnieje." };
-  if (project.ownerId === user.id) return { error: "Nie możesz aplikować do własnego projektu." };
-  if (await isBlockedEitherWay(user.id, project.ownerId)) return { error: "Nie możesz aplikować do tego projektu." };
+  if (!project) return { error: appMessage("Projekt nie istnieje.", locale) };
+  if (project.ownerId === user.id) return { error: appMessage("Nie możesz aplikować do własnego projektu.", locale) };
+  if (await isBlockedEitherWay(user.id, project.ownerId)) return { error: appMessage("Nie możesz aplikować do tego projektu.", locale) };
 
   const roleRows = await db.select().from(projectRoles).where(eq(projectRoles.id, parsed.data.roleId)).limit(1);
   const role = roleRows[0];
-  if (!role || role.projectId !== projectId) return { error: "Rola nie istnieje." };
+  if (!role || role.projectId !== projectId) return { error: appMessage("Rola nie istnieje.", locale) };
   const filledRows = await db.select({ count: sql<number>`count(*)::int` }).from(projectMembers).where(eq(projectMembers.roleId, role.id));
-  if ((filledRows[0]?.count ?? 0) >= role.slots) return { error: "Ta rola jest już obsadzona." };
+  if ((filledRows[0]?.count ?? 0) >= role.slots) return { error: appMessage("Ta rola jest już obsadzona.", locale) };
 
   try {
     await db.insert(applications).values({ projectId, roleId: role.id, applicantId: user.id, message: parsed.data.message || null });
   } catch (error) {
-    if (isUniqueViolation(error)) return { error: "Masz już oczekujące zgłoszenie do tej roli." };
+    if (isUniqueViolation(error)) return { error: appMessage("Masz już oczekujące zgłoszenie do tej roli.", locale) };
     throw error;
   }
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(project.ownerId, "PROJECT_APPLICATION", `${profileRows[0]?.username ?? "Ktoś"} chce dołączyć do ${project.name}`, `Rola: ${ROLE_LABELS[role.roleType]}${parsed.data.message ? ` · ${parsed.data.message.slice(0, 120)}` : ""}`, `/projects/${projectId}/applications`, { actorId: user.id, entityType: "project", entityId: projectId, emailPreference: "emailProjectApplications", emailCtaLabel: "Zobacz zgłoszenie" });
+  await createNotification(project.ownerId, "PROJECT_APPLICATION", `${profileRows[0]?.username ?? "Ktoś"} chce dołączyć do ${project.name}`, `Rola: ${ROLE_LABELS[role.roleType]}${parsed.data.message ? ` · ${parsed.data.message.slice(0, 120)}` : ""}`, `/projects/${projectId}/applications`, { actorId: user.id, entityType: "project", entityId: projectId, emailPreference: "emailProjectApplications", emailCtaLabel: "Zobacz zgłoszenie", emailCtaLabelEn: "View application", titleEn: `${profileRows[0]?.username ?? "Someone"} wants to join ${project.name}`, bodyEn: `Role: ${ROLE_LABELS[role.roleType]}${parsed.data.message ? ` · ${parsed.data.message.slice(0, 120)}` : ""}` });
   await logEvent("project_application_sent", user.id, { projectId, roleId: role.id });
   revalidatePath(`/projects/${projectId}`);
   return { success: true };
 }
 
 export async function respondToApplication(applicationId: string, decision: "ACCEPTED" | "REJECTED") {
-  if (!uuidSchema.safeParse(applicationId).success || !decisionSchema.safeParse(decision).success) return { error: "Nieprawidłowe dane." };
+  const locale = await getRequestLocale();
+  if (!uuidSchema.safeParse(applicationId).success || !decisionSchema.safeParse(decision).success) return { error: appMessage("Nieprawidłowe dane.", locale) };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: appMessage("Musisz być zalogowany.", locale) };
 
   const outcome = await db.transaction(async (tx) => {
     await tx.execute(sql`select id from applications where id = ${applicationId} for update`);
@@ -205,14 +218,14 @@ export async function respondToApplication(applicationId: string, decision: "ACC
       .innerJoin(projectRoles, eq(projectRoles.id, applications.roleId))
       .where(eq(applications.id, applicationId)).limit(1);
     const row = rows[0];
-    if (!row) return { error: "Zgłoszenie nie istnieje." } as const;
-    if (row.project.ownerId !== user.id) return { error: "Brak uprawnień." } as const;
-    if (row.application.status !== "PENDING") return { error: "To zgłoszenie zostało już rozpatrzone." } as const;
+    if (!row) return { error: appMessage("Zgłoszenie nie istnieje.", locale) } as const;
+    if (row.project.ownerId !== user.id) return { error: appMessage("Brak uprawnień.", locale) } as const;
+    if (row.application.status !== "PENDING") return { error: appMessage("To zgłoszenie zostało już rozpatrzone.", locale) } as const;
 
     if (decision === "ACCEPTED") {
       await tx.execute(sql`select id from project_roles where id = ${row.role.id} for update`);
       const filledRows = await tx.select({ count: sql<number>`count(*)::int` }).from(projectMembers).where(eq(projectMembers.roleId, row.role.id));
-      if ((filledRows[0]?.count ?? 0) >= row.role.slots) return { error: "Ta rola jest już obsadzona." } as const;
+      if ((filledRows[0]?.count ?? 0) >= row.role.slots) return { error: appMessage("Ta rola jest już obsadzona.", locale) } as const;
       await tx.insert(projectMembers).values({ projectId: row.project.id, userId: row.application.applicantId, roleId: row.role.id, roleType: row.role.roleType, isOwner: false }).onConflictDoNothing();
     }
     await tx.update(applications).set({ status: decision, updatedAt: new Date() }).where(and(eq(applications.id, applicationId), eq(applications.status, "PENDING")));
@@ -225,66 +238,68 @@ export async function respondToApplication(applicationId: string, decision: "ACC
     await logEvent("project_application_accepted", user.id, { projectId: row.project.id, applicantId: row.application.applicantId });
     await logEvent("contact_revealed", user.id, { withUserId: row.application.applicantId });
   }
-  await createNotification(row.application.applicantId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Dołączasz do ekipy ${row.project.name}` : `Twoje zgłoszenie do ${row.project.name} nie zostało przyjęte.`, decision === "ACCEPTED" ? "Możecie teraz wymienić kontakt i zacząć budować razem." : undefined, `/projects/${row.project.id}`, { actorId: user.id, entityType: "project", entityId: row.project.id, emailPreference: "emailProjectAccepted", emailCtaLabel: "Zobacz projekt" });
+  await createNotification(row.application.applicantId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Dołączasz do ekipy ${row.project.name}` : `Twoje zgłoszenie do ${row.project.name} nie zostało przyjęte.`, decision === "ACCEPTED" ? "Możecie teraz wymienić kontakt i zacząć budować razem." : undefined, `/projects/${row.project.id}`, { actorId: user.id, entityType: "project", entityId: row.project.id, emailPreference: "emailProjectAccepted", emailCtaLabel: "Zobacz projekt", emailCtaLabelEn: "View project", titleEn: decision === "ACCEPTED" ? `You are joining ${row.project.name}` : `Your application to ${row.project.name} was not accepted.`, bodyEn: decision === "ACCEPTED" ? "You can now exchange contact details and start building together." : null });
   revalidatePath(`/projects/${row.project.id}`);
   revalidatePath(`/projects/${row.project.id}/applications`);
   return { success: true };
 }
 
 export async function inviteToProject(projectId: string, inviteeId: string, roleId: string | undefined, message: string) {
+  const locale = await getRequestLocale();
   const inviteInput = projectInviteSchema.safeParse({ projectId, inviteeId, roleId, message });
-  if (!inviteInput.success) return { error: inviteInput.error.issues[0]?.message ?? "Nieprawidłowe dane." };
+  if (!inviteInput.success) return { error: appMessage(inviteInput.error.issues[0]?.message, locale, "Invalid data.") };
   const validatedProjectId = inviteInput.data.projectId;
   const validatedInviteeId = inviteInput.data.inviteeId;
   const validatedRoleId = inviteInput.data.roleId;
   const validatedMessage = inviteInput.data.message ?? "";
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: appMessage("Musisz być zalogowany.", locale) };
   const rateError = await enforceUserRateLimit("action:project:invite", user.id, 30, 24 * 60 * 60);
   if (rateError) return { error: rateError };
-  if (validatedInviteeId === user.id) return { error: "Nie możesz zaprosić samego siebie." };
+  if (validatedInviteeId === user.id) return { error: appMessage("Nie możesz zaprosić samego siebie.", locale) };
   const inviteeRows = await db.select({ id: users.id, isSuspended: users.isSuspended, systemRole: users.systemRole, onboardingCompleted: profiles.onboardingCompleted })
     .from(users).leftJoin(profiles, eq(profiles.userId, users.id)).where(eq(users.id, validatedInviteeId)).limit(1);
   const invitee = inviteeRows[0];
-  if (!invitee || invitee.isSuspended || invitee.systemRole === "ADMIN" || !invitee.onboardingCompleted) return { error: "Ta osoba nie jest dostępna." };
+  if (!invitee || invitee.isSuspended || invitee.systemRole === "ADMIN" || !invitee.onboardingCompleted) return { error: appMessage("Ta osoba nie jest dostępna.", locale) };
 
   const projectRows = await db.select().from(projects).where(and(eq(projects.id, validatedProjectId), eq(projects.entryType, "PROJECT"))).limit(1);
   const project = projectRows[0];
-  if (!project) return { error: "Projekt nie istnieje." };
-  if (project.ownerId !== user.id) return { error: "Brak uprawnień." };
-  if (await isBlockedEitherWay(user.id, validatedInviteeId)) return { error: "Nie można zaprosić tej osoby." };
+  if (!project) return { error: appMessage("Projekt nie istnieje.", locale) };
+  if (project.ownerId !== user.id) return { error: appMessage("Brak uprawnień.", locale) };
+  if (await isBlockedEitherWay(user.id, validatedInviteeId)) return { error: appMessage("Nie można zaprosić tej osoby.", locale) };
   const existingMember = await db.select({ userId: projectMembers.userId }).from(projectMembers).where(and(eq(projectMembers.projectId, validatedProjectId), eq(projectMembers.userId, validatedInviteeId))).limit(1);
-  if (existingMember.length) return { error: "Ta osoba już należy do projektu." };
+  if (existingMember.length) return { error: appMessage("Ta osoba już należy do projektu.", locale) };
   if (validatedRoleId) {
     const role = await db.select({ id: projectRoles.id, projectId: projectRoles.projectId }).from(projectRoles).where(eq(projectRoles.id, validatedRoleId)).limit(1);
-    if (!role[0] || role[0].projectId !== validatedProjectId) return { error: "Wybrana rola nie należy do tego projektu." };
+    if (!role[0] || role[0].projectId !== validatedProjectId) return { error: appMessage("Wybrana rola nie należy do tego projektu.", locale) };
   }
 
   try {
     await db.insert(projectInvites).values({ projectId: validatedProjectId, roleId: validatedRoleId ?? null, inviterId: user.id, inviteeId: validatedInviteeId, message: validatedMessage || null });
   } catch (error) {
-    if (isUniqueViolation(error)) return { error: "Ta osoba ma już oczekujące zaproszenie do tego projektu." };
+    if (isUniqueViolation(error)) return { error: appMessage("Ta osoba ma już oczekujące zaproszenie do tego projektu.", locale) };
     throw error;
   }
-  await createNotification(validatedInviteeId, "PROJECT_INVITE", `Zaproszenie do projektu ${project.name}`, validatedMessage || undefined, "/invitations", { actorId: user.id, entityType: "project", entityId: project.id, emailPreference: "emailProjectApplications", emailCtaLabel: "Zobacz zaproszenie" });
+  await createNotification(validatedInviteeId, "PROJECT_INVITE", `Zaproszenie do projektu ${project.name}`, validatedMessage || undefined, "/invitations", { actorId: user.id, entityType: "project", entityId: project.id, emailPreference: "emailProjectApplications", emailCtaLabel: "Zobacz zaproszenie", emailCtaLabelEn: "View invitation", titleEn: `Invitation to ${project.name}` });
   await logEvent("builder_invite_sent", user.id, { projectId: validatedProjectId, inviteeId: validatedInviteeId });
   revalidatePath(`/projects/${validatedProjectId}`);
   return { success: true };
 }
 
 export async function respondToProjectInvite(inviteId: string, decision: "ACCEPTED" | "REJECTED") {
-  if (!uuidSchema.safeParse(inviteId).success || !decisionSchema.safeParse(decision).success) return { error: "Nieprawidłowe dane." };
+  const locale = await getRequestLocale();
+  if (!uuidSchema.safeParse(inviteId).success || !decisionSchema.safeParse(decision).success) return { error: appMessage("Nieprawidłowe dane.", locale) };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: appMessage("Musisz być zalogowany.", locale) };
 
   const outcome = await db.transaction(async (tx) => {
     await tx.execute(sql`select id from project_invites where id = ${inviteId} for update`);
     const rows = await tx.select({ invite: projectInvites, project: projects }).from(projectInvites).innerJoin(projects, eq(projects.id, projectInvites.projectId)).where(eq(projectInvites.id, inviteId)).limit(1);
     const row = rows[0];
-    if (!row) return { error: "Zaproszenie nie istnieje." } as const;
-    if (row.invite.inviteeId !== user.id) return { error: "Brak uprawnień." } as const;
-    if (row.invite.status !== "PENDING") return { error: "To zaproszenie zostało już rozpatrzone." } as const;
-    if (await isBlockedEitherWay(user.id, row.project.ownerId)) return { error: "Nie można zaakceptować tego zaproszenia." } as const;
+    if (!row) return { error: appMessage("Zaproszenie nie istnieje.", locale) } as const;
+    if (row.invite.inviteeId !== user.id) return { error: appMessage("Brak uprawnień.", locale) } as const;
+    if (row.invite.status !== "PENDING") return { error: appMessage("To zaproszenie zostało już rozpatrzone.", locale) } as const;
+    if (await isBlockedEitherWay(user.id, row.project.ownerId)) return { error: appMessage("Nie można zaakceptować tego zaproszenia.", locale) } as const;
 
     let roleType = null as typeof profiles.$inferSelect.role;
     if (decision === "ACCEPTED") {
@@ -292,9 +307,9 @@ export async function respondToProjectInvite(inviteId: string, decision: "ACCEPT
         await tx.execute(sql`select id from project_roles where id = ${row.invite.roleId} for update`);
         const roleRows = await tx.select().from(projectRoles).where(eq(projectRoles.id, row.invite.roleId)).limit(1);
         const role = roleRows[0];
-        if (!role || role.projectId !== row.project.id) return { error: "Rola nie jest już dostępna." } as const;
+        if (!role || role.projectId !== row.project.id) return { error: appMessage("Rola nie jest już dostępna.", locale) } as const;
         const filledRows = await tx.select({ count: sql<number>`count(*)::int` }).from(projectMembers).where(eq(projectMembers.roleId, role.id));
-        if ((filledRows[0]?.count ?? 0) >= role.slots) return { error: "Ta rola jest już obsadzona." } as const;
+        if ((filledRows[0]?.count ?? 0) >= role.slots) return { error: appMessage("Ta rola jest już obsadzona.", locale) } as const;
         roleType = role.roleType;
       } else {
         const profileRows = await tx.select({ role: profiles.role }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
@@ -309,7 +324,7 @@ export async function respondToProjectInvite(inviteId: string, decision: "ACCEPT
   if ("error" in outcome) return outcome;
   const row = outcome.row;
   if (decision === "ACCEPTED") await logEvent("contact_revealed", user.id, { withUserId: row.project.ownerId });
-  await createNotification(row.project.ownerId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Zaproszenie do ${row.project.name} zostało zaakceptowane!` : `Zaproszenie do ${row.project.name} zostało odrzucone.`, undefined, `/projects/${row.project.id}`);
+  await createNotification(row.project.ownerId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Zaproszenie do ${row.project.name} zostało zaakceptowane!` : `Zaproszenie do ${row.project.name} zostało odrzucone.`, undefined, `/projects/${row.project.id}`, { titleEn: decision === "ACCEPTED" ? `Invitation to ${row.project.name} was accepted!` : `Invitation to ${row.project.name} was declined.` });
   revalidatePath(`/projects/${row.project.id}`);
   return { success: true };
 }
@@ -359,7 +374,7 @@ export async function removeProjectMember(projectId: string, memberId: string) {
     `Nie jesteś już członkiem projektu ${outcome.project.name}`,
     "Twój dostęp do prywatnego workspace'u i nowych treści zespołu został zakończony.",
     `/projects/${projectId}`,
-    { actorId: user.id, entityType: "project", entityId: projectId },
+    { actorId: user.id, entityType: "project", entityId: projectId, titleEn: `You are no longer a member of ${outcome.project.name}`, bodyEn: "Your access to the private workspace and new team content has ended." },
   );
   await logEvent("project_member_removed", user.id, { projectId, memberId });
   revalidatePath(`/projects/${projectId}`);
@@ -412,13 +427,42 @@ export async function leaveProject(projectId: string) {
     `${outcome.username} opuścił projekt ${outcome.project.name}`,
     "Miejsce w zespole jest ponownie dostępne, jeśli było przypisane do otwartej roli.",
     `/projects/${projectId}/manage`,
-    { actorId: user.id, entityType: "project", entityId: projectId },
+    { actorId: user.id, entityType: "project", entityId: projectId, titleEn: `${outcome.username} left ${outcome.project.name}`, bodyEn: "The team spot is available again if it was tied to an open role." },
   );
   await logEvent("project_member_left", user.id, { projectId });
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}/manage`);
   revalidatePath(`/projects/${projectId}/workspace`);
   revalidatePath("/my-projects");
+  return { success: true };
+}
+
+export async function updateProjectInternationalSettings(projectId: string, input: z.infer<typeof projectInternationalSettingsSchema>) {
+  const locale = await getRequestLocale();
+  if (!uuidSchema.safeParse(projectId).success) return { error: appMessage("Nieprawidłowy projekt.", locale) };
+  const user = await getVerifiedCurrentUser();
+  if (!user) return { error: appMessage("Musisz być zalogowany.", locale) };
+  const parsed = projectInternationalSettingsSchema.safeParse(input);
+  if (!parsed.success) return { error: appMessage(parsed.error.issues[0]?.message, locale, "Check the fields and try again.") };
+  const row = await db.select({ ownerId: projects.ownerId }).from(projects).where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT"))).limit(1);
+  if (!row[0]) return { error: appMessage("Projekt nie istnieje.", locale) };
+  if (row[0].ownerId !== user.id) return { error: appMessage("Brak uprawnień.", locale) };
+  const data = parsed.data;
+  await db.update(projects).set({
+    projectLanguage: data.projectLanguage,
+    country: data.country || null,
+    marketScope: data.marketScope,
+    needs: data.needs,
+    fundingStage: data.needs.includes("FUNDING") ? data.fundingStage ?? null : null,
+    fundingAmount: data.needs.includes("FUNDING") ? data.fundingAmount || null : null,
+    fundingUse: data.needs.includes("FUNDING") ? data.fundingUse || null : null,
+    pitchDeckUrl: data.needs.includes("FUNDING") ? data.pitchDeckUrl || null : null,
+    updatedAt: new Date(),
+  }).where(eq(projects.id, projectId));
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/projects/${projectId}/manage`);
+  revalidatePath(`/p/${projectId}`);
+  revalidatePath("/projects");
   return { success: true };
 }
 
