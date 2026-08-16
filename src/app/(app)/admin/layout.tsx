@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             Administracja BuildCrew
           </div>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">Panel administratora</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Użytkownicy, projekty, zgłoszenia, treści i działania moderacyjne w jednym miejscu.</p>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Users, projects, reports, content, and moderation actions in one place.</p>
         </div>
       </div>
       <AdminNav />

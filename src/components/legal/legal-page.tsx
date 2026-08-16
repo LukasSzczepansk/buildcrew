@@ -11,8 +11,8 @@ export function LegalPage({ title, subtitle, children }: { title: string; subtit
             BuildCrew
           </Link>
           <div className="flex items-center gap-4 text-sm text-neutral-500">
-            <Link href="/regulamin" className="hover:text-neutral-900 dark:hover:text-white">Regulamin</Link>
-            <Link href="/polityka-prywatnosci" className="hover:text-neutral-900 dark:hover:text-white">Prywatność</Link>
+            <Link href="/terms" className="hover:text-neutral-900 dark:hover:text-white">Terms</Link>
+            <Link href="/privacy" className="hover:text-neutral-900 dark:hover:text-white">Privacy</Link>
           </div>
         </div>
       </header>

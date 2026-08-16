@@ -8,18 +8,18 @@ import { getRequestLocale } from "@/lib/site-server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Log in - BuildCrew" : "Zaloguj się - BuildCrew" };
+  return { title: locale === "en" ? "Log in - BuildCrew" : "Log in - BuildCrew" };
 }
 
 const GOOGLE_ERRORS: Record<string, string> = {
-  "access-denied": "Logowanie przez Google zostało anulowane.",
-  state: "Sesja logowania Google wygasła. Spróbuj ponownie.",
-  failed: "Nie udało się zalogować przez Google. Spróbuj ponownie.",
-  unverified: "Google nie potwierdził adresu e-mail tego konta.",
-  conflict: "Nie udało się bezpiecznie połączyć konta Google z BuildCrew.",
-  suspended: "To konto zostało zawieszone przez administrację.",
-  "admin-email": "Logowanie administratora wymaga działającej wysyłki e-mail.",
-  "not-configured": "Logowanie Google nie jest jeszcze skonfigurowane.",
+  "access-denied": "Google sign-in was canceled.",
+  state: "The Google sign-in session expired. Try again.",
+  failed: "Could not sign in with Google. Try again.",
+  unverified: "Google did not verify the email address for this account.",
+  conflict: "Could not securely connect the Google account to BuildCrew.",
+  suspended: "This account has been suspended by an administrator.",
+  "admin-email": "Administrator sign-in requires email delivery to be configured.",
+  "not-configured": "Google sign-in is not configured yet.",
 };
 
 const GOOGLE_ERRORS_EN: Record<string, string> = {
@@ -53,8 +53,8 @@ export default async function LoginPage({
 
   return (
     <div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">{en ? "Welcome back" : "Witaj z powrotem"}</h1>
-      <p className="mb-6 text-sm text-neutral-500">{en ? "Log in to get back to building." : "Zaloguj się, aby wrócić do budowania."}</p>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight">{en ? "Welcome back" : "Welcome back"}</h1>
+      <p className="mb-6 text-sm text-neutral-500">{en ? "Log in to get back to building." : "Log in to get back to building."}</p>
       <AuthForm
         mode="login"
         action={loginAction}

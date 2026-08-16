@@ -32,11 +32,11 @@ export default async function OnboardingPage() {
         <LanguageSwitcher />
       </div>
       <div className="mb-6 text-center">
-        <h1 className="text-[28px] font-semibold tracking-[-0.03em]">{en ? "Set up your profile for better matches" : "Ustaw profil pod dobre dopasowania"}</h1>
+        <h1 className="text-[28px] font-semibold tracking-[-0.03em]">{en ? "Set up your profile for better matches" : "Set up your profile for better matches"}</h1>
         <p className="mx-auto mt-2 max-w-[560px] text-sm leading-5 text-[var(--bc-muted)]">
           {en
             ? "Five short steps. Once you save it, we’ll immediately show you people and projects worth checking out."
-            : "5 krótkich kroków. Po zapisaniu od razu pokażemy Ci ludzi i projekty warte sprawdzenia."}
+            : "Five quick steps. Once you save, we will immediately show you people and projects worth checking out."}
         </p>
       </div>
       <OnboardingWizard />

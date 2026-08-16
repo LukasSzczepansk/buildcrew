@@ -22,13 +22,13 @@ export function ShowcaseFeedbackForm({ entryId }: { entryId: string }) {
     const result = await submitShowcaseFeedback(entryId, { liked, improve, wouldUse });
     setPending(false);
     if (result?.error) { toast.error(appMessage(result.error, locale)); return; }
-    toast.success(copy("Dzięki - feedback trafił do twórców.", "Thanks. Your feedback was sent to the creators."));
+    toast.success(copy("Thanks. Your feedback was sent to the creators.", "Thanks. Your feedback was sent to the creators."));
   }
 
   return <form onSubmit={submit} className="space-y-4">
-    <div><Label>{copy("Co Ci się najbardziej podoba?", "What do you like most?")}</Label><Textarea className="mt-1.5" value={liked} onChange={(e) => setLiked(e.target.value)} maxLength={700} /></div>
-    <div><Label>{copy("Co byś poprawił?", "What would you improve?")}</Label><Textarea className="mt-1.5" value={improve} onChange={(e) => setImprove(e.target.value)} maxLength={700} /></div>
-    <div><Label>{copy("Czy używałbyś tego projektu?", "Would you use this project?")}</Label><div className="mt-2 grid grid-cols-3 gap-2">{([['YES',copy('Tak','Yes')],['MAYBE',copy('Może','Maybe')],['NO',copy('Nie','No')]] as const).map(([value,label]) => <button type="button" key={value} onClick={() => setWouldUse(value)} className={`rounded-[6px] border px-3 py-2 text-sm ${wouldUse === value ? 'border-lime-400 bg-lime-50 text-lime-700 dark:bg-lime-500/10' : 'border-neutral-200 dark:border-neutral-700'}`}>{label}</button>)}</div></div>
-    <Button type="submit" disabled={pending}>{pending ? copy("Wysyłanie…", "Sending…") : copy("Wyślij feedback", "Send feedback")}</Button>
+    <div><Label>{copy("What do you like most?", "What do you like most?")}</Label><Textarea className="mt-1.5" value={liked} onChange={(e) => setLiked(e.target.value)} maxLength={700} /></div>
+    <div><Label>{copy("What would you improve?", "What would you improve?")}</Label><Textarea className="mt-1.5" value={improve} onChange={(e) => setImprove(e.target.value)} maxLength={700} /></div>
+    <div><Label>{copy("Would you use this project?", "Would you use this project?")}</Label><div className="mt-2 grid grid-cols-3 gap-2">{([['YES',copy('Yes','Yes')],['MAYBE',copy('Maybe','Maybe')],['NO',copy('No','No')]] as const).map(([value,label]) => <button type="button" key={value} onClick={() => setWouldUse(value)} className={`rounded-[6px] border px-3 py-2 text-sm ${wouldUse === value ? 'border-lime-400 bg-lime-50 text-lime-700 dark:bg-lime-500/10' : 'border-neutral-200 dark:border-neutral-700'}`}>{label}</button>)}</div></div>
+    <Button type="submit" disabled={pending}>{pending ? copy("Sending…", "Sending…") : copy("Send feedback", "Send feedback")}</Button>
   </form>;
 }

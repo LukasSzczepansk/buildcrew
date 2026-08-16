@@ -18,8 +18,8 @@ export function activityLabel(value: Date | string | null | undefined, locale: "
     if (state === "INACTIVE") return "Less active recently";
     return "No recent activity";
   }
-  if (state === "TODAY") return "Aktywny dziś";
-  if (state === "THIS_WEEK") return "Aktywny w tym tygodniu";
-  if (state === "INACTIVE") return "Ostatnio mniej aktywny";
-  return "Brak świeżej aktywności";
+  if (state === "TODAY") return "Active today";
+  if (state === "THIS_WEEK") return "Active this week";
+  if (state === "INACTIVE") return "Less active recently";
+  return "No recent activity";
 }

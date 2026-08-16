@@ -61,9 +61,9 @@ export function ShareProjectButton({
 
   function getShareText() {
     if (roleLabel) {
-      return copy(`Szukamy ${roleLabel} do projektu ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}Zobacz projekt na BuildCrew.`, `We’re looking for a ${roleLabel} for ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}See the project on BuildCrew.`);
+      return copy(`We’re looking for a ${roleLabel} for ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}See the project on BuildCrew.`, `We’re looking for a ${roleLabel} for ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}See the project on BuildCrew.`);
     }
-    return copy(`${projectName} na BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}Zobacz projekt i ekipę.`, `${projectName} on BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}See the project and team.`);
+    return copy(`${projectName} on BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}See the project and team.`, `${projectName} on BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}See the project and team.`);
   }
 
   async function copyShare(kind: "link" | "text" | "discord") {
@@ -111,25 +111,25 @@ export function ShareProjectButton({
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size={compact ? "sm" : "default"} className="gap-1.5">
           <Share2 className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
-          {compact ? copy("Udostępnij", "Share") : copy("Udostępnij projekt", "Share project")}
+          {compact ? copy("Share", "Share") : copy("Share project", "Share project")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] max-w-[760px] overflow-y-auto p-0">
         <DialogHeader className="border-b border-[var(--bc-line)] px-5 py-5 pr-12 sm:px-6">
-          <DialogTitle>{copy("Udostępnij projekt", "Share project")}</DialogTitle>
+          <DialogTitle>{copy("Share project", "Share project")}</DialogTitle>
           <DialogDescription>
-            {copy("Publiczny link ma własną grafikę Open Graph. Facebook, LinkedIn i komunikatory pobiorą ją automatycznie.", "The public link has its own Open Graph image. Facebook, LinkedIn and messaging apps will pick it up automatically.")}
+            {copy("The public link has its own Open Graph image. Facebook, LinkedIn and messaging apps will pick it up automatically.", "The public link has its own Open Graph image. Facebook, LinkedIn and messaging apps will pick it up automatically.")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="px-5 py-5 sm:px-6">
           {openRoles.length > 0 ? (
             <div className="mb-5 border-b border-[var(--bc-line)] pb-5">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Typ udostępnienia", "Share type")}</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Share type", "Share type")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <ModeButton active={mode.type === "project"} onClick={() => setMode({ type: "project" })}>
-                  {copy("Cały projekt", "Whole project")}
+                  {copy("Whole project", "Whole project")}
                 </ModeButton>
                 {openRoles.map((item) => (
                   <ModeButton
@@ -137,7 +137,7 @@ export function ShareProjectButton({
                     active={mode.type === "role" && mode.roleId === item.id}
                     onClick={() => setMode({ type: "role", roleId: item.id })}
                   >
-                    {copy("Szukamy:", "Looking for:")} {labels.roles[item.roleType]}
+                    {copy("Looking for:", "Looking for:")} {labels.roles[item.roleType]}
                   </ModeButton>
                 ))}
               </div>
@@ -147,7 +147,7 @@ export function ShareProjectButton({
           <div className="overflow-hidden rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-canvas)]">
             <Image
               src={imageUrl}
-              alt={`${copy("Podgląd grafiki udostępniania projektu", "Project share image preview")} ${projectName}`}
+              alt={`${copy("Project share image preview", "Project share image preview")} ${projectName}`}
               width={1200}
               height={630}
               unoptimized
@@ -157,14 +157,14 @@ export function ShareProjectButton({
 
           <div className="mt-5 grid gap-5 sm:grid-cols-[minmax(0,1fr)_240px]">
             <div>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Udostępnij", "Share")}</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Share", "Share")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button type="button" size="sm" onClick={() => openShareWindow("facebook")}>Facebook</Button>
                 <Button type="button" size="sm" variant="outline" onClick={() => openShareWindow("linkedin")}>LinkedIn</Button>
                 <Button type="button" size="sm" variant="outline" onClick={() => openShareWindow("x")}>X</Button>
                 <Button type="button" size="sm" variant="outline" onClick={() => copyShare("discord")}>
                   {copied === "discord" ? <Check className="h-3.5 w-3.5" /> : null}
-                  {copied === "discord" ? copy("Skopiowano", "Copied") : copy("Dla Discorda", "For Discord")}
+                  {copied === "discord" ? copy("Copied", "Copied") : copy("For Discord", "For Discord")}
                 </Button>
               </div>
               <button
@@ -173,25 +173,25 @@ export function ShareProjectButton({
                 className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
-                {copy("Otwórz systemowe udostępnianie", "Open system share")}
+                {copy("Open system share", "Open system share")}
               </button>
             </div>
 
             <div className="border-t border-[var(--bc-line)] pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Link i grafika", "Link and image")}</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Link and image", "Link and image")}</p>
               <div className="mt-2 space-y-2">
                 <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={() => copyShare("link")}>
                   {copied === "link" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied === "link" ? copy("Link skopiowany", "Link copied") : copy("Kopiuj link", "Copy link")}
+                  {copied === "link" ? copy("Link copied", "Link copied") : copy("Copy link", "Copy link")}
                 </Button>
                 <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={() => copyShare("text")}>
                   {copied === "text" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied === "text" ? copy("Tekst skopiowany", "Text copied") : copy("Kopiuj tekst + link", "Copy text + link")}
+                  {copied === "text" ? copy("Text copied", "Text copied") : copy("Copy text + link", "Copy text + link")}
                 </Button>
                 <Button asChild variant="outline" size="sm" className="w-full justify-start">
                   <a href={imageUrl} download={downloadName}>
                     <Download className="h-3.5 w-3.5" />
-                    {copy("Pobierz grafikę PNG", "Download PNG image")}
+                    {copy("Download PNG image", "Download PNG image")}
                   </a>
                 </Button>
               </div>

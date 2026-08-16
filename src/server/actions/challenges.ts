@@ -35,7 +35,7 @@ export async function setChallengeStatus(challengeId: string, status: "OPEN" | "
   const admin = await requireAdmin();
   if (!admin || !uuidSchema.safeParse(challengeId).success) return { error: "You do not have permission or the data is invalid." };
   const rows = await db.update(buildChallenges).set({ status }).where(eq(buildChallenges.id, challengeId)).returning({ title: buildChallenges.title });
-  if (!rows[0]) return { error: "Challenge nie istnieje." };
+  if (!rows[0]) return { error: "Challenge not found." };
 
   const participants = await db.select({ userId: challengeParticipants.userId }).from(challengeParticipants).where(eq(challengeParticipants.challengeId, challengeId));
   await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status changed`, status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open.", `/showcase/challenges/${challengeId}`, { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge", titleEn: `${rows[0].title}: status changed`, bodyEn: status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open." })));

@@ -12,13 +12,13 @@ export function DiscoveryTabs({
 }) {
   const copy = useCopy();
   const tabs = [
-    { key: "projects", label: copy("Projekty", "Projects"), href: "/projects" },
-    { key: "hackathons", label: copy("Hackathony", "Hackathons"), href: "/hackathons" },
-    { key: "people", label: copy("Ludzie chcący budować", "People ready to build"), href: "/build" },
+    { key: "projects", label: copy("Projects", "Projects"), href: "/projects" },
+    { key: "hackathons", label: copy("Hackathons", "Hackathons"), href: "/hackathons" },
+    { key: "people", label: copy("People ready to build", "People ready to build"), href: "/build" },
   ] as const;
 
   return (
-    <nav className="-mx-1 flex gap-1 overflow-x-auto border-b border-[var(--bc-line)] px-1 text-sm" aria-label={copy("Odkrywanie BuildCrew", "Discover BuildCrew")}>
+    <nav className="-mx-1 flex gap-1 overflow-x-auto border-b border-[var(--bc-line)] px-1 text-sm" aria-label={copy("Discover BuildCrew", "Discover BuildCrew")}>
       {tabs.map((tab) => {
         const selected = active === tab.key;
         const count = counts?.[tab.key];

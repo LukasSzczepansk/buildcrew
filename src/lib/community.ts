@@ -4,9 +4,9 @@ export const AI_CONTEST = {
   title: "Sierpniowy Build Challenge",
   shortTitle: "Sierpniowy challenge",
   deadlineLabel: "31 sierpnia 2026",
-  // Koniec 31 sierpnia w Polsce (CEST, UTC+2).
+  // End 31 sierpnia w Polsce (CEST, UTC+2).
   endsAt: "2026-08-31T21:59:59.999Z",
-  description: "Społecznościowy challenge BuildCrew prowadzony na Discordzie.",
+  description: "A community BuildCrew challenge run on Discord.",
 } as const;
 
 export function isAiContestActive(now = new Date()) {

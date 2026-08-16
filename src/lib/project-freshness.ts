@@ -12,8 +12,8 @@ export function getProjectFreshness(value: Date | string | null | undefined, now
   if (!value) {
     return {
       daysAgo: Number.POSITIVE_INFINITY,
-      label: locale === "en" ? "No activity data" : "Brak danych o aktywności",
-      shortLabel: locale === "en" ? "No activity" : "Brak aktywności",
+      label: locale === "en" ? "No activity data" : "No activity data",
+      shortLabel: locale === "en" ? "No activity" : "No activity",
       stale: true,
       recent: false,
     };
@@ -24,8 +24,8 @@ export function getProjectFreshness(value: Date | string | null | undefined, now
   if (Number.isNaN(time)) {
     return {
       daysAgo: Number.POSITIVE_INFINITY,
-      label: locale === "en" ? "No activity data" : "Brak danych o aktywności",
-      shortLabel: locale === "en" ? "No activity" : "Brak aktywności",
+      label: locale === "en" ? "No activity data" : "No activity data",
+      shortLabel: locale === "en" ? "No activity" : "No activity",
       stale: true,
       recent: false,
     };
@@ -34,22 +34,22 @@ export function getProjectFreshness(value: Date | string | null | undefined, now
   const daysAgo = Math.max(0, Math.floor((now.getTime() - time) / DAY_MS));
 
   if (daysAgo === 0) {
-    return { daysAgo, label: locale === "en" ? "Project updated today" : "Projekt aktualizowany dziś", shortLabel: locale === "en" ? "Active today" : "Aktywny dziś", stale: false, recent: true };
+    return { daysAgo, label: locale === "en" ? "Project updated today" : "Project updated today", shortLabel: locale === "en" ? "Active today" : "Active today", stale: false, recent: true };
   }
   if (daysAgo === 1) {
-    return { daysAgo, label: locale === "en" ? "Project updated yesterday" : "Projekt aktualizowany wczoraj", shortLabel: locale === "en" ? "Active yesterday" : "Aktywny wczoraj", stale: false, recent: true };
+    return { daysAgo, label: locale === "en" ? "Project updated yesterday" : "Project updated yesterday", shortLabel: locale === "en" ? "Active yesterday" : "Active yesterday", stale: false, recent: true };
   }
   if (daysAgo <= 7) {
-    return { daysAgo, label: locale === "en" ? `Project updated ${daysAgo} days ago` : `Projekt aktualizowany ${daysAgo} dni temu`, shortLabel: locale === "en" ? "Active this week" : "Aktywny w tym tygodniu", stale: false, recent: true };
+    return { daysAgo, label: `Project updated ${daysAgo} days ago`, shortLabel: "Active this week", stale: false, recent: true };
   }
   if (daysAgo <= 10) {
-    return { daysAgo, label: locale === "en" ? `Project updated ${daysAgo} days ago` : `Projekt aktualizowany ${daysAgo} dni temu`, shortLabel: locale === "en" ? `${daysAgo} days ago` : `${daysAgo} dni temu`, stale: false, recent: false };
+    return { daysAgo, label: `Project updated ${daysAgo} days ago`, shortLabel: `${daysAgo} days ago`, stale: false, recent: false };
   }
 
   return {
     daysAgo,
-    label: locale === "en" ? `Last activity confirmed ${daysAgo} days ago` : `Ostatnie potwierdzenie aktywności ${daysAgo} dni temu`,
-    shortLabel: locale === "en" ? `${daysAgo} days ago` : `${daysAgo} dni temu`,
+    label: `Last activity confirmed ${daysAgo} days ago`,
+    shortLabel: `${daysAgo} days ago`,
     stale: true,
     recent: false,
   };

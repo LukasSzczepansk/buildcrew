@@ -33,9 +33,9 @@ function projectMetaDescription(project: {
   const stack = project.technologies.slice(0, 4);
   return truncateMeta([
     project.tagline,
-    roles.length ? `${locale === "en" ? "Open roles" : "Otwarte role"}: ${roles.join(", ")}.` : "",
+    roles.length ? `${locale === "en" ? "Open roles" : "Open roles"}: ${roles.join(", ")}.` : "",
     stack.length ? `Stack: ${stack.join(", ")}.` : "",
-    locale === "en" ? "See the project and team on BuildCrew." : "Zobacz projekt i ekipę na BuildCrew.",
+    locale === "en" ? "See the project and team on BuildCrew." : "View the project and team on BuildCrew.",
   ].filter(Boolean).join(" "));
 }
 
@@ -74,14 +74,14 @@ export async function generateMetadata({
           ? `${project.name} - looking for ${openRoleLabels.join(" / ")} | BuildCrew`
           : `${project.name} - project on BuildCrew`
     : project.lifecycleStatus === "COMPLETED"
-      ? `${project.name} - ukończony projekt | BuildCrew`
+      ? `${project.name} - completed project | BuildCrew`
       : roleLabel
-        ? `Szukamy ${roleLabel} do ${project.name} | BuildCrew`
+        ? `Looking for ${roleLabel} do ${project.name} | BuildCrew`
         : openRoleLabels.length
-          ? `${project.name} - szuka ${openRoleLabels.join(" / ")} | BuildCrew`
+          ? `${project.name} - looking for ${openRoleLabels.join(" / ")} | BuildCrew`
           : `${project.name} - projekt na BuildCrew`;
   const description = project.lifecycleStatus === "COMPLETED" && project.outcome
-    ? truncateMeta(`${project.outcome} ${locale === "en" ? "See the team and collaboration history on BuildCrew." : "Zobacz zespół i historię współpracy na BuildCrew."}`)
+    ? truncateMeta(`${project.outcome} ${locale === "en" ? "See the team and collaboration history on BuildCrew." : "View the team and collaboration history on BuildCrew."}`)
     : projectMetaDescription(project, locale);
 
   return {
@@ -96,7 +96,7 @@ export async function generateMetadata({
       type: "website",
       locale: openGraphLocale(locale),
       siteName: "BuildCrew",
-      images: [{ url: imageUrl, width: 1200, height: 630, alt: `${project.name} - ${locale === "en" ? "BuildCrew project card" : "karta projektu BuildCrew"}` }],
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: `${project.name} - ${locale === "en" ? "BuildCrew project card" : "BuildCrew project card"}` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -154,7 +154,7 @@ export default async function PublicProjectPage({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: `${project.name} - ${en ? "project on BuildCrew" : "projekt na BuildCrew"}`,
+    name: `${project.name} - ${en ? "project on BuildCrew" : "project on BuildCrew"}`,
     description: project.lifecycleStatus === "COMPLETED" && project.outcome ? project.outcome : projectMetaDescription(project, locale),
     url: publicUrl,
     inLanguage: localeCode(locale),
@@ -181,11 +181,11 @@ export default async function PublicProjectPage({
           <div className="flex items-center gap-2">
             <LanguageSwitcher compact />
             {user ? (
-              <Button asChild size="sm"><Link href={appPath}>{en ? "Open in BuildCrew" : "Otwórz w BuildCrew"}</Link></Button>
+              <Button asChild size="sm"><Link href={appPath}>{en ? "Open in BuildCrew" : "Open on BuildCrew"}</Link></Button>
             ) : (
               <>
-                <Button asChild variant="ghost" size="sm"><Link href={loginHref}>{en ? "Log in" : "Zaloguj się"}</Link></Button>
-                <Button asChild size="sm"><Link href={signupHref}>{en ? "Join the team" : "Dołącz do ekipy"}</Link></Button>
+                <Button asChild variant="ghost" size="sm"><Link href={loginHref}>{en ? "Log in" : "Log in"}</Link></Button>
+                <Button asChild size="sm"><Link href={signupHref}>{en ? "Join the team" : "Join the team"}</Link></Button>
               </>
             )}
           </div>
@@ -199,8 +199,8 @@ export default async function PublicProjectPage({
               <div className="border-b border-neutral-100 bg-[#f7f7f3] p-7 dark:border-neutral-800 dark:bg-neutral-950 sm:p-9">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary">{labels.stages[project.stage]}</Badge>
-                  {project.lifecycleStatus === "COMPLETED" ? <Badge variant="success">{en ? "Completed" : "Ukończony"}</Badge> : project.lifecycleStatus === "PAUSED" ? <Badge variant="outline">{en ? "Paused" : "Wstrzymany"}</Badge> : null}
-                  <Badge variant="outline"><Users className="mr-1 h-3 w-3" /> {en ? "Team" : "Ekipa"} {crewSize}/{Math.max(totalSlots, crewSize)}</Badge>
+                  {project.lifecycleStatus === "COMPLETED" ? <Badge variant="success">{en ? "Completed" : "Completed"}</Badge> : project.lifecycleStatus === "PAUSED" ? <Badge variant="outline">{en ? "Paused" : "Paused"}</Badge> : null}
+                  <Badge variant="outline"><Users className="mr-1 h-3 w-3" /> {en ? "Team" : "Team"} {crewSize}/{Math.max(totalSlots, crewSize)}</Badge>
                   {project.commitment ? <Badge variant="outline">{labels.commitments[project.commitment]}</Badge> : null}
                 </div>
                 <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl">{project.name}</h1>
@@ -210,42 +210,42 @@ export default async function PublicProjectPage({
                 </div>
                 {requestedRole ? (
                   <div className="mt-6 border-l-[3px] border-[#C8F169] bg-white/70 px-4 py-3 dark:bg-neutral-900/60">
-                    <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-neutral-500">{en ? "Role invitation" : "Zaproszenie do roli"}</p>
-                    <p className="mt-1 text-[16px] font-semibold">{en ? "Looking for" : "Szukamy"}: {requestedRoleLabel}</p>
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-neutral-500">{en ? "Role invitation" : "Role invitation"}</p>
+                    <p className="mt-1 text-[16px] font-semibold">{en ? "Looking for" : "Looking for"}: {requestedRoleLabel}</p>
                     <p className="mt-1 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-                      {requestedRole.description || (en ? "This role is still open. See the project, meet the team and message the owner on BuildCrew." : "Ta rola jest nadal otwarta. Zobacz projekt, ekipę i napisz do autora w BuildCrew.")}
+                      {requestedRole.description || (en ? "This role is still open. See the project, meet the team and message the owner on BuildCrew." : "This role is still open. View the project and team, then contact the owner on BuildCrew.")}
                     </p>
                   </div>
                 ) : null}
 
                 <div className="mt-7 flex flex-wrap gap-2">
                   {user ? (
-                    <Button asChild><Link href={appPath}>{project.lifecycleStatus === "COMPLETED" ? (en ? "See the result and team" : "Zobacz rezultat i ekipę") : (en ? "See project and team" : "Zobacz projekt i ekipę")} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
+                    <Button asChild><Link href={appPath}>{project.lifecycleStatus === "COMPLETED" ? (en ? "See the result and team" : "View the result and team") : (en ? "See project and team" : "View project and team")} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                   ) : (
-                    <Button asChild><Link href={signupHref}>{project.lifecycleStatus === "COMPLETED" ? (en ? "Meet the people who built it" : "Poznaj ludzi, którzy to zbudowali") : requestedRoleLabel ? `${en ? "Join as" : "Dołącz jako"} ${requestedRoleLabel}` : (en ? "I want to join this team" : "Chcę dołączyć do tej ekipy")} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
+                    <Button asChild><Link href={signupHref}>{project.lifecycleStatus === "COMPLETED" ? (en ? "Meet the people who built it" : "Meet the people who built it") : requestedRoleLabel ? `${en ? "Join as" : "Join as"} ${requestedRoleLabel}` : (en ? "I want to join this team" : "I want to join this team")} <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                   )}
                   <ShareProjectButton projectId={project.id} projectName={project.name} projectTagline={project.tagline} openRoles={project.openRoles.map((role) => ({ id: role.id, roleType: role.roleType }))} />
                 </div>
               </div>
               <div className="p-7 sm:p-9">
-                <h2 className="text-lg font-semibold">{en ? "About the project" : "O projekcie"}</h2>
-                {project.lifecycleStatus === "COMPLETED" && project.outcome ? <div className="mt-3 border-l-[3px] border-[#C8F169] pl-4"><p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Result" : "Rezultat"}</p><p className="mt-1 text-sm leading-6 text-neutral-800 dark:text-neutral-200">{project.outcome}</p></div> : null}
+                <h2 className="text-lg font-semibold">{en ? "About the project" : "About the project"}</h2>
+                {project.lifecycleStatus === "COMPLETED" && project.outcome ? <div className="mt-3 border-l-[3px] border-[#C8F169] pl-4"><p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Result" : "Outcome"}</p><p className="mt-1 text-sm leading-6 text-neutral-800 dark:text-neutral-200">{project.outcome}</p></div> : null}
                 <p className="mt-4 whitespace-pre-line leading-7 text-neutral-600 dark:text-neutral-300">{project.description}</p>
                 {project.goal ? (
                   <div className="mt-6 border-l-2 border-[#C8F169] pl-4">
-                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Next goal" : "Najbliższy cel"}</p>
+                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Next goal" : "Next goal"}</p>
                     <p className="mt-1 text-sm leading-6">{project.goal}</p>
                   </div>
                 ) : null}
                 {project.existingAssets.length ? (
                   <div className="mt-6">
-                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "What already exists" : "Co już istnieje"}</p>
+                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "What already exists" : "What already exists"}</p>
                     <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{project.existingAssets.map((item) => labels.projectAssets[item]).join(" · ")}</p>
                   </div>
                 ) : null}
                 {project.ownerContribution ? (
                   <div className="mt-6 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-900">
-                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "What the project owner brings" : "Co wnosi autor pomysłu"}</p>
+                    <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "What the project owner brings" : "What the project owner brings"}</p>
                     <p className="mt-1 text-sm">{project.ownerContribution}</p>
                   </div>
                 ) : null}
@@ -254,17 +254,17 @@ export default async function PublicProjectPage({
 
             {updates.length ? (
               <Card className="p-7 sm:p-8">
-                <div className="mb-4"><h2 className="text-lg font-semibold">{en ? "Project updates" : "Aktualizacje projektu"}</h2><p className="mt-1 text-sm text-neutral-500">{en ? "A short record of real progress, not a marketing feed." : "Krótka historia realnego postępu, nie feed marketingowych postów."}</p></div>
+                <div className="mb-4"><h2 className="text-lg font-semibold">{en ? "Project updates" : "Project updates"}</h2><p className="mt-1 text-sm text-neutral-500">{en ? "A short record of real progress, not a marketing feed." : "A short history of real progress, not a feed of marketing posts."}</p></div>
                 <div className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
-                  {updates.map((update) => <div key={update.id} className="grid gap-2 py-4 sm:grid-cols-[110px_minmax(0,1fr)]"><div><p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{en ? ({ PROGRESS: "Progress", ROLE: "Team", MILESTONE: "Milestone", LAUNCH: "Launch" } as const)[update.kind] : PROJECT_UPDATE_KIND_LABELS[update.kind]}</p><p className="mt-1 text-[11px] text-neutral-400">{update.createdAt.toLocaleDateString(en ? "en-US" : "pl-PL", { day: "2-digit", month: "short" })}</p></div><div><p className="text-sm leading-6 text-neutral-700 dark:text-neutral-300">{update.body}</p><p className="mt-1 text-[13px] text-neutral-400">{update.username}</p></div></div>)}
+                  {updates.map((update) => <div key={update.id} className="grid gap-2 py-4 sm:grid-cols-[110px_minmax(0,1fr)]"><div><p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{en ? ({ PROGRESS: "Progress", ROLE: "Team", MILESTONE: "Milestone", LAUNCH: "Launch" } as const)[update.kind] : PROJECT_UPDATE_KIND_LABELS[update.kind]}</p><p className="mt-1 text-[11px] text-neutral-400">{update.createdAt.toLocaleDateString(en ? "en-US" : "en-US", { day: "2-digit", month: "short" })}</p></div><div><p className="text-sm leading-6 text-neutral-700 dark:text-neutral-300">{update.body}</p><p className="mt-1 text-[13px] text-neutral-400">{update.username}</p></div></div>)}
                 </div>
               </Card>
             ) : null}
 
             <Card className="p-7 sm:p-8">
               <div className="mb-5">
-                <h2 className="text-lg font-semibold">{project.lifecycleStatus === "COMPLETED" ? (en ? "Project team" : "Zespół projektu") : (en ? "Who are we looking for?" : "Kogo szukamy do ekipy?")}</h2>
-                <p className="mt-1 text-sm text-neutral-500">{en ? "This is not a job listing - it is for people who want to co-build the project." : "Nie jest to oferta pracy - chodzi o osoby, które chcą współtworzyć projekt."}</p>
+                <h2 className="text-lg font-semibold">{project.lifecycleStatus === "COMPLETED" ? (en ? "Project team" : "Project team") : (en ? "Who are we looking for?" : "Who are we looking for?")}</h2>
+                <p className="mt-1 text-sm text-neutral-500">{en ? "This is not a job listing - it is for people who want to co-build the project." : "This is not a job offer - it is for people who want to co-build the project."}</p>
               </div>
               {project.lifecycleStatus !== "COMPLETED" && project.roles.length ? (
                 <div className="space-y-3">
@@ -277,47 +277,47 @@ export default async function PublicProjectPage({
                         </div>
                         {role.description ? <p className="mt-1 text-sm text-neutral-500">{role.description}</p> : null}
                         {role.skills.length ? <TechnologyStack items={role.skills} max={6} compact className="mt-2" /> : null}
-                        {role.preferredLevel ? <p className="mt-1 text-[13px] text-neutral-400">{en ? "Preferred level" : "Preferowany poziom"}: {labels.levels[role.preferredLevel]}</p> : null}
+                        {role.preferredLevel ? <p className="mt-1 text-[13px] text-neutral-400">{en ? "Preferred level" : "Preferred level"}: {labels.levels[role.preferredLevel]}</p> : null}
                       </div>
-                      {role.open > 0 && !user ? <Button asChild size="sm"><Link href={signupHref}>{en ? "I want to join" : "Chcę dołączyć"}</Link></Button> : null}
+                      {role.open > 0 && !user ? <Button asChild size="sm"><Link href={signupHref}>{en ? "I want to join" : "I want to join"}</Link></Button> : null}
                     </div>
                   ))}
                 </div>
-              ) : project.lifecycleStatus === "COMPLETED" && credits.length ? <div className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">{credits.map((credit) => <div key={credit.id} className="flex items-center justify-between gap-4 py-3 text-sm"><span className="font-medium">{credit.usernameSnapshot}</span><span className="text-[13px] text-neutral-400">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Contributor" : "Współtwórca")}</span></div>)}</div> : <p className="text-sm text-neutral-500">{en ? "This team currently has no open roles." : "Ta ekipa nie ma obecnie otwartych ról."}</p>}
+              ) : project.lifecycleStatus === "COMPLETED" && credits.length ? <div className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">{credits.map((credit) => <div key={credit.id} className="flex items-center justify-between gap-4 py-3 text-sm"><span className="font-medium">{credit.usernameSnapshot}</span><span className="text-[13px] text-neutral-400">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Contributor" : "Contributor")}</span></div>)}</div> : <p className="text-sm text-neutral-500">{en ? "This team currently has no open roles." : "This team currently has no open roles."}</p>}
             </Card>
           </div>
 
           <aside className="space-y-6">
             <Card className="p-6">
-              <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Details" : "Szczegóły"}</p>
+              <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Details" : "Details"}</p>
               <dl className="mt-3 space-y-3 text-sm">
-                <PublicDetail label={en ? "Status" : "Status"} value={project.lifecycleStatus === "COMPLETED" ? (en ? "Completed" : "Ukończony") : project.lifecycleStatus === "PAUSED" ? (en ? "Paused" : "Wstrzymany") : (en ? "Active" : "Aktywny")} />
+                <PublicDetail label={en ? "Status" : "Status"} value={project.lifecycleStatus === "COMPLETED" ? (en ? "Completed" : "Completed") : project.lifecycleStatus === "PAUSED" ? (en ? "Paused" : "Paused") : (en ? "Active" : "Active")} />
                 {project.projectType ? <PublicDetail label={en ? "Type" : "Typ"} value={labels.projectTypes[project.projectType]} /> : null}
-                <PublicDetail label={en ? "Stage" : "Etap"} value={labels.stages[project.stage]} />
-                {project.lifecycleStatus === "ACTIVE" ? <PublicDetail label={en ? "Freshness" : "Aktualność"} value={en ? (projectFreshness.daysAgo === 0 ? "Active today" : projectFreshness.daysAgo === 1 ? "Active yesterday" : `${projectFreshness.daysAgo} days ago`) : projectFreshness.shortLabel} /> : null}
+                <PublicDetail label={en ? "Stage" : "Stage"} value={labels.stages[project.stage]} />
+                {project.lifecycleStatus === "ACTIVE" ? <PublicDetail label={en ? "Freshness" : "Freshness"} value={en ? (projectFreshness.daysAgo === 0 ? "Active today" : projectFreshness.daysAgo === 1 ? "Active yesterday" : `${projectFreshness.daysAgo} days ago`) : projectFreshness.shortLabel} /> : null}
                 {project.commitment ? <PublicDetail label={en ? "Time" : "Czas"} value={labels.commitments[project.commitment]} /> : null}
-                {project.collaborationMode ? <PublicDetail label={en ? "Mode" : "Tryb"} value={labels.collaborationModes[project.collaborationMode]} /> : null}
-                <PublicDetail label={en ? "Project language" : "Język projektu"} value={intl.projectLanguage[project.projectLanguage]} />
-                <PublicDetail label={en ? "Reach" : "Zasięg"} value={intl.marketScope[project.marketScope]} />
+                {project.collaborationMode ? <PublicDetail label={en ? "Mode" : "Work mode"} value={labels.collaborationModes[project.collaborationMode]} /> : null}
+                <PublicDetail label={en ? "Project language" : "Project language"} value={intl.projectLanguage[project.projectLanguage]} />
+                <PublicDetail label={en ? "Reach" : "Scope"} value={intl.marketScope[project.marketScope]} />
                 {project.country ? <PublicDetail label={en ? "Country" : "Kraj"} value={project.country} /> : null}
                 {project.collaborationPace ? <PublicDetail label={en ? "Pace" : "Tempo"} value={labels.collaborationPaces[project.collaborationPace]} /> : null}
                 {project.duration ? <PublicDetail label={en ? "Horizon" : "Horyzont"} value={labels.durations[project.duration]} /> : null}
               </dl>
               {project.needs.length ? <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
-                <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Looking for" : "Potrzebujemy"}</p>
+                <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Looking for" : "We need"}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">{project.needs.map((need) => <Badge key={need} variant="outline">{intl.needs[need]}</Badge>)}</div>
                 {project.needs.includes("FUNDING") ? <div className="mt-3 space-y-1 text-[12px] leading-5 text-neutral-500">
                   {project.fundingStage ? <p>{intl.fundingStage[project.fundingStage]}</p> : null}
-                  {project.fundingAmount ? <p>{en ? "Target" : "Kwota"}: {project.fundingAmount}</p> : null}
+                  {project.fundingAmount ? <p>{en ? "Target" : "Amount"}: {project.fundingAmount}</p> : null}
                   {project.pitchDeckUrl ? <a href={project.pitchDeckUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-medium text-neutral-700 hover:underline dark:text-neutral-200">Pitch deck <ExternalLink className="h-3 w-3" /></a> : null}
                 </div> : null}
               </div> : null}
 
               {project.repositoryUrl || project.demoUrl || project.designUrl || project.docsUrl ? (
                 <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
-                  <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Links" : "Linki"}</p>
+                  <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{"Links"}</p>
                   <div className="mt-2 space-y-2 text-sm">
-                    {project.repositoryUrl ? <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>{en ? "Repository" : "Repozytorium"}</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
+                    {project.repositoryUrl ? <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>{en ? "Repository" : "Repository"}</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
                     {project.demoUrl ? <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>Demo / landing</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
                     {project.designUrl ? <a href={project.designUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>Design / Figma</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
                     {project.docsUrl ? <a href={project.docsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>{en ? "Documentation" : "Dokumentacja"}</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}
@@ -327,7 +327,7 @@ export default async function PublicProjectPage({
             </Card>
 
             <Card className="p-6">
-              <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Project owner" : "Autor pomysłu"}</p>
+              <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Project owner" : "Project owner"}</p>
               <div className="mt-3 flex items-center gap-3">
                 <Avatar username={project.owner?.username ?? "Builder"} seed={project.owner?.userId ?? project.ownerId} />
                 <div>
@@ -339,14 +339,14 @@ export default async function PublicProjectPage({
 
             {project.members.length ? (
               <Card className="p-6">
-                <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Team" : "Ekipa"}</p>
+                <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Team" : "Team"}</p>
                 <div className="mt-3 space-y-3">
                   {project.members.slice(0, 8).map((member) => (
                     <div key={member.userId} className="flex items-center gap-3">
                       <Avatar username={member.profile?.username ?? "Builder"} seed={member.userId} size="sm" />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{member.profile?.username ?? "Builder"}</p>
-                        <p className="text-[13px] text-neutral-400">{member.roleType ? labels.roles[member.roleType] : member.profile?.role ? labels.roles[member.profile.role] : (en ? "Contributor" : "Współtwórca")}</p>
+                        <p className="text-[13px] text-neutral-400">{member.roleType ? labels.roles[member.roleType] : member.profile?.role ? labels.roles[member.profile.role] : (en ? "Contributor" : "Contributor")}</p>
                       </div>
                     </div>
                   ))}
@@ -356,8 +356,8 @@ export default async function PublicProjectPage({
 
             <Card className="border-lime-200 bg-lime-50/70 p-6 dark:border-lime-500/20 dark:bg-lime-500/5">
               <ShieldCheck className="h-5 w-5 text-lime-600" />
-              <p className="mt-3 font-semibold">{en ? "A shared project, not a contract gig" : "Wspólny projekt, nie zlecenie"}</p>
-              <p className="mt-1 text-sm leading-6 text-neutral-600 dark:text-neutral-300">{en ? "BuildCrew helps you find co-builders. Collaboration terms, code ownership and any financial arrangements are agreed directly between team members." : "BuildCrew pomaga znaleźć współtwórców. Ustalenia dotyczące współpracy, praw do kodu i ewentualnych rozliczeń ustalacie bezpośrednio między sobą."}</p>
+              <p className="mt-3 font-semibold">{en ? "A shared project, not a contract gig" : "A shared project, not a contract job"}</p>
+              <p className="mt-1 text-sm leading-6 text-neutral-600 dark:text-neutral-300">{en ? "BuildCrew helps you find co-builders. Collaboration terms, code ownership and any financial arrangements are agreed directly between team members." : "BuildCrew helps you find collaborators. You agree directly with each other on collaboration terms, code ownership, and any financial arrangements."}</p>
             </Card>
           </aside>
         </div>

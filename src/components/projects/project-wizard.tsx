@@ -266,11 +266,11 @@ export function ProjectWizard({
 
   const qualityHints = React.useMemo(() => {
     const hints: string[] = [];
-    if (!form.ownerContribution.trim()) hints.push(copy("Dodaj krótko, za co odpowiadasz jako autor projektu.", "Briefly describe what you are responsible for as the project owner."));
-    if (!form.existingAssets.length) hints.push(copy("Zaznacz, co już istnieje - ułatwia ocenę, czy projekt żyje.", "Mark what already exists - it helps people see that the project is real and active."));
-    if (!form.repositoryUrl && !form.demoUrl && !form.designUrl) hints.push(copy("Jeśli możesz, dodaj repo, demo albo projekt w Figmie.", "If possible, add a repository, demo or Figma design."));
-    if (form.roles.some((role) => !role.description.trim())) hints.push(copy("Dopisz zakres odpowiedzialności przynajmniej do najważniejszej roli.", "Add responsibilities for at least the most important open role."));
-    if (form.roles.some((role) => role.skills.length === 0)) hints.push(copy("Dodaj technologie lub umiejętności do ról, żeby poprawić przyszłe dopasowania.", "Add technologies or skills to open roles to improve future matching."));
+    if (!form.ownerContribution.trim()) hints.push(copy("Briefly describe what you are responsible for as the project owner.", "Briefly describe what you are responsible for as the project owner."));
+    if (!form.existingAssets.length) hints.push(copy("Mark what already exists - it helps people see that the project is real and active.", "Mark what already exists - it helps people see that the project is real and active."));
+    if (!form.repositoryUrl && !form.demoUrl && !form.designUrl) hints.push(copy("If possible, add a repository, demo or Figma design.", "If possible, add a repository, demo or Figma design."));
+    if (form.roles.some((role) => !role.description.trim())) hints.push(copy("Add responsibilities for at least the most important open role.", "Add responsibilities for at least the most important open role."));
+    if (form.roles.some((role) => role.skills.length === 0)) hints.push(copy("Add technologies or skills to open roles to improve future matching.", "Add technologies or skills to open roles to improve future matching."));
     return hints;
   }, [form, copy]);
 
@@ -290,7 +290,7 @@ export function ProjectWizard({
   }
 
   function clearDraft() {
-    if (hasUsefulDraft(form) && !window.confirm(copy("Wyczyścić cały zapisany szkic projektu?", "Clear the entire saved project draft?"))) return;
+    if (hasUsefulDraft(form) && !window.confirm(copy("Clear the entire saved project draft?", "Clear the entire saved project draft?"))) return;
     window.localStorage.removeItem(storageKey);
     setForm(initialForm);
     setStep(1);
@@ -336,7 +336,7 @@ export function ProjectWizard({
       character: form.character,
       crewId,
       sourceIdeaId,
-    }).catch(() => ({ error: copy("Nie udało się utworzyć projektu.", "Could not create the project.") }));
+    }).catch(() => ({ error: copy("Could not create the project.", "Could not create the project.") }));
     setPending(false);
 
     if ("error" in result && result.error) {
@@ -346,7 +346,7 @@ export function ProjectWizard({
 
     if ("projectId" in result && result.projectId) {
       window.localStorage.removeItem(storageKey);
-      toast.success(copy("Projekt został opublikowany.", "Project published."));
+      toast.success(copy("Project published.", "Project published."));
       router.push(`/projects/${result.projectId}?created=1`);
       router.refresh();
     }
@@ -371,7 +371,7 @@ export function ProjectWizard({
     <div className="mx-auto w-full max-w-[900px] pb-16">
       <div className="border-y border-[var(--bc-line)]">
         <div className="flex min-w-max overflow-x-auto">
-          {(locale === "en" ? ["Basics", "Project", "Team", "Collaboration", "Preview"] : ["Podstawy", "Projekt", "Ekipa", "Współpraca", "Podgląd"]).map((label, index) => {
+          {(locale === "en" ? ["Basics", "Project", "Team", "Collaboration", "Preview"] : ["Podstawy", "Project", "Team", "Collaboration", "Preview"]).map((label, index) => {
             const currentStep = index + 1;
             const active = currentStep === step;
             const done = currentStep < step;
@@ -395,16 +395,16 @@ export function ProjectWizard({
       <div className="mt-4 flex min-h-5 items-center justify-between gap-4 text-[12px] text-[var(--bc-faint)]">
         <span>
           {draftState === "restored"
-            ? copy("Przywrócono szkic zapisany na tym urządzeniu.", "Restored a draft saved on this device.")
+            ? copy("Restored a draft saved on this device.", "Restored a draft saved on this device.")
             : draftState === "saving"
-              ? copy("Zapisywanie szkicu…", "Saving draft…")
+              ? copy("Saving draft…", "Saving draft…")
               : draftState === "saved"
-                ? copy("Szkic zapisany lokalnie.", "Draft saved locally.")
-                : copy("Szkic zapisuje się automatycznie na tym urządzeniu.", "Draft saves automatically on this device.")}
+                ? copy("Draft saved locally.", "Draft saved locally.")
+                : copy("Draft saves automatically on this device.", "Draft saves automatically on this device.")}
         </span>
         {hasUsefulDraft(form) ? (
           <button type="button" onClick={clearDraft} className="shrink-0 text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">
-            {copy("Wyczyść szkic", "Clear draft")}
+            {copy("Clear draft", "Clear draft")}
           </button>
         ) : null}
       </div>
@@ -419,12 +419,12 @@ export function ProjectWizard({
 
       <div className="mt-10 flex items-center justify-between border-t border-[var(--bc-line)] pt-5">
         <Button type="button" variant="ghost" onClick={back} disabled={step === 1 || pending}>
-          {copy("Wstecz", "Back")}
+          {copy("Back", "Back")}
         </Button>
         <div className="flex items-center gap-3">
-          {!canProceed && step < TOTAL_STEPS ? <span className="hidden text-[12px] text-[var(--bc-faint)] sm:inline">{copy("Uzupełnij wymagane pola.", "Complete the required fields.")}</span> : null}
+          {!canProceed && step < TOTAL_STEPS ? <span className="hidden text-[12px] text-[var(--bc-faint)] sm:inline">{copy("Complete the required fields.", "Complete the required fields.")}</span> : null}
           <Button type="button" onClick={next} disabled={!canProceed || pending}>
-            {pending ? copy("Publikowanie…", "Publishing…") : step === TOTAL_STEPS ? copy("Opublikuj projekt", "Publish project") : copy("Dalej", "Next")}
+            {pending ? copy("Publishing…", "Publishing…") : step === TOTAL_STEPS ? copy("Publish project", "Publish project") : copy("Next", "Next")}
           </Button>
         </div>
       </div>
@@ -438,46 +438,46 @@ function BasicsStep({ form, setForm }: { form: FormState; setForm: React.Dispatc
   const labels = labelsFor(locale);
   return (
     <StepShell
-      eyebrow={copy("01 / Podstawy", "01 / Basics")}
-      title={copy("Najpierw powiedz, co właściwie budujecie.", "First, tell people what you’re actually building.")}
-      subtitle={copy("To są informacje, które ludzie zobaczą jako pierwsze na liście projektów.", "These are the first details people will see in project discovery.")}
+      eyebrow={copy("01 / Basics", "01 / Basics")}
+      title={copy("First, tell people what you’re actually building.", "First, tell people what you’re actually building.")}
+      subtitle={copy("These are the first details people will see in project discovery.", "These are the first details people will see in project discovery.")}
     >
-      <Field label={copy("Nazwa projektu", "Project name")} required hint={`${form.name.length}/60`}>
+      <Field label={copy("Project name", "Project name")} required hint={`${form.name.length}/60`}>
         <Input
           value={form.name}
           onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-          placeholder={copy("np. Splitly", "e.g. Splitly")}
+          placeholder={copy("e.g. Splitly", "e.g. Splitly")}
           maxLength={60}
           autoFocus
         />
       </Field>
 
-      <Field label={copy("Jedno zdanie o projekcie", "One sentence about the project")} required hint={`${form.tagline.length}/120`}>
+      <Field label={copy("One sentence about the project", "One sentence about the project")} required hint={`${form.tagline.length}/120`}>
         <Input
           value={form.tagline}
           onChange={(event) => setForm((current) => ({ ...current, tagline: event.target.value }))}
-          placeholder={copy("np. Prosty podział wspólnych wydatków bez arkuszy.", "e.g. Split shared expenses without spreadsheets.")}
+          placeholder={copy("e.g. Split shared expenses without spreadsheets.", "e.g. Split shared expenses without spreadsheets.")}
           maxLength={120}
         />
       </Field>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label={copy("Typ projektu", "Project type")} required>
+        <Field label={copy("Project type", "Project type")} required>
           <Select value={form.projectType || undefined} onValueChange={(value) => setForm((current) => ({ ...current, projectType: value as ProjectType }))}>
-            <SelectTrigger><SelectValue placeholder={copy("Wybierz typ", "Choose a type")} /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={copy("Choose a type", "Choose a type")} /></SelectTrigger>
             <SelectContent>{PROJECT_TYPE_OPTIONS.map((type) => <SelectItem key={type} value={type}>{labels.projectTypes[type]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
 
-        <Field label={copy("Etap", "Stage")} required>
+        <Field label={copy("Stage", "Stage")} required>
           <Select value={form.stage || undefined} onValueChange={(value) => setForm((current) => ({ ...current, stage: value as Stage }))}>
-            <SelectTrigger><SelectValue placeholder={copy("Wybierz etap", "Choose a stage")} /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={copy("Choose a stage", "Choose a stage")} /></SelectTrigger>
             <SelectContent>{STAGE_OPTIONS.map((stage) => <SelectItem key={stage} value={stage}>{labels.stages[stage]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
       </div>
 
-      <Field label={copy("Obszary", "Areas")} required description={copy("Wybierz 1–5 tematów. Pomagają w discovery i przyszłych dopasowaniach.", "Choose 1–5 topics. They help discovery and future matching.")}>
+      <Field label={copy("Areas", "Areas")} required description={copy("Choose 1–5 topics. They help discovery and future matching.", "Choose 1–5 topics. They help discovery and future matching.")}>
         <div className="flex flex-wrap gap-2">
           {INTEREST_OPTIONS.map((interest) => (
             <ToggleButton
@@ -501,30 +501,30 @@ function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispat
   const labels = labelsFor(locale);
   return (
     <StepShell
-      eyebrow={copy("02 / Projekt", "02 / Project")}
-      title={copy("Pokaż stan projektu, nie tylko pomysł.", "Show the state of the project, not just the idea.")}
-      subtitle={copy("Im więcej konkretu, tym łatwiej komuś zdecydować, czy chce poświęcić czas na rozmowę.", "The more concrete the project is, the easier it is for someone to decide whether it’s worth a conversation.")}
+      eyebrow={copy("02 / Project", "02 / Project")}
+      title={copy("Show the state of the project, not just the idea.", "Show the state of the project, not just the idea.")}
+      subtitle={copy("The more concrete the project is, the easier it is for someone to decide whether it’s worth a conversation.", "The more concrete the project is, the easier it is for someone to decide whether it’s worth a conversation.")}
     >
-      <Field label={copy("Opis", "Description")} required hint={`${form.description.length}/2400`} description={copy("Jaki problem rozwiązujecie, dla kogo i co chcecie zbudować w pierwszej wersji?", "What problem are you solving, for whom, and what do you want to build first?")}>
+      <Field label={copy("Description", "Description")} required hint={`${form.description.length}/2400`} description={copy("What problem are you solving, for whom, and what do you want to build first?", "What problem are you solving, for whom, and what do you want to build first?")}>
         <Textarea
           value={form.description}
           onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-          placeholder={copy("Opisz problem, odbiorcę i najważniejszy zakres pierwszej wersji…", "Describe the problem, target user and the core scope of the first version…")}
+          placeholder={copy("Describe the problem, target user and the core scope of the first version…", "Describe the problem, target user and the core scope of the first version…")}
           rows={7}
           maxLength={2400}
         />
       </Field>
 
-      <Field label={copy("Stack projektu", "Project stack")} required description={copy("To technologie używane przez projekt jako całość. Wymagania konkretnej roli dodasz w następnym kroku.", "These are technologies used by the project as a whole. You’ll add role-specific requirements in the next step.")}>
+      <Field label={copy("Project stack", "Project stack")} required description={copy("These are technologies used by the project as a whole. You’ll add role-specific requirements in the next step.", "These are technologies used by the project as a whole. You’ll add role-specific requirements in the next step.")}>
         <TechnologyPicker
           values={form.technologies}
           onChange={(values) => setForm((current) => ({ ...current, technologies: values }))}
-          placeholder={copy("Szukaj np. React, Supabase, Figma…", "Search e.g. React, Supabase, Figma…")}
+          placeholder={copy("Search e.g. React, Supabase, Figma…", "Search e.g. React, Supabase, Figma…")}
           max={15}
         />
       </Field>
 
-      <Field label={copy("Co już istnieje?", "What already exists?")} description={copy("Zaznacz realny stan. Nie musisz mieć MVP, żeby opublikować projekt.", "Mark the real current state. You don’t need an MVP to publish a project.")}>
+      <Field label={copy("What already exists?", "What already exists?")} description={copy("Mark the real current state. You don’t need an MVP to publish a project.", "Mark the real current state. You don’t need an MVP to publish a project.")}>
         <div className="grid gap-px overflow-hidden border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-2">
           {PROJECT_ASSET_OPTIONS.map((asset) => {
             const active = form.existingAssets.includes(asset);
@@ -547,20 +547,20 @@ function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispat
         </div>
       </Field>
 
-      <Field label={copy("Najbliższy cel", "Next goal")} required hint={`${form.goal.length}/240`} description={copy("Jedna konkretna rzecz, którą chcecie dowieźć jako następną.", "One concrete thing you want to deliver next.")}>
+      <Field label={copy("Next goal", "Next goal")} required hint={`${form.goal.length}/240`} description={copy("One concrete thing you want to deliver next.", "One concrete thing you want to deliver next.")}>
         <Input
           value={form.goal}
           onChange={(event) => setForm((current) => ({ ...current, goal: event.target.value }))}
-          placeholder={copy("np. Wypuścić MVP i zebrać feedback od pierwszych 20 użytkowników.", "e.g. Launch the MVP and collect feedback from the first 20 users.")}
+          placeholder={copy("e.g. Launch the MVP and collect feedback from the first 20 users.", "e.g. Launch the MVP and collect feedback from the first 20 users.")}
           maxLength={240}
         />
       </Field>
 
-      <Field label={copy("Twój wkład", "Your contribution")} hint={`${form.ownerContribution.length}/400`} description={copy("Opcjonalne, ale pomaga zrozumieć, czego nie szukasz u innych.", "Optional, but it helps others understand what you’re already covering.")}>
+      <Field label={copy("Your contribution", "Your contribution")} hint={`${form.ownerContribution.length}/400`} description={copy("Optional, but it helps others understand what you’re already covering.", "Optional, but it helps others understand what you’re already covering.")}>
         <Textarea
           value={form.ownerContribution}
           onChange={(event) => setForm((current) => ({ ...current, ownerContribution: event.target.value }))}
-          placeholder={copy("np. Backend, architektura i kontakt z pierwszymi użytkownikami.", "e.g. Backend, architecture and talking to the first users.")}
+          placeholder={copy("e.g. Backend, architecture and talking to the first users.", "e.g. Backend, architecture and talking to the first users.")}
           rows={3}
           maxLength={400}
         />
@@ -568,14 +568,14 @@ function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispat
 
       <div>
         <div className="mb-3">
-          <Label className="text-sm font-medium">{copy("Linki", "Links")}</Label>
-          <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("Dodaj tylko to, co faktycznie istnieje. Wszystkie pola są opcjonalne.", "Only add links that actually exist. All fields are optional.")}</p>
+          <Label className="text-sm font-medium">{copy("Links", "Links")}</Label>
+          <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("Only add links that actually exist. All fields are optional.", "Only add links that actually exist. All fields are optional.")}</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <LinkField label={copy("Repozytorium", "Repository")} value={form.repositoryUrl} onChange={(repositoryUrl) => setForm((current) => ({ ...current, repositoryUrl }))} placeholder="https://github.com/…" />
+          <LinkField label={copy("Repository", "Repository")} value={form.repositoryUrl} onChange={(repositoryUrl) => setForm((current) => ({ ...current, repositoryUrl }))} placeholder="https://github.com/…" />
           <LinkField label="Demo / landing" value={form.demoUrl} onChange={(demoUrl) => setForm((current) => ({ ...current, demoUrl }))} placeholder="https://…" />
           <LinkField label="Design / Figma" value={form.designUrl} onChange={(designUrl) => setForm((current) => ({ ...current, designUrl }))} placeholder="https://figma.com/…" />
-          <LinkField label={copy("Dokumentacja", "Documentation")} value={form.docsUrl} onChange={(docsUrl) => setForm((current) => ({ ...current, docsUrl }))} placeholder="https://…" />
+          <LinkField label={copy("Documentation", "Documentation")} value={form.docsUrl} onChange={(docsUrl) => setForm((current) => ({ ...current, docsUrl }))} placeholder="https://…" />
         </div>
       </div>
     </StepShell>
@@ -598,42 +598,42 @@ function CrewStep({
   const labels = labelsFor(locale);
   return (
     <StepShell
-      eyebrow={copy("03 / Ekipa", "03 / Team")}
-      title={copy("Opisz osoby, których naprawdę potrzebujesz.", "Describe the people you actually need.")}
-      subtitle={copy("Wymagania zapisane przy roli są bardziej użyteczne niż ogólny stack projektu.", "Role-specific requirements are more useful than a generic project stack.")}
+      eyebrow={copy("03 / Team", "03 / Team")}
+      title={copy("Describe the people you actually need.", "Describe the people you actually need.")}
+      subtitle={copy("Role-specific requirements are more useful than a generic project stack.", "Role-specific requirements are more useful than a generic project stack.")}
     >
       <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
         {form.roles.map((role, index) => (
           <div key={index} className="py-6 first:pt-5 last:pb-5">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold">{copy(`Rola ${index + 1}`, `Role ${index + 1}`)}</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{copy("Określ rolę, liczbę miejsc i konkretny zakres.", "Set the role, number of openings and a concrete scope.")}</p>
+                <p className="text-sm font-semibold">{copy(`Role ${index + 1}`, `Role ${index + 1}`)}</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{copy("Set the role, number of openings and a concrete scope.", "Set the role, number of openings and a concrete scope.")}</p>
               </div>
               {form.roles.length > 1 ? (
-                <Button type="button" variant="ghost" size="sm" onClick={() => removeRole(index)} aria-label={copy(`Usuń rolę ${index + 1}`, `Remove role ${index + 1}`)}>
-                  <Trash2 className="h-3.5 w-3.5" /> {copy("Usuń", "Remove")}
+                <Button type="button" variant="ghost" size="sm" onClick={() => removeRole(index)} aria-label={copy(`Remove role ${index + 1}`, `Remove role ${index + 1}`)}>
+                  <Trash2 className="h-3.5 w-3.5" /> {copy("Remove", "Remove")}
                 </Button>
               ) : null}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-[1fr_1fr_110px]">
-              <Field label={copy("Rola", "Role")} required compact>
+              <Field label={copy("Roles", "Roles")} required compact>
                 <Select value={role.roleType || undefined} onValueChange={(value) => updateRole(index, { roleType: value as RoleType })}>
-                  <SelectTrigger><SelectValue placeholder={copy("Wybierz rolę", "Choose a role")} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={copy("Choose a role", "Choose a role")} /></SelectTrigger>
                   <SelectContent>{ROLE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.roles[option]}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
-              <Field label={copy("Poziom", "Level")} compact>
+              <Field label={copy("Level", "Level")} compact>
                 <Select value={role.preferredLevel || "ANY"} onValueChange={(value) => updateRole(index, { preferredLevel: value === "ANY" ? "" : value as Level })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ANY">{copy("Dowolny", "Any")}</SelectItem>
+                    <SelectItem value="ANY">{copy("Any", "Any")}</SelectItem>
                     {LEVEL_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.levels[option]}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label={copy("Miejsca", "Openings")} compact>
+              <Field label={copy("Openings", "Openings")} compact>
                 <Input
                   type="number"
                   min={1}
@@ -645,11 +645,11 @@ function CrewStep({
             </div>
 
             <div className="mt-4">
-              <Field label={copy("Zakres odpowiedzialności", "Responsibilities")} hint={`${role.description.length}/360`} compact>
+              <Field label={copy("Responsibilities", "Responsibilities")} hint={`${role.description.length}/360`} compact>
                 <Textarea
                   value={role.description}
                   onChange={(event) => updateRole(index, { description: event.target.value })}
-                  placeholder={copy("np. Zbudowanie dashboardu, integracja z API i dopracowanie responsive.", "e.g. Build the dashboard, integrate the API and polish responsive behavior.")}
+                  placeholder={copy("e.g. Build the dashboard, integrate the API and polish responsive behavior.", "e.g. Build the dashboard, integrate the API and polish responsive behavior.")}
                   rows={3}
                   maxLength={360}
                 />
@@ -657,11 +657,11 @@ function CrewStep({
             </div>
 
             <div className="mt-4">
-              <Field label={copy("Umiejętności dla tej roli", "Skills for this role")} description={copy("Nie muszą być identyczne ze stackiem projektu.", "They don’t have to match the project stack exactly.")} compact>
+              <Field label={copy("Skills for this role", "Skills for this role")} description={copy("They don’t have to match the project stack exactly.", "They don’t have to match the project stack exactly.")} compact>
                 <TechnologyPicker
                   values={role.skills}
                   onChange={(skills) => updateRole(index, { skills })}
-                  placeholder={copy("np. React, TypeScript, UI Design…", "e.g. React, TypeScript, UI Design…")}
+                  placeholder={copy("e.g. React, TypeScript, UI Design…", "e.g. React, TypeScript, UI Design…")}
                   max={12}
                 />
               </Field>
@@ -671,7 +671,7 @@ function CrewStep({
       </div>
 
       <Button type="button" variant="outline" onClick={addRole} disabled={form.roles.length >= 8}>
-        <Plus className="h-4 w-4" /> {copy("Dodaj kolejną rolę", "Add another role")}
+        <Plus className="h-4 w-4" /> {copy("Add another role", "Add another role")}
       </Button>
     </StepShell>
   );
@@ -684,35 +684,35 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
   const intl = internationalLabels(locale);
   return (
     <StepShell
-      eyebrow={copy("04 / Współpraca", "04 / Collaboration")}
-      title={copy("Ustal oczekiwania zanim zacznie się rozmowa.", "Set expectations before the conversation starts.")}
-      subtitle={copy("Te dane pomagają odsiać niedopasowania czasowe i organizacyjne.", "These details help filter out mismatches in time commitment and working style.")}
+      eyebrow={copy("04 / Collaboration", "04 / Collaboration")}
+      title={copy("Set expectations before the conversation starts.", "Set expectations before the conversation starts.")}
+      subtitle={copy("These details help filter out mismatches in time commitment and working style.", "These details help filter out mismatches in time commitment and working style.")}
     >
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label={copy("Zaangażowanie", "Commitment")} required>
+        <Field label={copy("Commitment", "Commitment")} required>
           <Select value={form.commitment || undefined} onValueChange={(value) => setForm((current) => ({ ...current, commitment: value as Commitment }))}>
-            <SelectTrigger><SelectValue placeholder={copy("Wybierz czas", "Choose time")} /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={copy("Choose time", "Choose time")} /></SelectTrigger>
             <SelectContent>{COMMITMENT_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.commitments[option]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
 
-        <Field label={copy("Tryb współpracy", "Collaboration mode")} required>
+        <Field label={copy("Collaboration mode", "Collaboration mode")} required>
           <Select value={form.collaborationMode || undefined} onValueChange={(value) => setForm((current) => ({ ...current, collaborationMode: value as CollaborationMode }))}>
-            <SelectTrigger><SelectValue placeholder={copy("Wybierz tryb", "Choose a mode")} /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={copy("Choose a mode", "Choose a mode")} /></SelectTrigger>
             <SelectContent>{COLLABORATION_MODE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.collaborationModes[option]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
 
-        <Field label={copy("Tempo", "Pace")} required>
+        <Field label={copy("Pace", "Pace")} required>
           <Select value={form.collaborationPace || undefined} onValueChange={(value) => setForm((current) => ({ ...current, collaborationPace: value as CollaborationPace }))}>
-            <SelectTrigger><SelectValue placeholder={copy("Wybierz tempo", "Choose a pace")} /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={copy("Choose a pace", "Choose a pace")} /></SelectTrigger>
             <SelectContent>{COLLABORATION_PACE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.collaborationPaces[option]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
 
-        <Field label={copy("Planowany horyzont", "Planned horizon")} required>
+        <Field label={copy("Planned horizon", "Planned horizon")} required>
           <Select value={form.duration || undefined} onValueChange={(value) => setForm((current) => ({ ...current, duration: value as ProjectDuration }))}>
-            <SelectTrigger><SelectValue placeholder={copy("Wybierz horyzont", "Choose a horizon")} /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={copy("Choose a horizon", "Choose a horizon")} /></SelectTrigger>
             <SelectContent>{PROJECT_DURATION_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.durations[option]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
@@ -730,14 +730,14 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
         </Field>
       </div>
 
-      <Field label={copy("Kraj / baza projektu", "Project country / base")} description={copy("Opcjonalne. Przy projektach zdalnych pomaga zrozumieć strefę czasową i kontekst.", "Optional. For remote projects it helps people understand timezone and context.")}>
+      <Field label={copy("Project country / base", "Project country / base")} description={copy("Optional. For remote projects it helps people understand timezone and context.", "Optional. For remote projects it helps people understand timezone and context.")}>
         <select value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} className="h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm">
-          <option value="">{copy("Nie określono", "Not specified")}</option>
+          <option value="">{copy("Not specified", "Not specified")}</option>
           {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
         </select>
       </Field>
 
-      <Field label={copy("Czego projekt teraz potrzebuje?", "What does the project need right now?")} required description={copy("To może być coś więcej niż kolejna rola w zespole.", "This can be more than another open role on the team.")}>
+      <Field label={copy("What does the project need right now?", "What does the project need right now?")} required description={copy("This can be more than another open role on the team.", "This can be more than another open role on the team.")}>
         <div className="flex flex-wrap gap-2">
           {PROJECT_NEED_OPTIONS.map((need) => (
             <ToggleButton key={need} active={form.needs.includes(need)} onClick={() => setForm((current) => ({ ...current, needs: toggleValue(current.needs, need) }))}>
@@ -749,17 +749,17 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
 
       {form.needs.includes("FUNDING") ? (
         <div className="grid gap-4 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-4 sm:grid-cols-2">
-          <Field label={copy("Etap finansowania", "Funding stage")} compact>
+          <Field label={copy("Funding stage", "Funding stage")} compact>
             <Select value={form.fundingStage || undefined} onValueChange={(value) => setForm((current) => ({ ...current, fundingStage: value as FundingStage }))}>
-              <SelectTrigger><SelectValue placeholder={copy("Wybierz etap", "Choose a stage")} /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={copy("Choose a stage", "Choose a stage")} /></SelectTrigger>
               <SelectContent>{FUNDING_STAGE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{intl.fundingStage[option]}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-          <Field label={copy("Kwota (opcjonalnie)", "Amount (optional)")} compact>
-            <Input value={form.fundingAmount} onChange={(event) => setForm((current) => ({ ...current, fundingAmount: event.target.value }))} placeholder={copy("np. 250 000 PLN", "e.g. €50k–€100k")} />
+          <Field label={copy("Amount (optional)", "Amount (optional)")} compact>
+            <Input value={form.fundingAmount} onChange={(event) => setForm((current) => ({ ...current, fundingAmount: event.target.value }))} placeholder={copy("e.g. €50k–€100k", "e.g. €50k–€100k")} />
           </Field>
-          <Field label={copy("Na co środki?", "Use of funds")} compact>
-            <Textarea value={form.fundingUse} onChange={(event) => setForm((current) => ({ ...current, fundingUse: event.target.value }))} rows={3} maxLength={400} placeholder={copy("np. rozwój produktu i pozyskanie pierwszych klientów", "e.g. product development and first customer acquisition")} />
+          <Field label={copy("Use of funds", "Use of funds")} compact>
+            <Textarea value={form.fundingUse} onChange={(event) => setForm((current) => ({ ...current, fundingUse: event.target.value }))} rows={3} maxLength={400} placeholder={copy("e.g. product development and first customer acquisition", "e.g. product development and first customer acquisition")} />
           </Field>
           <Field label={copy("Pitch deck", "Pitch deck")} compact>
             <Input type="url" value={form.pitchDeckUrl} onChange={(event) => setForm((current) => ({ ...current, pitchDeckUrl: event.target.value }))} placeholder="https://…" />
@@ -767,7 +767,7 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
         </div>
       ) : null}
 
-      <Field label={copy("Charakter projektu", "Project character")} required description={copy("Wybierz maksymalnie 3. To opis intencji projektu, nie model prawny współpracy.", "Choose up to 3. This describes the project’s intent, not the legal model of collaboration.")}>
+      <Field label={copy("Project character", "Project character")} required description={copy("Choose up to 3. This describes the project’s intent, not the legal model of collaboration.", "Choose up to 3. This describes the project’s intent, not the legal model of collaboration.")}>
         <div className="flex flex-wrap gap-2">
           {CHARACTER_OPTIONS.map((character) => (
             <ToggleButton
@@ -783,7 +783,7 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
       </Field>
 
       <div className="border-l-2 border-[var(--bc-accent)] pl-4 text-[13px] leading-5 text-[var(--bc-muted)]">
-        {copy("BuildCrew pomaga znaleźć współtwórców. Ustalenia dotyczące wynagrodzenia, udziałów, praw do kodu i odpowiedzialności ustalacie bezpośrednio między sobą.", "BuildCrew helps you find collaborators. Compensation, equity, code ownership and responsibilities are agreements you make directly with each other.")}
+        {copy("BuildCrew helps you find collaborators. Compensation, equity, code ownership and responsibilities are agreements you make directly with each other.", "BuildCrew helps you find collaborators. Compensation, equity, code ownership and responsibilities are agreements you make directly with each other.")}
       </div>
     </StepShell>
   );
@@ -796,31 +796,31 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
   const intl = internationalLabels(locale);
   return (
     <StepShell
-      eyebrow={copy("05 / Podgląd", "05 / Preview")}
-      title={copy("Sprawdź, czy projekt mówi wystarczająco dużo.", "Check whether the project says enough.")}
-      subtitle={copy("Po publikacji od razu przejdziesz do projektu i będziesz mógł go udostępnić.", "After publishing, you’ll go straight to the project and can share it immediately.")}
+      eyebrow={copy("05 / Preview", "05 / Preview")}
+      title={copy("Check whether the project says enough.", "Check whether the project says enough.")}
+      subtitle={copy("After publishing, you’ll go straight to the project and can share it immediately.", "After publishing, you’ll go straight to the project and can share it immediately.")}
     >
       <div className="border-y border-[var(--bc-line)] py-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">
-          <span>{form.projectType ? labels.projectTypes[form.projectType] : copy("Typ projektu", "Project type")}</span>
+          <span>{form.projectType ? labels.projectTypes[form.projectType] : copy("Project type", "Project type")}</span>
           <span>·</span>
-          <span>{form.stage ? labels.stages[form.stage] : copy("Etap", "Stage")}</span>
+          <span>{form.stage ? labels.stages[form.stage] : copy("Stage", "Stage")}</span>
           <span>·</span>
-          <span>{form.commitment ? labels.commitments[form.commitment] : copy("Czas", "Time")}</span>
+          <span>{form.commitment ? labels.commitments[form.commitment] : copy("Time", "Time")}</span>
         </div>
-        <h2 className="mt-4 text-[30px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)]">{form.name || copy("Nazwa projektu", "Project name")}</h2>
-        <p className="mt-2 max-w-3xl text-[15px] leading-6 text-[var(--bc-muted)]">{form.tagline || copy("Krótki opis projektu.", "Short project description.")}</p>
+        <h2 className="mt-4 text-[30px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)]">{form.name || copy("Project name", "Project name")}</h2>
+        <p className="mt-2 max-w-3xl text-[15px] leading-6 text-[var(--bc-muted)]">{form.tagline || copy("Short project description.", "Short project description.")}</p>
         <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-6 text-[var(--bc-muted)]">{form.description}</p>
 
         <div className="mt-6 grid gap-px border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-3">
-          <PreviewCell label={copy("Najbliższy cel", "Next goal")} value={form.goal || "-"} />
-          <PreviewCell label={copy("Tryb", "Mode")} value={form.collaborationMode ? labels.collaborationModes[form.collaborationMode] : "-"} />
-          <PreviewCell label={copy("Horyzont", "Horizon")} value={form.duration ? labels.durations[form.duration] : "-"} />
+          <PreviewCell label={copy("Next goal", "Next goal")} value={form.goal || "-"} />
+          <PreviewCell label={copy("Mode", "Mode")} value={form.collaborationMode ? labels.collaborationModes[form.collaborationMode] : "-"} />
+          <PreviewCell label={copy("Horizon", "Horizon")} value={form.duration ? labels.durations[form.duration] : "-"} />
         </div>
         <div className="mt-px grid gap-px border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-3">
-          <PreviewCell label={copy("Język", "Language")} value={intl.projectLanguage[form.projectLanguage]} />
-          <PreviewCell label={copy("Zasięg", "Reach")} value={intl.marketScope[form.marketScope]} />
-          <PreviewCell label={copy("Potrzeby", "Needs")} value={form.needs.map((need) => intl.needs[need]).join(" · ")} />
+          <PreviewCell label={copy("Language", "Language")} value={intl.projectLanguage[form.projectLanguage]} />
+          <PreviewCell label={copy("Reach", "Reach")} value={intl.marketScope[form.marketScope]} />
+          <PreviewCell label={copy("Needs", "Needs")} value={form.needs.map((need) => intl.needs[need]).join(" · ")} />
         </div>
 
         <div className="mt-6">
@@ -830,19 +830,19 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
       </div>
 
       <div>
-        <p className="text-[13px] font-semibold uppercase tracking-[0.07em] text-[var(--bc-faint)]">{copy("Otwarte role", "Open roles")}</p>
+        <p className="text-[13px] font-semibold uppercase tracking-[0.07em] text-[var(--bc-faint)]">{copy("Open roles", "Open roles")}</p>
         <div className="mt-2 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
           {form.roles.map((role, index) => (
             <div key={index} className="grid gap-3 py-4 sm:grid-cols-[180px_minmax(0,1fr)_90px] sm:items-start">
               <div>
-                <p className="text-sm font-semibold">{role.roleType ? labels.roles[role.roleType] : copy(`Rola ${index + 1}`, `Role ${index + 1}`)}</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{role.preferredLevel ? labels.levels[role.preferredLevel] : copy("Dowolny poziom", "Any level")}</p>
+                <p className="text-sm font-semibold">{role.roleType ? labels.roles[role.roleType] : copy(`Role ${index + 1}`, `Role ${index + 1}`)}</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{role.preferredLevel ? labels.levels[role.preferredLevel] : copy("Any level", "Any level")}</p>
               </div>
               <div>
-                <p className="text-[13px] leading-5 text-[var(--bc-muted)]">{role.description || copy("Zakres nie został jeszcze opisany.", "Responsibilities have not been described yet.")}</p>
+                <p className="text-[13px] leading-5 text-[var(--bc-muted)]">{role.description || copy("Responsibilities have not been described yet.", "Responsibilities have not been described yet.")}</p>
                 {role.skills.length ? <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{role.skills.join(" · ")}</p> : null}
               </div>
-              <p className="text-[13px] tabular-nums text-[var(--bc-muted)] sm:text-right">{role.slots} {copy(role.slots === 1 ? "miejsce" : "miejsca", role.slots === 1 ? "opening" : "openings")}</p>
+              <p className="text-[13px] tabular-nums text-[var(--bc-muted)] sm:text-right">{role.slots} {copy(role.slots === 1 ? "opening" : "openings", role.slots === 1 ? "opening" : "openings")}</p>
             </div>
           ))}
         </div>
@@ -851,15 +851,15 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
       <div className="border-l-2 border-[var(--bc-line-strong)] pl-4">
         {qualityHints.length ? (
           <>
-            <p className="text-sm font-semibold">{copy("Możesz opublikować teraz. Warto jeszcze rozważyć:", "You can publish now. It may still be worth adding:")}</p>
+            <p className="text-sm font-semibold">{copy("You can publish now. It may still be worth adding:", "You can publish now. It may still be worth adding:")}</p>
             <ul className="mt-2 space-y-1.5 text-[13px] leading-5 text-[var(--bc-muted)]">
               {qualityHints.slice(0, 4).map((hint) => <li key={hint}>- {hint}</li>)}
             </ul>
           </>
         ) : (
           <>
-            <p className="text-sm font-semibold">{copy("Projekt ma komplet najważniejszych informacji.", "The project has all the key information.")}</p>
-            <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("Po publikacji możesz go udostępnić albo przejść do szukania osób.", "After publishing, you can share it or start looking for people.")}</p>
+            <p className="text-sm font-semibold">{copy("The project has all the key information.", "The project has all the key information.")}</p>
+            <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("After publishing, you can share it or start looking for people.", "After publishing, you can share it or start looking for people.")}</p>
           </>
         )}
       </div>
@@ -975,7 +975,7 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
               type="button"
               onClick={() => onChange(values.filter((item) => item !== value))}
               className="inline-flex min-h-8 items-center gap-1.5 rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2.5 text-[12px] text-[var(--bc-ink)] hover:border-[var(--bc-line-strong)]"
-              title={`${copy("Usuń", "Remove")} ${value}`}
+              title={`${copy("Remove", "Remove")} ${value}`}
             >
               {value}<X className="h-3 w-3 text-[var(--bc-faint)]" />
             </button>
@@ -993,7 +993,7 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
             else if (canAddCustom) add(query);
           }
         }}
-        placeholder={values.length >= max ? copy(`Maksymalnie ${max}`, `Maximum ${max}`) : placeholder}
+        placeholder={values.length >= max ? copy(`Maximum ${max}`, `Maximum ${max}`) : placeholder}
         disabled={values.length >= max}
       />
 
@@ -1006,7 +1006,7 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
           ))}
           {canAddCustom ? (
             <button type="button" onClick={() => add(query)} className="block w-full border-t border-[var(--bc-line)] px-3 py-2 text-left text-[13px] font-medium hover:bg-[var(--bc-surface-subtle)]">
-              {copy("Dodaj własne", "Add custom")}: “{query.trim()}”
+              {copy("Add custom", "Add custom")}: “{query.trim()}”
             </button>
           ) : null}
         </div>

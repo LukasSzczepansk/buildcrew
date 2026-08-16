@@ -31,10 +31,10 @@ function splitUsername(value: string) {
 
 export function initialsForUsername(username: string) {
   const parts = splitUsername(username);
-  if (parts.length >= 2) return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toLocaleUpperCase("pl-PL");
+  if (parts.length >= 2) return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toLocaleUpperCase("en-US");
   const single = parts[0] ?? username.trim();
   if (!single) return "BC";
-  return single.slice(0, Math.min(2, single.length)).toLocaleUpperCase("pl-PL");
+  return single.slice(0, Math.min(2, single.length)).toLocaleUpperCase("en-US");
 }
 
 function Avatar({ username, seed, emoji: _legacyEmoji, className, size = "md", disablePhoto = false }: { username?: string | null; seed?: string | null; emoji?: string | null; className?: string; size?: AvatarSize; disablePhoto?: boolean }) {

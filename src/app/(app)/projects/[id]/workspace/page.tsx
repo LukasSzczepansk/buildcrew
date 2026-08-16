@@ -13,7 +13,7 @@ import { getProjectWorkspace } from "@/server/data/project-workspace";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Project workspace - BuildCrew" : "Workspace projektu - BuildCrew", robots: { index: false, follow: false } };
+  return { title: locale === "en" ? "Project workspace - BuildCrew" : "Project workspace - BuildCrew", robots: { index: false, follow: false } };
 }
 
 export default async function ProjectWorkspacePage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,22 +35,22 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
       <header className="border-b border-[var(--bc-line)] pb-5 pt-1">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="ghost" size="sm" className="-ml-3">
-            <Link href={`/projects/${id}`}><ArrowLeft className="h-3.5 w-3.5" /> {en ? "Project" : "Projekt"}</Link>
+            <Link href={`/projects/${id}`}><ArrowLeft className="h-3.5 w-3.5" /> {en ? "Project" : "Project"}</Link>
           </Button>
 
           <div className="flex flex-wrap items-center gap-2">
             {isOwner ? (
               <Button asChild variant="outline" size="sm">
-                <Link href="/builders"><UserPlus className="h-3.5 w-3.5" /> {en ? "Find someone" : "Znajdź osobę"}</Link>
+                <Link href="/builders"><UserPlus className="h-3.5 w-3.5" /> {en ? "Find someone" : "Find a person"}</Link>
               </Button>
             ) : null}
             {isOwner ? (
               <Button asChild variant="outline" size="sm">
-                <Link href={`/projects/${id}/manage`}><Settings2 className="h-3.5 w-3.5" /> {en ? "Manage" : "Zarządzaj"}</Link>
+                <Link href={`/projects/${id}/manage`}><Settings2 className="h-3.5 w-3.5" /> {en ? "Manage" : "Manage"}</Link>
               </Button>
             ) : null}
             <Button asChild variant="outline" size="sm">
-              <Link href={`/projects/${id}`}><ExternalLink className="h-3.5 w-3.5" /> {en ? "Project view" : "Widok projektu"}</Link>
+              <Link href={`/projects/${id}`}><ExternalLink className="h-3.5 w-3.5" /> {en ? "Project view" : "Project view"}</Link>
             </Button>
           </div>
         </div>
@@ -67,7 +67,7 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{data.project.name}</h1>
               <span className="inline-flex items-center gap-1.5 rounded-[5px] border border-[var(--bc-line)] px-2 py-1 text-[11px] font-medium text-[var(--bc-muted)]">
-                <LockKeyhole className="h-3 w-3" /> {en ? "Private workspace" : "Prywatny workspace"}
+                <LockKeyhole className="h-3 w-3" /> {en ? "Private workspace" : "Private workspace"}
               </span>
             </div>
             <p className="mt-1.5 max-w-[760px] text-sm leading-5 text-[var(--bc-muted)]">{data.project.tagline}</p>
@@ -75,7 +75,7 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
               <span>{labels.stages[data.project.stage]}</span>
               {data.project.projectType ? <span>{labels.projectTypes[data.project.projectType]}</span> : null}
               {data.project.commitment ? <span>{labels.commitments[data.project.commitment]}</span> : null}
-              <span className="inline-flex items-center gap-1"><UsersRound className="h-3.5 w-3.5" /> {data.members.length} {en ? (data.members.length === 1 ? "person" : "people") : (data.members.length === 1 ? "osoba" : data.members.length < 5 ? "osoby" : "osób")}</span>
+              <span className="inline-flex items-center gap-1"><UsersRound className="h-3.5 w-3.5" /> {data.members.length} {en ? (data.members.length === 1 ? "person" : "people") : (data.members.length === 1 ? "person" : data.members.length < 5 ? "people" : "people")}</span>
             </div>
           </div>
         </div>

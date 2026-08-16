@@ -27,10 +27,10 @@ export function AutoVerifyEmail({ token, nextPath }: { token: string; nextPath?:
       <div className="border-y border-[var(--bc-line)] py-5">
         <div className="flex items-center gap-2.5 text-[14px] font-medium text-[var(--bc-ink)]">
           <LoaderCircle className="h-4 w-4 animate-spin text-[var(--bc-muted)]" aria-hidden="true" />
-          {pending ? copy("Potwierdzamy adres e-mail…", "Confirming your email…") : state.error ? copy("Nie udało się potwierdzić adresu", "We couldn’t confirm your email") : copy("Potwierdzamy adres e-mail…", "Confirming your email…")}
+          {pending ? copy("Confirming your email…", "Confirming your email…") : state.error ? copy("We couldn’t confirm your email", "We couldn’t confirm your email") : copy("Confirming your email…", "Confirming your email…")}
         </div>
         <p className="mt-2 text-sm leading-5 text-[var(--bc-muted)]">
-          {copy("Nie zamykaj tej karty. Po poprawnej weryfikacji przejdziemy dalej automatycznie.", "Keep this tab open. After verification, we’ll continue automatically.")}
+          {copy("Keep this tab open. After verification, we’ll continue automatically.", "Keep this tab open. After verification, we’ll continue automatically.")}
         </p>
       </div>
 
@@ -38,12 +38,12 @@ export function AutoVerifyEmail({ token, nextPath }: { token: string; nextPath?:
         <div className="space-y-3">
           <p className="text-sm leading-5 text-red-600 dark:text-red-400">{appMessage(state.error, locale)}</p>
           <Button type="submit" className="w-full" disabled={pending}>
-            {copy("Spróbuj ponownie", "Try again")}
+            {copy("Try again", "Try again")}
           </Button>
         </div>
       ) : (
         <Button type="submit" className="sr-only" tabIndex={-1} disabled={pending}>
-          {copy("Potwierdź e-mail", "Confirm email")}
+          {copy("Confirm email", "Confirm email")}
         </Button>
       )}
     </form>

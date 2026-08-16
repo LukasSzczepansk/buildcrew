@@ -7,7 +7,7 @@ import { getIdeaById } from "@/server/data/projects";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Add project - BuildCrew" : "Dodaj projekt - BuildCrew" };
+  return { title: locale === "en" ? "Add project - BuildCrew" : "Create project - BuildCrew" };
 }
 
 export default async function NewProjectPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -21,8 +21,8 @@ export default async function NewProjectPage({ searchParams }: { searchParams: P
   return (
     <div>
       <Topbar
-        title={canConvert ? (en ? "Turn the idea into a project" : "Rozwiń pomysł w projekt") : (en ? "Add project" : "Dodaj projekt")}
-        subtitle={canConvert ? (en ? "The idea is already saved. Add the team, stack and collaboration expectations." : "Pomysł jest już zapisany. Uzupełnij ekipę, stack i zasady współpracy.") : (en ? "Describe the project, team and collaboration expectations without unnecessary formality." : "Opisz projekt, ekipę i zasady współpracy bez zbędnego formularza.")}
+        title={canConvert ? (en ? "Turn the idea into a project" : "Turn the idea into a project") : (en ? "Add project" : "Add project")}
+        subtitle={canConvert ? (en ? "The idea is already saved. Add the team, stack and collaboration expectations." : "The idea is already saved. Add the team, stack, and collaboration details.") : (en ? "Describe the project, team and collaboration expectations without unnecessary formality." : "Describe the project, team, and collaboration setup without unnecessary form fields.")}
       />
       <ProjectWizard
         draftKey={user?.id ?? "session"}

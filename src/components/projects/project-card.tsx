@@ -62,7 +62,7 @@ export function ProjectCard({
   const freshness = getProjectFreshness(project.updatedAt, new Date(), locale);
   const score = typeof matchScore === "number" ? Math.min(100, Math.max(0, matchScore)) : null;
   const strongMatch = score !== null && score >= 70;
-  const projectLanguage = project.projectLanguage ?? "PL";
+  const projectLanguage = project.projectLanguage ?? "EN";
   const marketScope = project.marketScope ?? "LOCAL";
   const needs = project.needs ?? ["TEAMMATES"];
 
@@ -92,7 +92,7 @@ export function ProjectCard({
                 </span>
                 {score !== null ? (
                   <span className={`inline-flex h-6 items-center gap-1 rounded-[6px] border px-2 text-[11px] font-semibold ${strongMatch ? "border-[#b8db5a] bg-[#f1f8db] text-[#66890e] dark:border-[#759624] dark:bg-[#202810] dark:text-[#c8f169]" : "border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] text-[var(--bc-muted)]"}`}>
-                    <Sparkles className="h-3 w-3" /> {score}% {en ? "match" : "dopasowania"}
+                    <Sparkles className="h-3 w-3" /> {score}% {en ? "match" : "matches"}
                   </span>
                 ) : null}
               </div>
@@ -120,7 +120,7 @@ export function ProjectCard({
               </div>
 
               {matchReasons.length ? (
-                <p className="mt-3 text-[12px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{en ? "Why it fits:" : "Dlaczego pasuje:"}</span> {matchReasons.slice(0, 2).join(" · ")}</p>
+                <p className="mt-3 text-[12px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{en ? "Why it fits:" : "Why it matches:"}</span> {matchReasons.slice(0, 2).join(" · ")}</p>
               ) : null}
             </div>
           </div>
@@ -130,9 +130,9 @@ export function ProjectCard({
           <div className="flex h-full flex-col justify-center gap-4 p-4 sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--bc-faint)]">{en ? "Looking for" : "Szukamy"}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--bc-faint)]">{en ? "Looking for" : "Looking for"}</p>
                 <div className="mt-1.5 flex min-h-7 flex-wrap items-center gap-1.5">
-                  {openSlots === 1 ? <span className="inline-flex h-6 items-center rounded-[5px] bg-[#C8F169] px-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-neutral-950">{en ? "Last spot" : "Ostatnie miejsce"}</span> : null}
+                  {openSlots === 1 ? <span className="inline-flex h-6 items-center rounded-[5px] bg-[#C8F169] px-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-neutral-950">{en ? "Last spot" : "Last spot"}</span> : null}
                   {visibleRoles.length > 0 ? (
                     <>
                       {visibleRoles.map((role) => (
@@ -145,7 +145,7 @@ export function ProjectCard({
                       ) : null}
                     </>
                   ) : (
-                    <span className="text-sm font-semibold text-[var(--bc-ink)]">{en ? "Team complete" : "Ekipa kompletna"}</span>
+                    <span className="text-sm font-semibold text-[var(--bc-ink)]">{en ? "Team complete" : "Team complete"}</span>
                   )}
                 </div>
 
@@ -156,7 +156,7 @@ export function ProjectCard({
                 <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-[var(--bc-muted)]">
                   <span className="inline-flex items-center gap-1.5">
                     <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
-                    {project.commitment ? labels.commitments[project.commitment] : en ? "Flexible" : "Do ustalenia"}
+                    {project.commitment ? labels.commitments[project.commitment] : en ? "Flexible" : "To be agreed"}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
@@ -203,8 +203,8 @@ export function ProjectCard({
 
               <Link
                 href={`/p/${project.id}`}
-                aria-label={`${en ? "Open public project page" : "Otwórz publiczną stronę projektu"} ${project.name}`}
-                title={en ? "Public link" : "Publiczny link"}
+                aria-label={`${en ? "Open public project page" : "Open public project page"} ${project.name}`}
+                title={en ? "Public link" : "Public link"}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"
               >
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
@@ -214,7 +214,7 @@ export function ProjectCard({
                 href={`/projects/${project.id}`}
                 className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-[var(--bc-ink)] px-3.5 text-[13px] font-medium text-[var(--bc-surface)] transition-opacity hover:opacity-85"
               >
-                {en ? "View" : "Zobacz"}
+                {en ? "View" : "View"}
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             </div>
@@ -240,7 +240,7 @@ function inferTypeLabel(kind: ReturnType<typeof inferProjectVisualKind>, locale:
   const en = locale === "en";
   switch (kind) {
     case "mobile":
-      return en ? "Mobile app" : "Aplikacja mobilna";
+      return en ? "Mobile app" : "Mobile app";
     case "devtool":
       return "Developer tool";
     case "opensource":
@@ -248,11 +248,11 @@ function inferTypeLabel(kind: ReturnType<typeof inferProjectVisualKind>, locale:
     case "marketplace":
       return "Marketplace";
     case "game":
-      return en ? "Game" : "Gra";
+      return "Game";
     case "community":
       return "Community";
     default:
-      return en ? "Web app" : "Aplikacja webowa";
+      return en ? "Web app" : "Web app";
   }
 }
 

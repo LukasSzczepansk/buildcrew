@@ -377,7 +377,7 @@ export async function updateProjectWorkspaceOverview(
   });
 
   if ((before?.currentFocus ?? "") !== (parsed.data.currentFocus ?? "")) {
-    await addActivity(projectId, access.user.id, "FOCUS_UPDATED", parsed.data.currentFocus ? `Ustawiono fokus: ${parsed.data.currentFocus}` : "Wyczyszczono aktualny fokus projektu.");
+    await addActivity(projectId, access.user.id, "FOCUS_UPDATED", parsed.data.currentFocus ? `Project focus set: ${parsed.data.currentFocus}` : "Current project focus cleared.");
   }
   if (
     (before?.milestoneTitle ?? "") !== (parsed.data.milestoneTitle ?? "") ||
@@ -423,14 +423,14 @@ export async function addProjectWorkspaceTask(
     sourceMessageId,
     createdBy: access.user.id,
   });
-  await addActivity(projectId, access.user.id, "TASK_CREATED", `Dodano zadanie: ${parsed.data.title}`);
+  await addActivity(projectId, access.user.id, "TASK_CREATED", `Task added: ${parsed.data.title}`);
 
   if (assigneeId && assigneeId !== access.user.id) {
     const project = await projectInfo(projectId);
     await createNotification(
       assigneeId,
       "WORKSPACE_TASK_ASSIGNED",
-      `Przypisano Ci zadanie${project ? ` w ${project.name}` : ""}`,
+      `Przypisano Ci task${project ? ` w ${project.name}` : ""}`,
       parsed.data.title,
       `/projects/${projectId}/workspace`,
       {
@@ -462,7 +462,7 @@ export async function updateProjectWorkspaceTask(
 
   const rows = await db.select().from(projectWorkspaceTasks).where(eq(projectWorkspaceTasks.id, taskId)).limit(1);
   const task = rows[0];
-  if (!task) return { error: "Zadanie nie istnieje." };
+  if (!task) return { error: "Task not found." };
   if (!(await canAccessProjectWorkspace(task.projectId, user.id))) return { error: "You do not have permission to do this." };
 
   const assigneeId = parsed.data.assigneeId === undefined ? task.assigneeId : (parsed.data.assigneeId || null);
@@ -482,14 +482,14 @@ export async function updateProjectWorkspaceTask(
     updatedAt: new Date(),
   }).where(eq(projectWorkspaceTasks.id, taskId));
 
-  await addActivity(task.projectId, user.id, "TASK_UPDATED", `Zaktualizowano zadanie „${parsed.data.title ?? task.title}”.`);
+  await addActivity(task.projectId, user.id, "TASK_UPDATED", `Task updated: ${parsed.data.title ?? task.title}.`);
 
   if (assigneeId && assigneeId !== task.assigneeId && assigneeId !== user.id) {
     const project = await projectInfo(task.projectId);
     await createNotification(
       assigneeId,
       "WORKSPACE_TASK_ASSIGNED",
-      `Przypisano Ci zadanie${project ? ` w ${project.name}` : ""}`,
+      `Przypisano Ci task${project ? ` w ${project.name}` : ""}`,
       parsed.data.title ?? task.title,
       `/projects/${task.projectId}/workspace`,
       {
@@ -525,7 +525,7 @@ export async function deleteProjectWorkspaceTask(taskId: string): Promise<Worksp
 
   const rows = await db.select().from(projectWorkspaceTasks).where(eq(projectWorkspaceTasks.id, taskId)).limit(1);
   const task = rows[0];
-  if (!task) return { error: "Zadanie nie istnieje." };
+  if (!task) return { error: "Task not found." };
   if (!(await canAccessProjectWorkspace(task.projectId, user.id))) return { error: "You do not have permission to do this." };
   const project = await projectInfo(task.projectId);
   if (task.createdBy !== user.id && project?.ownerId !== user.id) return { error: "You do not have permission to delete this task." };
@@ -555,7 +555,7 @@ export async function addProjectWorkspaceLink(
     kind: parsed.data.kind,
     createdBy: access.user.id,
   });
-  await addActivity(projectId, access.user.id, "LINK_ADDED", `Dodano link: ${parsed.data.label}`);
+  await addActivity(projectId, access.user.id, "LINK_ADDED", `Link added: ${parsed.data.label}`);
   refresh(projectId);
   return { success: true };
 }
@@ -567,7 +567,7 @@ export async function deleteProjectWorkspaceLink(linkId: string): Promise<Worksp
 
   const rows = await db.select().from(projectWorkspaceLinks).where(eq(projectWorkspaceLinks.id, linkId)).limit(1);
   const link = rows[0];
-  if (!link) return { error: "Link nie istnieje." };
+  if (!link) return { error: "Link not found." };
   if (!(await canAccessProjectWorkspace(link.projectId, user.id))) return { error: "You do not have permission to do this." };
   const project = await projectInfo(link.projectId);
   if (link.createdBy !== user.id && project?.ownerId !== user.id) return { error: "You do not have permission to delete this link." };

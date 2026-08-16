@@ -30,7 +30,7 @@ export function InvitationActions(props: Props) {
           return;
         }
         if (decision === "ACCEPTED" && result?.crewId) {
-          toast.success(copy("Ekipa utworzona!", "Team created!"));
+          toast.success(copy("Team created!", "Team created!"));
           router.push(`/crews/${result.crewId}`);
           return;
         }
@@ -41,7 +41,7 @@ export function InvitationActions(props: Props) {
           return;
         }
         if (decision === "ACCEPTED") {
-          toast.success(copy("Dołączyłeś do ekipy!", "You joined the team!"));
+          toast.success(copy("You joined the team!", "You joined the team!"));
           router.push(`/crews/${props.crewId}`);
           return;
         }
@@ -52,12 +52,12 @@ export function InvitationActions(props: Props) {
           return;
         }
         if (decision === "ACCEPTED") {
-          toast.success(copy("Dołączyłeś do projektu!", "You joined the project!"));
+          toast.success(copy("You joined the project!", "You joined the project!"));
           router.push(`/projects/${props.projectId}`);
           return;
         }
       }
-      toast.success(decision === "ACCEPTED" ? copy("Zaakceptowano.", "Accepted.") : copy("Odrzucono.", "Declined."));
+      toast.success(decision === "ACCEPTED" ? copy("Accepted.", "Accepted.") : copy("Declined.", "Declined."));
       router.refresh();
     } finally {
       setPending(null);
@@ -67,10 +67,10 @@ export function InvitationActions(props: Props) {
   return (
     <div className="flex gap-2">
       <Button size="sm" onClick={() => respond("ACCEPTED")} disabled={pending !== null}>
-        {pending === "accept" ? copy("Akceptowanie...", "Accepting...") : copy("Akceptuj", "Accept")}
+        {pending === "accept" ? copy("Accepting...", "Accepting...") : copy("Accept", "Accept")}
       </Button>
       <Button size="sm" variant="outline" onClick={() => respond("REJECTED")} disabled={pending !== null}>
-        {pending === "reject" ? copy("Odrzucanie...", "Declining...") : copy("Odrzuć", "Decline")}
+        {pending === "reject" ? copy("Declining...", "Declining...") : copy("Decline", "Decline")}
       </Button>
     </div>
   );

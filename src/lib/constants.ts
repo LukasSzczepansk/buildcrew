@@ -34,66 +34,66 @@ export const ROLE_LABELS: Record<RoleType, string> = {
 export const ROLE_OPTIONS = Object.keys(ROLE_LABELS) as RoleType[];
 
 export const LEVEL_LABELS: Record<Level, string> = {
-  LEARNING: "Uczę się",
-  BUILDING: "Buduję",
-  EXPERIENCED: "Doświadczony",
+  LEARNING: "Learning",
+  BUILDING: "Building",
+  EXPERIENCED: "Experienced",
 };
 
 export const LEVEL_DESCRIPTIONS: Record<Level, string> = {
-  LEARNING: "Znam podstawy i chcę zrobić prawdziwy projekt.",
-  BUILDING: "Potrafię samodzielnie tworzyć mniejsze rzeczy.",
-  EXPERIENCED: "Mam praktykę i mogę poprowadzić część projektu.",
+  LEARNING: "I know the basics and want to build a real project.",
+  BUILDING: "I can independently build smaller things.",
+  EXPERIENCED: "I have hands-on experience and can lead part of a project.",
 };
 
 export const LEVEL_OPTIONS = Object.keys(LEVEL_LABELS) as Level[];
 export const LEVEL_ORDER: Record<Level, number> = { LEARNING: 0, BUILDING: 1, EXPERIENCED: 2 };
 
 export const COMMITMENT_LABELS: Record<Commitment, string> = {
-  "1-2": "1–2h / tydzień",
-  "3-5": "3–5h / tydzień",
-  "5-10": "5–10h / tydzień",
-  "10+": "10h+ / tydzień",
+  "1-2": "1–2h / week",
+  "3-5": "3–5h / week",
+  "5-10": "5–10h / week",
+  "10+": "10h+ / week",
 };
 export const COMMITMENT_OPTIONS = Object.keys(COMMITMENT_LABELS) as Commitment[];
 
 export const GOAL_LABELS: Record<Goal, string> = {
-  LEARNING: "Nauka",
+  LEARNING: "Learning",
   PORTFOLIO: "Portfolio",
-  FUN: "Dla zabawy",
+  FUN: "For fun",
   STARTUP: "Startup",
-  EXPERIMENT: "Eksperyment",
-  COMMERCIAL: "Potencjalnie komercyjny",
+  EXPERIMENT: "Experiment",
+  COMMERCIAL: "Potentially commercial",
 };
 export const GOAL_OPTIONS = Object.keys(GOAL_LABELS) as Goal[];
 
 export const LOOKING_FOR_LABELS: Record<LookingFor, string> = {
-  HAS_PROJECT: "Mam projekt i szukam ludzi",
-  WANTS_PROJECT: "Chcę dołączyć do projektu",
-  OPEN_TO_BUILD: "Chcę poznać ludzi i wspólnie coś zbudować",
+  HAS_PROJECT: "I have a project and need people",
+  WANTS_PROJECT: "I want to join a project",
+  OPEN_TO_BUILD: "I want to meet people and build something together",
 };
 export const LOOKING_FOR_OPTIONS = Object.keys(LOOKING_FOR_LABELS) as LookingFor[];
 
 export const STAGE_LABELS: Record<Stage, string> = {
-  IDEA: "Pomysł",
-  DESIGN: "Projektowanie",
-  BUILDING: "Budowa",
-  TESTING: "Testowanie",
-  LAUNCHED: "Uruchomiony",
+  IDEA: "Idea",
+  DESIGN: "Design",
+  BUILDING: "Building",
+  TESTING: "Testing",
+  LAUNCHED: "Launched",
 };
 export const STAGE_OPTIONS = Object.keys(STAGE_LABELS) as Stage[];
 
 export const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
-  WEB_APP: "Aplikacja webowa",
-  MOBILE_APP: "Aplikacja mobilna",
+  WEB_APP: "Web app",
+  MOBILE_APP: "Mobile app",
   SAAS: "SaaS",
   OPEN_SOURCE: "Open source",
   DEV_TOOL: "Developer tool",
   AI_ML: "AI / ML",
-  GAME: "Gra",
+  GAME: "Game",
   MARKETPLACE: "Marketplace",
   ECOMMERCE: "E-commerce",
   COMMUNITY: "Community",
-  OTHER: "Inny",
+  OTHER: "Other",
 };
 export const PROJECT_TYPE_OPTIONS = Object.keys(PROJECT_TYPE_LABELS) as ProjectType[];
 
@@ -101,42 +101,42 @@ export const PROJECT_ASSET_LABELS: Record<ProjectAsset, string> = {
   RESEARCH: "Research",
   DESIGN: "Design",
   LANDING: "Landing page",
-  REPOSITORY: "Repozytorium",
-  PROTOTYPE: "Prototyp",
+  REPOSITORY: "Repository",
+  PROTOTYPE: "Prototype",
   MVP: "MVP",
-  USERS: "Pierwsi użytkownicy",
-  REVENUE: "Przychód",
+  USERS: "First users",
+  REVENUE: "Revenue",
 };
 export const PROJECT_ASSET_OPTIONS = Object.keys(PROJECT_ASSET_LABELS) as ProjectAsset[];
 
 export const COLLABORATION_MODE_LABELS: Record<CollaborationMode, string> = {
-  REMOTE: "Zdalnie",
-  HYBRID: "Hybrydowo",
-  LOCAL: "Lokalnie",
+  REMOTE: "Remote",
+  HYBRID: "Hybrid",
+  LOCAL: "Local",
 };
 export const COLLABORATION_MODE_OPTIONS = Object.keys(COLLABORATION_MODE_LABELS) as CollaborationMode[];
 
 export const COLLABORATION_PACE_LABELS: Record<CollaborationPace, string> = {
-  RELAXED: "Luźne tempo",
-  REGULAR: "Regularne tempo",
-  INTENSIVE: "Intensywne tempo",
+  RELAXED: "Relaxed pace",
+  REGULAR: "Regular pace",
+  INTENSIVE: "Intensive pace",
 };
 export const COLLABORATION_PACE_OPTIONS = Object.keys(COLLABORATION_PACE_LABELS) as CollaborationPace[];
 
 export const PROJECT_DURATION_LABELS: Record<ProjectDuration, string> = {
   WEEKEND: "Weekend / hackathon",
-  "1_2_MONTHS": "1–2 miesiące",
-  "3_6_MONTHS": "3–6 miesięcy",
-  LONG_TERM: "Długoterminowo",
+  "1_2_MONTHS": "1–2 months",
+  "3_6_MONTHS": "3–6 months",
+  LONG_TERM: "Long term",
 };
 export const PROJECT_DURATION_OPTIONS = Object.keys(PROJECT_DURATION_LABELS) as ProjectDuration[];
 
 export const CHARACTER_LABELS: Record<Character, string> = {
-  LEARNING: "Nauka",
+  LEARNING: "Learning",
   PORTFOLIO: "Portfolio",
   HOBBY: "Hobby",
   STARTUP: "Startup",
-  COMMERCIAL: "Potencjalnie komercyjny",
+  COMMERCIAL: "Potentially commercial",
 };
 export const CHARACTER_OPTIONS = Object.keys(CHARACTER_LABELS) as Character[];
 
@@ -209,7 +209,7 @@ export const SKILL_GROUPS: Record<string, string[]> = {
   Design: ["Figma", "UI Design", "UX", "Design Systems", "Framer", "Webflow"],
   DevOps: ["Docker", "Vercel", "Railway", "AWS", "Google Cloud", "Azure", "GitHub Actions", "CI/CD"],
   Data: ["Drizzle ORM", "Prisma", "MongoDB", "Neon", "PlanetScale", "Turso"],
-  Integracje: ["Stripe", "Auth.js", "Clerk", "Resend", "REST API", "GraphQL", "WebSockets"],
+  Integrations: ["Stripe", "Auth.js", "Clerk", "Resend", "REST API", "GraphQL", "WebSockets"],
   Product: ["Product Discovery", "Analytics", "SEO", "Copywriting", "Growth", "User Research"],
 };
 
@@ -217,10 +217,10 @@ export const ALL_SKILLS = Object.values(SKILL_GROUPS).flat();
 
 export const REPORT_REASON_LABELS: Record<string, string> = {
   spam: "Spam",
-  scam: "Oszustwo",
-  harassment: "Nękanie",
-  inappropriate: "Nieodpowiednie treści",
-  other: "Inne",
+  scam: "Scam",
+  harassment: "Harassment",
+  inappropriate: "Inappropriate content",
+  other: "Other",
 };
 
 
@@ -228,46 +228,46 @@ export const SHOWCASE_CATEGORY_LABELS: Record<ShowcaseCategory, string> = {
   AI: "AI",
   WEB: "Web",
   MOBILE: "Mobile",
-  GAMES: "Gry",
-  EDUCATION: "Edukacja",
+  GAMES: "Games",
+  EDUCATION: "Education",
   SAAS: "SaaS",
   DEVTOOLS: "DevTools",
-  OTHER: "Inne",
+  OTHER: "Other",
 };
 
 export const SHOWCASE_STATUS_LABELS: Record<ShowcaseStatus, string> = {
   MVP: "MVP",
-  LIVE: "Działający produkt",
-  EXPERIMENT: "Eksperyment",
+  LIVE: "Working product",
+  EXPERIMENT: "Experiment",
 };
 
 export const SHOWCASE_REACTION_LABELS: Record<ShowcaseReaction, string> = {
-  APPLAUSE: "Dobra robota",
-  IDEA: "Ciekawy pomysł",
-  POTENTIAL: "Ma potencjał",
+  APPLAUSE: "Great work",
+  IDEA: "Interesting idea",
+  POTENTIAL: "Has potential",
 };
 
 export const HACKATHON_LOCATION_LABELS: Record<HackathonLocationType, string> = {
   ONLINE: "Online",
-  ONSITE: "Stacjonarnie",
-  HYBRID: "Hybrydowo",
+  ONSITE: "On-site",
+  HYBRID: "Hybrid",
 };
 
 export const HACKATHON_GOAL_LABELS: Record<HackathonGoal, string> = {
-  COMPETE: "Chcę powalczyć o wynik",
-  BUILD: "Chcę przede wszystkim coś zbudować",
-  NETWORK: "Networking i poznanie ludzi",
+  COMPETE: "I want to compete for a strong result",
+  BUILD: "I mainly want to build something",
+  NETWORK: "Networking and meeting people",
 };
 
 export const HACKATHON_AVAILABILITY_LABELS: Record<HackathonAvailability, string> = {
-  FULL_EVENT: "Całe wydarzenie",
-  MOST_EVENT: "Większość wydarzenia",
-  LIMITED: "Ograniczona dostępność",
+  FULL_EVENT: "Full event",
+  MOST_EVENT: "Most of the event",
+  LIMITED: "Limited availability",
 };
 
 export const CHALLENGE_STATUS_LABELS: Record<ChallengeStatus, string> = {
-  OPEN: "Zapisy",
-  BUILDING: "Budujemy",
-  VOTING: "Głosowanie",
-  CLOSED: "Zakończony",
+  OPEN: "Registration",
+  BUILDING: "Building",
+  VOTING: "Voting",
+  CLOSED: "Finished",
 };

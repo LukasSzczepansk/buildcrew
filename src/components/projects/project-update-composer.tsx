@@ -11,10 +11,10 @@ import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { appMessage } from "@/lib/server-copy";
 
 const LABELS_PL: Record<ProjectUpdateKind, string> = {
-  PROGRESS: "Postęp",
-  ROLE: "Zespół / rekrutacja",
+  PROGRESS: "Progress",
+  ROLE: "Team / recruiting",
   MILESTONE: "Milestone",
-  LAUNCH: "Premiera / demo",
+  LAUNCH: "Launch / demo",
 };
 
 const LABELS_EN: Record<ProjectUpdateKind, string> = {
@@ -38,7 +38,7 @@ export function ProjectUpdateComposer({ projectId }: { projectId: string }) {
       if (result?.error) { toast.error(appMessage(result.error, locale)); return; }
       setBody("");
       setKind("PROGRESS");
-      toast.success(copy("Aktualizacja opublikowana.", "Update published."));
+      toast.success(copy("Update published.", "Update published."));
     });
   }
 
@@ -49,11 +49,11 @@ export function ProjectUpdateComposer({ projectId }: { projectId: string }) {
           <SelectTrigger className="h-10 text-[13px]"><SelectValue /></SelectTrigger>
           <SelectContent>{Object.entries(labels).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}</SelectContent>
         </Select>
-        <Textarea value={body} onChange={(event) => setBody(event.target.value)} maxLength={600} placeholder={copy("Co realnie zmieniło się w projekcie? Np. działa import z pierwszej sieci i otwieramy rolę UI/UX.", "What actually changed in the project? For example: the first integration works and we are opening a UI/UX role.")} className="min-h-[88px] resize-y" />
+        <Textarea value={body} onChange={(event) => setBody(event.target.value)} maxLength={600} placeholder={copy("What actually changed in the project? For example: the first integration works and we are opening a UI/UX role.", "What actually changed in the project? For example: the first integration works and we are opening a UI/UX role.")} className="min-h-[88px] resize-y" />
       </div>
       <div className="mt-2 flex items-center justify-between gap-3">
-        <p className="text-[11px] leading-4 text-[var(--bc-faint)]">{copy("Aktualizację zobaczą obserwujący projekt. Krótko, konkretnie, bez marketingowego posta.", "People following the project will see this update. Keep it short, specific, and useful.")}</p>
-        <Button type="button" size="sm" onClick={submit} disabled={pending || body.trim().length < 10}>{pending ? copy("Publikowanie…", "Publishing…") : copy("Opublikuj", "Publish")}</Button>
+        <p className="text-[11px] leading-4 text-[var(--bc-faint)]">{copy("People following the project will see this update. Keep it short, specific, and useful.", "People following the project will see this update. Keep it short, specific, and useful.")}</p>
+        <Button type="button" size="sm" onClick={submit} disabled={pending || body.trim().length < 10}>{pending ? copy("Publishing…", "Publishing…") : copy("Publish", "Publish")}</Button>
       </div>
     </div>
   );

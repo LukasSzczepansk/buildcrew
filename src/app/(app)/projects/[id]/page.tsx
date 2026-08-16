@@ -29,7 +29,7 @@ import { refreshProjectRecruitmentAction } from "@/server/actions/projects";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const [{ id }, locale] = await Promise.all([params, getRequestLocale()]);
   const project = await getProjectById(id);
-  return { title: project ? `${project.name} - BuildCrew` : `${locale === "en" ? "Project" : "Projekt"} - BuildCrew` };
+  return { title: project ? `${project.name} - BuildCrew` : `${locale === "en" ? "Project" : "Project"} - BuildCrew` };
 }
 
 export default async function ProjectDetailPage({
@@ -88,7 +88,7 @@ export default async function ProjectDetailPage({
                   {project.name}
                 </h1>
                 <Badge variant="secondary">{labels.stages[project.stage]}</Badge>
-                {project.lifecycleStatus === "COMPLETED" ? <Badge variant="success">{en ? "Completed" : "Ukończony"}</Badge> : project.lifecycleStatus === "PAUSED" ? <Badge variant="outline">{en ? "Paused" : "Wstrzymany"}</Badge> : null}
+                {project.lifecycleStatus === "COMPLETED" ? <Badge variant="success">{en ? "Completed" : "Completed"}</Badge> : project.lifecycleStatus === "PAUSED" ? <Badge variant="outline">{en ? "Paused" : "Paused"}</Badge> : null}
                 {project.lifecycleStatus === "ACTIVE" ? <Badge variant={staleRecruitment ? "outline" : "secondary"}>{freshness.shortLabel}</Badge> : null}
               </div>
 
@@ -120,13 +120,13 @@ export default async function ProjectDetailPage({
         <section className="mt-5 border-l-[3px] border-amber-400 bg-amber-50/70 px-4 py-3 dark:bg-amber-500/5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-[var(--bc-ink)]">{en ? "Are you still recruiting for this project?" : "Czy nadal rekrutujesz do tego projektu?"}</p>
-              <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{freshness.label}. {en ? "Confirm recruitment so others know these roles are still open." : "Potwierdź rekrutację, żeby inni widzieli, że role są nadal aktualne."}</p>
+              <p className="text-sm font-semibold text-[var(--bc-ink)]">{en ? "Are you still recruiting for this project?" : "Are you still recruiting for this project?"}</p>
+              <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{freshness.label}. {en ? "Confirm recruitment so others know these roles are still open." : "Confirm recruiting so others can see that the roles are still open."}</p>
             </div>
             <form action={refreshProjectRecruitmentAction}>
               <input type="hidden" name="projectId" value={project.id} />
               <Button type="submit" size="sm" className="gap-1.5">
-                <RefreshCw className="h-3.5 w-3.5" /> {en ? "Still recruiting" : "Nadal szukam"}
+                <RefreshCw className="h-3.5 w-3.5" /> {en ? "Still recruiting" : "Yes, still looking"}
               </Button>
             </form>
           </div>
@@ -137,14 +137,14 @@ export default async function ProjectDetailPage({
         <section className="mt-5 border-l-2 border-[var(--bc-accent)] bg-[var(--bc-surface-subtle)] px-4 py-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-[var(--bc-ink)]">{en ? "Your project is live." : "Projekt jest opublikowany."}</p>
+              <p className="text-sm font-semibold text-[var(--bc-ink)]">{en ? "Your project is live." : "Your project is published."}</p>
               <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">
-                {en ? "Now find your first collaborators or share the project outside BuildCrew." : "Teraz możesz znaleźć pierwsze osoby albo udostępnić projekt poza BuildCrew."}
+                {en ? "Now find your first collaborators or share the project outside BuildCrew." : "You can now find your first teammates or share the project outside BuildCrew."}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button asChild size="sm">
-                <Link href="/builders">{en ? "Find people" : "Znajdź ludzi"}</Link>
+                <Link href="/builders">{en ? "Find people" : "Find people"}</Link>
               </Button>
               <ShareProjectButton
                 projectId={project.id}
@@ -161,35 +161,35 @@ export default async function ProjectDetailPage({
       <div className="mt-5 flex items-start gap-2 border-y border-[var(--bc-line)] py-3 text-[13px] leading-5 text-[var(--bc-muted)]">
         <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <p>
-          <span className="font-medium text-[var(--bc-ink)]">{en ? "Safe collaboration:" : "Bezpieczna współpraca:"}</span>{" "}
-          {en ? "do not send money, passwords, or API secrets to people you meet on the platform." : "nie wysyłaj pieniędzy, haseł ani sekretów API osobom poznanym na platformie."}
+          <span className="font-medium text-[var(--bc-ink)]">{en ? "Safe collaboration:" : "Safer collaboration:"}</span>{" "}
+          {en ? "do not send money, passwords, or API secrets to people you meet on the platform." : "do not send money, passwords, or API secrets to people you meet on the platform."}
         </p>
       </div>
 
       {project.lifecycleStatus === "COMPLETED" && project.outcome ? (
         <section className="mt-6 border-l-[3px] border-[var(--bc-accent)] bg-[var(--bc-surface-subtle)] px-4 py-3">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Project outcome" : "Rezultat projektu"}</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Project outcome" : "Project outcome"}</p>
           <p className="mt-1.5 max-w-[900px] text-[14px] leading-6 text-[var(--bc-ink)]">{project.outcome}</p>
         </section>
       ) : null}
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] xl:gap-12">
         <main className="min-w-0">
-          <ProjectSection title={en ? "About the project" : "O projekcie"} first>
+          <ProjectSection title={en ? "About the project" : "About the project"} first>
             <div className="max-w-[820px] space-y-4 text-[14px] leading-[22px] text-[var(--bc-muted)]">
               <p className="whitespace-pre-line">{project.description}</p>
             </div>
 
             {project.goal ? (
               <div className="mt-6 border-l-[3px] border-[var(--bc-accent)] pl-4">
-                <p className="text-[12px] font-medium uppercase tracking-[0.06em] text-[var(--bc-faint)]">{en ? "Next goal" : "Najbliższy cel"}</p>
+                <p className="text-[12px] font-medium uppercase tracking-[0.06em] text-[var(--bc-faint)]">{en ? "Next goal" : "Next goal"}</p>
                 <p className="mt-1.5 max-w-[780px] text-[14px] leading-[21px] text-[var(--bc-ink)]">{project.goal}</p>
               </div>
             ) : null}
 
             {project.existingAssets.length ? (
               <div className="mt-6">
-                <p className="text-[12px] font-medium uppercase tracking-[0.06em] text-[var(--bc-faint)]">{en ? "What already exists" : "Co już istnieje"}</p>
+                <p className="text-[12px] font-medium uppercase tracking-[0.06em] text-[var(--bc-faint)]">{en ? "What already exists" : "What already exists"}</p>
                 <p className="mt-1.5 text-sm leading-5 text-[var(--bc-muted)]">
                   {project.existingAssets.map((item) => labels.projectAssets[item]).join(" · ")}
                 </p>
@@ -198,13 +198,13 @@ export default async function ProjectDetailPage({
 
             {project.ownerContribution ? (
               <div className="mt-6 border-l-2 border-[var(--bc-line-strong)] pl-4 text-sm leading-5 text-[var(--bc-muted)]">
-                <span className="font-medium text-[var(--bc-ink)]">{en ? "Owner contribution: " : "Wkład autora: "}</span>
+                <span className="font-medium text-[var(--bc-ink)]">{en ? "Owner contribution: " : "Owner contribution: "}</span>
                 {project.ownerContribution}
               </div>
             ) : null}
           </ProjectSection>
 
-          <ProjectSection title={en ? "Updates" : "Aktualizacje"}>
+          <ProjectSection title={en ? "Updates" : "Updates"}>
             {isOwner && project.lifecycleStatus !== "COMPLETED" ? <ProjectUpdateComposer projectId={project.id} /> : null}
             {updates.length ? (
               <div className={`${isOwner && project.lifecycleStatus !== "COMPLETED" ? "mt-4" : ""} border-y border-[var(--bc-line)]`}>
@@ -212,7 +212,7 @@ export default async function ProjectDetailPage({
                   <article key={update.id} className="grid gap-2 border-b border-[var(--bc-line)] py-4 last:border-b-0 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-5">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{projectUpdateKindLabel(update.kind, locale)}</p>
-                      <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{update.createdAt.toLocaleDateString(en ? "en-US" : "pl-PL", { day: "2-digit", month: "short" })}</p>
+                      <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{update.createdAt.toLocaleDateString(en ? "en-US" : "en-US", { day: "2-digit", month: "short" })}</p>
                     </div>
                     <div>
                       <p className="whitespace-pre-line text-sm leading-5 text-[var(--bc-ink)]">{update.body}</p>
@@ -222,7 +222,7 @@ export default async function ProjectDetailPage({
                 ))}
               </div>
             ) : (
-              <p className="text-sm leading-5 text-[var(--bc-muted)]">{en ? "No updates yet. As the project moves forward, a short progress history will appear here." : "Brak aktualizacji. Gdy projekt ruszy do przodu, tutaj pojawi się krótka historia postępu."}</p>
+              <p className="text-sm leading-5 text-[var(--bc-muted)]">{en ? "No updates yet. As the project moves forward, a short progress history will appear here." : "No updates yet. As the project moves forward, a short progress history will appear here."}</p>
             )}
           </ProjectSection>
 
@@ -232,16 +232,16 @@ export default async function ProjectDetailPage({
                 {credits.map((credit) => (
                   <div key={credit.id} className="grid gap-2 border-b border-[var(--bc-line)] py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-center">
                     {credit.userId ? <Link href={`/builders/${credit.userId}`} className="text-sm font-semibold hover:underline">{credit.usernameSnapshot}</Link> : <p className="text-sm font-semibold">{credit.usernameSnapshot}</p>}
-                    <p className="text-[12px] text-[var(--bc-muted)] sm:text-right">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Collaborator" : "Współtwórca")}</p>
+                    <p className="text-[12px] text-[var(--bc-muted)] sm:text-right">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Collaborator" : "Contributor")}</p>
                   </div>
                 ))}
               </div>
             </ProjectSection>
           ) : null}
 
-          <ProjectSection title={en ? "Who we are looking for" : "Kogo szukamy"}>
+          <ProjectSection title={en ? "Who we are looking for" : "Who we are looking for"}>
             {project.roles.length === 0 ? (
-              <p className="text-sm text-[var(--bc-muted)]">{en ? "No open roles." : "Brak otwartych ról."}</p>
+              <p className="text-sm text-[var(--bc-muted)]">{en ? "No open roles." : "No open roles."}</p>
             ) : (
               <div className="border-y border-[var(--bc-line)]">
                 {project.roles.map((role) => {
@@ -257,7 +257,7 @@ export default async function ProjectDetailPage({
                       <div>
                         <p className="text-[14px] font-semibold leading-5 text-[var(--bc-ink)]">{labels.roles[role.roleType]}</p>
                         <p className="mt-1 text-[12px] leading-4 text-[var(--bc-faint)]">
-                          {role.preferredLevel ? labels.levels[role.preferredLevel as Level] : (en ? "Any level" : "Dowolny poziom")}
+                          {role.preferredLevel ? labels.levels[role.preferredLevel as Level] : (en ? "Any level" : "Any level")}
                         </p>
                       </div>
 
@@ -265,25 +265,25 @@ export default async function ProjectDetailPage({
                         {role.description ? (
                           <p className="max-w-[680px] text-sm leading-5 text-[var(--bc-muted)]">{role.description}</p>
                         ) : (
-                          <p className="text-sm text-[var(--bc-faint)]">{en ? "No additional role description." : "Brak dodatkowego opisu roli."}</p>
+                          <p className="text-sm text-[var(--bc-faint)]">{en ? "No additional role description." : "No additional role description."}</p>
                         )}
 
                         {role.skills.length ? <TechnologyStack items={role.skills} max={5} compact className="mt-2.5" /> : null}
 
                         <p className="mt-2 text-[12px] text-[var(--bc-faint)]">
-                          {role.open} {en ? (role.open === 1 ? "spot" : "spots") : (role.open === 1 ? "miejsce" : "miejsca")}
+                          {role.open} {en ? (role.open === 1 ? "spot" : "spots") : (role.open === 1 ? "spot" : "miejsca")}
                         </p>
                       </div>
 
                       <div className="flex items-start sm:justify-end">
                         {project.lifecycleStatus === "COMPLETED" ? (
-                          <Badge variant="secondary">{en ? "Project completed" : "Projekt ukończony"}</Badge>
+                          <Badge variant="secondary">{en ? "Project completed" : "Project completed"}</Badge>
                         ) : project.lifecycleStatus === "PAUSED" ? (
-                          <Badge variant="outline">{en ? "Recruitment paused" : "Rekrutacja wstrzymana"}</Badge>
+                          <Badge variant="outline">{en ? "Recruitment paused" : "Recruitment paused"}</Badge>
                         ) : isOwner ? (
-                          <Badge variant={role.open > 0 ? "success" : "secondary"}>{role.open > 0 ? (en ? "Open" : "Otwarte") : (en ? "Filled" : "Obsadzone")}</Badge>
+                          <Badge variant={role.open > 0 ? "success" : "secondary"}>{role.open > 0 ? (en ? "Open" : "Open") : (en ? "Filled" : "Obsadzone")}</Badge>
                         ) : alreadyMember ? (
-                          <Badge variant="success">{en ? "You are on the team" : "Jesteś w ekipie"}</Badge>
+                          <Badge variant="success">{en ? "You are on the team" : "You are on the team"}</Badge>
                         ) : role.open > 0 && myProfile ? (
                           <ApplyDialog
                             projectId={project.id}
@@ -309,38 +309,38 @@ export default async function ProjectDetailPage({
         </main>
 
         <aside className="space-y-7 lg:sticky lg:top-6 lg:self-start">
-          <SideSection title={en ? "Details" : "Szczegóły"}>
+          <SideSection title={en ? "Details" : "Details"}>
             <dl className="space-y-0">
-              <Detail label={en ? "Status" : "Status"} value={project.lifecycleStatus === "COMPLETED" ? (en ? "Completed" : "Ukończony") : project.lifecycleStatus === "PAUSED" ? (en ? "Paused" : "Wstrzymany") : (en ? "Active" : "Aktywny")} />
-              <Detail label={en ? "Stage" : "Etap"} value={labels.stages[project.stage]} />
+              <Detail label={en ? "Status" : "Status"} value={project.lifecycleStatus === "COMPLETED" ? (en ? "Completed" : "Completed") : project.lifecycleStatus === "PAUSED" ? (en ? "Paused" : "Paused") : (en ? "Active" : "Active")} />
+              <Detail label={en ? "Stage" : "Stage"} value={labels.stages[project.stage]} />
               {project.projectType ? <Detail label={en ? "Type" : "Typ"} value={labels.projectTypes[project.projectType]} /> : null}
               {project.commitment ? <Detail label={en ? "Time" : "Czas"} value={labels.commitments[project.commitment]} /> : null}
-              {project.collaborationMode ? <Detail label={en ? "Mode" : "Tryb"} value={labels.collaborationModes[project.collaborationMode]} /> : null}
-              <Detail label={en ? "Project language" : "Język projektu"} value={intl.projectLanguage[project.projectLanguage]} />
-              <Detail label={en ? "Collaboration reach" : "Zasięg współpracy"} value={intl.marketScope[project.marketScope]} />
+              {project.collaborationMode ? <Detail label={en ? "Mode" : "Work mode"} value={labels.collaborationModes[project.collaborationMode]} /> : null}
+              <Detail label={en ? "Project language" : "Project language"} value={intl.projectLanguage[project.projectLanguage]} />
+              <Detail label={en ? "Collaboration reach" : "Collaboration scope"} value={intl.marketScope[project.marketScope]} />
               {project.country ? <Detail label={en ? "Country" : "Kraj"} value={project.country} /> : null}
               {project.collaborationPace ? <Detail label={en ? "Pace" : "Tempo"} value={labels.collaborationPaces[project.collaborationPace]} /> : null}
               {project.duration ? <Detail label={en ? "Duration" : "Horyzont"} value={labels.durations[project.duration]} /> : null}
               {project.character.length ? (
-                <Detail label={en ? "Character" : "Charakter"} value={project.character.map((item) => labels.characters[item]).join(" · ")} />
+                <Detail label={en ? "Character" : "Project character"} value={project.character.map((item) => labels.characters[item]).join(" · ")} />
               ) : null}
             </dl>
           </SideSection>
 
-          <SideSection title={en ? "What this project needs" : "Czego projekt potrzebuje"}>
+          <SideSection title={en ? "What this project needs" : "What the project needs"}>
             <div className="flex flex-wrap gap-1.5">{project.needs.map((need) => <Badge key={need} variant="outline">{intl.needs[need]}</Badge>)}</div>
             {project.needs.includes("FUNDING") ? <div className="mt-3 space-y-1.5 text-[12px] leading-5 text-[var(--bc-muted)]">
-              {project.fundingStage ? <p><span className="font-medium text-[var(--bc-ink)]">{en ? "Stage:" : "Etap:"}</span> {intl.fundingStage[project.fundingStage]}</p> : null}
-              {project.fundingAmount ? <p><span className="font-medium text-[var(--bc-ink)]">{en ? "Target:" : "Kwota:"}</span> {project.fundingAmount}</p> : null}
+              {project.fundingStage ? <p><span className="font-medium text-[var(--bc-ink)]">{en ? "Stage:" : "Stage:"}</span> {intl.fundingStage[project.fundingStage]}</p> : null}
+              {project.fundingAmount ? <p><span className="font-medium text-[var(--bc-ink)]">{en ? "Target:" : "Amount:"}</span> {project.fundingAmount}</p> : null}
               {project.fundingUse ? <p>{project.fundingUse}</p> : null}
               {project.pitchDeckUrl ? <ExternalProjectLink href={project.pitchDeckUrl} label={en ? "Pitch deck" : "Pitch deck"} /> : null}
             </div> : null}
           </SideSection>
 
           {project.repositoryUrl || project.demoUrl || project.designUrl || project.docsUrl ? (
-            <SideSection title={en ? "Links" : "Linki"}>
+            <SideSection title={"Links"}>
               <div className="space-y-1 text-sm">
-                {project.repositoryUrl ? <ExternalProjectLink href={project.repositoryUrl} label={en ? "Repository" : "Repozytorium"} /> : null}
+                {project.repositoryUrl ? <ExternalProjectLink href={project.repositoryUrl} label={en ? "Repository" : "Repository"} /> : null}
                 {project.demoUrl ? <ExternalProjectLink href={project.demoUrl} label="Demo / landing" /> : null}
                 {project.designUrl ? <ExternalProjectLink href={project.designUrl} label="Design / Figma" /> : null}
                 {project.docsUrl ? <ExternalProjectLink href={project.docsUrl} label={en ? "Documentation" : "Dokumentacja"} /> : null}
@@ -365,7 +365,7 @@ export default async function ProjectDetailPage({
             </SideSection>
           ) : null}
 
-          <SideSection title={`${en ? "Team" : "Ekipa"} · ${project.members.length}`}>
+          <SideSection title={`${en ? "Team" : "Team"} · ${project.members.length}`}>
             <div className="space-y-1">
               {project.members.map((member) => (
                 <Link
@@ -377,7 +377,7 @@ export default async function ProjectDetailPage({
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{member.profile?.username ?? "Builder"}</p>
                     <p className="mt-0.5 text-[12px] text-[var(--bc-muted)]">
-                      {member.isOwner ? (en ? "Owner" : "Autor") : member.roleType ? labels.roles[member.roleType] : (en ? "Member" : "Członek")}
+                      {member.isOwner ? (en ? "Owner" : "Autor") : member.roleType ? labels.roles[member.roleType] : (en ? "Member" : "Member")}
                     </p>
                   </div>
                 </Link>
@@ -388,17 +388,17 @@ export default async function ProjectDetailPage({
           {isOwner ? (
             <div className="space-y-2 pt-1">
               <Button asChild className="w-full">
-                <Link href={`/projects/${project.id}/manage`}>{en ? "Manage team" : "Zarządzaj zespołem"}</Link>
+                <Link href={`/projects/${project.id}/manage`}>{en ? "Manage team" : "Manage team"}</Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link href={`/projects/${project.id}/applications`}>{en ? "Applications" : "Zgłoszenia"}</Link>
+                <Link href={`/projects/${project.id}/applications`}>{en ? "Applications" : "Applications"}</Link>
               </Button>
             </div>
           ) : null}
 
           {!isOwner && isMember ? (
             <div className="space-y-2 border-t border-[var(--bc-line)] pt-5">
-              <p className="text-[13px] text-[var(--bc-muted)]">{en ? "You are a member of this team." : "Jesteś członkiem tej ekipy."}</p>
+              <p className="text-[13px] text-[var(--bc-muted)]">{en ? "You are a member of this team." : "You are a member of this team."}</p>
               <LeaveProjectButton projectId={project.id} projectName={project.name} />
             </div>
           ) : null}
@@ -434,11 +434,11 @@ function ProjectHeaderActions({
     <div className="flex flex-wrap items-center gap-2 xl:max-w-[460px] xl:justify-end">
       {isOwner ? (
         <Button asChild size="sm">
-          <Link href={`/projects/${projectId}/manage`}>{en ? "Manage project" : "Zarządzaj projektem"}</Link>
+          <Link href={`/projects/${projectId}/manage`}>{en ? "Manage project" : "Manage project"}</Link>
         </Button>
       ) : isMember ? (
         <Button asChild size="sm">
-          <Link href={`/projects/${projectId}/workspace`}>{en ? "Team workspace" : "Workspace zespołu"}</Link>
+          <Link href={`/projects/${projectId}/workspace`}>{en ? "Team workspace" : "Team workspace"}</Link>
         </Button>
       ) : null}
 
@@ -463,7 +463,7 @@ function ProjectHeaderActions({
         target="_blank"
         className="inline-flex h-9 items-center gap-1.5 px-1 text-sm font-medium text-[var(--bc-muted)] transition-colors hover:text-[var(--bc-ink)]"
       >
-        {en ? "Public link" : "Publiczny link"}
+        {en ? "Public link" : "Public link"}
         <ExternalLink className="h-3.5 w-3.5" />
       </Link>
     </div>

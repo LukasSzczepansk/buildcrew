@@ -49,8 +49,8 @@ function normalizeNullable(value: string | undefined | null) {
 function revalidateHackathon(slug: string) {
   revalidatePath("/hackathons");
   revalidatePath(`/hackathons/${slug}`);
-  revalidatePath("/hackathony");
-  revalidatePath(`/hackathony/${slug}`);
+  revalidatePath("/explore/hackathons");
+  revalidatePath(`/explore/hackathons/${slug}`);
 }
 
 async function uniqueSlug(name: string, ignoreId?: string) {
@@ -110,7 +110,7 @@ export async function updateHackathon(id: string, input: unknown) {
   const parsed = hackathonAdminSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the form." };
   const current = await db.select({ id: hackathons.id, slug: hackathons.slug }).from(hackathons).where(eq(hackathons.id, id)).limit(1);
-  if (!current[0]) return { error: "Hackathon nie istnieje." };
+  if (!current[0]) return { error: "Hackathon not found." };
   await db.update(hackathons).set({
     name: parsed.data.name,
     summary: parsed.data.summary,

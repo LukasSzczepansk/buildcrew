@@ -13,12 +13,12 @@ import { listProjects } from "@/server/data/projects";
 
 const COPY = {
   pl: {
-    title: "Projekty do portfolio i side-projecty | BuildCrew",
-    description: "Przeglądaj publiczne projekty tworzone przez społeczność BuildCrew. Zobacz stack, etap i otwarte role, a potem dołącz do ekipy.",
-    login: "Zaloguj", signup: "Załóż konto", eyebrow: "Publiczne projekty BuildCrew", heading: "Projekty do wspólnego budowania.",
-    intro: "Zobacz, co aktualnie buduje społeczność. Każdy projekt pokazuje etap, stack i role, których zespół jeszcze potrzebuje.",
-    roles: "Otwarte role", complete: "Ekipa kompletna", see: "Zobacz projekt", none: "Nie ma jeszcze publicznych projektów. Po publikacji pojawią się tutaj automatycznie.",
-    noFit: "Nie widzisz projektu dla siebie?", noFitBody: "Załóż profil, pokaż czego szukasz i poznaj osoby, z którymi możesz zacząć własny projekt.", profile: "Załóż profil",
+    title: "Portfolio projects and side projects | BuildCrew",
+    description: "Browse public projects built by the BuildCrew community. See the stack, stage, and open roles, then join a team.",
+    login: "Log in", signup: "Create account", eyebrow: "Public BuildCrew projects", heading: "Projects to build together.",
+    intro: "See what the community is building right now. Each project shows its stage, stack, and roles the team still needs.",
+    roles: "Open roles", complete: "Team complete", see: "View project", none: "There are no public projects yet. They will appear here automatically after publication.",
+    noFit: "Cannot find a project for you?", noFitBody: "Create a profile, show what you are looking for, and meet people you can start your own project with.", profile: "Create profile",
   },
   en: {
     title: "Projects to join and build together | BuildCrew",

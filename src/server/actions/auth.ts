@@ -75,7 +75,7 @@ async function issueVerificationEmail(userId: string, email: string, nextPath?: 
         ? "This link expires in 24 hours. If you did not create this account, you can ignore this message."
         : "The link expires after 24 hours. If you did not create this account, you can ignore this email.",
     }),
-    devPreview: `${locale === "en" ? "Verification link" : "Link weryfikacyjny"}: ${link}`,
+    devPreview: `Verification link: ${link}`,
   });
 }
 

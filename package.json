@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "node scripts/check-punctuation.mjs && tsc --noEmit",
+    "typecheck": "node scripts/check-punctuation.mjs && node scripts/check-english-only.mjs && tsc --noEmit",
     "db:push": "drizzle-kit push --config=drizzle.config.ts",
     "db:seed": "node scripts/seed-demo.mjs",
     "db:studio": "drizzle-kit studio --config=drizzle.config.ts",
@@ -15,7 +15,11 @@
     "admin:promote": "node scripts/promote-admin.mjs",
     "showcase:seed-demo": "node scripts/seed-showcase-demo.mjs",
     "db:seed:hackathons": "node scripts/seed-hackathons-2026.mjs",
-    "check:punctuation": "node scripts/check-punctuation.mjs"
+    "check:punctuation": "node scripts/check-punctuation.mjs",
+    "content:scan-polish": "node scripts/translate-existing-content-to-english.mjs",
+    "content:translate-en": "node scripts/translate-existing-content-to-english.mjs --apply",
+    "content:restore": "node scripts/restore-content-backup.mjs",
+    "check:english-only": "node scripts/check-english-only.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

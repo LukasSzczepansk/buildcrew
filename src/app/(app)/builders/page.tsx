@@ -18,7 +18,7 @@ import type { Commitment, Goal, Level, LookingFor, RoleType } from "@/db/schema"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "People - BuildCrew" : "Builderzy - BuildCrew" };
+  return { title: locale === "en" ? "People - BuildCrew" : "People - BuildCrew" };
 }
 
 export default async function BuildersPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -75,46 +75,46 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
 
   return (
     <div>
-      <Topbar title={en ? "People" : "Ludzie"} subtitle={en ? "Meet builders you can realistically create something with - not just collect empty connections." : "Poznawaj builderów, z którymi realnie możesz coś zbudować - nie kolekcjonuj pustych kontaktów."} />
+      <Topbar title={en ? "People" : "People"} subtitle={en ? "Meet builders you can realistically create something with - not just collect empty connections." : "Meet builders you can actually create something with - not just collect empty connections."} />
 
       <div className="mb-5 flex gap-1 border-b border-[var(--bc-line)] text-[13px] font-medium">
-        <Link href="/builders" className="relative px-3 py-2.5 text-[var(--bc-ink)]">{en ? "Discover people" : "Odkrywaj ludzi"}<span className="absolute inset-x-2 bottom-0 h-[2px] bg-[var(--bc-accent)]" /></Link>
-        <Link href="/network" className="px-3 py-2.5 text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{en ? "My network" : "Moja sieć"}</Link>
+        <Link href="/builders" className="relative px-3 py-2.5 text-[var(--bc-ink)]">{en ? "Discover people" : "Discover people"}<span className="absolute inset-x-2 bottom-0 h-[2px] bg-[var(--bc-accent)]" /></Link>
+        <Link href="/network" className="px-3 py-2.5 text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{en ? "My network" : "My Network"}</Link>
       </div>
 
       <div className="mb-5 grid gap-3 border-b border-[var(--bc-line)] pb-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Your intent" : "Twoja intencja"}</p>
-          <p className="mt-1 max-w-[720px] text-sm leading-5 text-[var(--bc-muted)]">{myProfile.lookingFor.length ? myProfile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") : (en ? "Tell us what you're looking for to improve recommendations." : "Uzupełnij czego szukasz, żeby poprawić rekomendacje.")}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Your intent" : "Your intent"}</p>
+          <p className="mt-1 max-w-[720px] text-sm leading-5 text-[var(--bc-muted)]">{myProfile.lookingFor.length ? myProfile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") : (en ? "Tell us what you're looking for to improve recommendations." : "Tell us what you are looking for to improve your recommendations.")}</p>
         </div>
         <div className="flex flex-wrap gap-1 text-[12px] font-medium">
-          <SortLink href={withSort(params, "match")} active={sort === "match"}>{en ? "Best match" : "Najlepsze dopasowanie"}</SortLink>
+          <SortLink href={withSort(params, "match")} active={sort === "match"}>{en ? "Best match" : "Best match"}</SortLink>
           <SortLink href={withSort(params, "open")} active={sort === "open"}>Open to build</SortLink>
-          <SortLink href={withSort(params, "active")} active={sort === "active"}>{en ? "Recently active" : "Ostatnio aktywni"}</SortLink>
+          <SortLink href={withSort(params, "active")} active={sort === "active"}>{en ? "Recently active" : "Recently active"}</SortLink>
         </div>
       </div>
 
       <FilterBar
         showSearch
-        searchPlaceholder={en ? "Search a person, role or technology" : "Szukaj osoby, roli lub technologii"}
+        searchPlaceholder={en ? "Search a person, role or technology" : "Search by person, role, or technology"}
         filters={[
-          { key: "role", label: en ? "Role" : "Rola", options: Object.entries(labels.roles).map(([value, label]) => ({ value, label })) },
-          { key: "skill", label: en ? "Technology" : "Technologia", options: Object.values(SKILL_GROUPS).flat().map((s) => ({ value: s, label: s })) },
-          { key: "level", label: en ? "Level" : "Poziom", options: Object.entries(labels.levels).map(([value, label]) => ({ value, label })) },
+          { key: "role", label: en ? "Roles" : "Roles", options: Object.entries(labels.roles).map(([value, label]) => ({ value, label })) },
+          { key: "skill", label: en ? "Technology" : "Technology", options: Object.values(SKILL_GROUPS).flat().map((s) => ({ value: s, label: s })) },
+          { key: "level", label: en ? "Level" : "Level", options: Object.entries(labels.levels).map(([value, label]) => ({ value, label })) },
           { key: "interest", label: en ? "Area" : "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
-          { key: "intent", label: en ? "Looking for" : "Szukam teraz", options: Object.entries(labels.lookingFor).map(([value, label]) => ({ value, label })) },
-          { key: "language", label: en ? "Language" : "Język", options: LANGUAGE_OPTIONS.map((value) => ({ value, label: value })) },
+          { key: "intent", label: en ? "Looking for" : "Looking for now", options: Object.entries(labels.lookingFor).map(([value, label]) => ({ value, label })) },
+          { key: "language", label: en ? "Language" : "Language", options: LANGUAGE_OPTIONS.map((value) => ({ value, label: value })) },
           { key: "country", label: en ? "Country" : "Kraj", options: COUNTRY_OPTIONS.map((value) => ({ value, label: value })) },
         ]}
       />
 
       {ranked.length === 0 ? (
-        <EmptyState className="mt-6" title={en ? "No people match these filters" : "Brak osób pasujących do filtrów"} description={en ? "Change the filters or check the Build Pool." : "Zmień filtry albo sprawdź Build Pool."} ctaLabel="Build Pool" ctaHref="/build" />
+        <EmptyState className="mt-6" title={en ? "No people match these filters" : "No people match these filters"} description={en ? "Change the filters or check the Build Pool." : "Change the filters or check the Build Pool."} ctaLabel="Build Pool" ctaHref="/build" />
       ) : (
         <section className="mt-7">
           <div className="mb-3 flex items-center justify-between gap-4">
-            <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{en ? "Best matches" : "Najlepsze dopasowania"}</h2>
-            <span className="text-[13px] tabular-nums text-[var(--bc-faint)]">{ranked.length} {en ? (ranked.length === 1 ? "person" : "people") : (ranked.length === 1 ? "osoba" : "osób")}</span>
+            <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{en ? "Best matches" : "Best matches"}</h2>
+            <span className="text-[13px] tabular-nums text-[var(--bc-faint)]">{ranked.length} {en ? (ranked.length === 1 ? "person" : "people") : (ranked.length === 1 ? "person" : "people")}</span>
           </div>
           <div className="space-y-2.5">
             {ranked.map(({ builder: b, score, reasons }) => (

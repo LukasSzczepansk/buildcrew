@@ -56,7 +56,7 @@ export function pickLocale<T>(_locale: AppLocale, _pl: T, en: T): T {
 export function pathForLocale(pathname: string, _locale?: AppLocale) {
   if (pathname === "/projekty" || pathname.startsWith("/projekty?")) return pathname.replace(/^\/projekty/, "/explore/projects");
   if (pathname === "/hackathony" || pathname.startsWith("/hackathony/")) return pathname.replace(/^\/hackathony/, "/explore/hackathons");
-  if (pathname === "/regulamin") return "/terms";
-  if (pathname === "/polityka-prywatnosci") return "/privacy";
+  if (pathname === "/terms") return "/terms";
+  if (pathname === "/privacy") return "/privacy";
   return pathname;
 }

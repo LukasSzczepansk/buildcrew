@@ -29,8 +29,8 @@ export function ForgotPasswordForm() {
   return <form action={action} className="space-y-5">
     <div className="space-y-1.5"><Label htmlFor="email">E-mail</Label><Input id="email" name="email" type="email" autoComplete="email" required /></div>
     <StateMessage state={state} />
-    <Button className="w-full" size="lg" disabled={pending}>{pending ? copy("Wysyłamy…", "Sending…") : copy("Wyślij link do resetu", "Send reset link")}</Button>
-    <p className="text-center text-sm text-neutral-500"><Link href="/login" className="text-lime-600 hover:underline">{copy("Wróć do logowania", "Back to login")}</Link></p>
+    <Button className="w-full" size="lg" disabled={pending}>{pending ? copy("Sending…", "Sending…") : copy("Send reset link", "Send reset link")}</Button>
+    <p className="text-center text-sm text-neutral-500"><Link href="/login" className="text-lime-600 hover:underline">{copy("Back to login", "Back to login")}</Link></p>
   </form>;
 }
 
@@ -39,10 +39,10 @@ export function ResetPasswordForm({ token }: { token: string }) {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(resetPasswordAction, {});
   return <form action={action} className="space-y-5">
     <input type="hidden" name="token" value={token} />
-    <div className="space-y-1.5"><Label htmlFor="password">{copy("Nowe hasło", "New password")}</Label><Input id="password" name="password" type="password" minLength={12} maxLength={128} autoComplete="new-password" required /><p className="text-[13px] text-neutral-400">{copy("Minimum 12 znaków.", "At least 12 characters.")}</p></div>
-    <div className="space-y-1.5"><Label htmlFor="confirmPassword">{copy("Powtórz hasło", "Repeat password")}</Label><Input id="confirmPassword" name="confirmPassword" type="password" minLength={12} maxLength={128} autoComplete="new-password" required /></div>
+    <div className="space-y-1.5"><Label htmlFor="password">{copy("New password", "New password")}</Label><Input id="password" name="password" type="password" minLength={12} maxLength={128} autoComplete="new-password" required /><p className="text-[13px] text-neutral-400">{copy("At least 12 characters.", "At least 12 characters.")}</p></div>
+    <div className="space-y-1.5"><Label htmlFor="confirmPassword">{copy("Repeat password", "Repeat password")}</Label><Input id="confirmPassword" name="confirmPassword" type="password" minLength={12} maxLength={128} autoComplete="new-password" required /></div>
     <StateMessage state={state} />
-    <Button className="w-full" size="lg" disabled={pending}>{pending ? copy("Zapisujemy…", "Saving…") : copy("Ustaw nowe hasło", "Set new password")}</Button>
+    <Button className="w-full" size="lg" disabled={pending}>{pending ? copy("Saving…", "Saving…") : copy("Set new password", "Set new password")}</Button>
   </form>;
 }
 
@@ -53,7 +53,7 @@ export function ResendVerificationForm() {
     void formData;
     return resendVerificationAction();
   }, {});
-  return <form action={action} className="space-y-3"><StateMessage state={state}/><Button className="w-full" size="lg" disabled={pending}>{pending ? copy("Wysyłamy…", "Sending…") : copy("Wyślij link ponownie", "Send link again")}</Button></form>;
+  return <form action={action} className="space-y-3"><StateMessage state={state}/><Button className="w-full" size="lg" disabled={pending}>{pending ? copy("Sending…", "Sending…") : copy("Send link again", "Send link again")}</Button></form>;
 }
 
 export function VerifyEmailForm({ token, nextPath }: { token: string; nextPath?: string }) {
@@ -63,7 +63,7 @@ export function VerifyEmailForm({ token, nextPath }: { token: string; nextPath?:
     <input type="hidden" name="token" value={token} />
     {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
     <StateMessage state={state} />
-    <Button className="w-full" size="lg" disabled={pending}>{pending ? copy("Potwierdzamy…", "Confirming…") : copy("Potwierdź e-mail", "Confirm email")}</Button>
+    <Button className="w-full" size="lg" disabled={pending}>{pending ? copy("Confirming…", "Confirming…") : copy("Confirm email", "Confirm email")}</Button>
   </form>;
 }
 

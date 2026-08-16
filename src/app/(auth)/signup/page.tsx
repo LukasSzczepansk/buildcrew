@@ -8,17 +8,17 @@ import { getRequestLocale } from "@/lib/site-server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Create account - BuildCrew" : "Załóż konto - BuildCrew" };
+  return { title: locale === "en" ? "Create account - BuildCrew" : "Create account - BuildCrew" };
 }
 
 const GOOGLE_ERRORS: Record<string, string> = {
-  "account-missing": "Nie masz jeszcze konta BuildCrew. Możesz je utworzyć przez Google poniżej.",
-  "access-denied": "Rejestracja przez Google została anulowana.",
-  state: "Sesja Google wygasła. Spróbuj ponownie.",
-  failed: "Nie udało się utworzyć konta przez Google. Spróbuj ponownie.",
-  unverified: "Google nie potwierdził adresu e-mail tego konta.",
-  conflict: "Nie udało się bezpiecznie połączyć konta Google z BuildCrew.",
-  "not-configured": "Rejestracja przez Google nie jest jeszcze skonfigurowana.",
+  "account-missing": "You do not have a BuildCrew account yet. You can create one with Google below.",
+  "access-denied": "Google sign-up was canceled.",
+  state: "The Google session expired. Try again.",
+  failed: "Could not create an account with Google. Try again.",
+  unverified: "Google did not verify the email address for this account.",
+  conflict: "Could not securely connect the Google account to BuildCrew.",
+  "not-configured": "Google sign-up is not configured yet.",
 };
 
 const GOOGLE_ERRORS_EN: Record<string, string> = {
@@ -52,8 +52,8 @@ export default async function SignupPage({
 
   return (
     <div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">{en ? "Join BuildCrew" : "Dołącz do BuildCrew"}</h1>
-      <p className="mb-6 text-sm text-neutral-500">{en ? "Find people and build something together from scratch." : "Znajdź ludzi i zbuduj z nimi coś od zera."}</p>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight">{en ? "Join BuildCrew" : "Join BuildCrew"}</h1>
+      <p className="mb-6 text-sm text-neutral-500">{en ? "Find people and build something together from scratch." : "Find people and build something from scratch together."}</p>
       <AuthForm
         mode="signup"
         action={signupAction}

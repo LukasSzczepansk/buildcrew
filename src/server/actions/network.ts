@@ -85,7 +85,7 @@ export async function endorseCollaborator(input: unknown) {
   });
 
   const actor = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(parsed.data.targetUserId, "COLLABORATION_ENDORSEMENT", `${actor[0]?.username ?? "A collaborator"} endorsed working with you`, `Na podstawie projektu ${project[0].name}.`, `/builders/${parsed.data.targetUserId}`, { actorId: user.id, entityType: "project", entityId: parsed.data.projectId, titleEn: `${actor[0]?.username ?? "A collaborator"} endorsed working with you`, bodyEn: `Based on ${project[0].name}.` });
+  await createNotification(parsed.data.targetUserId, "COLLABORATION_ENDORSEMENT", `${actor[0]?.username ?? "A collaborator"} endorsed working with you`, `Based on ${project[0].name}.`, `/builders/${parsed.data.targetUserId}`, { actorId: user.id, entityType: "project", entityId: parsed.data.projectId, titleEn: `${actor[0]?.username ?? "A collaborator"} endorsed working with you`, bodyEn: `Based on ${project[0].name}.` });
   await logEvent("collaboration_endorsed", user.id, { projectId: parsed.data.projectId, targetUserId: parsed.data.targetUserId, strengths: parsed.data.strengths });
   revalidatePath("/network");
   revalidatePath(`/builders/${parsed.data.targetUserId}`);

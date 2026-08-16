@@ -78,33 +78,33 @@ export function inferProjectVisualKind(input: {
 export function inferProjectCategoryLabel(kind: VisualKind, locale: "pl" | "en" = "pl") {
   switch (kind) {
     case "shopping":
-      return locale === "en" ? "Comparison" : "Porównywarka";
+      return "Comparison tool";
     case "ai":
       return "AI / ML";
     case "devtool":
-      return locale === "en" ? "Developer tool" : "Narzędzie dev";
+      return "Developer tool";
     case "marketplace":
       return "Marketplace";
     case "community":
       return "Community";
     case "game":
-      return locale === "en" ? "Game" : "Gra";
+      return "Game";
     case "opensource":
       return "Open source";
     case "data":
-      return locale === "en" ? "Analytics" : "Analityka";
+      return "Analytics";
     case "bot":
       return "Bot";
     case "health":
-      return locale === "en" ? "Health" : "Zdrowie";
+      return "Health";
     case "education":
-      return locale === "en" ? "Education" : "Edukacja";
+      return "Education";
     case "mobile":
       return "Mobile";
     case "web":
       return "Web";
     default:
-      return locale === "en" ? "Digital project" : "Projekt cyfrowy";
+      return "Digital project";
   }
 }
 

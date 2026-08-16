@@ -28,8 +28,8 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
         </div>
         <div className="border border-neutral-300 bg-white p-7 dark:border-neutral-800 dark:bg-neutral-950 sm:p-8">{children}</div>
         <div className="mt-6 flex items-center justify-center gap-4 text-[13px] text-neutral-400">
-          <Link href={en ? "/terms" : "/regulamin"} className="hover:text-neutral-700 dark:hover:text-neutral-200">{en ? "Terms" : "Regulamin"}</Link>
-          <Link href={en ? "/privacy" : "/polityka-prywatnosci"} className="hover:text-neutral-700 dark:hover:text-neutral-200">{en ? "Privacy Policy" : "Polityka prywatności"}</Link>
+          <Link href={en ? "/terms" : "/terms"} className="hover:text-neutral-700 dark:hover:text-neutral-200">{en ? "Terms" : "Terms"}</Link>
+          <Link href={en ? "/privacy" : "/privacy"} className="hover:text-neutral-700 dark:hover:text-neutral-200">{en ? "Privacy Policy" : "Privacy Policy"}</Link>
         </div>
       </div>
     </div>

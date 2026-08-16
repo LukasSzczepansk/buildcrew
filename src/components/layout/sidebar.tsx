@@ -61,9 +61,9 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
   const pathname = usePathname();
   const copy = useCopy();
   const labels = {
-    start: copy("Start", "Home"), people: copy("Ludzie", "People"), projects: copy("Projekty", "Projects"),
-    hackathons: copy("Hackathony", "Hackathons"), network: copy("Moja sieć", "My network"),
-    myProjects: copy("Moje projekty", "My projects"), messages: copy("Wiadomości", "Messages"), built: copy("Zbudowane", "Built"),
+    start: copy("Home", "Home"), people: copy("People", "People"), projects: copy("Projects", "Projects"),
+    hackathons: copy("Hackathons", "Hackathons"), network: copy("My network", "My network"),
+    myProjects: copy("My projects", "My projects"), messages: copy("Messages", "Messages"), built: copy("Built", "Built"),
   };
 
   return (
@@ -74,8 +74,8 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
       </Link>
 
       <div className="space-y-7">
-        <NavGroup label={copy("Odkrywaj", "Discover")} items={PRIMARY_NAV} pathname={pathname} unreadMessages={unreadMessages} labels={labels} />
-        <NavGroup label={copy("Twoje", "Yours")} items={COMMUNITY_NAV} pathname={pathname} unreadMessages={unreadMessages} labels={labels} />
+        <NavGroup label={copy("Discover", "Discover")} items={PRIMARY_NAV} pathname={pathname} unreadMessages={unreadMessages} labels={labels} />
+        <NavGroup label={copy("Yours", "Yours")} items={COMMUNITY_NAV} pathname={pathname} unreadMessages={unreadMessages} labels={labels} />
       </div>
 
       {admin ? (
@@ -88,7 +88,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
             )}
           >
             <ShieldCheck className="h-[15px] w-[15px] shrink-0" strokeWidth={1.8} />
-            <span className="min-w-0 truncate">{copy("Panel admina", "Admin panel")}</span>
+            <span className="min-w-0 truncate">{copy("Admin panel", "Admin panel")}</span>
           </Link>
         </div>
       ) : null}
@@ -104,14 +104,14 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
             className="block rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-3 text-[12px] leading-4 text-[var(--bc-muted)] transition-colors hover:text-[var(--bc-ink)]"
           >
             <span className="block font-semibold text-[var(--bc-ink)]">{AI_CONTEST.shortTitle}</span>
-            <span className="mt-1 inline-flex items-center gap-1">{copy("do", "until")} {AI_CONTEST.deadlineLabel} <ExternalLink className="h-3 w-3" /></span>
+            <span className="mt-1 inline-flex items-center gap-1">{copy("until", "until")} {AI_CONTEST.deadlineLabel} <ExternalLink className="h-3 w-3" /></span>
           </a>
         ) : null}
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-2 text-[13px] text-[var(--bc-faint)]">
           <LanguageSwitcher compact />
           <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--bc-ink)] hover:underline">Discord</a>
-          <Link href="/help" className="inline-flex items-center gap-1 hover:text-[var(--bc-ink)] hover:underline"><CircleHelp className="h-3.5 w-3.5 shrink-0" /> {copy("Pomoc", "Help")}</Link>
+          <Link href="/help" className="inline-flex items-center gap-1 hover:text-[var(--bc-ink)] hover:underline"><CircleHelp className="h-3.5 w-3.5 shrink-0" /> {copy("Help", "Help")}</Link>
         </div>
 
         <div className="border-t border-[var(--bc-line)] pt-3">
@@ -122,12 +122,12 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
                 <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{username}</p>
                 {founder ? <UserRoleBadge founder compact /> : admin ? <UserRoleBadge systemRole="ADMIN" compact /> : null}
               </div>
-              <p className="text-[12px] text-[var(--bc-faint)]">{copy("Profil i ustawienia", "Profile and settings")}</p>
+              <p className="text-[12px] text-[var(--bc-faint)]">{copy("Profile and settings", "Profile and settings")}</p>
             </div>
           </Link>
           <form action={logoutAction}>
             <Button type="submit" variant="ghost" size="sm" className="mt-1 w-full justify-start gap-2 px-2 text-[var(--bc-muted)] hover:text-[var(--bc-danger)]">
-              <LogOut className="h-3.5 w-3.5 shrink-0" /> {copy("Wyloguj", "Log out")}
+              <LogOut className="h-3.5 w-3.5 shrink-0" /> {copy("Log out", "Log out")}
             </Button>
           </form>
         </div>

@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 export function MobileNav({ unreadMessages = 0 }: { unreadMessages?: number }) {
   const pathname = usePathname();
   const copy = useCopy();
-  const labels = { start: copy("Start", "Home"), people: copy("Ludzie", "People"), projects: copy("Projekty", "Projects"), messages: copy("Wiadomości", "Messages"), profile: copy("Profil", "Profile") };
+  const labels = { start: copy("Home", "Home"), people: copy("People", "People"), projects: copy("Projects", "Projects"), messages: copy("Messages", "Messages"), profile: copy("Profile", "Profile") };
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[var(--bc-line)] bg-[var(--bc-surface)]/95 px-1 py-2 backdrop-blur-md lg:hidden">
       {NAV_ITEMS.map((item) => {

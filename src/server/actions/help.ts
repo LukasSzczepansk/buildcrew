@@ -39,7 +39,7 @@ export async function createAnswer(input: z.infer<typeof answerSchema>) {
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the answer content." };
   const questionRows = await db.select().from(questions).where(eq(questions.id, parsed.data.questionId)).limit(1);
   const question = questionRows[0];
-  if (!question) return { error: "Pytanie nie istnieje." };
+  if (!question) return { error: "Question not found." };
   if (question.authorId !== user.id && await isBlockedEitherWay(user.id, question.authorId)) return { error: "You cannot answer this question." };
 
   await db.insert(answers).values({ questionId: parsed.data.questionId, authorId: user.id, body: parsed.data.body });
@@ -55,7 +55,7 @@ export async function markAnswerHelpful(answerId: string, questionId: string) {
 
   const questionRows = await db.select().from(questions).where(eq(questions.id, questionId)).limit(1);
   const question = questionRows[0];
-  if (!question) return { error: "Pytanie nie istnieje." };
+  if (!question) return { error: "Question not found." };
   if (question.authorId !== user.id) return { error: "Only the question author can mark an answer." };
 
   const answerRows = await db.select().from(answers).where(and(eq(answers.id, answerId), eq(answers.questionId, questionId))).limit(1);

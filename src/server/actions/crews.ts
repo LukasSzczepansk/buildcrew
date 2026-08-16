@@ -100,7 +100,7 @@ export async function respondToBuildProposal(proposalId: string, decision: "ACCE
     await tx.execute(sql`select id from build_proposals where id = ${proposalId} for update`);
     const rows = await tx.select().from(buildProposals).where(eq(buildProposals.id, proposalId)).limit(1);
     const proposal = rows[0];
-    if (!proposal) return { error: "Propozycja nie istnieje." } as const;
+    if (!proposal) return { error: "Proposal not found." } as const;
     if (proposal.receiverId !== user.id) return { error: "You do not have permission to do this." } as const;
     if (proposal.status !== "PENDING") return { error: "This proposal has already been reviewed." } as const;
     if (await isBlockedEitherWay(proposal.senderId, proposal.receiverId)) return { error: "This proposal cannot be accepted." } as const;

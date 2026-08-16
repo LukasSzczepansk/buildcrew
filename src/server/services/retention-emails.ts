@@ -33,7 +33,7 @@ function projectMatch(profile: Builder, project: Project, locale: AppLocale) {
 
   if (profile.role && project.openRoles.some((role) => role.roleType === profile.role)) {
     score += 45;
-    reasons.push(en ? "The project is looking for your role" : "Projekt szuka Twojej roli");
+    reasons.push(en ? "The project is looking for your role" : "The project is looking for your role");
   }
 
   const matchingRole = profile.role ? project.openRoles.find((role) => role.roleType === profile.role) : undefined;
@@ -122,7 +122,7 @@ function matchRows(
           <div style="font-size:14px;font-weight:700;color:#86ad22">${item.score}% match</div>
         </div>
         <div style="margin-top:4px;font-size:12px;line-height:1.55;color:#777770">${escapeEmailHtml(item.reasons.slice(0, 2).join(" · ") || (en ? "Open the profile to see what you have in common." : "Review the profile and shared points."))}</div>
-        <div style="margin-top:8px;font-size:12px">${smallLink(en ? "View profile" : "Zobacz profil", `/builders/${item.builder.userId}`, baseUrl)}</div>
+        <div style="margin-top:8px;font-size:12px">${smallLink(en ? "View profile" : "View profile", `/builders/${item.builder.userId}`, baseUrl)}</div>
       </div>`);
   }
 
@@ -134,7 +134,7 @@ function matchRows(
           <div style="font-size:14px;font-weight:700;color:#86ad22">${item.score}% match</div>
         </div>
         <div style="margin-top:4px;font-size:12px;line-height:1.55;color:#777770">${escapeEmailHtml(item.reasons.slice(0, 2).join(" · ") || item.project.tagline)}</div>
-        <div style="margin-top:8px;font-size:12px">${smallLink(en ? "View project" : "Zobacz projekt", `/projects/${item.project.id}`, baseUrl)}</div>
+        <div style="margin-top:8px;font-size:12px">${smallLink(en ? "View project" : "View project", `/projects/${item.project.id}`, baseUrl)}</div>
       </div>`);
   }
 
@@ -210,10 +210,10 @@ export async function sendStrongMatchEmails() {
 
     const subject = en
       ? (total === 1 ? "You have a new BuildCrew match" : `${total} BuildCrew matches worth checking`)
-      : (total === 1 ? "Masz nowe dopasowanie na BuildCrew" : `${total} dopasowania warte sprawdzenia`);
+      : (total === 1 ? "You have a new match on BuildCrew" : `${total} dopasowania worth checking`);
     const title = en
       ? (total === 1 ? "A new match just appeared" : `You have ${total} matches worth checking`)
-      : (total === 1 ? "A new match appeared" : `Masz ${total} dopasowania warte sprawdzenia`);
+      : (total === 1 ? "A new match appeared" : `You have ${total} dopasowania worth checking`);
 
     const result = await sendTransactionalEmail({
       to: recipient.email,
@@ -221,11 +221,11 @@ export async function sendStrongMatchEmails() {
       html: buildCrewEmail({
         locale,
         baseUrl: siteUrlForLocale(locale),
-        eyebrow: en ? "Matches" : "Dopasowania",
+        eyebrow: en ? "Matches" : "Matches",
         title,
         intro: en ? "We only send stronger matches, and no more than once every few days." : "We only send stronger matches and no more than once every few days.",
         content: matchRows(builderMatches, projectMatches, locale),
-        ctaLabel: en ? "View matches" : "Zobacz dopasowania",
+        ctaLabel: en ? "View matches" : "View matches",
         ctaHref: "/dashboard",
       }),
       devPreview: en ? `${total} new matches for ${profile.username}` : `${total} new matches for ${profile.username}`,
@@ -282,8 +282,8 @@ export async function sendWeeklyDigests() {
     }
 
     const summary = [
-      builderMatches.length ? (en ? `${builderMatches.length} ${builderMatches.length === 1 ? "person" : "people"}` : `${builderMatches.length} ${builderMatches.length === 1 ? "osoba" : "osoby"}`) : null,
-      projectMatches.length ? (en ? `${projectMatches.length} ${projectMatches.length === 1 ? "project" : "projects"}` : `${projectMatches.length} ${projectMatches.length === 1 ? "projekt" : "projekty"}`) : null,
+      builderMatches.length ? (en ? `${builderMatches.length} ${builderMatches.length === 1 ? "person" : "people"}` : `${builderMatches.length} ${builderMatches.length === 1 ? "person" : "people"}`) : null,
+      projectMatches.length ? (en ? `${projectMatches.length} ${projectMatches.length === 1 ? "project" : "projects"}` : `${projectMatches.length} ${projectMatches.length === 1 ? "project" : "projects"}`) : null,
       unread ? (en ? `${unread} unread ${unread === 1 ? "message" : "messages"}` : `${unread} ${unread === 1 ? "unread message" : "unread messages"}`) : null,
     ].filter(Boolean).join(" · ");
 
@@ -299,7 +299,7 @@ export async function sendWeeklyDigests() {
       html: buildCrewEmail({
         locale,
         baseUrl,
-        eyebrow: en ? "Weekly digest" : "Tygodniowe podsumowanie",
+        eyebrow: en ? "Weekly digest" : "Weekly digest",
         title: en ? `What to check this week, ${profile.username}` : `Worth checking, ${profile.username}`,
         intro: en ? "A short list of things that could lead to a conversation or a project." : "A short list of things that could lead to a conversation or project.",
         content: `${unreadBlock}${matchRows(builderMatches, projectMatches, locale)}`,

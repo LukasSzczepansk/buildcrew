@@ -49,7 +49,7 @@ export function FilterBar({ filters, showSearch, searchPlaceholder }: { filters:
           <div className="relative w-full xl:max-w-[340px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bc-faint)]" />
             <Input
-              placeholder={searchPlaceholder ?? copy("Szukaj…", "Search…")}
+              placeholder={searchPlaceholder ?? copy("Search…", "Search…")}
               defaultValue={searchParams.get("q") ?? ""}
               className="h-10 bg-[var(--bc-surface)] pl-9 text-sm"
               onKeyDown={(event) => { if (event.key === "Enter") setParam("q", (event.target as HTMLInputElement).value || null); }}
@@ -61,13 +61,13 @@ export function FilterBar({ filters, showSearch, searchPlaceholder }: { filters:
           {quickFilters.map(renderFilter)}
           {extraFilters.length > 0 ? (
             <Button type="button" variant="ghost" size="sm" className="h-10 gap-1.5 px-2.5 text-[13px]" onClick={() => setShowMore((value) => !value)} aria-expanded={showMore}>
-              {copy("Więcej", "More")}{extraActiveCount > 0 ? ` (${extraActiveCount})` : ""}
+              {copy("More", "More")}{extraActiveCount > 0 ? ` (${extraActiveCount})` : ""}
               <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showMore ? "rotate-180" : ""}`} />
             </Button>
           ) : null}
           {activeCount > 0 ? (
             <Button variant="ghost" size="sm" className="h-10 gap-1 px-2.5 text-[13px]" onClick={() => router.push("?")}>
-              <X className="h-3.5 w-3.5" /> {copy("Wyczyść", "Clear")}
+              <X className="h-3.5 w-3.5" /> {copy("Clear", "Clear")}
             </Button>
           ) : null}
         </div>

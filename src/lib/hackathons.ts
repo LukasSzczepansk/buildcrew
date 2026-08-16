@@ -18,14 +18,6 @@ export function getHackathonPhase(hackathon: {
   return "TEAM_FORMING";
 }
 
-export const HACKATHON_PHASE_LABELS: Record<HackathonPhase, string> = {
-  TEAM_FORMING: "Szukamy ekip",
-  REGISTRATION_CLOSED: "Dobór ekip zamknięty",
-  ONGOING: "Trwa",
-  ENDED: "Zakończony",
-  CANCELLED: "Odwołany",
-};
-
 export const HACKATHON_PHASE_LABELS_EN: Record<HackathonPhase, string> = {
   TEAM_FORMING: "Team forming",
   REGISTRATION_CLOSED: "Team formation closed",
@@ -34,23 +26,18 @@ export const HACKATHON_PHASE_LABELS_EN: Record<HackathonPhase, string> = {
   CANCELLED: "Cancelled",
 };
 
-export function hackathonPhaseLabel(phase: HackathonPhase, locale: AppLocale = "pl") {
-  return locale === "en" ? HACKATHON_PHASE_LABELS_EN[phase] : HACKATHON_PHASE_LABELS[phase];
+export function hackathonPhaseLabel(phase: HackathonPhase, _locale: AppLocale = "en") {
+  return HACKATHON_PHASE_LABELS_EN[phase];
 }
 
-export function hackathonLocationLabel(locationType: HackathonLocationType, city?: string | null, locale: AppLocale = "pl") {
-  if (locale === "en") {
-    if (locationType === "ONLINE") return "Online";
-    const prefix = locationType === "HYBRID" ? "Hybrid" : "On-site";
-    return city ? `${prefix} · ${city}` : prefix;
-  }
-  if (locationType === "ONLINE") return HACKATHON_LOCATION_LABELS.ONLINE;
-  const prefix = locationType === "HYBRID" ? "Hybrydowo" : "Stacjonarnie";
+export function hackathonLocationLabel(locationType: HackathonLocationType, city?: string | null, _locale: AppLocale = "en") {
+  if (locationType === "ONLINE") return "Online";
+  const prefix = locationType === "HYBRID" ? "Hybrid" : "On-site";
   return city ? `${prefix} · ${city}` : prefix;
 }
 
-export function hackathonDateLabel(startsAt: Date, endsAt: Date, locale: AppLocale = "pl") {
-  const localeCode = locale === "en" ? "en-US" : "pl-PL";
+export function hackathonDateLabel(startsAt: Date, endsAt: Date, _locale: AppLocale = "en") {
+  const localeCode = "en-US";
   const sameDay = startsAt.toDateString() === endsAt.toDateString();
   if (sameDay) {
     return startsAt.toLocaleDateString(localeCode, { day: "numeric", month: "long", year: "numeric" });

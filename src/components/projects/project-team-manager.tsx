@@ -52,7 +52,7 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
         toast.error(appMessage(result.error, locale));
         return;
       }
-      toast.success(copy(`${selected.profile?.username ?? "Użytkownik"} nie należy już do projektu.`, `${selected.profile?.username ?? "This person"} is no longer in the project.`));
+      toast.success(copy(`${selected.profile?.username ?? "This person"} is no longer in the project.`, `${selected.profile?.username ?? "This person"} is no longer in the project.`));
       setSelected(null);
       router.refresh();
     });
@@ -69,32 +69,32 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
                 <Avatar username={username} seed={member.userId} size="sm" />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{username}</p>
-                  <p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{member.isOwner ? copy("Twórca projektu", "Project creator") : member.profile?.role ? roleLabels[member.profile.role] : copy("Członek zespołu", "Team member")}</p>
+                  <p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{member.isOwner ? copy("Project creator", "Project creator") : member.profile?.role ? roleLabels[member.profile.role] : copy("Team member", "Team member")}</p>
                 </div>
               </Link>
 
               <div>
-                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Rola w projekcie", "Project role")}</p>
-                <p className="mt-1 text-[13px] text-[var(--bc-ink)]">{member.isOwner ? copy("Autor", "Owner") : member.roleType ? roleLabels[member.roleType] : copy("Bez przypisanej roli", "No assigned role")}</p>
+                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Project role", "Project role")}</p>
+                <p className="mt-1 text-[13px] text-[var(--bc-ink)]">{member.isOwner ? copy("Owner", "Owner") : member.roleType ? roleLabels[member.roleType] : copy("No assigned role", "No assigned role")}</p>
               </div>
 
               <div>
-                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Dołączył", "Joined")}</p>
+                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Joined", "Joined")}</p>
                 <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{formatDate(member.joinedAt, locale)}</p>
               </div>
 
               {member.isOwner ? <span /> : (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button type="button" variant="ghost" size="icon" className="h-9 w-9" aria-label={copy(`Opcje dla ${username}`, `Options for ${username}`)}>
+                    <Button type="button" variant="ghost" size="icon" className="h-9 w-9" aria-label={copy(`Options for ${username}`, `Options for ${username}`)}>
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild><Link href={`/builders/${member.userId}`}>{copy("Zobacz profil", "View profile")}</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link href={`/builders/${member.userId}`}>{copy("View profile", "View profile")}</Link></DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="text-red-700 focus:text-red-700 dark:text-red-400" onSelect={() => setSelected(member)}>
-                      <UserMinus className="h-4 w-4" /> {copy("Usuń z projektu", "Remove from project")}
+                      <UserMinus className="h-4 w-4" /> {copy("Remove from project", "Remove from project")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -107,17 +107,17 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => { if (!open && !pending) setSelected(null); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{copy("Usunąć osobę z projektu?", "Remove this person from the project?")}</DialogTitle>
+            <DialogTitle>{copy("Remove this person from the project?", "Remove this person from the project?")}</DialogTitle>
             <DialogDescription>
-              {copy(`${selected?.profile?.username ?? "Ta osoba"} straci dostęp do prywatnego workspace’u, nowych wiadomości zespołu i zadań projektu.`, `${selected?.profile?.username ?? "This person"} will lose access to the private workspace, new team messages and project tasks.`)}
+              {copy(`${selected?.profile?.username ?? "This person"} will lose access to the private workspace, new team messages and project tasks.`, `${selected?.profile?.username ?? "This person"} will lose access to the private workspace, new team messages and project tasks.`)}
             </DialogDescription>
           </DialogHeader>
           <div className="border-y border-[var(--bc-line)] py-3 text-[13px] leading-5 text-[var(--bc-muted)]">
-            {copy("Wcześniejsze wiadomości i historia zmian pozostaną w projekcie, żeby nie usuwać kontekstu pracy pozostałej ekipy. Zadania przypisane tej osobie staną się nieprzypisane.", "Previous messages and change history will remain in the project so the rest of the team keeps its context. Tasks assigned to this person will become unassigned.")}
+            {copy("Previous messages and change history will remain in the project so the rest of the team keeps its context. Tasks assigned to this person will become unassigned.", "Previous messages and change history will remain in the project so the rest of the team keeps its context. Tasks assigned to this person will become unassigned.")}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" disabled={pending} onClick={() => setSelected(null)}>{copy("Anuluj", "Cancel")}</Button>
-            <Button type="button" variant="destructive" disabled={pending} onClick={confirmRemoval}>{pending ? copy("Usuwanie…", "Removing…") : copy("Usuń z projektu", "Remove from project")}</Button>
+            <Button type="button" variant="outline" disabled={pending} onClick={() => setSelected(null)}>{copy("Cancel", "Cancel")}</Button>
+            <Button type="button" variant="destructive" disabled={pending} onClick={confirmRemoval}>{pending ? copy("Removing…", "Removing…") : copy("Remove from project", "Remove from project")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -139,7 +139,7 @@ export function LeaveProjectButton({ projectId, projectName }: { projectId: stri
         toast.error(appMessage(result.error, locale));
         return;
       }
-      toast.success(copy(`Opuściłeś projekt ${projectName}.`, `You left ${projectName}.`));
+      toast.success(copy(`You left ${projectName}.`, `You left ${projectName}.`));
       setOpen(false);
       router.push("/my-projects");
       router.refresh();
@@ -149,20 +149,20 @@ export function LeaveProjectButton({ projectId, projectName }: { projectId: stri
   return (
     <>
       <Button type="button" variant="ghost" size="sm" className="w-full justify-start text-[var(--bc-muted)] hover:text-red-700" onClick={() => setOpen(true)}>
-        <LogOut className="h-3.5 w-3.5" /> {copy("Opuść projekt", "Leave project")}
+        <LogOut className="h-3.5 w-3.5" /> {copy("Leave project", "Leave project")}
       </Button>
       <Dialog open={open} onOpenChange={(value) => { if (!pending) setOpen(value); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{copy(`Opuścić ${projectName}?`, `Leave ${projectName}?`)}</DialogTitle>
-            <DialogDescription>{copy("Stracisz dostęp do prywatnego workspace’u projektu i nowych wiadomości zespołu.", "You will lose access to the project’s private workspace and new team messages.")}</DialogDescription>
+            <DialogTitle>{copy(`Leave ${projectName}?`, `Leave ${projectName}?`)}</DialogTitle>
+            <DialogDescription>{copy("You will lose access to the project’s private workspace and new team messages.", "You will lose access to the project’s private workspace and new team messages.")}</DialogDescription>
           </DialogHeader>
           <div className="border-y border-[var(--bc-line)] py-3 text-[13px] leading-5 text-[var(--bc-muted)]">
-            {copy("Twoje wcześniejsze wiadomości mogą pozostać w historii projektu. Jeśli byłeś przypisany do zadania, zostanie ono bez przypisanej osoby.", "Your previous messages may remain in the project history. Tasks assigned to you will become unassigned.")}
+            {copy("Your previous messages may remain in the project history. Tasks assigned to you will become unassigned.", "Your previous messages may remain in the project history. Tasks assigned to you will become unassigned.")}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" disabled={pending} onClick={() => setOpen(false)}>{copy("Zostań w projekcie", "Stay in project")}</Button>
-            <Button type="button" variant="destructive" disabled={pending} onClick={confirmLeave}>{pending ? copy("Opuszczanie…", "Leaving…") : copy("Opuść projekt", "Leave project")}</Button>
+            <Button type="button" variant="outline" disabled={pending} onClick={() => setOpen(false)}>{copy("Stay in project", "Stay in project")}</Button>
+            <Button type="button" variant="destructive" disabled={pending} onClick={confirmLeave}>{pending ? copy("Leaving…", "Leaving…") : copy("Leave project", "Leave project")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -171,5 +171,5 @@ export function LeaveProjectButton({ projectId, projectName }: { projectId: stri
 }
 
 function formatDate(value: string, locale: "pl" | "en") {
-  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "pl-PL", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "en-US", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
 }

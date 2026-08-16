@@ -6,15 +6,15 @@ import { Activity, CalendarRange, Flag, FolderKanban, Image as ImageIcon, Layout
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/admin", label: "Przegląd", icon: LayoutDashboard, exact: true },
-  { href: "/admin/users", label: "Użytkownicy", icon: Users },
-  { href: "/admin/avatars", label: "Zdjęcia", icon: ImageIcon },
-  { href: "/admin/projects", label: "Projekty", icon: FolderKanban },
-  { href: "/admin/hackathons", label: "Hackathony", icon: CalendarRange },
+  { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/avatars", label: "Photos", icon: ImageIcon },
+  { href: "/admin/projects", label: "Projects", icon: FolderKanban },
+  { href: "/admin/hackathons", label: "Hackathons", icon: CalendarRange },
   { href: "/admin/challenges", label: "Challenges", icon: Trophy },
-  { href: "/admin/reports", label: "Zgłoszenia", icon: Flag },
-  { href: "/admin/content", label: "Treści", icon: MessageSquareText },
-  { href: "/admin/activity", label: "Aktywność", icon: Activity },
+  { href: "/admin/reports", label: "Applications", icon: Flag },
+  { href: "/admin/content", label: "Content", icon: MessageSquareText },
+  { href: "/admin/activity", label: "Activity", icon: Activity },
 ];
 
 export function AdminNav() {

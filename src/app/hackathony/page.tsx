@@ -11,17 +11,17 @@ import { listPublishedHackathons } from "@/server/data/hackathons";
 
 const COPY = {
   pl: {
-    title: "Hackathony - znajdź zespół | BuildCrew",
-    description: "Znajdź osoby jadące na ten sam hackathon, porównaj role i zainteresowania albo pozwól BuildCrew zaproponować uzupełniający się team.",
-    login: "Zaloguj", signup: "Załóż konto", heading: "Jedziesz na hackathon bez zespołu?",
-    intro: "Wybierz wydarzenie, ustaw rolę i to, co chcesz budować. BuildCrew pokaże osoby z tej samej puli oraz teamy, którym brakuje Twoich umiejętności.",
-    find: "Znajdź zespół", projects: "Zobacz projekty", section: "Hackathony na BuildCrew",
-    note: "Dołączenie do puli BuildCrew nie zastępuje oficjalnej rejestracji na wydarzenie.", events: "wydarzeń",
-    none: "Nie ma jeszcze opublikowanych wydarzeń. Dodamy je, gdy będą realne hackathony z potwierdzonymi informacjami.",
+    title: "Hackathons - find a team | BuildCrew",
+    description: "Find people attending the same hackathon, compare roles and interests, or let BuildCrew suggest a complementary team.",
+    login: "Log in", signup: "Create account", heading: "Going to a hackathon without a team?",
+    intro: "Choose an event, set your role and what you want to build. BuildCrew will show people in the same pool and teams that need your skills.",
+    find: "Find a team", projects: "View projects", section: "Hackathons on BuildCrew",
+    note: "Joining the BuildCrew pool does not replace official event registration.", events: "events",
+    none: "There are no published events yet. We will add them when there are real hackathons with verified information.",
     steps: [
-      ["Wybierz event", "Każdy hackathon ma osobną pulę ludzi. Nie mieszasz się z przypadkowymi profilami."],
-      ["Ustaw rolę i kierunek", "Frontend, Backend, UI/UX, Data/AI, Product - plus stack, zainteresowania i dostępność."],
-      ["Zbierz team", "Przeglądaj osoby samodzielnie albo pozwól BuildCrew zaproponować skład i wysłać zaproszenia."],
+      ["Choose an event", "Each hackathon has its own participant pool, so you are not mixed with unrelated profiles."],
+      ["Set your role and direction", "Frontend, Backend, UI/UX, Data/AI, Product - plus stack, interests, and availability."],
+      ["Zbierz team", "Browse people yourself or let BuildCrew suggest a team and send invitations."],
     ],
   },
   en: {

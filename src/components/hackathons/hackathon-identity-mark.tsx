@@ -12,7 +12,7 @@ export function HackathonIdentityMark({ name, coverImageUrl, className }: { name
     return (
       <div
         role="img"
-        aria-label={`Grafika wydarzenia ${name}`}
+        aria-label={`Event artwork ${name}`}
         className={cn("h-14 w-14 shrink-0 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] bg-cover bg-center", className)}
         style={{ backgroundImage: `url(${JSON.stringify(coverImageUrl)})` }}
       />

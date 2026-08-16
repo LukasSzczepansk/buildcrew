@@ -46,7 +46,7 @@ export async function setUserSuspensionAction(formData: FormData) {
   if (mode === "suspend") {
     await db
       .update(users)
-      .set({ isSuspended: true, suspendedAt: new Date(), suspendedReason: reason || "Zawieszone przez administratora" })
+      .set({ isSuspended: true, suspendedAt: new Date(), suspendedReason: reason || "Suspended by an administrator" })
       .where(eq(users.id, userId));
     await db.delete(sessions).where(eq(sessions.userId, userId));
     await audit(admin.id, "USER_SUSPENDED", "user", userId, { email: target[0].email, reason: reason || null });

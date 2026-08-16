@@ -38,32 +38,32 @@ export const COUNTRY_OPTIONS = [
 
 const PL = {
   workMode: {
-    REMOTE: "Zdalnie",
-    HYBRID: "Hybrydowo",
-    ON_SITE: "Stacjonarnie",
+    REMOTE: "Remote",
+    HYBRID: "Hybrid",
+    ON_SITE: "On-site",
     FLEXIBLE: "Elastycznie",
   } satisfies Record<WorkModePreference, string>,
   projectLanguage: {
-    PL: "Polski",
-    EN: "Angielski",
-    MULTI: "Wielojęzyczny",
+    PL: "Polish",
+    EN: "English",
+    MULTI: "Multilingual",
   } satisfies Record<ProjectLanguage, string>,
   marketScope: {
-    LOCAL: "Lokalnie",
+    LOCAL: "Local",
     EUROPE: "Europa",
     WORLDWIDE: "Globalnie",
   } satisfies Record<ProjectMarketScope, string>,
   needs: {
-    TEAMMATES: "Współtwórców",
+    TEAMMATES: "Collaborators",
     FEEDBACK: "Feedbacku",
-    BETA_TESTERS: "Beta testerów",
+    BETA_TESTERS: "Beta testers",
     MENTOR: "Mentora",
     BUSINESS_PARTNER: "Partnera biznesowego",
-    FUNDING: "Finansowania",
+    FUNDING: "Funding",
   } satisfies Record<ProjectNeed, string>,
   fundingStage: {
     GRANT: "Grant",
-    ANGEL: "Anioł biznesu",
+    ANGEL: "Angel investor",
     PRE_SEED: "Pre-seed",
     SEED: "Seed",
     OTHER: "Inne",

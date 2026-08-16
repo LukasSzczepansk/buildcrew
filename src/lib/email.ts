@@ -34,7 +34,7 @@ export function buildCrewEmail(input: {
     input.footer ??
       (locale === "en"
         ? "This message was sent by BuildCrew. You can change notification settings in your profile."
-        : "Wiadomość została wysłana przez BuildCrew. Ustawienia powiadomień możesz zmienić w swoim profilu."),
+        : "This message was sent by BuildCrew. You can change notification settings in your profile."),
   );
 
   return `<!doctype html>
@@ -75,9 +75,9 @@ export function buildCrewEmail(input: {
                 <div style="margin-top:12px;">
                   <a href="${absoluteUrl("/", input.baseUrl)}" style="color:#70706B;text-decoration:none;">BuildCrew</a>
                   <span style="color:#B0B0AA;"> · </span>
-                  <a href="${absoluteUrl(locale === "en" ? "/privacy" : "/polityka-prywatnosci", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Privacy" : "Prywatność"}</a>
+                  <a href="${absoluteUrl(locale === "en" ? "/privacy" : "/privacy", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Privacy" : "Privacy"}</a>
                   <span style="color:#B0B0AA;"> · </span>
-                  <a href="${absoluteUrl(locale === "en" ? "/terms" : "/regulamin", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Terms" : "Regulamin"}</a>
+                  <a href="${absoluteUrl(locale === "en" ? "/terms" : "/terms", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Terms" : "Terms"}</a>
                 </div>
               </td>
             </tr>

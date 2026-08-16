@@ -76,7 +76,7 @@ export async function enforceUserRateLimit(
   const result = await checkRateLimit(scope, `user:${userId}`, limit, windowSeconds);
   return result.allowed
     ? null
-    : `Za dużo prób. Spróbuj ponownie za około ${Math.ceil(result.retryAfterSeconds / 60)} min.`;
+    : `Too many attempts. Try again in about ${Math.ceil(result.retryAfterSeconds / 60)} min.`;
 }
 
 export function safeHttpUrl(value: string | null | undefined) {

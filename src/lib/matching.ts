@@ -53,10 +53,10 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile, loca
     reasons.push(
       en
         ? `${other.role ? labels.roles[other.role] : "Their role"} complements yours (${me.role ? labels.roles[me.role] : "not set"})`
-        : `${other.role ? labels.roles[other.role] : "Ich rola"} uzupełnia Twoją (${me.role ? labels.roles[me.role] : "brak"})`,
+        : `${other.role ? labels.roles[other.role] : "Their role"} complements yours (${me.role ? labels.roles[me.role] : "none"})`,
     );
   } else if (me.role && other.role && me.role === other.role) {
-    reasons.push(en ? `You are both ${labels.roles[me.role]} - you can support each other` : `Oboje jesteście ${labels.roles[me.role]} - możecie się wspierać`);
+    reasons.push(`You are both ${labels.roles[me.role]} - you can support each other`);
     score += 8;
   }
 
@@ -64,7 +64,7 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile, loca
   if (sharedInterests.length > 0) {
     const interestScore = Math.min(20, sharedInterests.length * 8);
     score += interestScore;
-    reasons.push(en ? `You’re both interested in ${sharedInterests.slice(0, 2).join(", ")}` : `Oboje interesujecie się ${sharedInterests.slice(0, 2).join(", ")}`);
+    reasons.push(`You’re both interested in ${sharedInterests.slice(0, 2).join(", ")}`);
   }
 
   if (me.weeklyHours && other.weeklyHours && me.weeklyHours === other.weeklyHours) {
@@ -82,14 +82,14 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile, loca
     const diff = Math.abs(LEVEL_ORDER[me.level] - LEVEL_ORDER[other.level]);
     if (diff <= 1) {
       score += 10;
-      reasons.push(en ? "Similar experience level" : "Podobny poziom doświadczenia");
+      reasons.push(en ? "Similar experience level" : "Similar experience level");
     }
   }
 
   const sharedLanguages = (me.languages ?? []).filter((language) => (other.languages ?? []).includes(language));
   if (sharedLanguages.length > 0) {
     score += 12;
-    reasons.push(en ? `You can collaborate in ${sharedLanguages.slice(0, 2).join(" / ")}` : `Możecie współpracować po: ${sharedLanguages.slice(0, 2).join(" / ")}`);
+    reasons.push(`You can collaborate in ${sharedLanguages.slice(0, 2).join(" / ")}`);
   } else if ((me.languages?.length ?? 0) > 0 && (other.languages?.length ?? 0) > 0) {
     score = Math.max(0, score - 12);
   }
@@ -98,7 +98,7 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile, loca
     const compatible = me.workModePreference === "FLEXIBLE" || other.workModePreference === "FLEXIBLE" || me.workModePreference === other.workModePreference;
     if (compatible) {
       score += 6;
-      reasons.push(en ? "Compatible work-mode preference" : "Pasujący tryb współpracy");
+      reasons.push(en ? "Compatible work-mode preference" : "Matching collaboration mode");
     }
   }
 

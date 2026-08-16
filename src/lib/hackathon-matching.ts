@@ -37,7 +37,7 @@ export function computeHackathonMatch(me: MatchPerson, candidate: MatchPerson, l
   if (me.role !== candidate.role) {
     const differentFamily = ROLE_FAMILIES[me.role] !== ROLE_FAMILIES[candidate.role];
     score += differentFamily ? 24 : 15;
-    reasons.push(copy(`${roleLabels[candidate.role]} uzupełnia Twoją rolę ${roleLabels[me.role]}.`, `${roleLabels[candidate.role]} complements your ${roleLabels[me.role]} role.`));
+    reasons.push(copy(`${roleLabels[candidate.role]} complements your ${roleLabels[me.role]} role.`, `${roleLabels[candidate.role]} complements your ${roleLabels[me.role]} role.`));
   } else {
     score += 4;
   }
@@ -45,23 +45,23 @@ export function computeHackathonMatch(me: MatchPerson, candidate: MatchPerson, l
   const sharedThemes = overlap(me.themes, candidate.themes);
   if (sharedThemes.length) {
     score += Math.min(20, sharedThemes.length * 8);
-    reasons.push(copy(`Wspólne kierunki: ${sharedThemes.slice(0, 2).join(" · ")}.`, `Shared themes: ${sharedThemes.slice(0, 2).join(" · ")}.`));
+    reasons.push(copy(`Shared themes: ${sharedThemes.slice(0, 2).join(" · ")}.`, `Shared themes: ${sharedThemes.slice(0, 2).join(" · ")}.`));
   }
 
   const sharedTech = overlap(me.technologies, candidate.technologies);
   if (sharedTech.length) {
     score += Math.min(12, sharedTech.length * 4);
-    reasons.push(copy(`Znacie wspólny stack: ${sharedTech.slice(0, 2).join(" · ")}.`, `Shared stack: ${sharedTech.slice(0, 2).join(" · ")}.`));
+    reasons.push(copy(`Shared stack: ${sharedTech.slice(0, 2).join(" · ")}.`, `Shared stack: ${sharedTech.slice(0, 2).join(" · ")}.`));
   }
 
   if (me.goal === candidate.goal) {
     score += 12;
-    reasons.push(copy("Macie podobne podejście do hackathonu.", "You have a similar approach to the hackathon."));
+    reasons.push(copy("You have a similar approach to the hackathon.", "You have a similar approach to the hackathon."));
   }
 
   if (me.availability === candidate.availability) {
     score += 10;
-    reasons.push(copy("Deklarujecie podobną dostępność podczas wydarzenia.", "You have similar availability during the event."));
+    reasons.push(copy("You have similar availability during the event.", "You have similar availability during the event."));
   } else if (me.availability !== "LIMITED" && candidate.availability !== "LIMITED") {
     score += 5;
   }
