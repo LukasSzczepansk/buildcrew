@@ -34,25 +34,25 @@ async function isEntryContributor(entry: { creatorId: string; projectId: string 
 
 export async function createShowcaseEntry(input: unknown) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:showcase:create", user.id, 8, 24 * 60 * 60);
   if (rateError) return { error: rateError };
   const parsed = showcaseCreateSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź formularz." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the form." };
   const data = parsed.data;
 
   let crewId: string | null = null;
   if (data.projectId) {
     const membership = await db.select({ projectId: projectMembers.projectId }).from(projectMembers)
       .where(and(eq(projectMembers.projectId, data.projectId), eq(projectMembers.userId, user.id))).limit(1);
-    if (!membership[0]) return { error: "Możesz publikować tylko projekt, którego jesteś współtwórcą." };
+    if (!membership[0]) return { error: "You can publish only a project you contributed to." };
     const projectRows = await db.select({ crewId: projects.crewId }).from(projects).where(eq(projects.id, data.projectId)).limit(1);
     crewId = projectRows[0]?.crewId ?? null;
   }
 
   if (data.challengeId) {
     const participation = await getChallengeParticipation(data.challengeId, user.id);
-    if (!participation) return { error: "Najpierw dołącz do tego Build Challenge." };
+    if (!participation) return { error: "Join this Build Challenge first." };
     if (!crewId && participation.crewId) crewId = participation.crewId;
   }
 
@@ -80,17 +80,17 @@ export async function createShowcaseEntry(input: unknown) {
 
 export async function toggleShowcaseReaction(entryId: string, reaction: string) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
-  if (!uuidSchema.safeParse(entryId).success) return { error: "Nieprawidłowy projekt." };
+  if (!user) return { error: "You must be logged in." };
+  if (!uuidSchema.safeParse(entryId).success) return { error: "Invalid project." };
   const parsedReaction = showcaseReactionSchema.safeParse(reaction);
-  if (!parsedReaction.success) return { error: "Nieprawidłowa reakcja." };
+  if (!parsedReaction.success) return { error: "Invalid reaction." };
   const rateError = await enforceUserRateLimit("action:showcase:reaction", user.id, 80, 60 * 60);
   if (rateError) return { error: rateError };
 
   const entries = await db.select({ id: showcaseEntries.id, creatorId: showcaseEntries.creatorId, projectId: showcaseEntries.projectId, crewId: showcaseEntries.crewId, title: showcaseEntries.title }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
   const entry = entries[0];
-  if (!entry) return { error: "Projekt nie istnieje." };
-  if (await isEntryContributor(entry, user.id)) return { error: "Nie możesz oceniać projektu swojej ekipy." };
+  if (!entry) return { error: "Project not found." };
+  if (await isEntryContributor(entry, user.id)) return { error: "You cannot react to your own team's project." };
 
   const existing = await db.select().from(showcaseReactions).where(and(eq(showcaseReactions.entryId, entryId), eq(showcaseReactions.userId, user.id), eq(showcaseReactions.reaction, parsedReaction.data))).limit(1);
   if (existing[0]) {
@@ -98,7 +98,7 @@ export async function toggleShowcaseReaction(entryId: string, reaction: string) 
   } else {
     await db.insert(showcaseReactions).values({ entryId, userId: user.id, reaction: parsedReaction.data });
     const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-    await createNotification(entry.creatorId, "SHOWCASE_REACTION", `${profileRows[0]?.username ?? "Ktoś"} zareagował na ${entry.title}`, undefined, `/showcase/${entryId}`, { actorId: user.id, entityType: "showcase", entityId: entryId, titleEn: `${profileRows[0]?.username ?? "Someone"} reacted to ${entry.title}` });
+    await createNotification(entry.creatorId, "SHOWCASE_REACTION", `${profileRows[0]?.username ?? "Someone"} reacted to ${entry.title}`, undefined, `/showcase/${entryId}`, { actorId: user.id, entityType: "showcase", entityId: entryId, titleEn: `${profileRows[0]?.username ?? "Someone"} reacted to ${entry.title}` });
   }
   revalidatePath(`/showcase/${entryId}`);
   revalidatePath("/showcase");
@@ -107,23 +107,23 @@ export async function toggleShowcaseReaction(entryId: string, reaction: string) 
 
 export async function submitShowcaseFeedback(entryId: string, input: unknown) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
-  if (!uuidSchema.safeParse(entryId).success) return { error: "Nieprawidłowy projekt." };
+  if (!user) return { error: "You must be logged in." };
+  if (!uuidSchema.safeParse(entryId).success) return { error: "Invalid project." };
   const parsed = showcaseFeedbackSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź feedback." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the feedback." };
   const rateError = await enforceUserRateLimit("action:showcase:feedback", user.id, 20, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const entries = await db.select({ creatorId: showcaseEntries.creatorId, projectId: showcaseEntries.projectId, crewId: showcaseEntries.crewId, title: showcaseEntries.title }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
   const entry = entries[0];
-  if (!entry) return { error: "Projekt nie istnieje." };
-  if (await isEntryContributor(entry, user.id)) return { error: "Nie możesz wystawić feedbacku projektowi swojej ekipy." };
+  if (!entry) return { error: "Project not found." };
+  if (await isEntryContributor(entry, user.id)) return { error: "You cannot leave feedback on your own team's project." };
 
   await db.insert(showcaseFeedback).values({ entryId, userId: user.id, ...parsed.data, liked: parsed.data.liked || null, improve: parsed.data.improve || null })
     .onConflictDoUpdate({ target: [showcaseFeedback.entryId, showcaseFeedback.userId], set: { ...parsed.data, liked: parsed.data.liked || null, improve: parsed.data.improve || null, updatedAt: new Date() } });
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(entry.creatorId, "SHOWCASE_FEEDBACK", `${profileRows[0]?.username ?? "Ktoś"} dał feedback do ${entry.title}`, "Zobacz, co warto zachować i co można poprawić.", `/showcase/${entryId}`, { actorId: user.id, entityType: "showcase", entityId: entryId, emailPreference: "emailShowcaseFeedback", titleEn: `${profileRows[0]?.username ?? "Someone"} left feedback on ${entry.title}`, bodyEn: "See what is worth keeping and what could be improved." });
+  await createNotification(entry.creatorId, "SHOWCASE_FEEDBACK", `${profileRows[0]?.username ?? "Someone"} left feedback on ${entry.title}`, "See what worked well and what could be improved.", `/showcase/${entryId}`, { actorId: user.id, entityType: "showcase", entityId: entryId, emailPreference: "emailShowcaseFeedback", titleEn: `${profileRows[0]?.username ?? "Someone"} left feedback on ${entry.title}`, bodyEn: "See what is worth keeping and what could be improved." });
   revalidatePath(`/showcase/${entryId}`);
   return { success: true };
 }

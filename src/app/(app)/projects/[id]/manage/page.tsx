@@ -6,12 +6,14 @@ import { Topbar } from "@/components/layout/topbar";
 import { ProjectTeamManager } from "@/components/projects/project-team-manager";
 import { ProjectLifecycleControls } from "@/components/projects/project-completion-dialog";
 import { ProjectInternationalSettings } from "@/components/projects/project-international-settings";
+import { ProjectEnglishContentForm } from "@/components/projects/project-english-content-form";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { labelsFor } from "@/lib/constants-i18n";
 import { getRequestLocale } from "@/lib/site-server";
 import { listApplicationsForProject } from "@/server/data/applications";
 import { getProjectById } from "@/server/data/projects";
+import { listProjectUpdates } from "@/server/data/social-projects";
 
 export async function generateMetadata(): Promise<Metadata> { const locale = await getRequestLocale(); return { title: locale === "en" ? "Manage project - BuildCrew" : "Zarządzaj projektem - BuildCrew", robots: { index: false, follow: false } }; }
 
@@ -26,7 +28,10 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
   if (!project) notFound();
   if (project.ownerId !== user.id) redirect(`/projects/${id}`);
 
-  const applications = await listApplicationsForProject(id);
+  const [applications, updates] = await Promise.all([
+    listApplicationsForProject(id),
+    listProjectUpdates(id, 30),
+  ]);
   const pending = applications.filter((item) => item.status === "PENDING").length;
   const nonOwnerMembers = project.members.filter((member) => !member.isOwner).length;
 
@@ -53,6 +58,24 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
         <ManageTab href={`/projects/${id}/workspace`} label="Workspace" />
       </nav>
 
+      <div className="mt-7">
+        <ProjectEnglishContentForm
+          projectId={id}
+          initial={{
+            name: project.name,
+            tagline: project.tagline,
+            description: project.description,
+            goal: project.goal,
+            ownerContribution: project.ownerContribution,
+            outcome: project.outcome,
+            fundingUse: project.fundingUse,
+            projectLanguage: project.projectLanguage,
+            roles: project.roles.map((role) => ({ id: role.id, roleType: role.roleType, description: role.description })),
+            updates: updates.map((update) => ({ id: update.id, body: update.body, kind: update.kind, createdAt: update.createdAt.toISOString() })),
+          }}
+        />
+      </div>
+
       <div className="mt-7 grid gap-9 lg:grid-cols-[minmax(0,1fr)_280px]">
         <main>
           <div className="mb-4">
@@ -73,8 +96,8 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
 
         <aside className="space-y-6">
           <section className="border-b border-[var(--bc-line)] pb-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "International discovery" : "Widoczność międzynarodowa"}</p>
-            <p className="mt-2 text-[12px] leading-4 text-[var(--bc-muted)]">{en ? "Set the project language, reach and current needs so the right people can discover it." : "Ustaw język projektu, zasięg i aktualne potrzeby, żeby trafiał do właściwych osób."}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Discovery settings</p>
+            <p className="mt-2 text-[12px] leading-4 text-[var(--bc-muted)]">Set reach, location and current needs so the right people can discover the project.</p>
             <div className="mt-4"><ProjectInternationalSettings projectId={id} initial={{ projectLanguage: project.projectLanguage, country: project.country, marketScope: project.marketScope, needs: project.needs, fundingStage: project.fundingStage, fundingAmount: project.fundingAmount, fundingUse: project.fundingUse, pitchDeckUrl: project.pitchDeckUrl }} /></div>
           </section>
           <section className="border-b border-[var(--bc-line)] pb-5">

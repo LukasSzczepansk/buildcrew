@@ -104,12 +104,12 @@ const EN = {
   } satisfies Record<FundingStage, string>,
 };
 
-export function internationalLabels(locale: AppLocale) {
-  return locale === "en" ? EN : PL;
+export function internationalLabels(_locale?: AppLocale) {
+  return EN;
 }
 
 export const WORK_MODE_OPTIONS: readonly WorkModePreference[] = ["REMOTE", "HYBRID", "ON_SITE", "FLEXIBLE"];
-export const PROJECT_LANGUAGE_OPTIONS: readonly ProjectLanguage[] = ["PL", "EN", "MULTI"];
+export const PROJECT_LANGUAGE_OPTIONS: readonly ProjectLanguage[] = ["EN"];
 export const PROJECT_MARKET_SCOPE_OPTIONS: readonly ProjectMarketScope[] = ["LOCAL", "EUROPE", "WORLDWIDE"];
 export const PROJECT_NEED_OPTIONS: readonly ProjectNeed[] = ["TEAMMATES", "FEEDBACK", "BETA_TESTERS", "MENTOR", "BUSINESS_PARTNER", "FUNDING"];
 export const FUNDING_STAGE_OPTIONS: readonly FundingStage[] = ["GRANT", "ANGEL", "PRE_SEED", "SEED", "OTHER"];

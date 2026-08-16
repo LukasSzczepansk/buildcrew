@@ -32,6 +32,39 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
+  async redirects() {
+    return [
+      // Canonical English aliases for old public Polish URLs.
+      { source: "/projekty", destination: "/explore/projects", permanent: true },
+      { source: "/hackathony", destination: "/explore/hackathons", permanent: true },
+      { source: "/hackathony/:path*", destination: "/explore/hackathons/:path*", permanent: true },
+      { source: "/regulamin", destination: "/terms", permanent: true },
+      { source: "/polityka-prywatnosci", destination: "/privacy", permanent: true },
+      { source: "/ideas", destination: "/projects", permanent: true },
+      { source: "/ideas/:path*", destination: "/projects", permanent: true },
+
+      // buildcreww.com is the only public product domain. Existing .pl links keep
+      // their path and query string, but land on the global English product.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "buildcreww.pl" }],
+        destination: "https://buildcreww.com/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.buildcreww.pl" }],
+        destination: "https://buildcreww.com/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.buildcreww.com" }],
+        destination: "https://buildcreww.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -14,12 +14,12 @@ import { isBlockedEitherWay } from "@/server/data/moderation";
 
 export async function createIdea(input: z.infer<typeof ideaCreateSchema>) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:idea:create", user.id, 12, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const parsed = ideaCreateSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź dane pomysłu." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the idea details." };
 
   const [idea] = await db.insert(projects).values({
     ownerId: user.id,
@@ -39,15 +39,15 @@ export async function createIdea(input: z.infer<typeof ideaCreateSchema>) {
 }
 
 export async function toggleIdeaInterest(ideaId: string) {
-  if (!uuidSchema.safeParse(ideaId).success) return { error: "Nieprawidłowy pomysł." };
+  if (!uuidSchema.safeParse(ideaId).success) return { error: "Invalid idea." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
 
   const rows = await db.select().from(projects).where(and(eq(projects.id, ideaId), eq(projects.entryType, "IDEA"))).limit(1);
   const idea = rows[0];
-  if (!idea) return { error: "Pomysł nie istnieje." };
-  if (idea.ownerId === user.id) return { error: "To Twój pomysł." };
-  if (await isBlockedEitherWay(user.id, idea.ownerId)) return { error: "Nie możesz wejść w interakcję z tym pomysłem." };
+  if (!idea) return { error: "Idea not found." };
+  if (idea.ownerId === user.id) return { error: "This is your idea." };
+  if (await isBlockedEitherWay(user.id, idea.ownerId)) return { error: "You cannot interact with this idea." };
 
   const existing = await db.select().from(projectIdeaInterests)
     .where(and(eq(projectIdeaInterests.projectId, ideaId), eq(projectIdeaInterests.userId, user.id))).limit(1);
@@ -61,8 +61,8 @@ export async function toggleIdeaInterest(ideaId: string) {
     await createNotification(
       idea.ownerId,
       "IDEA_INTERESTED",
-      `${profileRows[0]?.username ?? "Ktoś"} zainteresował się Twoim pomysłem ${idea.name}`,
-      "Możesz sprawdzić profil tej osoby i zacząć rozmowę.",
+      `${profileRows[0]?.username ?? "Someone"} is interested in your idea ${idea.name}`,
+      "You can view their profile and start a conversation.",
       `/ideas/${idea.id}`,
       { actorId: user.id, entityType: "idea", entityId: idea.id },
     );

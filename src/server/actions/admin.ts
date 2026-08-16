@@ -17,7 +17,7 @@ import { uuidSchema } from "@/lib/validations";
 
 async function requireAdmin() {
   const user = await getVerifiedCurrentUser();
-  if (!user || !isAdmin(user.email, user.systemRole)) throw new Error("Brak uprawnień administratora.");
+  if (!user || !isAdmin(user.email, user.systemRole)) throw new Error("Administrator permission required.");
   return user;
 }
 
@@ -37,11 +37,11 @@ export async function setUserSuspensionAction(formData: FormData) {
   const mode = String(formData.get("mode") ?? "");
   const reason = String(formData.get("reason") ?? "").trim().slice(0, 500);
   if (!uuidSchema.safeParse(userId).success || !["suspend", "restore"].includes(mode)) return;
-  if (userId === admin.id) throw new Error("Nie możesz zawiesić własnego konta administratora.");
+  if (userId === admin.id) throw new Error("You cannot suspend your own administrator account.");
 
   const target = await db.select({ email: users.email, systemRole: users.systemRole, isSuspended: users.isSuspended }).from(users).where(eq(users.id, userId)).limit(1);
   if (!target[0]) return;
-  if (isAdmin(target[0].email, target[0].systemRole)) throw new Error("Nie możesz zawiesić innego administratora z poziomu panelu.");
+  if (isAdmin(target[0].email, target[0].systemRole)) throw new Error("You cannot suspend another administrator from this panel.");
 
   if (mode === "suspend") {
     await db

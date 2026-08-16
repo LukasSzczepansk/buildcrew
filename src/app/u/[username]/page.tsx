@@ -56,8 +56,8 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
     listCreditsForUser(profile.userId),
   ]);
   const projects = [
-    ...ownedProjects.filter((project) => project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: en ? "Owner" : "Autor" })),
-    ...memberProjects.filter((project) => project.ownerId !== profile.userId && project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: en ? "Team member" : "Członek zespołu" })),
+    ...ownedProjects.filter((project) => project.projectLanguage === "EN" && project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: "Owner" })),
+    ...memberProjects.filter((project) => project.projectLanguage === "EN" && project.ownerId !== profile.userId && project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: "Team member" })),
   ];
   const openToBuild = profile.lookingFor.includes("OPEN_TO_BUILD") || profile.lookingFor.includes("WANTS_PROJECT");
   const activityState = getActivityState(profile.lastActiveAt);

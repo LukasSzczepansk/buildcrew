@@ -7,13 +7,13 @@ import { FilterBar } from "@/components/filters/filter-bar";
 import { ProjectCard } from "@/components/projects/project-card";
 import { INTEREST_OPTIONS, ALL_SKILLS } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
-import { internationalLabels, COUNTRY_OPTIONS, PROJECT_LANGUAGE_OPTIONS, PROJECT_MARKET_SCOPE_OPTIONS, PROJECT_NEED_OPTIONS } from "@/lib/international";
+import { internationalLabels, COUNTRY_OPTIONS, PROJECT_MARKET_SCOPE_OPTIONS, PROJECT_NEED_OPTIONS } from "@/lib/international";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { computeProjectMatch } from "@/lib/project-matching";
 import { getProfileByUserId } from "@/server/data/profiles";
 import { listProjects } from "@/server/data/projects";
-import type { Commitment, Level, ProjectLanguage, ProjectMarketScope, ProjectNeed, RoleType, Stage } from "@/db/schema";
+import type { Commitment, Level, ProjectMarketScope, ProjectNeed, RoleType, Stage } from "@/db/schema";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
@@ -38,7 +38,6 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       interest: params.interest,
       commitment: params.commitment as Commitment | undefined,
       stage: params.stage as Stage | undefined,
-      projectLanguage: params.language as ProjectLanguage | undefined,
       marketScope: params.market as ProjectMarketScope | undefined,
       need: params.need as ProjectNeed | undefined,
       country: params.country,
@@ -108,7 +107,6 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
           filters={[
             { key: "role", label: en ? "Role" : "Rola", options: Object.entries(labels.roles).map(([value, label]) => ({ value, label })) },
             { key: "technology", label: en ? "Technology" : "Technologia", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
-            { key: "language", label: en ? "Project language" : "Język projektu", options: PROJECT_LANGUAGE_OPTIONS.map((value) => ({ value, label: intl.projectLanguage[value] })) },
             { key: "market", label: en ? "Reach" : "Zasięg", options: PROJECT_MARKET_SCOPE_OPTIONS.map((value) => ({ value, label: intl.marketScope[value] })) },
             { key: "need", label: en ? "Needs" : "Potrzebuje", options: PROJECT_NEED_OPTIONS.map((value) => ({ value, label: intl.needs[value] })) },
             { key: "country", label: en ? "Country" : "Kraj", options: COUNTRY_OPTIONS.map((country) => ({ value: country, label: country })) },

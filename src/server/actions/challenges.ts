@@ -16,9 +16,9 @@ async function requireAdmin() {
 
 export async function createChallenge(input: unknown) {
   const admin = await requireAdmin();
-  if (!admin) return { error: "Brak uprawnień." };
+  if (!admin) return { error: "You do not have permission to do this." };
   const parsed = challengeCreateSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź formularz." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the form." };
   const [challenge] = await db.insert(buildChallenges).values({
     ...parsed.data,
     description: parsed.data.description || null,
@@ -33,12 +33,12 @@ export async function createChallenge(input: unknown) {
 
 export async function setChallengeStatus(challengeId: string, status: "OPEN" | "BUILDING" | "VOTING" | "CLOSED") {
   const admin = await requireAdmin();
-  if (!admin || !uuidSchema.safeParse(challengeId).success) return { error: "Brak uprawnień lub błędne dane." };
+  if (!admin || !uuidSchema.safeParse(challengeId).success) return { error: "You do not have permission or the data is invalid." };
   const rows = await db.update(buildChallenges).set({ status }).where(eq(buildChallenges.id, challengeId)).returning({ title: buildChallenges.title });
   if (!rows[0]) return { error: "Challenge nie istnieje." };
 
   const participants = await db.select({ userId: challengeParticipants.userId }).from(challengeParticipants).where(eq(challengeParticipants.challengeId, challengeId));
-  await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status został zmieniony`, status === "BUILDING" ? "Czas budować. Powodzenia!" : status === "VOTING" ? "Możecie publikować projekty i głosować." : status === "CLOSED" ? "Challenge zakończony - zobacz wyniki." : "Zapisy są otwarte.", `/showcase/challenges/${challengeId}`, { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge", titleEn: `${rows[0].title}: status changed`, bodyEn: status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open." })));
+  await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status changed`, status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open.", `/showcase/challenges/${challengeId}`, { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge", titleEn: `${rows[0].title}: status changed`, bodyEn: status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open." })));
   revalidatePath(`/showcase/challenges/${challengeId}`);
   revalidatePath("/showcase/challenges");
   revalidatePath("/admin/challenges");
@@ -47,22 +47,22 @@ export async function setChallengeStatus(challengeId: string, status: "OPEN" | "
 
 export async function joinChallenge(input: unknown) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const parsed = challengeJoinSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź dane." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the provided data." };
   const challengeRows = await db.select().from(buildChallenges).where(eq(buildChallenges.id, parsed.data.challengeId)).limit(1);
   const challenge = challengeRows[0];
-  if (!challenge || !["OPEN", "BUILDING"].includes(challenge.status)) return { error: "Zapisy do tego challenge są zamknięte." };
+  if (!challenge || !["OPEN", "BUILDING"].includes(challenge.status)) return { error: "Registration for this challenge is closed." };
 
   const profileRows = await db.select({ role: profiles.role }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  if (!profileRows[0]) return { error: "Najpierw uzupełnij profil." };
+  if (!profileRows[0]) return { error: "Complete your profile first." };
 
   let crewId: string | null = null;
   if (parsed.data.mode === "HAS_CREW") {
     const candidateCrewId = parsed.data.crewId || null;
-    if (!candidateCrewId) return { error: "Wybierz swoją ekipę." };
+    if (!candidateCrewId) return { error: "Choose your crew." };
     const membership = await db.select({ crewId: crewMembers.crewId }).from(crewMembers).where(and(eq(crewMembers.crewId, candidateCrewId), eq(crewMembers.userId, user.id))).limit(1);
-    if (!membership[0]) return { error: "Nie należysz do tej ekipy." };
+    if (!membership[0]) return { error: "You are not a member of this crew." };
     crewId = candidateCrewId;
   }
 
@@ -75,7 +75,7 @@ export async function joinChallenge(input: unknown) {
 
 export async function leaveChallenge(challengeId: string) {
   const user = await getVerifiedCurrentUser();
-  if (!user || !uuidSchema.safeParse(challengeId).success) return { error: "Nieprawidłowe dane." };
+  if (!user || !uuidSchema.safeParse(challengeId).success) return { error: "Invalid data." };
   await db.delete(challengeParticipants).where(and(eq(challengeParticipants.challengeId, challengeId), eq(challengeParticipants.userId, user.id)));
   revalidatePath(`/showcase/challenges/${challengeId}`);
   return { success: true };

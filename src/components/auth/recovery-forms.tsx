@@ -70,9 +70,9 @@ export function VerifyEmailForm({ token, nextPath }: { token: string; nextPath?:
 export function AdminVerifyForm() {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(adminVerifyAction, {});
   return <form action={action} className="space-y-5">
-    <div className="space-y-1.5"><Label htmlFor="code">Kod 2FA</Label><Input id="code" name="code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" placeholder="123456" required /></div>
+    <div className="space-y-1.5"><Label htmlFor="code">2FA code</Label><Input id="code" name="code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" placeholder="123456" required /></div>
     <StateMessage state={state} />
-    <Button className="w-full" size="lg" disabled={pending}>{pending ? "Sprawdzamy…" : "Potwierdź logowanie"}</Button>
-    <p className="text-center text-[13px] text-neutral-500">Kod jest ważny 10 minut i działa tylko raz.</p>
+    <Button className="w-full" size="lg" disabled={pending}>{pending ? "Checking…" : "Confirm sign-in"}</Button>
+    <p className="text-center text-[13px] text-neutral-500">The code is valid for 10 minutes and can only be used once.</p>
   </form>;
 }

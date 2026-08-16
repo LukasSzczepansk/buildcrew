@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Topbar } from "@/components/layout/topbar";
 import { ProjectWizard } from "@/components/projects/project-wizard";
 import { getCurrentUser } from "@/lib/auth";
@@ -25,12 +24,6 @@ export default async function NewProjectPage({ searchParams }: { searchParams: P
         title={canConvert ? (en ? "Turn the idea into a project" : "Rozwiń pomysł w projekt") : (en ? "Add project" : "Dodaj projekt")}
         subtitle={canConvert ? (en ? "The idea is already saved. Add the team, stack and collaboration expectations." : "Pomysł jest już zapisany. Uzupełnij ekipę, stack i zasady współpracy.") : (en ? "Describe the project, team and collaboration expectations without unnecessary formality." : "Opisz projekt, ekipę i zasady współpracy bez zbędnego formularza.")}
       />
-      {!canConvert ? (
-        <div className="mb-6 flex flex-col gap-2 border-y border-[var(--bc-line)] py-4 text-[13px] text-[var(--bc-muted)] sm:flex-row sm:items-center sm:justify-between">
-          <span>{en ? "Only have an early concept and don’t want to fill in the full project yet?" : "Masz dopiero zalążek i nie chcesz jeszcze wypełniać całego projektu?"}</span>
-          <Link href="/ideas" className="shrink-0 font-medium text-[var(--bc-ink)] hover:underline">{en ? "Add an idea in under a minute →" : "Dodaj pomysł w mniej niż minutę →"}</Link>
-        </div>
-      ) : null}
       <ProjectWizard
         draftKey={user?.id ?? "session"}
         sourceIdeaId={canConvert ? sourceIdea!.id : undefined}

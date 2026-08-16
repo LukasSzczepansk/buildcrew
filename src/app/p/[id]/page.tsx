@@ -49,7 +49,8 @@ export async function generateMetadata({
   const [{ id }, query, locale] = await Promise.all([params, searchParams, getRequestLocale()]);
   const project = await getProjectById(id);
   const labels = labelsFor(locale);
-  if (!project) return { title: locale === "en" ? "Project - BuildCrew" : "Projekt - BuildCrew", robots: { index: false, follow: false } };
+  if (!project) return { title: "Project - BuildCrew", robots: { index: false, follow: false } };
+  if (project.projectLanguage !== "EN") return { title: "Project being updated - BuildCrew", description: "This project is being prepared for BuildCrew's global English community.", robots: { index: false, follow: false } };
 
   const requestedRole = project.lifecycleStatus === "ACTIVE" && query.share === "role"
     ? project.openRoles.find((role) => role.id === query.role)
@@ -119,6 +120,19 @@ export default async function PublicProjectPage({
   const labels = labelsFor(locale);
   const intl = internationalLabels(locale);
   if (!project) notFound();
+  if (project.projectLanguage !== "EN") {
+    return (
+      <div className="min-h-screen bg-[#f4f4ef] text-[#111111] dark:bg-[#11110f] dark:text-[#f4f4ef]">
+        <header className="border-b border-[var(--bc-line)]"><div className="mx-auto flex h-16 max-w-[900px] items-center justify-between px-5"><Link href="/" className="font-semibold">BuildCrew</Link><Button asChild size="sm"><Link href="/explore/projects">Explore projects</Link></Button></div></header>
+        <main className="mx-auto max-w-[900px] px-5 py-20">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Project update in progress</p>
+          <h1 className="mt-3 max-w-2xl text-[34px] font-semibold tracking-[-0.03em]">This project is being prepared for BuildCrew's global community.</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--bc-muted)]">BuildCrew now uses English for all public project content. The project owner has not finished updating this legacy project yet.</p>
+          <div className="mt-7"><Button asChild><Link href="/explore/projects">Browse projects in English</Link></Button></div>
+        </main>
+      </div>
+    );
+  }
   const [updates, credits] = await Promise.all([
     listProjectUpdates(project.id, 6),
     project.lifecycleStatus === "COMPLETED" ? listProjectCredits(project.id) : Promise.resolve([]),

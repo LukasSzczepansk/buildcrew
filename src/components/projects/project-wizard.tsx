@@ -11,7 +11,6 @@ import { appMessage } from "@/lib/server-copy";
 import {
   COUNTRY_OPTIONS,
   FUNDING_STAGE_OPTIONS,
-  PROJECT_LANGUAGE_OPTIONS,
   PROJECT_MARKET_SCOPE_OPTIONS,
   PROJECT_NEED_OPTIONS,
   internationalLabels,
@@ -141,9 +140,9 @@ const EMPTY_FORM: FormState = {
   collaborationPace: "REGULAR",
   duration: "3_6_MONTHS",
   character: [],
-  projectLanguage: "PL",
+  projectLanguage: "EN",
   country: "",
-  marketScope: "LOCAL",
+  marketScope: "WORLDWIDE",
   needs: ["TEAMMATES"],
   fundingStage: "",
   fundingAmount: "",
@@ -183,8 +182,8 @@ export function ProjectWizard({
   const storageKey = `${DRAFT_KEY_PREFIX}:${draftKey}${sourceIdeaId ? `:idea:${sourceIdeaId}` : ""}`;
   const initialForm: FormState = {
     ...EMPTY_FORM,
-    projectLanguage: locale === "en" ? "EN" : "PL",
-    marketScope: locale === "en" ? "WORLDWIDE" : "LOCAL",
+    projectLanguage: "EN",
+    marketScope: "WORLDWIDE",
     ...initialData,
     interests: initialData?.interests ?? EMPTY_FORM.interests,
   };
@@ -720,13 +719,10 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label={copy("Język projektu", "Project language")} required>
-          <Select value={form.projectLanguage} onValueChange={(value) => setForm((current) => ({ ...current, projectLanguage: value as ProjectLanguage }))}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>{PROJECT_LANGUAGE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{intl.projectLanguage[option]}</SelectItem>)}</SelectContent>
-          </Select>
-        </Field>
-        <Field label={copy("Zasięg współpracy", "Collaboration reach")} required>
+        <div className="rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-4 py-3 text-[12px] leading-5 text-[var(--bc-muted)]">
+          <span className="font-semibold text-[var(--bc-ink)]">Public content language: English.</span> Write the project name, tagline, description and role notes in English so builders from any country can understand them.
+        </div>
+        <Field label="Collaboration reach" required>
           <Select value={form.marketScope} onValueChange={(value) => setForm((current) => ({ ...current, marketScope: value as ProjectMarketScope }))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>{PROJECT_MARKET_SCOPE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{intl.marketScope[option]}</SelectItem>)}</SelectContent>

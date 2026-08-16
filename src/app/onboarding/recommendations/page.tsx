@@ -11,7 +11,7 @@ import { labelsFor } from "@/lib/constants-i18n";
 import { computeMatch } from "@/lib/matching";
 import { getRequestLocale } from "@/lib/site-server";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
-import { listIdeas, listProjects } from "@/server/data/projects";
+import { listProjects } from "@/server/data/projects";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 import type { AppLocale } from "@/lib/site-config";
 
@@ -39,7 +39,7 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
   const profile = await getProfileByUserId(user.id);
   if (!profile) redirect("/onboarding");
 
-  const [builders, projects, ideas] = await Promise.all([listBuilderProfiles(user.id), listProjects({}, user.id), listIdeas(user.id)]);
+  const [builders, projects] = await Promise.all([listBuilderProfiles(user.id), listProjects({}, user.id)]);
 
   const builderMatches = builders
     .filter((builder) => builder.onboardingCompleted)
@@ -52,15 +52,6 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
       ),
     }))
     .sort((a, b) => b.match.score - a.match.score)
-    .slice(0, 3);
-
-  const ideaMatches = ideas
-    .filter((idea) => idea.ownerId !== user.id)
-    .sort((a, b) => {
-      const aShared = a.interests.filter((interest) => profile.interests.includes(interest)).length;
-      const bShared = b.interests.filter((interest) => profile.interests.includes(interest)).length;
-      return bShared - aShared || b.interestedCount - a.interestedCount;
-    })
     .slice(0, 3);
 
   const projectMatches = projects
@@ -127,24 +118,9 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
           ) : <EmptyLine text={en ? "There are no open projects matching your profile yet." : "Nie ma jeszcze otwartych projektów dopasowanych do Twojego profilu."} />}
         </section>
 
-        <section className="mt-9">
-          <SectionHeader title={en ? "If none of the projects feels right" : "Jeśli żaden projekt Cię nie przekonuje"} meta={en ? `${ideaMatches.length} ideas to discuss` : `${ideaMatches.length} pomysły do przegadania`} href="/ideas" locale={locale} />
-          {ideaMatches.length ? (
-            <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-              {ideaMatches.map((idea) => (
-                <Link key={idea.id} href={`/ideas/${idea.id}`} className="grid gap-2 py-4 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                  <div><p className="text-[14px] font-semibold">{idea.name}</p><p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[var(--bc-muted)]">{idea.tagline}</p><p className="mt-1 text-[12px] text-[var(--bc-faint)]">{idea.interests.slice(0, 3).join(" · ")} · {idea.interestedCount} {en ? "interested" : "zainteresowanych"}</p></div>
-                  <span className="text-[13px] font-medium">{en ? "Check it out" : "Sprawdź"} →</span>
-                </Link>
-              ))}
-            </div>
-          ) : <EmptyLine text={en ? "No ideas yet. You can add your own in under a minute or check the Build Pool." : "Nie ma jeszcze pomysłów. Możesz dodać własny w mniej niż minutę albo wejść do Build Pool."} />}
-          <div className="mt-4 flex flex-wrap gap-2"><Button asChild variant="outline" size="sm"><Link href="/ideas">{en ? "Add / browse ideas" : "Dodaj / zobacz pomysły"}</Link></Button><Button asChild variant="ghost" size="sm"><Link href="/build">{en ? "Find people without a project" : "Znajdź ludzi bez projektu"}</Link></Button></div>
-        </section>
-
         <footer className="mt-10 flex flex-col gap-3 border-t border-[var(--bc-line-strong)] pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-[560px] text-[13px] leading-5 text-[var(--bc-muted)]">{en ? "This is only the first ranking. As more real activity appears in BuildCrew, the next recommendations will get better." : "To dopiero pierwszy ranking. Im więcej realnej aktywności pojawi się w BuildCrew, tym lepsze będą kolejne rekomendacje."}</p>
-          <div className="flex flex-wrap gap-2"><Button asChild variant="outline"><Link href="/ideas">{en ? "Add an idea" : "Dodaj pomysł"}</Link></Button><Button asChild><Link href={nextPath}>{nextPath === "/dashboard" ? (en ? "Go to Home" : "Przejdź do Start") : (en ? "Continue" : "Kontynuuj")} <ArrowRight className="h-4 w-4" /></Link></Button></div>
+          <div className="flex flex-wrap gap-2"><Button asChild variant="outline"><Link href="/projects">Explore projects</Link></Button><Button asChild><Link href={nextPath}>{nextPath === "/dashboard" ? "Go to Home" : "Continue"} <ArrowRight className="h-4 w-4" /></Link></Button></div>
         </footer>
       </main>
     </div>

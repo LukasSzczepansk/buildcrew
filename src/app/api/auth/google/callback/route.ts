@@ -110,15 +110,15 @@ export async function GET(request: NextRequest) {
 
       const sent = await sendTransactionalEmail({
         to: user.email,
-        subject: "Kod logowania administratora BuildCrew",
+        subject: "BuildCrew administrator sign-in code",
         html: buildCrewEmail({
-          eyebrow: "Bezpieczeństwo konta",
-          title: "Kod logowania",
-          intro: "Użyj poniższego kodu, aby dokończyć logowanie do panelu administratora.",
+          eyebrow: "Account security",
+          title: "Sign-in code",
+          intro: "Use the code below to finish signing in to the administrator panel.",
           content: `<div style="padding:18px 0;border-top:1px solid #E5E5DF;border-bottom:1px solid #E5E5DF;font-size:30px;line-height:38px;font-weight:700;letter-spacing:6px;color:#111111;">${codeValue}</div>`,
-          footer: "Kod wygasa po 10 minutach. Jeśli to nie Ty próbujesz się zalogować, zmień hasło i sprawdź aktywne sesje.",
+          footer: "The code expires after 10 minutes. If you did not try to sign in, change your password and review your active sessions.",
         }),
-        devPreview: `Kod administratora: ${codeValue}`,
+        devPreview: `Administrator code: ${codeValue}`,
       });
 
       if (!sent.ok && process.env.NODE_ENV === "production") {

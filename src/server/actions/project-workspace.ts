@@ -32,11 +32,11 @@ import { createNotification } from "@/server/services/notifications";
 export type WorkspaceActionResult = { success?: boolean; error?: string };
 
 async function requireMember(projectId: string) {
-  if (!uuidSchema.safeParse(projectId).success) return { error: "Nieprawidłowy projekt." } as const;
+  if (!uuidSchema.safeParse(projectId).success) return { error: "Invalid project." } as const;
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." } as const;
+  if (!user) return { error: "You must be logged in." } as const;
   if (!(await canAccessProjectWorkspace(projectId, user.id))) {
-    return { error: "Ta przestrzeń jest dostępna tylko dla członków projektu." } as const;
+    return { error: "This workspace is available only to project members." } as const;
   }
   return { user } as const;
 }
@@ -54,7 +54,7 @@ async function requireOwner(projectId: string) {
   const access = await requireMember(projectId);
   if ("error" in access) return access;
   const project = await projectInfo(projectId);
-  if (!project || project.ownerId !== access.user.id) return { error: "Tę zmianę może wykonać tylko twórca projektu." } as const;
+  if (!project || project.ownerId !== access.user.id) return { error: "Only the project owner can make this change." } as const;
   return { user: access.user, project } as const;
 }
 
@@ -93,7 +93,7 @@ async function notifyMessageRecipients(input: {
     await createNotification(
       input.replyToSenderId,
       "WORKSPACE_REPLY",
-      `Odpowiedź w ${input.projectName}`,
+      `Reply in ${input.projectName}`,
       input.body.slice(0, 180),
       `/projects/${input.projectId}/workspace`,
       {
@@ -101,12 +101,12 @@ async function notifyMessageRecipients(input: {
         entityType: "project_workspace",
         entityId: input.projectId,
         emailPreference: "emailWorkspace",
-        emailCtaLabel: "Otwórz rozmowę",
+        emailCtaLabel: "Open conversation",
         emailCtaLabelEn: "Open conversation",
         titleEn: `Reply in ${input.projectName}`,
         bodyEn: input.body.slice(0, 180),
         emailTitleEn: `Reply in ${input.projectName}`,
-        emailIntro: "Masz nową odpowiedź w prywatnym workspace projektu. Otwórz BuildCrew, żeby zobaczyć treść.",
+        emailIntro: "You have a new reply in the private project workspace. Open BuildCrew to view it.",
         emailIntroEn: "You have a new reply in a private project workspace. Open BuildCrew to read it.",
       },
     );
@@ -127,7 +127,7 @@ async function notifyMessageRecipients(input: {
     await createNotification(
       mentioned.userId,
       "WORKSPACE_MENTION",
-      `Wspomniano Cię w ${input.projectName}`,
+      `You were mentioned in ${input.projectName}`,
       input.body.slice(0, 180),
       `/projects/${input.projectId}/workspace`,
       {
@@ -135,12 +135,12 @@ async function notifyMessageRecipients(input: {
         entityType: "project_workspace",
         entityId: input.projectId,
         emailPreference: "emailWorkspace",
-        emailCtaLabel: "Otwórz rozmowę",
+        emailCtaLabel: "Open conversation",
         emailCtaLabelEn: "Open conversation",
         titleEn: `You were mentioned in ${input.projectName}`,
         bodyEn: input.body.slice(0, 180),
         emailTitleEn: `You were mentioned in ${input.projectName}`,
-        emailIntro: "Ktoś oznaczył Cię w prywatnym workspace projektu. Otwórz BuildCrew, żeby zobaczyć treść.",
+        emailIntro: "Someone mentioned you in the private project workspace. Open BuildCrew to view it.",
         emailIntroEn: "Someone mentioned you in a private project workspace. Open BuildCrew to read it.",
       },
     );
@@ -155,7 +155,7 @@ export async function sendProjectWorkspaceMessage(
   const access = await requireMember(projectId);
   if ("error" in access) return access;
   const parsed = workspaceMessageSchema.safeParse({ body });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź wiadomość." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "View the message." };
 
   const rateError = await enforceUserRateLimit("action:workspace:message", access.user.id, 120, 60 * 60);
   if (rateError) return { error: rateError };
@@ -163,14 +163,14 @@ export async function sendProjectWorkspaceMessage(
   let replyToSenderId: string | null = null;
   let normalizedReplyToId: string | null = null;
   if (replyToId) {
-    if (!uuidSchema.safeParse(replyToId).success) return { error: "Nieprawidłowa wiadomość, na którą odpowiadasz." };
+    if (!uuidSchema.safeParse(replyToId).success) return { error: "Invalid message to reply to." };
     const replyRows = await db
       .select({ id: projectWorkspaceMessages.id, projectId: projectWorkspaceMessages.projectId, senderId: projectWorkspaceMessages.senderId })
       .from(projectWorkspaceMessages)
       .where(eq(projectWorkspaceMessages.id, replyToId))
       .limit(1);
     const reply = replyRows[0];
-    if (!reply || reply.projectId !== projectId) return { error: "Wiadomość, na którą odpowiadasz, nie istnieje w tym workspace." };
+    if (!reply || reply.projectId !== projectId) return { error: "The message you are replying to does not exist in this workspace." };
     normalizedReplyToId = reply.id;
     replyToSenderId = reply.senderId;
   }
@@ -206,39 +206,39 @@ export async function sendProjectWorkspaceMessage(
 }
 
 export async function editProjectWorkspaceMessage(messageId: string, body: string): Promise<WorkspaceActionResult> {
-  if (!uuidSchema.safeParse(messageId).success) return { error: "Nieprawidłowa wiadomość." };
+  if (!uuidSchema.safeParse(messageId).success) return { error: "Invalid message." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const parsed = workspaceMessageSchema.safeParse({ body });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź wiadomość." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "View the message." };
 
   const rows = await db.select().from(projectWorkspaceMessages).where(eq(projectWorkspaceMessages.id, messageId)).limit(1);
   const message = rows[0];
-  if (!message || message.deletedAt) return { error: "Wiadomość nie istnieje." };
-  if (message.senderId !== user.id) return { error: "Możesz edytować tylko własne wiadomości." };
-  if (!(await canAccessProjectWorkspace(message.projectId, user.id))) return { error: "Brak uprawnień." };
+  if (!message || message.deletedAt) return { error: "Message not found." };
+  if (message.senderId !== user.id) return { error: "You can edit only your own messages." };
+  if (!(await canAccessProjectWorkspace(message.projectId, user.id))) return { error: "You do not have permission to do this." };
 
   await db
     .update(projectWorkspaceMessages)
     .set({ body: parsed.data.body, editedAt: new Date() })
     .where(eq(projectWorkspaceMessages.id, messageId));
-  await addActivity(message.projectId, user.id, "MESSAGE_EDITED", "Edytowano wiadomość w rozmowie zespołu.");
+  await addActivity(message.projectId, user.id, "MESSAGE_EDITED", "A message in the team conversation was edited.");
   refresh(message.projectId);
   return { success: true };
 }
 
 export async function deleteProjectWorkspaceMessage(messageId: string): Promise<WorkspaceActionResult> {
-  if (!uuidSchema.safeParse(messageId).success) return { error: "Nieprawidłowa wiadomość." };
+  if (!uuidSchema.safeParse(messageId).success) return { error: "Invalid message." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
 
   const rows = await db.select().from(projectWorkspaceMessages).where(eq(projectWorkspaceMessages.id, messageId)).limit(1);
   const message = rows[0];
-  if (!message) return { error: "Wiadomość nie istnieje." };
-  if (!(await canAccessProjectWorkspace(message.projectId, user.id))) return { error: "Brak uprawnień." };
+  if (!message) return { error: "Message not found." };
+  if (!(await canAccessProjectWorkspace(message.projectId, user.id))) return { error: "You do not have permission to do this." };
 
   const project = await projectInfo(message.projectId);
-  if (message.senderId !== user.id && project?.ownerId !== user.id) return { error: "Możesz usunąć tylko własną wiadomość." };
+  if (message.senderId !== user.id && project?.ownerId !== user.id) return { error: "You can delete only your own message." };
 
   await db
     .update(projectWorkspaceMessages)
@@ -249,12 +249,12 @@ export async function deleteProjectWorkspaceMessage(messageId: string): Promise<
 }
 
 export async function setProjectWorkspaceMessagePinned(messageId: string, pinned: boolean): Promise<WorkspaceActionResult> {
-  if (!uuidSchema.safeParse(messageId).success) return { error: "Nieprawidłowa wiadomość." };
+  if (!uuidSchema.safeParse(messageId).success) return { error: "Invalid message." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rows = await db.select().from(projectWorkspaceMessages).where(eq(projectWorkspaceMessages.id, messageId)).limit(1);
   const message = rows[0];
-  if (!message || message.deletedAt) return { error: "Wiadomość nie istnieje." };
+  if (!message || message.deletedAt) return { error: "Message not found." };
   const owner = await requireOwner(message.projectId);
   if ("error" in owner) return owner;
 
@@ -266,7 +266,7 @@ export async function setProjectWorkspaceMessagePinned(messageId: string, pinned
     message.projectId,
     user.id,
     pinned ? "MESSAGE_PINNED" : "MESSAGE_UNPINNED",
-    pinned ? "Przypięto ważną wiadomość." : "Odpięto wiadomość.",
+    pinned ? "An important message was pinned." : "The message was unpinned.",
   );
   refresh(message.projectId);
   return { success: true };
@@ -276,11 +276,11 @@ export async function toggleProjectWorkspaceReaction(
   messageId: string,
   reaction: "CHECK" | "LIKE",
 ): Promise<WorkspaceActionResult> {
-  if (!uuidSchema.safeParse(messageId).success) return { error: "Nieprawidłowa wiadomość." };
+  if (!uuidSchema.safeParse(messageId).success) return { error: "Invalid message." };
   const parsedReaction = workspaceReactionSchema.safeParse(reaction);
-  if (!parsedReaction.success) return { error: "Nieprawidłowa reakcja." };
+  if (!parsedReaction.success) return { error: "Invalid reaction." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
 
   const rows = await db
     .select({ projectId: projectWorkspaceMessages.projectId, deletedAt: projectWorkspaceMessages.deletedAt })
@@ -288,8 +288,8 @@ export async function toggleProjectWorkspaceReaction(
     .where(eq(projectWorkspaceMessages.id, messageId))
     .limit(1);
   const message = rows[0];
-  if (!message || message.deletedAt) return { error: "Wiadomość nie istnieje." };
-  if (!(await canAccessProjectWorkspace(message.projectId, user.id))) return { error: "Brak uprawnień." };
+  if (!message || message.deletedAt) return { error: "Message not found." };
+  if (!(await canAccessProjectWorkspace(message.projectId, user.id))) return { error: "You do not have permission to do this." };
 
   const existingRows = await db
     .select({ reaction: projectWorkspaceMessageReactions.reaction })
@@ -344,7 +344,7 @@ export async function updateProjectWorkspaceOverview(
   const access = await requireOwner(projectId);
   if ("error" in access) return access;
   const parsed = workspaceOverviewSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź dane workspace." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the workspace data." };
 
   const beforeRows = await db.select().from(projectWorkspaces).where(eq(projectWorkspaces.projectId, projectId)).limit(1);
   const before = beforeRows[0];
@@ -385,7 +385,7 @@ export async function updateProjectWorkspaceOverview(
     (before?.milestoneStatus ?? "DOING") !== milestoneStatus ||
     (before?.milestoneDueAt?.toISOString().slice(0, 10) ?? "") !== (parsed.data.milestoneDueAt ?? "")
   ) {
-    await addActivity(projectId, access.user.id, "MILESTONE_UPDATED", milestoneCompleted ? "Oznaczono najbliższy milestone jako ukończony." : "Zaktualizowano najbliższy milestone.");
+    await addActivity(projectId, access.user.id, "MILESTONE_UPDATED", milestoneCompleted ? "The next milestone was marked as completed." : "The next milestone was updated.");
   }
 
   refresh(projectId);
@@ -399,18 +399,18 @@ export async function addProjectWorkspaceTask(
   const access = await requireMember(projectId);
   if ("error" in access) return access;
   const parsed = workspaceTaskSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź zadanie." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the task." };
 
   const rateError = await enforceUserRateLimit("action:workspace:task", access.user.id, 80, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const assigneeId = parsed.data.assigneeId || null;
-  if (assigneeId && !(await canAccessProjectWorkspace(projectId, assigneeId))) return { error: "Wybrana osoba nie należy do projektu." };
+  if (assigneeId && !(await canAccessProjectWorkspace(projectId, assigneeId))) return { error: "The selected person is not a project member." };
 
   const sourceMessageId = parsed.data.sourceMessageId || null;
   if (sourceMessageId) {
     const sourceRows = await db.select({ projectId: projectWorkspaceMessages.projectId }).from(projectWorkspaceMessages).where(eq(projectWorkspaceMessages.id, sourceMessageId)).limit(1);
-    if (!sourceRows[0] || sourceRows[0].projectId !== projectId) return { error: "Wiadomość źródłowa nie należy do tego projektu." };
+    if (!sourceRows[0] || sourceRows[0].projectId !== projectId) return { error: "The source message does not belong to this project." };
   }
 
   const dueAt = parsed.data.dueAt ? new Date(`${parsed.data.dueAt}T12:00:00.000Z`) : null;
@@ -438,7 +438,7 @@ export async function addProjectWorkspaceTask(
         entityType: "project_workspace_task",
         entityId: projectId,
         emailPreference: "emailWorkspace",
-        emailCtaLabel: "Otwórz zadania",
+        emailCtaLabel: "Open tasks",
         emailCtaLabelEn: "Open tasks",
         titleEn: `A task was assigned to you${project ? ` in ${project.name}` : ""}`,
         bodyEn: parsed.data.title,
@@ -454,19 +454,19 @@ export async function updateProjectWorkspaceTask(
   taskId: string,
   input: { title?: string; description?: string; assigneeId?: string; dueAt?: string; status?: "TODO" | "DOING" | "DONE" },
 ): Promise<WorkspaceActionResult> {
-  if (!uuidSchema.safeParse(taskId).success) return { error: "Nieprawidłowe zadanie." };
+  if (!uuidSchema.safeParse(taskId).success) return { error: "Invalid task." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const parsed = workspaceTaskUpdateSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź zadanie." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the task." };
 
   const rows = await db.select().from(projectWorkspaceTasks).where(eq(projectWorkspaceTasks.id, taskId)).limit(1);
   const task = rows[0];
   if (!task) return { error: "Zadanie nie istnieje." };
-  if (!(await canAccessProjectWorkspace(task.projectId, user.id))) return { error: "Brak uprawnień." };
+  if (!(await canAccessProjectWorkspace(task.projectId, user.id))) return { error: "You do not have permission to do this." };
 
   const assigneeId = parsed.data.assigneeId === undefined ? task.assigneeId : (parsed.data.assigneeId || null);
-  if (assigneeId && !(await canAccessProjectWorkspace(task.projectId, assigneeId))) return { error: "Wybrana osoba nie należy do projektu." };
+  if (assigneeId && !(await canAccessProjectWorkspace(task.projectId, assigneeId))) return { error: "The selected person is not a project member." };
   const dueAt = parsed.data.dueAt === undefined
     ? task.dueAt
     : parsed.data.dueAt
@@ -497,7 +497,7 @@ export async function updateProjectWorkspaceTask(
         entityType: "project_workspace_task",
         entityId: task.projectId,
         emailPreference: "emailWorkspace",
-        emailCtaLabel: "Otwórz zadania",
+        emailCtaLabel: "Open tasks",
         emailCtaLabelEn: "Open tasks",
         titleEn: `A task was assigned to you${project ? ` in ${project.name}` : ""}`,
         bodyEn: parsed.data.title ?? task.title,
@@ -514,24 +514,24 @@ export async function updateProjectWorkspaceTaskStatus(
   status: "TODO" | "DOING" | "DONE",
 ): Promise<WorkspaceActionResult> {
   const parsedStatus = workspaceTaskStatusSchema.safeParse(status);
-  if (!parsedStatus.success) return { error: "Nieprawidłowy status zadania." };
+  if (!parsedStatus.success) return { error: "Invalid task status." };
   return updateProjectWorkspaceTask(taskId, { status: parsedStatus.data });
 }
 
 export async function deleteProjectWorkspaceTask(taskId: string): Promise<WorkspaceActionResult> {
-  if (!uuidSchema.safeParse(taskId).success) return { error: "Nieprawidłowe zadanie." };
+  if (!uuidSchema.safeParse(taskId).success) return { error: "Invalid task." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
 
   const rows = await db.select().from(projectWorkspaceTasks).where(eq(projectWorkspaceTasks.id, taskId)).limit(1);
   const task = rows[0];
   if (!task) return { error: "Zadanie nie istnieje." };
-  if (!(await canAccessProjectWorkspace(task.projectId, user.id))) return { error: "Brak uprawnień." };
+  if (!(await canAccessProjectWorkspace(task.projectId, user.id))) return { error: "You do not have permission to do this." };
   const project = await projectInfo(task.projectId);
-  if (task.createdBy !== user.id && project?.ownerId !== user.id) return { error: "Brak uprawnień do usunięcia zadania." };
+  if (task.createdBy !== user.id && project?.ownerId !== user.id) return { error: "You do not have permission to delete this task." };
 
   await db.delete(projectWorkspaceTasks).where(eq(projectWorkspaceTasks.id, taskId));
-  await addActivity(task.projectId, user.id, "TASK_DELETED", `Usunięto zadanie „${task.title}”.`);
+  await addActivity(task.projectId, user.id, "TASK_DELETED", `Task “${task.title}” was deleted.`);
   refresh(task.projectId);
   return { success: true };
 }
@@ -543,7 +543,7 @@ export async function addProjectWorkspaceLink(
   const access = await requireMember(projectId);
   if ("error" in access) return access;
   const parsed = workspaceLinkSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź link." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the link." };
 
   const rateError = await enforceUserRateLimit("action:workspace:link", access.user.id, 40, 24 * 60 * 60);
   if (rateError) return { error: rateError };
@@ -561,19 +561,19 @@ export async function addProjectWorkspaceLink(
 }
 
 export async function deleteProjectWorkspaceLink(linkId: string): Promise<WorkspaceActionResult> {
-  if (!uuidSchema.safeParse(linkId).success) return { error: "Nieprawidłowy link." };
+  if (!uuidSchema.safeParse(linkId).success) return { error: "Invalid link." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
 
   const rows = await db.select().from(projectWorkspaceLinks).where(eq(projectWorkspaceLinks.id, linkId)).limit(1);
   const link = rows[0];
   if (!link) return { error: "Link nie istnieje." };
-  if (!(await canAccessProjectWorkspace(link.projectId, user.id))) return { error: "Brak uprawnień." };
+  if (!(await canAccessProjectWorkspace(link.projectId, user.id))) return { error: "You do not have permission to do this." };
   const project = await projectInfo(link.projectId);
-  if (link.createdBy !== user.id && project?.ownerId !== user.id) return { error: "Brak uprawnień do usunięcia linku." };
+  if (link.createdBy !== user.id && project?.ownerId !== user.id) return { error: "You do not have permission to delete this link." };
 
   await db.delete(projectWorkspaceLinks).where(and(eq(projectWorkspaceLinks.id, linkId), eq(projectWorkspaceLinks.projectId, link.projectId)));
-  await addActivity(link.projectId, user.id, "LINK_REMOVED", `Usunięto link „${link.label}”.`);
+  await addActivity(link.projectId, user.id, "LINK_REMOVED", `Link “${link.label}” was deleted.`);
   refresh(link.projectId);
   return { success: true };
 }

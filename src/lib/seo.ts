@@ -1,14 +1,13 @@
 export const SITE_NAME = "BuildCrew";
 
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_APP_URL_PL?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://buildcreww.pl"
+  process.env.NEXT_PUBLIC_APP_URL_EN?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://buildcreww.com"
 ).replace(/\/$/, "");
 
-export const DEFAULT_SEO_TITLE =
-  "BuildCrew - projekty do portfolio i ludzie do wspólnego budowania";
+export const DEFAULT_SEO_TITLE = "BuildCrew - find people to build projects with";
 
 export const DEFAULT_SEO_DESCRIPTION =
-  "Znajdź ludzi do projektu, zbudujcie coś razem i twórz historię realnej współpracy. Projekty do portfolio, zespoły i sieć builderów w jednym miejscu.";
+  "Find developers, designers, founders and makers to build real projects with. Discover teams, join projects and build a track record of collaboration.";
 
 export function seoUrl(path = "/") {
   if (/^https?:\/\//i.test(path)) return path;

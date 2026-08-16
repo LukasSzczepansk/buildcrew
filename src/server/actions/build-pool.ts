@@ -20,13 +20,13 @@ async function hasActiveCrew(userId: string) {
 
 export async function saveBuildPoolListing(input: unknown) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:build-pool:save", user.id, 20, 60 * 60);
   if (rateError) return { error: rateError };
-  if (await hasActiveCrew(user.id)) return { error: "Masz już aktywną ekipę. Możesz przeglądać Build Pool i zapraszać osoby bez wystawiania siebie." };
+  if (await hasActiveCrew(user.id)) return { error: "You already have an active crew. You can browse Build Pool and invite people without listing yourself." };
 
   const parsed = buildPoolListingSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Nieprawidłowe dane." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data." };
 
   const now = new Date();
   await db
@@ -56,17 +56,17 @@ export async function saveBuildPoolListing(input: unknown) {
 
 export async function setBuildPoolListingStatus(status: "ACTIVE" | "PAUSED" | "CLOSED") {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const parsed = buildPoolListingStatusSchema.safeParse(status);
-  if (!parsed.success) return { error: "Nieprawidłowy status." };
-  if (parsed.data === "ACTIVE" && await hasActiveCrew(user.id)) return { error: "Masz już aktywną ekipę, więc nie możesz aktywować własnego zgłoszenia." };
+  if (!parsed.success) return { error: "Invalid status." };
+  if (parsed.data === "ACTIVE" && await hasActiveCrew(user.id)) return { error: "You already have an active crew, so you cannot activate your own listing." };
 
   const result = await db
     .update(buildPoolListings)
     .set({ status: parsed.data, updatedAt: new Date() })
     .where(eq(buildPoolListings.userId, user.id))
     .returning({ id: buildPoolListings.id });
-  if (!result[0]) return { error: "Najpierw wystaw swoje zgłoszenie." };
+  if (!result[0]) return { error: "Create your listing first." };
 
   revalidatePath("/build");
   return { success: true };
@@ -74,7 +74,7 @@ export async function setBuildPoolListingStatus(status: "ACTIVE" | "PAUSED" | "C
 
 export async function deleteBuildPoolListing() {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   await db.delete(buildPoolListings).where(eq(buildPoolListings.userId, user.id));
   revalidatePath("/build");
   return { success: true };

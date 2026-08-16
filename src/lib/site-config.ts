@@ -1,23 +1,26 @@
-export type AppLocale = "pl" | "en";
+export type AppLocale = "en" | "pl";
 
-export const APP_LOCALES: readonly AppLocale[] = ["pl", "en"] as const;
+/**
+ * `pl` is kept in the type only for compatibility with persisted legacy data.
+ * The product UI and public website are English-only.
+ */
+export const APP_LOCALES: readonly AppLocale[] = ["en"] as const;
 
 function cleanUrl(value: string | undefined, fallback: string) {
   return (value?.trim() || fallback).replace(/\/$/, "");
 }
 
-export const SITE_URL_PL = cleanUrl(
-  process.env.NEXT_PUBLIC_APP_URL_PL || process.env.NEXT_PUBLIC_APP_URL,
-  "https://buildcreww.pl",
-);
-
-export const SITE_URL_EN = cleanUrl(
-  process.env.NEXT_PUBLIC_APP_URL_EN,
+export const SITE_URL = cleanUrl(
+  process.env.NEXT_PUBLIC_APP_URL_EN || process.env.NEXT_PUBLIC_APP_URL,
   "https://buildcreww.com",
 );
 
-export function siteUrlForLocale(locale: AppLocale) {
-  return locale === "en" ? SITE_URL_EN : SITE_URL_PL;
+/** Compatibility aliases used by older code. Both now resolve to the global site. */
+export const SITE_URL_EN = SITE_URL;
+export const SITE_URL_PL = SITE_URL;
+
+export function siteUrlForLocale(_locale?: AppLocale) {
+  return SITE_URL;
 }
 
 function hostnameFromUrl(value: string) {
@@ -28,45 +31,32 @@ function hostnameFromUrl(value: string) {
   }
 }
 
-export const SITE_HOST_PL = hostnameFromUrl(SITE_URL_PL);
-export const SITE_HOST_EN = hostnameFromUrl(SITE_URL_EN);
+export const SITE_HOST_EN = hostnameFromUrl(SITE_URL);
+export const SITE_HOST_PL = SITE_HOST_EN;
 
-export function localeFromHost(hostValue: string | null | undefined): AppLocale | null {
-  const host = (hostValue || "").split(",")[0]?.trim().split(":")[0]?.toLowerCase() || "";
-  if (!host) return null;
-  if (host === SITE_HOST_EN || host.endsWith(`.${SITE_HOST_EN}`)) return "en";
-  if (host === SITE_HOST_PL || host.endsWith(`.${SITE_HOST_PL}`)) return "pl";
-  return null;
+export function localeFromHost(_hostValue: string | null | undefined): AppLocale {
+  return "en";
 }
 
-export function localeCode(locale: AppLocale) {
-  return locale === "en" ? "en-US" : "pl-PL";
+export function localeCode(_locale?: AppLocale) {
+  return "en-US";
 }
 
-export function openGraphLocale(locale: AppLocale) {
-  return locale === "en" ? "en_US" : "pl_PL";
+export function openGraphLocale(_locale?: AppLocale) {
+  return "en_US";
 }
 
-export function pickLocale<T>(locale: AppLocale, pl: T, en: T): T {
-  return locale === "en" ? en : pl;
+export function pickLocale<T>(_locale: AppLocale, _pl: T, en: T): T {
+  return en;
 }
 
 /**
- * Public Polish routes predate the international version. Keep them working on
- * .pl, while the .com language switch points to neutral English aliases.
+ * Convert legacy Polish public aliases to the canonical English routes.
  */
-export function pathForLocale(pathname: string, locale: AppLocale) {
-  if (locale === "en") {
-    if (pathname === "/projekty" || pathname.startsWith("/projekty?")) return pathname.replace(/^\/projekty/, "/explore/projects");
-    if (pathname === "/hackathony" || pathname.startsWith("/hackathony/")) return pathname.replace(/^\/hackathony/, "/explore/hackathons");
-    if (pathname === "/regulamin") return "/terms";
-    if (pathname === "/polityka-prywatnosci") return "/privacy";
-    return pathname;
-  }
-
-  if (pathname === "/explore/projects" || pathname.startsWith("/explore/projects?")) return pathname.replace(/^\/explore\/projects/, "/projekty");
-  if (pathname === "/explore/hackathons" || pathname.startsWith("/explore/hackathons/")) return pathname.replace(/^\/explore\/hackathons/, "/hackathony");
-  if (pathname === "/terms") return "/regulamin";
-  if (pathname === "/privacy") return "/polityka-prywatnosci";
+export function pathForLocale(pathname: string, _locale?: AppLocale) {
+  if (pathname === "/projekty" || pathname.startsWith("/projekty?")) return pathname.replace(/^\/projekty/, "/explore/projects");
+  if (pathname === "/hackathony" || pathname.startsWith("/hackathony/")) return pathname.replace(/^\/hackathony/, "/explore/hackathons");
+  if (pathname === "/regulamin") return "/terms";
+  if (pathname === "/polityka-prywatnosci") return "/privacy";
   return pathname;
 }

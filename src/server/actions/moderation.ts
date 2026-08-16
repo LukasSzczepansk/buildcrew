@@ -10,14 +10,14 @@ import { reportSchema, uuidSchema } from "@/lib/validations";
 import { z } from "zod";
 
 export async function blockUser(blockedId: string) {
-  if (!uuidSchema.safeParse(blockedId).success) return { error: "Nieprawidłowy użytkownik." };
+  if (!uuidSchema.safeParse(blockedId).success) return { error: "Invalid user." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:block", user.id, 100, 24 * 60 * 60);
   if (rateError) return { error: rateError };
-  if (user.id === blockedId) return { error: "Nie możesz zablokować samego siebie." };
+  if (user.id === blockedId) return { error: "You cannot block yourself." };
   const target = await db.select({ id: users.id }).from(users).where(eq(users.id, blockedId)).limit(1);
-  if (!target[0]) return { error: "Użytkownik nie istnieje." };
+  if (!target[0]) return { error: "User not found." };
 
   const [low, high] = [user.id, blockedId].sort();
   const pairKey = `${low}:${high}`;
@@ -38,9 +38,9 @@ export async function blockUser(blockedId: string) {
 }
 
 export async function unblockUser(blockedId: string) {
-  if (!uuidSchema.safeParse(blockedId).success) return { error: "Nieprawidłowy użytkownik." };
+  if (!uuidSchema.safeParse(blockedId).success) return { error: "Invalid user." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   await db.delete(blocks).where(and(eq(blocks.blockerId, user.id), eq(blocks.blockedId, blockedId)));
   revalidatePath("/builders");
   revalidatePath("/build");
@@ -49,16 +49,16 @@ export async function unblockUser(blockedId: string) {
 
 export async function reportUser(input: z.infer<typeof reportSchema>) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const parsed = reportSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Błędne dane." };
-  if (parsed.data.reportedId === user.id) return { error: "Nie możesz zgłosić własnego konta." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data." };
+  if (parsed.data.reportedId === user.id) return { error: "You cannot report your own account." };
   const rateError = await enforceUserRateLimit("action:report", user.id, 20, 24 * 60 * 60);
   if (rateError) return { error: rateError };
   const target = await db.select({ id: users.id }).from(users).where(eq(users.id, parsed.data.reportedId)).limit(1);
-  if (!target[0]) return { error: "Użytkownik nie istnieje." };
+  if (!target[0]) return { error: "User not found." };
   const duplicate = await db.select({ id: reports.id }).from(reports).where(and(eq(reports.reporterId, user.id), eq(reports.reportedId, parsed.data.reportedId), eq(reports.status, "open"))).limit(1);
-  if (duplicate[0]) return { error: "Masz już otwarte zgłoszenie dotyczące tej osoby." };
+  if (duplicate[0]) return { error: "You already have an open report about this person." };
 
   await db.insert(reports).values({
     reporterId: user.id,

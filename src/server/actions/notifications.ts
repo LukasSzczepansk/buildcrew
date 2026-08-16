@@ -26,9 +26,9 @@ export async function markAllNotificationsRead() {
 
 export async function saveNotificationPreferences(input: unknown) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const parsed = notificationPreferencesSchema.safeParse(input);
-  if (!parsed.success) return { error: "Nie udało się zapisać ustawień." };
+  if (!parsed.success) return { error: "Could not save the settings." };
 
   await db.insert(notificationPreferences).values({ userId: user.id, ...parsed.data })
     .onConflictDoUpdate({

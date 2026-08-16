@@ -1,16 +1,10 @@
 import type { MetadataRoute } from "next";
-import { getRequestLocale } from "@/lib/site-server";
-import { siteUrlForLocale } from "@/lib/site-config";
+import { SITE_URL } from "@/lib/site-config";
 
-export default async function robots(): Promise<MetadataRoute.Robots> {
-  const locale = await getRequestLocale();
-  const base = siteUrlForLocale(locale);
+export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-    },
-    sitemap: `${base}/sitemap.xml`,
-    host: base,
+    rules: { userAgent: "*", allow: "/" },
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

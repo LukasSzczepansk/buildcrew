@@ -1,33 +1,24 @@
 import type { MetadataRoute } from "next";
-import { getRequestLocale } from "@/lib/site-server";
-import { siteUrlForLocale } from "@/lib/site-config";
+import { SITE_URL } from "@/lib/site-config";
 import { listProjectsForSitemap } from "@/server/data/projects";
 import { listPublicProfilesForSitemap } from "@/server/data/network";
 import { listHackathonsForSitemap } from "@/server/data/hackathons";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const locale = await getRequestLocale();
-  const base = siteUrlForLocale(locale);
   const [projects, publicProfiles, hackathons] = await Promise.all([
     listProjectsForSitemap(),
     listPublicProfilesForSitemap(),
     listHackathonsForSitemap(),
   ]);
-  const projectsPath = locale === "en" ? "/explore/projects" : "/projekty";
-  const hackathonsPath = locale === "en" ? "/explore/hackathons" : "/hackathony";
 
   return [
-    { url: base },
-    { url: `${base}${projectsPath}` },
-    { url: `${base}${hackathonsPath}` },
-    ...hackathons.map((event) => ({ url: `${base}${hackathonsPath}/${event.slug}`, lastModified: event.updatedAt })),
-    ...projects.map((project) => ({
-      url: `${base}/p/${project.id}`,
-      lastModified: project.updatedAt,
-    })),
-    ...publicProfiles.map((profile) => ({
-      url: `${base}/u/${encodeURIComponent(profile.username)}`,
-      lastModified: profile.updatedAt,
-    })),
+    { url: SITE_URL },
+    { url: `${SITE_URL}/explore/projects` },
+    { url: `${SITE_URL}/explore/hackathons` },
+    { url: `${SITE_URL}/terms` },
+    { url: `${SITE_URL}/privacy` },
+    ...hackathons.map((event) => ({ url: `${SITE_URL}/explore/hackathons/${event.slug}`, lastModified: event.updatedAt })),
+    ...projects.map((project) => ({ url: `${SITE_URL}/p/${project.id}`, lastModified: project.updatedAt })),
+    ...publicProfiles.map((profile) => ({ url: `${SITE_URL}/u/${encodeURIComponent(profile.username)}`, lastModified: profile.updatedAt })),
   ];
 }

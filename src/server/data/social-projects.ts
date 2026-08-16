@@ -20,10 +20,10 @@ import {
 import { isUuid } from "@/lib/security";
 
 export const PROJECT_UPDATE_KIND_LABELS: Record<ProjectUpdateKind, string> = {
-  PROGRESS: "Postęp",
-  ROLE: "Zespół",
+  PROGRESS: "Progress",
+  ROLE: "Team",
   MILESTONE: "Milestone",
-  LAUNCH: "Premiera",
+  LAUNCH: "Launch",
 };
 
 export async function getProjectFollowState(projectId: string, userId: string) {
@@ -58,7 +58,7 @@ export async function listProjectUpdates(projectId: string, limit = 12) {
     .where(eq(projectUpdates.projectId, projectId))
     .orderBy(desc(projectUpdates.createdAt))
     .limit(Math.max(1, Math.min(limit, 30)));
-  return rows.map((row) => ({ ...row, username: row.username ?? "Zespół projektu" }));
+  return rows.map((row) => ({ ...row, username: row.username ?? "Project team" }));
 }
 
 export async function listFollowedProjectUpdates(userId: string, limit = 8) {
@@ -81,7 +81,7 @@ export async function listFollowedProjectUpdates(userId: string, limit = 8) {
     .from(projectUpdates)
     .innerJoin(projects, eq(projects.id, projectUpdates.projectId))
     .leftJoin(profiles, eq(profiles.userId, projectUpdates.authorId))
-    .where(inArray(projectUpdates.projectId, projectIds))
+    .where(and(inArray(projectUpdates.projectId, projectIds), eq(projects.projectLanguage, "EN")))
     .orderBy(desc(projectUpdates.createdAt))
     .limit(Math.max(1, Math.min(limit, 20)));
 }
@@ -108,7 +108,7 @@ export async function listCreditsForUser(userId: string, limit = 12) {
   })
     .from(projectCredits)
     .innerJoin(projects, eq(projects.id, projectCredits.projectId))
-    .where(eq(projectCredits.userId, userId))
+    .where(and(eq(projectCredits.userId, userId), eq(projects.projectLanguage, "EN")))
     .orderBy(desc(projects.completedAt), desc(projectCredits.creditedAt))
     .limit(Math.max(1, Math.min(limit, 30)));
 }

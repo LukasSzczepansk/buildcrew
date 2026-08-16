@@ -150,7 +150,7 @@ export default async function LandingPage() {
             {featuredBuilders.length ? <div className="grid gap-px overflow-hidden border border-[#d8d8d0] bg-[#d8d8d0] sm:grid-cols-2 lg:grid-cols-4 dark:border-neutral-700 dark:bg-neutral-700">
               {featuredBuilders.map((builder) => <Link key={builder.userId} href={`/u/${builder.username}`} className="bg-white p-5 transition-colors hover:bg-[#f7f7f3] dark:bg-[#171715] dark:hover:bg-[#1d1d1a]">
                 <div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{builder.username}</h3><p className="mt-0.5 text-[12px] text-neutral-500">{builder.role ? labels.roles[builder.role] : "Builder"}</p></div><span className="h-2 w-2 rounded-full bg-[#a8d62f]" /></div>
-                {builder.headline ? <p className="mt-4 line-clamp-2 min-h-10 text-[13px] leading-5 text-neutral-600 dark:text-neutral-300">{builder.headline}</p> : <div className="mt-4 min-h-10" />}
+                <p className="mt-4 min-h-10 text-[13px] leading-5 text-neutral-600 dark:text-neutral-300">{builder.skills.slice(0, 4).join(" · ") || "Open to building"}</p>
                 <p className="mt-4 text-[12px] text-neutral-500">{builder.skills.slice(0, 3).join(" · ") || (locale === "en" ? "Open to building" : "Otwarty na budowanie")}</p>
                 <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-500">{builder.country ? <span>{builder.country}</span> : null}{builder.languages.length ? <span>{builder.languages.slice(0,2).join(", ")}</span> : null}</div>
                 <p className="mt-5 text-[12px] font-medium">{copy.viewProfile} →</p>

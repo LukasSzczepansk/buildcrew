@@ -60,14 +60,14 @@ export async function createNotification(
   link?: string,
   options: NotificationOptions = {},
 ) {
-  const recipientRows = await db.select({ email: users.email, emailVerifiedAt: users.emailVerifiedAt, isSuspended: users.isSuspended, preferredLocale: users.preferredLocale })
+  const recipientRows = await db.select({ email: users.email, emailVerifiedAt: users.emailVerifiedAt, isSuspended: users.isSuspended })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
   const target = recipientRows[0];
-  const locale = target?.preferredLocale === "en" ? "en" : "pl";
-  const resolvedTitle = locale === "en" ? (options.titleEn ?? title) : title;
-  const resolvedBody = locale === "en" ? (options.bodyEn === undefined ? body : options.bodyEn ?? undefined) : body;
+  const locale = "en" as const;
+  const resolvedTitle = options.titleEn ?? title;
+  const resolvedBody = options.bodyEn === undefined ? body : options.bodyEn ?? undefined;
 
   const [created] = await db.insert(notifications).values({
     userId,
@@ -89,10 +89,8 @@ export async function createNotification(
 
   const delayMinutes = Math.max(0, Math.min(options.emailDelayMinutes ?? 0, 30 * 24 * 60));
   const scheduledFor = delayMinutes > 0 ? new Date(Date.now() + delayMinutes * 60 * 1000) : null;
-  const emailTitle = locale === "en" ? (options.emailTitleEn ?? options.titleEn ?? options.emailTitle ?? title) : (options.emailTitle ?? title);
-  const emailIntro = locale === "en"
-    ? (options.emailIntroEn === undefined ? (options.bodyEn === undefined ? body : options.bodyEn) : options.emailIntroEn)
-    : (options.emailIntro === undefined ? body : options.emailIntro);
+  const emailTitle = options.emailTitleEn ?? options.titleEn ?? options.emailTitle ?? title;
+  const emailIntro = options.emailIntroEn === undefined ? (options.bodyEn === undefined ? body : options.bodyEn) : options.emailIntroEn;
   const baseUrl = siteUrlForLocale(locale);
 
   const result = await sendTransactionalEmail({
@@ -101,11 +99,11 @@ export async function createNotification(
     html: buildCrewEmail({
       locale,
       baseUrl,
-      eyebrow: delayMinutes > 0 ? (locale === "en" ? "Unread on BuildCrew" : "Nieprzeczytane na BuildCrew") : (locale === "en" ? "New on BuildCrew" : "Nowe na BuildCrew"),
+      eyebrow: delayMinutes > 0 ? "Unread on BuildCrew" : "New on BuildCrew",
       title: emailTitle,
       intro: emailIntro ?? undefined,
       content: emailIntro ? undefined : `<p style="font-size:14px;line-height:1.6;color:#66665f;margin:0">${escapeEmailHtml(emailTitle)}</p>`,
-      ctaLabel: locale === "en" ? (options.emailCtaLabelEn ?? options.emailCtaLabel ?? "Open in BuildCrew") : (options.emailCtaLabel ?? "Otwórz w BuildCrew"),
+      ctaLabel: options.emailCtaLabelEn ?? options.emailCtaLabel ?? "Open in BuildCrew",
       ctaHref: link ?? "/dashboard",
     }),
     scheduledAt: scheduledFor?.toISOString(),

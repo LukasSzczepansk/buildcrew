@@ -47,30 +47,30 @@ function readWebpDimensions(buffer: Buffer) {
 }
 
 function validateAvatarDataUrl(dataUrl: string) {
-  if (!dataUrl.startsWith(WEBP_PREFIX)) return { error: "Nieprawidłowy format zdjęcia." } as const;
+  if (!dataUrl.startsWith(WEBP_PREFIX)) return { error: "Invalid image format." } as const;
   const base64 = dataUrl.slice(WEBP_PREFIX.length);
-  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return { error: "Nieprawidłowe dane zdjęcia." } as const;
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return { error: "Invalid image data." } as const;
 
   let bytes: Buffer;
   try {
     bytes = Buffer.from(base64, "base64");
   } catch {
-    return { error: "Nie udało się odczytać zdjęcia." } as const;
+    return { error: "Could not read the image." } as const;
   }
 
-  if (bytes.length < 256) return { error: "Plik zdjęcia jest nieprawidłowy." } as const;
-  if (bytes.length > MAX_AVATAR_BYTES) return { error: "Zdjęcie po przetworzeniu jest zbyt duże." } as const;
+  if (bytes.length < 256) return { error: "The image file is invalid." } as const;
+  if (bytes.length > MAX_AVATAR_BYTES) return { error: "The processed image is too large." } as const;
 
   const dimensions = readWebpDimensions(bytes);
-  if (!dimensions) return { error: "Nie udało się zweryfikować zdjęcia WebP." } as const;
+  if (!dimensions) return { error: "Could not verify the WebP image." } as const;
   if (dimensions.width < MIN_AVATAR_EDGE || dimensions.height < MIN_AVATAR_EDGE) {
-    return { error: "Zdjęcie jest zbyt małe. Wybierz plik o większej rozdzielczości." } as const;
+    return { error: "The image is too small. Choose a higher-resolution file." } as const;
   }
   if (dimensions.width > MAX_AVATAR_EDGE || dimensions.height > MAX_AVATAR_EDGE) {
-    return { error: "Zdjęcie przekracza dozwoloną rozdzielczość." } as const;
+    return { error: "The image exceeds the allowed resolution." } as const;
   }
   if (Math.abs(dimensions.width - dimensions.height) > 2) {
-    return { error: "Zdjęcie profilowe musi być kwadratowe." } as const;
+    return { error: "Profile image must be square." } as const;
   }
 
   return { base64, byteSize: bytes.length } as const;
@@ -91,12 +91,12 @@ export async function submitProfileAvatar(input: {
   consentsToDisplay: boolean;
 }): Promise<AvatarActionState> {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:profile:avatar-upload", user.id, 8, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   if (!input.confirmsRights || !input.consentsToDisplay) {
-    return { error: "Potwierdź prawo do zdjęcia i zgodę na jego wyświetlanie." };
+    return { error: "Confirm that you have the right to use the image and consent to displaying it." };
   }
 
   const validated = validateAvatarDataUrl(input.dataUrl);
@@ -106,7 +106,7 @@ export async function submitProfileAvatar(input: {
   await db.transaction(async (tx) => {
     await tx
       .update(profileAvatars)
-      .set({ status: "REMOVED", imageBase64: null, moderatedAt: now, rejectionReason: "Zastąpione nowym zgłoszeniem." })
+      .set({ status: "REMOVED", imageBase64: null, moderatedAt: now, rejectionReason: "Replaced by a new submission." })
       .where(and(eq(profileAvatars.userId, user.id), eq(profileAvatars.status, "PENDING")));
 
     await tx.insert(profileAvatars).values({
@@ -128,11 +128,11 @@ export async function submitProfileAvatar(input: {
 
 export async function cancelPendingProfileAvatar(): Promise<AvatarActionState> {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
 
   await db
     .update(profileAvatars)
-    .set({ status: "REMOVED", imageBase64: null, moderatedAt: new Date(), rejectionReason: "Anulowane przez użytkownika." })
+    .set({ status: "REMOVED", imageBase64: null, moderatedAt: new Date(), rejectionReason: "Cancelled by the user." })
     .where(and(eq(profileAvatars.userId, user.id), eq(profileAvatars.status, "PENDING")));
 
   await revalidateAvatarUser(user.id);
@@ -142,13 +142,13 @@ export async function cancelPendingProfileAvatar(): Promise<AvatarActionState> {
 
 export async function removeApprovedProfileAvatar(): Promise<AvatarActionState> {
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:profile:avatar-remove", user.id, 12, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   await db
     .update(profileAvatars)
-    .set({ status: "REMOVED", imageBase64: null, moderatedAt: new Date(), rejectionReason: "Usunięte przez użytkownika." })
+    .set({ status: "REMOVED", imageBase64: null, moderatedAt: new Date(), rejectionReason: "Deleted by the user." })
     .where(and(eq(profileAvatars.userId, user.id), eq(profileAvatars.status, "APPROVED")));
 
   await logEvent("profile_avatar_removed", user.id);
@@ -158,7 +158,7 @@ export async function removeApprovedProfileAvatar(): Promise<AvatarActionState> 
 
 async function requireAdmin() {
   const user = await getVerifiedCurrentUser();
-  if (!user || !isAdmin(user.email, user.systemRole)) throw new Error("Brak uprawnień administratora.");
+  if (!user || !isAdmin(user.email, user.systemRole)) throw new Error("Administrator permission required.");
   return user;
 }
 
@@ -189,7 +189,7 @@ export async function moderateProfileAvatar(formData: FormData) {
 
       await tx
         .update(profileAvatars)
-        .set({ status: "REMOVED", imageBase64: null, moderatedAt: now, moderatedBy: admin.id, rejectionReason: "Zastąpione zaakceptowanym zdjęciem." })
+        .set({ status: "REMOVED", imageBase64: null, moderatedAt: now, moderatedBy: admin.id, rejectionReason: "Replaced by an approved image." })
         .where(and(eq(profileAvatars.userId, target.userId), eq(profileAvatars.status, "APPROVED"), ne(profileAvatars.id, avatarId)));
       await tx.insert(adminAuditLogs).values({
         adminId: admin.id,
@@ -205,13 +205,13 @@ export async function moderateProfileAvatar(formData: FormData) {
     await createNotification(
       target.userId,
       "PROFILE_AVATAR_APPROVED",
-      "Zdjęcie profilowe zaakceptowane",
-      "Twoje zdjęcie profilowe jest już widoczne w BuildCrew.",
+      "Profile image approved",
+      "Your profile image is now visible on BuildCrew.",
       "/profile",
       { entityType: "profile_avatar", entityId: avatarId, titleEn: "Profile photo approved", bodyEn: "Your profile photo is now visible on BuildCrew." },
     );
   } else {
-    const safeReason = reason || "Zdjęcie nie spełnia zasad profilu BuildCrew. Możesz przesłać inne.";
+    const safeReason = reason || "The image does not meet BuildCrew profile rules. You can upload another one.";
     const applied = await db.transaction(async (tx) => {
       const changed = await tx
         .update(profileAvatars)
@@ -240,7 +240,7 @@ export async function moderateProfileAvatar(formData: FormData) {
     await createNotification(
       target.userId,
       "PROFILE_AVATAR_REJECTED",
-      "Zdjęcie profilowe wymaga zmiany",
+      "Profile image needs to be changed",
       safeReason,
       "/profile",
       { entityType: "profile_avatar", entityId: avatarId, titleEn: "Your profile photo needs changes", bodyEn: "Your photo did not meet the BuildCrew profile guidelines. You can upload another one." },

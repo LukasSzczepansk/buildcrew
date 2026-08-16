@@ -74,7 +74,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
 
   return (
     <div className="flex flex-col">
-      <FormSection title={copy("Podstawy", "Basics")}>
+      <FormSection title="Basics" hint="BuildCrew is an English-language network. Write your public headline and bio in English so people from any country can understand your profile.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={copy("Nick", "Username")}><Input value={form.username} onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))} maxLength={24} /></Field>
           <Field label={copy("Główna rola", "Primary role")}>

@@ -17,12 +17,12 @@ import { isUuid } from "@/lib/security";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
 
 export const ENDORSEMENT_STRENGTH_LABELS: Record<CollaborationEndorsementStrength, string> = {
-  DELIVERY: "Dowożenie",
-  COMMUNICATION: "Komunikacja",
-  TECHNICAL: "Techniczne",
+  DELIVERY: "Delivery",
+  COMMUNICATION: "Communication",
+  TECHNICAL: "Technical skills",
   PRODUCT: "Product thinking",
   DESIGN: "Design",
-  RELIABILITY: "Rzetelność",
+  RELIABILITY: "Reliability",
 };
 
 export async function getFollowState(viewerId: string, targetUserId: string) {

@@ -23,25 +23,25 @@ const uuid = z.string().uuid();
 const updateSchema = z.object({
   projectId: z.string().uuid(),
   kind: z.enum(["PROGRESS", "ROLE", "MILESTONE", "LAUNCH"]),
-  body: z.string().trim().min(10, "Napisz przynajmniej 10 znaków.").max(600, "Aktualizacja może mieć maksymalnie 600 znaków."),
+  body: z.string().trim().min(10, "Write at least 10 characters.").max(600, "Update can be at most 600 characters long."),
 });
 const completionSchema = z.object({
   projectId: z.string().uuid(),
-  outcome: z.string().trim().min(20, "Krótko opisz rezultat projektu (min. 20 znaków).").max(800, "Opis rezultatu może mieć maksymalnie 800 znaków."),
+  outcome: z.string().trim().min(20, "Describe the project outcome in at least 20 characters.").max(800, "Outcome can be at most 800 characters long."),
 });
 
 export async function followProject(projectId: string) {
   const parsed = uuid.safeParse(projectId);
-  if (!parsed.success) return { error: "Nieprawidłowy projekt." };
+  if (!parsed.success) return { error: "Invalid project." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:project:follow", user.id, 100, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const row = await db.select({ id: projects.id, ownerId: projects.ownerId }).from(projects)
     .where(and(eq(projects.id, parsed.data), eq(projects.entryType, "PROJECT"))).limit(1);
-  if (!row[0]) return { error: "Projekt nie istnieje." };
-  if (row[0].ownerId === user.id) return { error: "To Twój projekt - nie musisz go obserwować." };
+  if (!row[0]) return { error: "Project not found." };
+  if (row[0].ownerId === user.id) return { error: "This is your project - you do not need to follow it." };
 
   await db.insert(projectFollows).values({ projectId: parsed.data, userId: user.id }).onConflictDoNothing();
   await logEvent("project_follow", user.id, { projectId: parsed.data });
@@ -53,9 +53,9 @@ export async function followProject(projectId: string) {
 
 export async function unfollowProject(projectId: string) {
   const parsed = uuid.safeParse(projectId);
-  if (!parsed.success) return { error: "Nieprawidłowy projekt." };
+  if (!parsed.success) return { error: "Invalid project." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   await db.delete(projectFollows).where(and(eq(projectFollows.projectId, parsed.data), eq(projectFollows.userId, user.id)));
   await logEvent("project_unfollow", user.id, { projectId: parsed.data });
   revalidatePath(`/projects/${parsed.data}`);
@@ -65,18 +65,18 @@ export async function unfollowProject(projectId: string) {
 
 export async function publishProjectUpdate(input: { projectId: string; kind: ProjectUpdateKind; body: string }) {
   const parsed = updateSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź treść aktualizacji." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the update content." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:project:update", user.id, 20, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const projectRows = await db.select({ id: projects.id, name: projects.name, ownerId: projects.ownerId, lifecycleStatus: projects.lifecycleStatus })
     .from(projects).where(and(eq(projects.id, parsed.data.projectId), eq(projects.entryType, "PROJECT"))).limit(1);
   const project = projectRows[0];
-  if (!project) return { error: "Projekt nie istnieje." };
-  if (project.ownerId !== user.id) return { error: "Tylko autor projektu może publikować aktualizacje." };
-  if (project.lifecycleStatus === "COMPLETED") return { error: "Ukończony projekt ma zamkniętą historię aktualizacji." };
+  if (!project) return { error: "Project not found." };
+  if (project.ownerId !== user.id) return { error: "Only the project owner can publish updates." };
+  if (project.lifecycleStatus === "COMPLETED") return { error: "Completed projects cannot receive new updates." };
 
   const [created] = await db.insert(projectUpdates).values({
     projectId: project.id,
@@ -90,7 +90,7 @@ export async function publishProjectUpdate(input: { projectId: string; kind: Pro
   await Promise.all(followers.slice(0, 250).map((followerId) => createNotification(
     followerId,
     "PROJECT_UPDATE",
-    `${project.name} ma nową aktualizację`,
+    `${project.name} has a new update`,
     parsed.data.body.length > 140 ? `${parsed.data.body.slice(0, 137)}…` : parsed.data.body,
     `/projects/${project.id}`,
     { actorId: user.id, entityType: "project", entityId: project.id, titleEn: `${project.name} has a new update`, bodyEn: parsed.data.body.length > 140 ? `${parsed.data.body.slice(0, 137)}…` : parsed.data.body },
@@ -106,15 +106,15 @@ export async function publishProjectUpdate(input: { projectId: string; kind: Pro
 
 export async function setProjectLifecycleStatus(projectId: string, status: "ACTIVE" | "PAUSED") {
   const parsed = uuid.safeParse(projectId);
-  if (!parsed.success) return { error: "Nieprawidłowy projekt." };
+  if (!parsed.success) return { error: "Invalid project." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const projectRows = await db.select({ ownerId: projects.ownerId, lifecycleStatus: projects.lifecycleStatus }).from(projects)
     .where(and(eq(projects.id, parsed.data), eq(projects.entryType, "PROJECT"))).limit(1);
   const project = projectRows[0];
-  if (!project) return { error: "Projekt nie istnieje." };
-  if (project.ownerId !== user.id) return { error: "Tylko autor może zmienić status projektu." };
-  if (project.lifecycleStatus === "COMPLETED") return { error: "Ukończonego projektu nie można ponownie aktywować z tego miejsca." };
+  if (!project) return { error: "Project not found." };
+  if (project.ownerId !== user.id) return { error: "Only the project owner can change its status." };
+  if (project.lifecycleStatus === "COMPLETED") return { error: "A completed project cannot be reactivated here." };
   await db.update(projects).set({ lifecycleStatus: status, updatedAt: new Date() }).where(eq(projects.id, parsed.data));
   revalidatePath(`/projects/${parsed.data}`);
   revalidatePath(`/projects/${parsed.data}/manage`);
@@ -125,9 +125,9 @@ export async function setProjectLifecycleStatus(projectId: string, status: "ACTI
 
 export async function completeProject(input: { projectId: string; outcome: string }) {
   const parsed = completionSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Sprawdź opis rezultatu." };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the outcome description." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const rateError = await enforceUserRateLimit("action:project:complete", user.id, 10, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
@@ -136,9 +136,9 @@ export async function completeProject(input: { projectId: string; outcome: strin
     const projectRows = await tx.select().from(projects)
       .where(and(eq(projects.id, parsed.data.projectId), eq(projects.entryType, "PROJECT"))).limit(1);
     const project = projectRows[0];
-    if (!project) return { error: "Projekt nie istnieje." } as const;
-    if (project.ownerId !== user.id) return { error: "Tylko autor projektu może oznaczyć go jako ukończony." } as const;
-    if (project.lifecycleStatus === "COMPLETED") return { error: "Projekt jest już ukończony." } as const;
+    if (!project) return { error: "Project not found." } as const;
+    if (project.ownerId !== user.id) return { error: "Only the project owner can mark it as completed." } as const;
+    if (project.lifecycleStatus === "COMPLETED") return { error: "The project is already completed." } as const;
 
     const memberRows = await tx.select({
       userId: projectMembers.userId,
@@ -193,8 +193,8 @@ export async function completeProject(input: { projectId: string; outcome: strin
   await Promise.all(recipients.slice(0, 300).map((recipientId) => createNotification(
     recipientId,
     "PROJECT_COMPLETED",
-    `${outcome.project.name} został ukończony`,
-    "Zespół zamknął projekt. Rezultat i credits są teraz częścią historii współpracy.",
+    `${outcome.project.name} was completed`,
+    "The team completed the project. Its outcome and contributor credits are now part of the collaboration history.",
     `/projects/${outcome.project.id}`,
     { actorId: user.id, entityType: "project", entityId: outcome.project.id, titleEn: `${outcome.project.name} was completed`, bodyEn: "The team completed the project. The result and contributor credits are now part of your collaboration history." },
   )));

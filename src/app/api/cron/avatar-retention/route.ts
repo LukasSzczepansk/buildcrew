@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const expired = await pool.query(
     `update profile_avatars
        set status = 'REMOVED', image_base64 = null, moderated_at = now(),
-           rejection_reason = 'Zgłoszenie wygasło po 30 dniach bez decyzji.'
+           rejection_reason = 'The submission expired after 30 days without a decision.'
      where status = 'PENDING' and uploaded_at < now() - interval '30 days'`,
   );
   const cleaned = await pool.query(

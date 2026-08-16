@@ -41,10 +41,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ con
 
 export async function POST(request: Request, { params }: { params: Promise<{ conversationId: string }> }) {
   const user = await getVerifiedCurrentUser();
-  if (!user) return noStore({ error: "Musisz być zalogowany." }, { status: 401 });
+  if (!user) return noStore({ error: "You must be logged in." }, { status: 401 });
   const { conversationId } = await params;
   const access = await getConversationForUser(conversationId, user.id);
-  if (!access) return noStore({ error: "Nie możesz pisać w tej rozmowie." }, { status: 403 });
+  if (!access) return noStore({ error: "You cannot send messages in this conversation." }, { status: 403 });
 
   const minuteLimit = await enforceUserRateLimit("api:message:minute", user.id, 30, 60);
   if (minuteLimit) return noStore({ error: minuteLimit }, { status: 429 });
@@ -55,10 +55,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
   try {
     body = await request.json();
   } catch {
-    return noStore({ error: "Nieprawidłowe dane." }, { status: 400 });
+    return noStore({ error: "Invalid data." }, { status: 400 });
   }
   const parsed = messageSchema.safeParse(body);
-  if (!parsed.success) return noStore({ error: parsed.error.issues[0]?.message ?? "Nieprawidłowa wiadomość." }, { status: 400 });
+  if (!parsed.success) return noStore({ error: parsed.error.issues[0]?.message ?? "Invalid message." }, { status: 400 });
 
   const now = new Date();
   const [existingUnread, senderProfile] = await Promise.all([
@@ -74,12 +74,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
   await db.update(conversations).set({ updatedAt: now }).where(eq(conversations.id, conversationId));
 
   if (!existingUnread[0]) {
-    const senderName = senderProfile[0]?.username ?? "Ktoś";
+    const senderName = senderProfile[0]?.username ?? "Someone";
     const preview = parsed.data.body.length > 140 ? `${parsed.data.body.slice(0, 137)}…` : parsed.data.body;
     await createNotification(
       access.otherUserId,
       "MESSAGE_RECEIVED",
-      `${senderName} napisał do Ciebie`,
+      `${senderName} sent you a message`,
       preview,
       `/messages/${conversationId}`,
       {
@@ -87,14 +87,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
         entityType: "conversation",
         entityId: conversationId,
         emailPreference: "emailMessages",
-        emailCtaLabel: "Otwórz rozmowę",
+        emailCtaLabel: "Open conversation",
         emailCtaLabelEn: "Open conversation",
         emailDelayMinutes: 15,
         titleEn: `${senderName} sent you a message`,
         bodyEn: preview,
-        emailTitle: `Masz nowe wiadomości od ${senderName}`,
+        emailTitle: `You have new messages from ${senderName}`,
         emailTitleEn: `You have new messages from ${senderName}`,
-        emailIntro: "Wiadomości są nadal nieprzeczytane. Otwórz rozmowę w BuildCrew, żeby odpowiedzieć.",
+        emailIntro: "Your messages are still unread. Open the conversation in BuildCrew to reply.",
         emailIntroEn: "Your messages are still unread. Open the conversation in BuildCrew to reply.",
       },
     );

@@ -16,13 +16,13 @@ function isUniqueViolation(error: unknown) {
 }
 
 export async function sendFriendRequest(targetUserId: string) {
-  if (!uuidSchema.safeParse(targetUserId).success) return { error: "Nieprawidłowy użytkownik." };
+  if (!uuidSchema.safeParse(targetUserId).success) return { error: "Invalid user." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
-  if (user.id === targetUserId) return { error: "Nie możesz dodać samego siebie." };
+  if (!user) return { error: "You must be logged in." };
+  if (user.id === targetUserId) return { error: "You cannot add yourself." };
   const rateError = await enforceUserRateLimit("action:friend-request", user.id, 30, 24 * 60 * 60);
   if (rateError) return { error: rateError };
-  if (await isBlockedEitherWay(user.id, targetUserId)) return { error: "Nie można wysłać zaproszenia tej osobie." };
+  if (await isBlockedEitherWay(user.id, targetUserId)) return { error: "You cannot send an invitation to this person." };
 
   const targetRows = await db
     .select({ id: users.id, suspended: users.isSuspended, role: users.systemRole, onboarding: profiles.onboardingCompleted })
@@ -31,7 +31,7 @@ export async function sendFriendRequest(targetUserId: string) {
     .where(eq(users.id, targetUserId))
     .limit(1);
   const target = targetRows[0];
-  if (!target || target.suspended || target.role === "ADMIN" || !target.onboarding) return { error: "Ta osoba nie jest dostępna." };
+  if (!target || target.suspended || target.role === "ADMIN" || !target.onboarding) return { error: "This person is not available." };
 
   const [low, high] = friendPair(user.id, targetUserId);
   const pairKey = friendPairKey(user.id, targetUserId);
@@ -39,37 +39,37 @@ export async function sendFriendRequest(targetUserId: string) {
     const result = await db.transaction(async (tx) => {
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${pairKey}))`);
       const existingFriend = await tx.select({ id: friendships.id }).from(friendships).where(and(eq(friendships.userLowId, low), eq(friendships.userHighId, high))).limit(1);
-      if (existingFriend[0]) return { error: "Ta osoba jest już w Twoich kontaktach." } as const;
+      if (existingFriend[0]) return { error: "This person is already in your connections." } as const;
       const pending = await tx.select({ id: friendRequests.id }).from(friendRequests).where(and(eq(friendRequests.pairKey, pairKey), eq(friendRequests.status, "PENDING"))).limit(1);
-      if (pending[0]) return { error: "Między Wami jest już oczekujące zaproszenie." } as const;
+      if (pending[0]) return { error: "There is already a pending connection request between you." } as const;
       const [request] = await tx.insert(friendRequests).values({ senderId: user.id, receiverId: targetUserId, pairKey }).returning({ id: friendRequests.id });
       return { requestId: request.id } as const;
     });
     if ("error" in result) return result;
   } catch (error) {
-    if (isUniqueViolation(error)) return { error: "Między Wami jest już oczekujące zaproszenie." };
+    if (isUniqueViolation(error)) return { error: "There is already a pending connection request between you." };
     throw error;
   }
 
   const senderProfile = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(targetUserId, "FRIEND_REQUEST", `${senderProfile[0]?.username ?? "Ktoś"} wysłał Ci zaproszenie do kontaktów`, undefined, "/network?tab=contacts", { titleEn: `${senderProfile[0]?.username ?? "Someone"} sent you a connection request` });
+  await createNotification(targetUserId, "FRIEND_REQUEST", `${senderProfile[0]?.username ?? "Someone"} sent you a connection request`, undefined, "/network?tab=contacts", { titleEn: `${senderProfile[0]?.username ?? "Someone"} sent you a connection request` });
   revalidatePath("/network?tab=contacts");
   revalidatePath(`/builders/${targetUserId}`);
   return { success: true };
 }
 
 export async function respondToFriendRequest(requestId: string, decision: "ACCEPTED" | "REJECTED") {
-  if (!uuidSchema.safeParse(requestId).success || !["ACCEPTED", "REJECTED"].includes(decision)) return { error: "Nieprawidłowe dane." };
+  if (!uuidSchema.safeParse(requestId).success || !["ACCEPTED", "REJECTED"].includes(decision)) return { error: "Invalid data." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
 
   const result = await db.transaction(async (tx) => {
     await tx.execute(sql`select id from friend_requests where id = ${requestId} for update`);
     const rows = await tx.select().from(friendRequests).where(eq(friendRequests.id, requestId)).limit(1);
     const request = rows[0];
-    if (!request || request.status !== "PENDING") return { error: "Zaproszenie nie jest już aktywne." } as const;
-    if (request.receiverId !== user.id) return { error: "Brak uprawnień." } as const;
-    if (await isBlockedEitherWay(request.senderId, request.receiverId)) return { error: "Nie można zaakceptować tego zaproszenia." } as const;
+    if (!request || request.status !== "PENDING") return { error: "The invitation is no longer active." } as const;
+    if (request.receiverId !== user.id) return { error: "You do not have permission to do this." } as const;
+    if (await isBlockedEitherWay(request.senderId, request.receiverId)) return { error: "This invitation cannot be accepted." } as const;
 
     if (decision === "REJECTED") {
       await tx.update(friendRequests).set({ status: "REJECTED", updatedAt: new Date() }).where(eq(friendRequests.id, requestId));
@@ -91,7 +91,7 @@ export async function respondToFriendRequest(requestId: string, decision: "ACCEP
   if ("error" in result) return result;
   if (decision === "ACCEPTED") {
     const profile = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-    await createNotification(result.request.senderId, "FRIEND_ACCEPTED", `${profile[0]?.username ?? "Ktoś"} zaakceptował Twoje zaproszenie do kontaktów`, "Możecie teraz pisać do siebie prywatnie w BuildCrew.", result.conversationId ? `/messages/${result.conversationId}` : "/network?tab=contacts", { titleEn: `${profile[0]?.username ?? "Someone"} accepted your connection request`, bodyEn: "You can now message each other privately on BuildCrew." });
+    await createNotification(result.request.senderId, "FRIEND_ACCEPTED", `${profile[0]?.username ?? "Someone"} accepted your connection request`, "You can now message each other privately on BuildCrew.", result.conversationId ? `/messages/${result.conversationId}` : "/network?tab=contacts", { titleEn: `${profile[0]?.username ?? "Someone"} accepted your connection request`, bodyEn: "You can now message each other privately on BuildCrew." });
   }
   revalidatePath("/network?tab=contacts");
   revalidatePath("/messages");
@@ -100,24 +100,24 @@ export async function respondToFriendRequest(requestId: string, decision: "ACCEP
 }
 
 export async function cancelFriendRequest(requestId: string) {
-  if (!uuidSchema.safeParse(requestId).success) return { error: "Nieprawidłowe zaproszenie." };
+  if (!uuidSchema.safeParse(requestId).success) return { error: "Invalid invitation." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const result = await db
     .update(friendRequests)
     .set({ status: "CANCELLED", updatedAt: new Date() })
     .where(and(eq(friendRequests.id, requestId), eq(friendRequests.senderId, user.id), eq(friendRequests.status, "PENDING")))
     .returning({ receiverId: friendRequests.receiverId });
-  if (!result[0]) return { error: "Nie można anulować tego zaproszenia." };
+  if (!result[0]) return { error: "This invitation cannot be cancelled." };
   revalidatePath("/network?tab=contacts");
   revalidatePath(`/builders/${result[0].receiverId}`);
   return { success: true };
 }
 
 export async function removeFriend(targetUserId: string) {
-  if (!uuidSchema.safeParse(targetUserId).success) return { error: "Nieprawidłowy użytkownik." };
+  if (!uuidSchema.safeParse(targetUserId).success) return { error: "Invalid user." };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "Musisz być zalogowany." };
+  if (!user) return { error: "You must be logged in." };
   const [low, high] = friendPair(user.id, targetUserId);
   await db.transaction(async (tx) => {
     await tx.delete(friendships).where(and(eq(friendships.userLowId, low), eq(friendships.userHighId, high)));

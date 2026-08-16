@@ -157,7 +157,7 @@ export async function getProjectWorkspace(projectId: string, viewerId: string) {
       replyTo: reply ? {
         id: reply.id,
         senderId: reply.senderId,
-        body: reply.deletedAt ? "Wiadomość została usunięta." : reply.body,
+        body: reply.deletedAt ? "Message deleted." : reply.body,
         deletedAt: reply.deletedAt,
         sender: profileMap.get(reply.senderId) ?? null,
       } : null,

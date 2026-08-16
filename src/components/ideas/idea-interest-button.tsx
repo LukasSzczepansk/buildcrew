@@ -13,7 +13,7 @@ export function IdeaInterestButton({ ideaId, initialInterested = false, compact 
 
   async function toggle() {
     setPending(true);
-    const result = await toggleIdeaInterest(ideaId).catch(() => ({ error: "Nie udało się zapisać zainteresowania." }));
+    const result = await toggleIdeaInterest(ideaId).catch(() => ({ error: "Could not save your interest." }));
     setPending(false);
     if ("error" in result && result.error) {
       toast.error(result.error);
@@ -23,5 +23,5 @@ export function IdeaInterestButton({ ideaId, initialInterested = false, compact 
     router.refresh();
   }
 
-  return <Button type="button" size={compact ? "sm" : "default"} variant={interested ? "outline" : "secondary"} onClick={toggle} disabled={pending}>{pending ? "Zapisuję…" : interested ? "Interesuje mnie ✓" : "Interesuje mnie"}</Button>;
+  return <Button type="button" size={compact ? "sm" : "default"} variant={interested ? "outline" : "secondary"} onClick={toggle} disabled={pending}>{pending ? "Saving…" : interested ? "Interested ✓" : "I'm interested"}</Button>;
 }
