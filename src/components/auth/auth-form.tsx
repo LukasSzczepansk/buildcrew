@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AuthFormState } from "@/server/actions/auth";
-import { useCopy } from "@/components/i18n/locale-provider";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 
 function GoogleIcon() {
   return (
@@ -34,6 +35,7 @@ export function AuthForm({
 }) {
   const [state, formAction, pending] = useActionState<AuthFormState, FormData>(action, {});
   const copy = useCopy();
+  const locale = useLocale();
 
   return (
     <div className="space-y-5">
@@ -104,7 +106,7 @@ export function AuthForm({
 
         {state.error && (
           <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
-            {state.error}
+            {appMessage(state.error, locale)}
           </p>
         )}
 

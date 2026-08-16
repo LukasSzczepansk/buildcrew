@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import type { Commitment, Level, RoleType } from "@/db/schema";
 import { applyToProject } from "@/server/actions/projects";
@@ -42,7 +43,7 @@ export function ApplyDialog({
     const res = await applyToProject(projectId, { roleId, message });
     setPending(false);
     if (res?.error) {
-      toast.error(res.error);
+      toast.error(appMessage(res.error, locale));
       return;
     }
     toast.success(copy("Twoja chęć dołączenia została wysłana!", "Your request to join has been sent!"));

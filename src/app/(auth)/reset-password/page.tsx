@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { ResetPasswordForm } from "@/components/auth/recovery-forms";
 import { getRequestLocale } from "@/lib/site-server";
-export const metadata: Metadata = { title: "Set a new password - BuildCrew" };
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return { title: locale === "en" ? "Set a new password - BuildCrew" : "Ustaw nowe hasło - BuildCrew" };
+}
 export default async function ResetPasswordPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const [{ token = "" }, locale] = await Promise.all([searchParams, getRequestLocale()]);
   const en = locale === "en";

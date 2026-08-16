@@ -98,7 +98,7 @@ export async function toggleShowcaseReaction(entryId: string, reaction: string) 
   } else {
     await db.insert(showcaseReactions).values({ entryId, userId: user.id, reaction: parsedReaction.data });
     const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-    await createNotification(entry.creatorId, "SHOWCASE_REACTION", `${profileRows[0]?.username ?? "Ktoś"} zareagował na ${entry.title}`, undefined, `/showcase/${entryId}`, { actorId: user.id, entityType: "showcase", entityId: entryId });
+    await createNotification(entry.creatorId, "SHOWCASE_REACTION", `${profileRows[0]?.username ?? "Ktoś"} zareagował na ${entry.title}`, undefined, `/showcase/${entryId}`, { actorId: user.id, entityType: "showcase", entityId: entryId, titleEn: `${profileRows[0]?.username ?? "Someone"} reacted to ${entry.title}` });
   }
   revalidatePath(`/showcase/${entryId}`);
   revalidatePath("/showcase");
@@ -123,7 +123,7 @@ export async function submitShowcaseFeedback(entryId: string, input: unknown) {
     .onConflictDoUpdate({ target: [showcaseFeedback.entryId, showcaseFeedback.userId], set: { ...parsed.data, liked: parsed.data.liked || null, improve: parsed.data.improve || null, updatedAt: new Date() } });
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(entry.creatorId, "SHOWCASE_FEEDBACK", `${profileRows[0]?.username ?? "Ktoś"} dał feedback do ${entry.title}`, "Zobacz, co warto zachować i co można poprawić.", `/showcase/${entryId}`, { actorId: user.id, entityType: "showcase", entityId: entryId, emailPreference: "emailShowcaseFeedback" });
+  await createNotification(entry.creatorId, "SHOWCASE_FEEDBACK", `${profileRows[0]?.username ?? "Ktoś"} dał feedback do ${entry.title}`, "Zobacz, co warto zachować i co można poprawić.", `/showcase/${entryId}`, { actorId: user.id, entityType: "showcase", entityId: entryId, emailPreference: "emailShowcaseFeedback", titleEn: `${profileRows[0]?.username ?? "Someone"} left feedback on ${entry.title}`, bodyEn: "See what is worth keeping and what could be improved." });
   revalidatePath(`/showcase/${entryId}`);
   return { success: true };
 }

@@ -11,6 +11,13 @@ import type {
   ProjectType,
   RoleType,
   Stage,
+  ShowcaseCategory,
+  ShowcaseStatus,
+  ShowcaseReaction,
+  HackathonLocationType,
+  HackathonGoal,
+  HackathonAvailability,
+  ChallengeStatus,
 } from "@/db/schema";
 import type { AppLocale } from "@/lib/site-config";
 import {
@@ -27,6 +34,13 @@ import {
   PROJECT_TYPE_LABELS,
   ROLE_LABELS,
   STAGE_LABELS,
+  SHOWCASE_CATEGORY_LABELS,
+  SHOWCASE_STATUS_LABELS,
+  SHOWCASE_REACTION_LABELS,
+  HACKATHON_LOCATION_LABELS,
+  HACKATHON_GOAL_LABELS,
+  HACKATHON_AVAILABILITY_LABELS,
+  CHALLENGE_STATUS_LABELS,
 } from "@/lib/constants";
 
 const EN = {
@@ -122,6 +136,27 @@ const EN = {
     "3_6_MONTHS": "3–6 months",
     LONG_TERM: "Long term",
   } satisfies Record<ProjectDuration, string>,
+  showcaseCategories: {
+    AI: "AI", WEB: "Web", MOBILE: "Mobile", GAMES: "Games", EDUCATION: "Education", SAAS: "SaaS", DEVTOOLS: "DevTools", OTHER: "Other",
+  } satisfies Record<ShowcaseCategory, string>,
+  showcaseStatuses: {
+    MVP: "MVP", LIVE: "Live product", EXPERIMENT: "Experiment",
+  } satisfies Record<ShowcaseStatus, string>,
+  showcaseReactions: {
+    APPLAUSE: "Great work", IDEA: "Interesting idea", POTENTIAL: "Has potential",
+  } satisfies Record<ShowcaseReaction, string>,
+  hackathonLocations: {
+    ONLINE: "Online", ONSITE: "On-site", HYBRID: "Hybrid",
+  } satisfies Record<HackathonLocationType, string>,
+  hackathonGoals: {
+    COMPETE: "I want to compete", BUILD: "I mainly want to build something", NETWORK: "Network and meet people",
+  } satisfies Record<HackathonGoal, string>,
+  hackathonAvailability: {
+    FULL_EVENT: "Full event", MOST_EVENT: "Most of the event", LIMITED: "Limited availability",
+  } satisfies Record<HackathonAvailability, string>,
+  challengeStatuses: {
+    OPEN: "Registration", BUILDING: "Building", VOTING: "Voting", CLOSED: "Completed",
+  } satisfies Record<ChallengeStatus, string>,
 };
 
 export function labelsFor(locale: AppLocale) {
@@ -140,5 +175,12 @@ export function labelsFor(locale: AppLocale) {
     collaborationModes: COLLABORATION_MODE_LABELS,
     collaborationPaces: COLLABORATION_PACE_LABELS,
     durations: PROJECT_DURATION_LABELS,
+    showcaseCategories: SHOWCASE_CATEGORY_LABELS,
+    showcaseStatuses: SHOWCASE_STATUS_LABELS,
+    showcaseReactions: SHOWCASE_REACTION_LABELS,
+    hackathonLocations: HACKATHON_LOCATION_LABELS,
+    hackathonGoals: HACKATHON_GOAL_LABELS,
+    hackathonAvailability: HACKATHON_AVAILABILITY_LABELS,
+    challengeStatuses: CHALLENGE_STATUS_LABELS,
   };
 }

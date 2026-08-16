@@ -3,7 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCopy } from "@/components/i18n/locale-provider";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
 import { LogOut, MoreHorizontal, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/ui/avatar";
@@ -23,7 +25,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ROLE_LABELS } from "@/lib/constants";
 import type { RoleType } from "@/db/schema";
 import { leaveProject, removeProjectMember } from "@/server/actions/projects";
 
@@ -37,6 +38,9 @@ type Member = {
 
 export function ProjectTeamManager({ projectId, members }: { projectId: string; members: Member[] }) {
   const router = useRouter();
+  const copy = useCopy();
+  const locale = useLocale();
+  const roleLabels = labelsFor(locale).roles;
   const [pending, startTransition] = React.useTransition();
   const [selected, setSelected] = React.useState<Member | null>(null);
 
@@ -45,10 +49,10 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
     startTransition(async () => {
       const result = await removeProjectMember(projectId, selected.userId);
       if ("error" in result && result.error) {
-        toast.error(result.error);
+        toast.error(appMessage(result.error, locale));
         return;
       }
-      toast.success(`${selected.profile?.username ?? "Użytkownik"} nie należy już do projektu.`);
+      toast.success(copy(`${selected.profile?.username ?? "Użytkownik"} nie należy już do projektu.`, `${selected.profile?.username ?? "This person"} is no longer in the project.`));
       setSelected(null);
       router.refresh();
     });
@@ -65,32 +69,32 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
                 <Avatar username={username} seed={member.userId} size="sm" />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{username}</p>
-                  <p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{member.isOwner ? "Twórca projektu" : member.profile?.role ? ROLE_LABELS[member.profile.role] : "Członek zespołu"}</p>
+                  <p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{member.isOwner ? copy("Twórca projektu", "Project creator") : member.profile?.role ? roleLabels[member.profile.role] : copy("Członek zespołu", "Team member")}</p>
                 </div>
               </Link>
 
               <div>
-                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Rola w projekcie</p>
-                <p className="mt-1 text-[13px] text-[var(--bc-ink)]">{member.isOwner ? "Autor" : member.roleType ? ROLE_LABELS[member.roleType] : "Bez przypisanej roli"}</p>
+                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Rola w projekcie", "Project role")}</p>
+                <p className="mt-1 text-[13px] text-[var(--bc-ink)]">{member.isOwner ? copy("Autor", "Owner") : member.roleType ? roleLabels[member.roleType] : copy("Bez przypisanej roli", "No assigned role")}</p>
               </div>
 
               <div>
-                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Dołączył</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{formatDate(member.joinedAt)}</p>
+                <p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Dołączył", "Joined")}</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{formatDate(member.joinedAt, locale)}</p>
               </div>
 
               {member.isOwner ? <span /> : (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button type="button" variant="ghost" size="icon" className="h-9 w-9" aria-label={`Opcje dla ${username}`}>
+                    <Button type="button" variant="ghost" size="icon" className="h-9 w-9" aria-label={copy(`Opcje dla ${username}`, `Options for ${username}`)}>
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild><Link href={`/builders/${member.userId}`}>Zobacz profil</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link href={`/builders/${member.userId}`}>{copy("Zobacz profil", "View profile")}</Link></DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="text-red-700 focus:text-red-700 dark:text-red-400" onSelect={() => setSelected(member)}>
-                      <UserMinus className="h-4 w-4" /> Usuń z projektu
+                      <UserMinus className="h-4 w-4" /> {copy("Usuń z projektu", "Remove from project")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -103,17 +107,17 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => { if (!open && !pending) setSelected(null); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Usunąć osobę z projektu?</DialogTitle>
+            <DialogTitle>{copy("Usunąć osobę z projektu?", "Remove this person from the project?")}</DialogTitle>
             <DialogDescription>
-              {selected?.profile?.username ?? "Ta osoba"} straci dostęp do prywatnego workspace&apos;u, nowych wiadomości zespołu i zadań projektu.
+              {copy(`${selected?.profile?.username ?? "Ta osoba"} straci dostęp do prywatnego workspace’u, nowych wiadomości zespołu i zadań projektu.`, `${selected?.profile?.username ?? "This person"} will lose access to the private workspace, new team messages and project tasks.`)}
             </DialogDescription>
           </DialogHeader>
           <div className="border-y border-[var(--bc-line)] py-3 text-[13px] leading-5 text-[var(--bc-muted)]">
-            Wcześniejsze wiadomości i historia zmian pozostaną w projekcie, żeby nie usuwać kontekstu pracy pozostałej ekipy. Zadania przypisane tej osobie staną się nieprzypisane.
+            {copy("Wcześniejsze wiadomości i historia zmian pozostaną w projekcie, żeby nie usuwać kontekstu pracy pozostałej ekipy. Zadania przypisane tej osobie staną się nieprzypisane.", "Previous messages and change history will remain in the project so the rest of the team keeps its context. Tasks assigned to this person will become unassigned.")}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" disabled={pending} onClick={() => setSelected(null)}>Anuluj</Button>
-            <Button type="button" variant="destructive" disabled={pending} onClick={confirmRemoval}>{pending ? "Usuwanie…" : "Usuń z projektu"}</Button>
+            <Button type="button" variant="outline" disabled={pending} onClick={() => setSelected(null)}>{copy("Anuluj", "Cancel")}</Button>
+            <Button type="button" variant="destructive" disabled={pending} onClick={confirmRemoval}>{pending ? copy("Usuwanie…", "Removing…") : copy("Usuń z projektu", "Remove from project")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -124,6 +128,7 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
 export function LeaveProjectButton({ projectId, projectName }: { projectId: string; projectName: string }) {
   const router = useRouter();
   const copy = useCopy();
+  const locale = useLocale();
   const [open, setOpen] = React.useState(false);
   const [pending, startTransition] = React.useTransition();
 
@@ -131,7 +136,7 @@ export function LeaveProjectButton({ projectId, projectName }: { projectId: stri
     startTransition(async () => {
       const result = await leaveProject(projectId);
       if ("error" in result && result.error) {
-        toast.error(result.error);
+        toast.error(appMessage(result.error, locale));
         return;
       }
       toast.success(copy(`Opuściłeś projekt ${projectName}.`, `You left ${projectName}.`));
@@ -165,6 +170,6 @@ export function LeaveProjectButton({ projectId, projectName }: { projectId: stri
   );
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
+function formatDate(value: string, locale: "pl" | "en") {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "pl-PL", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
 }

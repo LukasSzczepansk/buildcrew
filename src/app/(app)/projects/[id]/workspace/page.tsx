@@ -6,18 +6,22 @@ import { Topbar } from "@/components/layout/topbar";
 import { ProjectIdentityMark } from "@/components/projects/project-identity-mark";
 import { ProjectWorkspace } from "@/components/projects/project-workspace";
 import { Button } from "@/components/ui/button";
-import { COMMITMENT_LABELS, PROJECT_TYPE_LABELS, STAGE_LABELS } from "@/lib/constants";
+import { labelsFor } from "@/lib/constants-i18n";
+import { getRequestLocale } from "@/lib/site-server";
 import { getCurrentUser } from "@/lib/auth";
 import { getProjectWorkspace } from "@/server/data/project-workspace";
 
-export const metadata: Metadata = {
-  title: "Workspace projektu - BuildCrew",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return { title: locale === "en" ? "Project workspace - BuildCrew" : "Workspace projektu - BuildCrew", robots: { index: false, follow: false } };
+}
 
 export default async function ProjectWorkspacePage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  const locale = await getRequestLocale();
+  const en = locale === "en";
+  const labels = labelsFor(locale);
   const { id } = await params;
   const data = await getProjectWorkspace(id, user.id);
   if (!data) notFound();
@@ -31,22 +35,22 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
       <header className="border-b border-[var(--bc-line)] pb-5 pt-1">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="ghost" size="sm" className="-ml-3">
-            <Link href={`/projects/${id}`}><ArrowLeft className="h-3.5 w-3.5" /> Projekt</Link>
+            <Link href={`/projects/${id}`}><ArrowLeft className="h-3.5 w-3.5" /> {en ? "Project" : "Projekt"}</Link>
           </Button>
 
           <div className="flex flex-wrap items-center gap-2">
             {isOwner ? (
               <Button asChild variant="outline" size="sm">
-                <Link href="/builders"><UserPlus className="h-3.5 w-3.5" /> Znajdź osobę</Link>
+                <Link href="/builders"><UserPlus className="h-3.5 w-3.5" /> {en ? "Find someone" : "Znajdź osobę"}</Link>
               </Button>
             ) : null}
             {isOwner ? (
               <Button asChild variant="outline" size="sm">
-                <Link href={`/projects/${id}/manage`}><Settings2 className="h-3.5 w-3.5" /> Zarządzaj</Link>
+                <Link href={`/projects/${id}/manage`}><Settings2 className="h-3.5 w-3.5" /> {en ? "Manage" : "Zarządzaj"}</Link>
               </Button>
             ) : null}
             <Button asChild variant="outline" size="sm">
-              <Link href={`/projects/${id}`}><ExternalLink className="h-3.5 w-3.5" /> Widok projektu</Link>
+              <Link href={`/projects/${id}`}><ExternalLink className="h-3.5 w-3.5" /> {en ? "Project view" : "Widok projektu"}</Link>
             </Button>
           </div>
         </div>
@@ -63,15 +67,15 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{data.project.name}</h1>
               <span className="inline-flex items-center gap-1.5 rounded-[5px] border border-[var(--bc-line)] px-2 py-1 text-[11px] font-medium text-[var(--bc-muted)]">
-                <LockKeyhole className="h-3 w-3" /> Prywatny workspace
+                <LockKeyhole className="h-3 w-3" /> {en ? "Private workspace" : "Prywatny workspace"}
               </span>
             </div>
             <p className="mt-1.5 max-w-[760px] text-sm leading-5 text-[var(--bc-muted)]">{data.project.tagline}</p>
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--bc-faint)]">
-              <span>{STAGE_LABELS[data.project.stage]}</span>
-              {data.project.projectType ? <span>{PROJECT_TYPE_LABELS[data.project.projectType]}</span> : null}
-              {data.project.commitment ? <span>{COMMITMENT_LABELS[data.project.commitment]}</span> : null}
-              <span className="inline-flex items-center gap-1"><UsersRound className="h-3.5 w-3.5" /> {data.members.length} {data.members.length === 1 ? "osoba" : data.members.length < 5 ? "osoby" : "osób"}</span>
+              <span>{labels.stages[data.project.stage]}</span>
+              {data.project.projectType ? <span>{labels.projectTypes[data.project.projectType]}</span> : null}
+              {data.project.commitment ? <span>{labels.commitments[data.project.commitment]}</span> : null}
+              <span className="inline-flex items-center gap-1"><UsersRound className="h-3.5 w-3.5" /> {data.members.length} {en ? (data.members.length === 1 ? "person" : "people") : (data.members.length === 1 ? "osoba" : data.members.length < 5 ? "osoby" : "osób")}</span>
             </div>
           </div>
         </div>

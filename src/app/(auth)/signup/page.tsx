@@ -6,7 +6,10 @@ import { safeInternalRedirect } from "@/lib/redirects";
 import { signupAction } from "@/server/actions/auth";
 import { getRequestLocale } from "@/lib/site-server";
 
-export const metadata: Metadata = { title: "Załóż konto - BuildCrew" };
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return { title: locale === "en" ? "Create account - BuildCrew" : "Załóż konto - BuildCrew" };
+}
 
 const GOOGLE_ERRORS: Record<string, string> = {
   "account-missing": "Nie masz jeszcze konta BuildCrew. Możesz je utworzyć przez Google poniżej.",

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { publishProjectUpdate } from "@/server/actions/social-projects";
 import type { ProjectUpdateKind } from "@/db/schema";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 
 const LABELS_PL: Record<ProjectUpdateKind, string> = {
   PROGRESS: "Postęp",
@@ -34,7 +35,7 @@ export function ProjectUpdateComposer({ projectId }: { projectId: string }) {
   function submit() {
     startTransition(async () => {
       const result = await publishProjectUpdate({ projectId, kind, body });
-      if (result?.error) { toast.error(result.error); return; }
+      if (result?.error) { toast.error(appMessage(result.error, locale)); return; }
       setBody("");
       setKind("PROGRESS");
       toast.success(copy("Aktualizacja opublikowana.", "Update published."));

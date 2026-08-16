@@ -1,5 +1,6 @@
 import type { HackathonAvailability, HackathonGoal, Level, RoleType } from "@/db/schema";
-import { ROLE_LABELS } from "@/lib/constants";
+import { labelsFor } from "@/lib/constants-i18n";
+import type { AppLocale } from "@/lib/site-config";
 
 type MatchPerson = {
   role: RoleType;
@@ -27,14 +28,16 @@ const ROLE_FAMILIES: Record<RoleType, string> = {
   MARKETING: "growth",
 };
 
-export function computeHackathonMatch(me: MatchPerson, candidate: MatchPerson) {
+export function computeHackathonMatch(me: MatchPerson, candidate: MatchPerson, locale: AppLocale = "pl") {
+  const roleLabels = labelsFor(locale).roles;
+  const copy = (pl: string, en: string) => locale === "en" ? en : pl;
   let score = 18;
   const reasons: string[] = [];
 
   if (me.role !== candidate.role) {
     const differentFamily = ROLE_FAMILIES[me.role] !== ROLE_FAMILIES[candidate.role];
     score += differentFamily ? 24 : 15;
-    reasons.push(`${ROLE_LABELS[candidate.role]} uzupełnia Twoją rolę ${ROLE_LABELS[me.role]}.`);
+    reasons.push(copy(`${roleLabels[candidate.role]} uzupełnia Twoją rolę ${roleLabels[me.role]}.`, `${roleLabels[candidate.role]} complements your ${roleLabels[me.role]} role.`));
   } else {
     score += 4;
   }
@@ -42,23 +45,23 @@ export function computeHackathonMatch(me: MatchPerson, candidate: MatchPerson) {
   const sharedThemes = overlap(me.themes, candidate.themes);
   if (sharedThemes.length) {
     score += Math.min(20, sharedThemes.length * 8);
-    reasons.push(`Wspólne kierunki: ${sharedThemes.slice(0, 2).join(" · ")}.`);
+    reasons.push(copy(`Wspólne kierunki: ${sharedThemes.slice(0, 2).join(" · ")}.`, `Shared themes: ${sharedThemes.slice(0, 2).join(" · ")}.`));
   }
 
   const sharedTech = overlap(me.technologies, candidate.technologies);
   if (sharedTech.length) {
     score += Math.min(12, sharedTech.length * 4);
-    reasons.push(`Znacie wspólny stack: ${sharedTech.slice(0, 2).join(" · ")}.`);
+    reasons.push(copy(`Znacie wspólny stack: ${sharedTech.slice(0, 2).join(" · ")}.`, `Shared stack: ${sharedTech.slice(0, 2).join(" · ")}.`));
   }
 
   if (me.goal === candidate.goal) {
     score += 12;
-    reasons.push("Macie podobne podejście do hackathonu.");
+    reasons.push(copy("Macie podobne podejście do hackathonu.", "You have a similar approach to the hackathon."));
   }
 
   if (me.availability === candidate.availability) {
     score += 10;
-    reasons.push("Deklarujecie podobną dostępność podczas wydarzenia.");
+    reasons.push(copy("Deklarujecie podobną dostępność podczas wydarzenia.", "You have similar availability during the event."));
   } else if (me.availability !== "LIMITED" && candidate.availability !== "LIMITED") {
     score += 5;
   }

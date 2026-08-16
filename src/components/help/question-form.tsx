@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { createQuestion } from "@/server/actions/help";
 
 export function QuestionForm() {
+  const copy = useCopy();
+  const locale = useLocale();
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [tagInput, setTagInput] = React.useState("");
@@ -28,41 +32,41 @@ export function QuestionForm() {
     setPending(true);
     const result = await createQuestion({ title, description, tags }).catch((err) => {
       if (err?.digest?.startsWith?.("NEXT_REDIRECT")) throw err;
-      return { error: "Nie udało się dodać pytania." };
+      return { error: copy("Nie udało się dodać pytania.", "Could not post the question.") };
     });
     setPending(false);
-    if (result?.error) toast.error(result.error);
+    if (result?.error) toast.error(appMessage(result.error, locale));
   }
 
   return (
     <Card className="p-6">
       <div className="grid gap-5">
         <div className="grid gap-1.5">
-          <Label htmlFor="question-title">Tytuł</Label>
+          <Label htmlFor="question-title">{copy("Tytuł", "Title")}</Label>
           <Input
             id="question-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Np. Jak najlepiej zrobić auth w Next.js?"
+            placeholder={copy("Np. Jak najlepiej zrobić auth w Next.js?", "e.g. What is the best way to implement auth in Next.js?")}
             maxLength={140}
           />
-          <p className="text-[13px] text-neutral-400">Napisz konkretnie, z czym utknąłeś.</p>
+          <p className="text-[13px] text-neutral-400">{copy("Napisz konkretnie, z czym utknąłeś.", "Be specific about what you are stuck on.")}</p>
         </div>
 
         <div className="grid gap-1.5">
-          <Label htmlFor="question-description">Opis problemu</Label>
+          <Label htmlFor="question-description">{copy("Opis problemu", "Problem description")}</Label>
           <Textarea
             id="question-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Co próbujesz zrobić? Co już sprawdziłeś? Jaki dokładnie pojawia się problem?"
+            placeholder={copy("Co próbujesz zrobić? Co już sprawdziłeś? Jaki dokładnie pojawia się problem?", "What are you trying to do? What have you tried? What exactly is going wrong?")}
             className="min-h-44"
             maxLength={2000}
           />
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="question-tags">Tagi (maks. 5)</Label>
+          <Label htmlFor="question-tags">{copy("Tagi (maks. 5)", "Tags (max. 5)")}</Label>
           <div className="flex gap-2">
             <Input
               id="question-tags"
@@ -77,7 +81,7 @@ export function QuestionForm() {
               }}
             />
             <Button type="button" variant="outline" onClick={addTag} disabled={!tagInput.trim() || tags.length >= 5}>
-              <Plus className="h-4 w-4" /> Dodaj
+              <Plus className="h-4 w-4" /> {copy("Dodaj", "Add")}
             </Button>
           </div>
           {tags.length > 0 && (
@@ -98,7 +102,7 @@ export function QuestionForm() {
 
         <div className="flex justify-end">
           <Button onClick={submit} disabled={pending || title.trim().length < 10 || description.trim().length < 20}>
-            {pending ? "Publikowanie…" : "Opublikuj pytanie"}
+            {pending ? copy("Publikowanie…", "Publishing…") : copy("Opublikuj pytanie", "Post question")}
           </Button>
         </div>
       </div>

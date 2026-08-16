@@ -11,6 +11,7 @@ import { TechnologyStack } from "@/components/ui/technology-badge";
 import type { Commitment, Level, RoleType } from "@/db/schema";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
 import { respondToApplication } from "@/server/actions/projects";
 
 export type ApplicationCardData = {
@@ -34,7 +35,7 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
     setPending(true);
     const res = await respondToApplication(application.id, decision);
     setPending(false);
-    if ("error" in res && res.error) { toast.error(res.error); return; }
+    if ("error" in res && res.error) { toast.error(appMessage(res.error, locale)); return; }
     setStatus(decision);
     toast.success(decision === "ACCEPTED" ? copy("Zaakceptowano zgłoszenie", "Application accepted") : copy("Zgłoszenie odrzucone", "Application declined"));
   }

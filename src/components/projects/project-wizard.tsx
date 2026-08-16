@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
 import {
   COUNTRY_OPTIONS,
   FUNDING_STAGE_OPTIONS,
@@ -71,7 +72,6 @@ import { createProject } from "@/server/actions/projects";
 const DRAFT_KEY_PREFIX = "buildcrew:project-draft:v2";
 const TOTAL_STEPS = 5;
 
-const STEP_LABELS = ["Podstawy", "Projekt", "Ekipa", "Współpraca", "Podgląd"] as const;
 
 type RoleDraft = {
   roleType: RoleType | "";
@@ -341,7 +341,7 @@ export function ProjectWizard({
     setPending(false);
 
     if ("error" in result && result.error) {
-      toast.error(result.error);
+      toast.error(appMessage(result.error, locale));
       return;
     }
 
@@ -372,7 +372,7 @@ export function ProjectWizard({
     <div className="mx-auto w-full max-w-[900px] pb-16">
       <div className="border-y border-[var(--bc-line)]">
         <div className="flex min-w-max overflow-x-auto">
-          {(locale === "en" ? ["Basics", "Project", "Team", "Collaboration", "Preview"] : STEP_LABELS).map((label, index) => {
+          {(locale === "en" ? ["Basics", "Project", "Team", "Collaboration", "Preview"] : ["Podstawy", "Projekt", "Ekipa", "Współpraca", "Podgląd"]).map((label, index) => {
             const currentStep = index + 1;
             const active = currentStep === step;
             const done = currentStep < step;

@@ -32,7 +32,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ROLE_LABELS } from "@/lib/constants";
+import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import type { ProjectWorkspaceActivityType, RoleType } from "@/db/schema";
 import {
   addProjectWorkspaceLink,
@@ -131,27 +133,19 @@ type WorkspaceOverview = {
 type Tab = "overview" | "chat" | "tasks" | "plan" | "links" | "activity";
 type ActivityFilter = "ALL" | "TASKS" | "PROJECT" | "TEAM";
 
-const TASK_LABELS: Record<WorkspaceTask["status"], string> = {
-  TODO: "Do zrobienia",
-  DOING: "W trakcie",
-  DONE: "Gotowe",
-};
-
-const MILESTONE_LABELS: Record<"PLANNED" | "DOING" | "DONE", string> = {
-  PLANNED: "Planowany",
-  DOING: "W trakcie",
-  DONE: "Ukończony",
-};
-
-const LINK_LABELS: Record<WorkspaceLink["kind"], string> = {
-  GITHUB: "GitHub",
-  FIGMA: "Figma",
-  NOTION: "Notion",
-  DISCORD: "Discord",
-  DEMO: "Demo",
-  DOCS: "Dokumentacja",
-  OTHER: "Inny",
-};
+function workspaceLabelSets(locale: "pl" | "en") {
+  return {
+    tasks: locale === "en"
+      ? { TODO: "To do", DOING: "In progress", DONE: "Done" } as const
+      : { TODO: "Do zrobienia", DOING: "W trakcie", DONE: "Gotowe" } as const,
+    milestones: locale === "en"
+      ? { PLANNED: "Planned", DOING: "In progress", DONE: "Completed" } as const
+      : { PLANNED: "Planowany", DOING: "W trakcie", DONE: "Ukończony" } as const,
+    links: locale === "en"
+      ? { GITHUB: "GitHub", FIGMA: "Figma", NOTION: "Notion", DISCORD: "Discord", DEMO: "Demo", DOCS: "Documentation", OTHER: "Other" } as const
+      : { GITHUB: "GitHub", FIGMA: "Figma", NOTION: "Notion", DISCORD: "Discord", DEMO: "Demo", DOCS: "Dokumentacja", OTHER: "Inny" } as const,
+  };
+}
 
 export function ProjectWorkspace({
   projectId,
@@ -181,6 +175,9 @@ export function ProjectWorkspace({
   activity: WorkspaceActivity[];
 }) {
   const router = useRouter();
+  const locale = useLocale();
+  const copy = useCopy();
+  const workspaceLabels = workspaceLabelSets(locale);
   const isOwner = viewerId === projectOwnerId;
   const [tab, setTab] = React.useState<Tab>("overview");
   const [pending, startTransition] = React.useTransition();
@@ -241,7 +238,7 @@ export function ProjectWorkspace({
     startTransition(async () => {
       const result = await action();
       if (result.error) {
-        toast.error(result.error);
+        toast.error(appMessage(result.error, locale));
         return;
       }
       if (successMessage) toast.success(successMessage);
@@ -306,7 +303,7 @@ export function ProjectWorkspace({
       />
 
       <details className="mt-4 border-y border-[var(--bc-line)] py-3 xl:hidden">
-        <summary className="cursor-pointer list-none text-[13px] font-medium text-[var(--bc-ink)]">Informacje o workspace</summary>
+        <summary className="cursor-pointer list-none text-[13px] font-medium text-[var(--bc-ink)]">{copy("Informacje o workspace", "Workspace information")}</summary>
         <div className="mt-4">
           <ProjectPulse
             isOwner={isOwner}
@@ -346,8 +343,8 @@ export function ProjectWorkspace({
               <div className="mb-4 flex items-start gap-2 border-l-2 border-[var(--bc-line-strong)] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]">
                 <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <p>
-                  Rozmowa jest widoczna tylko dla członków projektu. Nie wklejaj haseł, kluczy API ani danych, których zespół nie potrzebuje. {" "}
-                  <Link href="/polityka-prywatnosci" className="underline underline-offset-2 hover:text-[var(--bc-ink)]">Prywatność</Link>
+                  {copy("Rozmowa jest widoczna tylko dla członków projektu. Nie wklejaj haseł, kluczy API ani danych, których zespół nie potrzebuje. ", "This conversation is visible only to project members. Do not paste passwords, API keys or data the team does not need. ")}
+                  <Link href="/polityka-prywatnosci" className="underline underline-offset-2 hover:text-[var(--bc-ink)]">{copy("Prywatność", "Privacy")}</Link>
                 </p>
               </div>
 
@@ -361,7 +358,7 @@ export function ProjectWorkspace({
                       {isFirstUnread ? (
                         <div className="flex items-center gap-3 py-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-muted)]">
                           <span className="h-px flex-1 bg-[var(--bc-line)]" />
-                          Nowe wiadomości
+                          {copy("Nowe wiadomości", "New messages")}
                           <span className="h-px flex-1 bg-[var(--bc-line)]" />
                         </div>
                       ) : null}
@@ -390,14 +387,14 @@ export function ProjectWorkspace({
                           return result;
                         })}
                         onDelete={() => run(() => deleteProjectWorkspaceMessage(item.id))}
-                        onPin={() => run(() => setProjectWorkspaceMessagePinned(item.id, !item.pinnedAt), item.pinnedAt ? "Odpięto wiadomość" : "Przypięto wiadomość")}
+                        onPin={() => run(() => setProjectWorkspaceMessagePinned(item.id, !item.pinnedAt), item.pinnedAt ? copy("Odpięto wiadomość", "Message unpinned") : copy("Przypięto wiadomość", "Message pinned"))}
                         onReaction={(reaction) => run(() => toggleProjectWorkspaceReaction(item.id, reaction))}
                         onFocusReply={focusMessage}
                       />
                     </React.Fragment>
                   );
                 }) : (
-                  <EmptyLine title="Jeszcze nikt tu nie napisał" description="Zacznij od konkretnego ustalenia: co robicie teraz albo kto bierze pierwsze zadanie." />
+                  <EmptyLine title={copy("Jeszcze nikt tu nie napisał", "No messages yet")} description={copy("Zacznij od konkretnego ustalenia: co robicie teraz albo kto bierze pierwsze zadanie.", "Start with something concrete: what you are doing now or who takes the first task.")} />
                 )}
               </div>
 
@@ -405,10 +402,10 @@ export function ProjectWorkspace({
                 {replyTarget ? (
                   <div className="mb-2 flex items-start justify-between gap-3 border-b border-[var(--bc-line)] pb-2">
                     <div className="min-w-0 text-[12px] text-[var(--bc-muted)]">
-                      <span className="font-medium text-[var(--bc-ink)]">Odpowiadasz {replyTarget.sender?.username ? `do ${replyTarget.sender.username}` : "na wiadomość"}</span>
-                      <p className="mt-0.5 truncate">{replyTarget.deletedAt ? "Wiadomość została usunięta." : replyTarget.body}</p>
+                      <span className="font-medium text-[var(--bc-ink)]">{copy("Odpowiadasz", "Replying")} {replyTarget.sender?.username ? copy(`do ${replyTarget.sender.username}`, `to ${replyTarget.sender.username}`) : copy("na wiadomość", "to a message")}</span>
+                      <p className="mt-0.5 truncate">{replyTarget.deletedAt ? copy("Wiadomość została usunięta.", "This message was deleted.") : replyTarget.body}</p>
                     </div>
-                    <button type="button" className="text-[12px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]" onClick={() => setReplyTarget(null)}>Anuluj</button>
+                    <button type="button" className="text-[12px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]" onClick={() => setReplyTarget(null)}>{copy("Anuluj", "Cancel")}</button>
                   </div>
                 ) : null}
                 <div className="flex items-end gap-2">
@@ -423,15 +420,15 @@ export function ProjectWorkspace({
                     }}
                     maxLength={MAX_MESSAGE_LENGTH}
                     rows={1}
-                    placeholder="Napisz do zespołu…  @nazwa oznacza członka"
+                    placeholder={copy("Napisz do zespołu…  @nazwa oznacza członka", "Message your team…  @name mentions a member")}
                     className="min-h-11 max-h-36 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0"
                   />
                   <Button type="button" size="sm" disabled={pending || !message.trim()} onClick={sendMessage} className="shrink-0">
-                    Wyślij <Send className="h-3.5 w-3.5" />
+                    {copy("Wyślij", "Send")} <Send className="h-3.5 w-3.5" />
                   </Button>
                 </div>
                 <div className="mt-1 flex items-center justify-between text-[11px] text-[var(--bc-faint)]">
-                  <span>Ctrl/⌘ + Enter wysyła</span>
+                  <span>{copy("Ctrl/⌘ + Enter wysyła", "Ctrl/⌘ + Enter sends")}</span>
                   <span>{message.length}/{MAX_MESSAGE_LENGTH}</span>
                 </div>
               </div>
@@ -441,9 +438,9 @@ export function ProjectWorkspace({
           {tab === "tasks" ? (
             <section className="pt-5">
               <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--bc-line)] pb-4">
-                <SectionHeading title="Zadania" description="Tylko rzeczy, które zespół faktycznie ma dowieźć. Bez rozbudowanej Jiry." />
+                <SectionHeading title={copy("Zadania", "Tasks")} description={copy("Tylko rzeczy, które zespół faktycznie ma dowieźć. Bez rozbudowanej Jiry.", "Only work the team actually needs to ship. No heavyweight project management.")} />
                 <Button type="button" size="sm" onClick={() => setTaskFormOpen((value) => !value)}>
-                  <ListPlus className="h-3.5 w-3.5" /> Dodaj zadanie
+                  <ListPlus className="h-3.5 w-3.5" /> {copy("Dodaj zadanie", "Add task")}
                 </Button>
               </div>
 
@@ -451,18 +448,18 @@ export function ProjectWorkspace({
                 <div className="grid gap-3 border-b border-[var(--bc-line)] py-4">
                   {taskSourceMessageId ? (
                     <div className="flex items-center justify-between gap-3 text-[12px] text-[var(--bc-muted)]">
-                      <span>Zadanie powstanie z wiadomości zespołu.</span>
-                      <button type="button" className="underline underline-offset-2" onClick={() => setTaskSourceMessageId("")}>Usuń powiązanie</button>
+                      <span>{copy("Zadanie powstanie z wiadomości zespołu.", "This task will be linked to a team message.")}</span>
+                      <button type="button" className="underline underline-offset-2" onClick={() => setTaskSourceMessageId("")}>{copy("Usuń powiązanie", "Remove link")}</button>
                     </div>
                   ) : null}
-                  <Input value={taskTitle} maxLength={160} onChange={(event) => setTaskTitle(event.target.value)} placeholder="Nazwa zadania, np. dokończyć importer Lidla" />
-                  <Textarea value={taskDescription} maxLength={800} onChange={(event) => setTaskDescription(event.target.value)} placeholder="Krótki opis lub warunek ukończenia (opcjonalnie)" className="min-h-[76px]" />
+                  <Input value={taskTitle} maxLength={160} onChange={(event) => setTaskTitle(event.target.value)} placeholder={copy("Nazwa zadania, np. dokończyć importer Lidla", "Task name, e.g. finish the import flow")} />
+                  <Textarea value={taskDescription} maxLength={800} onChange={(event) => setTaskDescription(event.target.value)} placeholder={copy("Krótki opis lub warunek ukończenia (opcjonalnie)", "Short description or definition of done (optional)")} className="min-h-[76px]" />
                   <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_190px_auto]">
                     <select className={selectClass} value={taskAssignee} onChange={(event) => setTaskAssignee(event.target.value)}>
-                      <option value="">Nieprzypisane</option>
+                      <option value="">{copy("Nieprzypisane", "Unassigned")}</option>
                       {members.map((member) => <option key={member.userId} value={member.userId}>{member.profile?.username ?? "Builder"}</option>)}
                     </select>
-                    <Input type="date" value={taskDueAt} onChange={(event) => setTaskDueAt(event.target.value)} aria-label="Termin zadania" />
+                    <Input type="date" value={taskDueAt} onChange={(event) => setTaskDueAt(event.target.value)} aria-label={copy("Termin zadania", "Task due date")} />
                     <Button
                       type="button"
                       size="sm"
@@ -484,9 +481,9 @@ export function ProjectWorkspace({
                           setTaskFormOpen(false);
                         }
                         return result;
-                      }, "Dodano zadanie")}
+                      }, copy("Dodano zadanie", "Task added"))}
                     >
-                      Dodaj
+                      {copy("Dodaj", "Add")}
                     </Button>
                   </div>
                 </div>
@@ -499,7 +496,7 @@ export function ProjectWorkspace({
                     <section key={status} className="border-b border-[var(--bc-line)] py-4 last:border-b-0">
                       <div className="mb-1 flex items-center gap-2">
                         <TaskStatusIcon status={status} />
-                        <h3 className="text-[13px] font-semibold text-[var(--bc-ink)]">{TASK_LABELS[status]}</h3>
+                        <h3 className="text-[13px] font-semibold text-[var(--bc-ink)]">{workspaceLabels.tasks[status]}</h3>
                         <span className="text-[11px] text-[var(--bc-faint)]">{statusTasks.length}</span>
                       </div>
                       <div className="divide-y divide-[var(--bc-line)]">
@@ -531,14 +528,14 @@ export function ProjectWorkspace({
                               });
                               if (result.success) setEditingTaskId(null);
                               return result;
-                            }, "Zapisano zadanie")}
+                            }, copy("Zapisano zadanie", "Task saved"))}
                             onStatus={(nextStatus) => run(() => updateProjectWorkspaceTaskStatus(task.id, nextStatus))}
                             onAssign={(assigneeId) => run(() => updateProjectWorkspaceTask(task.id, { assigneeId }))}
                             onDelete={() => run(() => deleteProjectWorkspaceTask(task.id))}
                             onSourceMessage={() => task.sourceMessageId ? focusMessage(task.sourceMessageId) : undefined}
                           />
                         )) : (
-                          <p className="py-4 text-[12px] text-[var(--bc-faint)]">Brak zadań w tej sekcji.</p>
+                          <p className="py-4 text-[12px] text-[var(--bc-faint)]">{copy("Brak zadań w tej sekcji.", "No tasks in this section.")}</p>
                         )}
                       </div>
                     </section>
@@ -551,23 +548,23 @@ export function ProjectWorkspace({
           {tab === "plan" ? (
             <section className="pt-5">
               <div className="border-b border-[var(--bc-line)] pb-5">
-                <SectionHeading title="Na teraz" description="Jedna rzecz, na której zespół skupia się w tej chwili." />
+                <SectionHeading title={copy("Na teraz", "Current focus")} description={copy("Jedna rzecz, na której zespół skupia się w tej chwili.", "The one thing the team is focused on right now.")} />
                 {isOwner ? (
-                  <Textarea value={currentFocus} maxLength={240} onChange={(event) => setCurrentFocus(event.target.value)} placeholder="Np. kończymy import cen z pierwszych 3 sieci." className="min-h-[82px]" />
+                  <Textarea value={currentFocus} maxLength={240} onChange={(event) => setCurrentFocus(event.target.value)} placeholder={copy("Np. kończymy import cen z pierwszych 3 sieci.", "e.g. finish the first version of onboarding")} className="min-h-[82px]" />
                 ) : (
-                  <p className="max-w-[720px] text-[14px] leading-6 text-[var(--bc-ink)]">{workspace?.currentFocus || "Twórca projektu nie ustawił jeszcze aktualnego fokusu."}</p>
+                  <p className="max-w-[720px] text-[14px] leading-6 text-[var(--bc-ink)]">{workspace?.currentFocus || copy("Twórca projektu nie ustawił jeszcze aktualnego fokusu.", "The project owner has not set a current focus yet.")}</p>
                 )}
               </div>
 
               <div className="border-b border-[var(--bc-line)] py-5">
-                <SectionHeading title="Najbliższy milestone" description="Konkretny wynik, który zespół chce dowieźć jako następny." />
+                <SectionHeading title={copy("Najbliższy milestone", "Next milestone")} description={copy("Konkretny wynik, który zespół chce dowieźć jako następny.", "A concrete result the team wants to deliver next.")} />
                 {isOwner ? (
                   <div className="grid gap-3">
-                    <Input value={milestoneTitle} maxLength={180} onChange={(event) => setMilestoneTitle(event.target.value)} placeholder="Np. MVP gotowe do testów" />
-                    <Textarea value={milestoneDescription} maxLength={600} onChange={(event) => setMilestoneDescription(event.target.value)} placeholder="Co dokładnie oznacza ukończenie tego milestone'u?" className="min-h-[82px]" />
+                    <Input value={milestoneTitle} maxLength={180} onChange={(event) => setMilestoneTitle(event.target.value)} placeholder={copy("Np. MVP gotowe do testów", "e.g. MVP ready for testing")} />
+                    <Textarea value={milestoneDescription} maxLength={600} onChange={(event) => setMilestoneDescription(event.target.value)} placeholder={copy("Co dokładnie oznacza ukończenie tego milestone'u?", "What exactly does completing this milestone mean?")} className="min-h-[82px]" />
                     <div className="grid gap-2 sm:grid-cols-2">
                       <select className={selectClass} value={milestoneStatus} onChange={(event) => setMilestoneStatus(event.target.value as "PLANNED" | "DOING" | "DONE")}>
-                        {Object.entries(MILESTONE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                        {Object.entries(workspaceLabels.milestones).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                       </select>
                       <Input type="date" value={milestoneDueAt} onChange={(event) => setMilestoneDueAt(event.target.value)} />
                     </div>
@@ -592,21 +589,21 @@ export function ProjectWorkspace({
                       milestoneCompleted: milestoneStatus === "DONE",
                     }), "Zapisano plan")}
                   >
-                    Zapisz plan
+                    {copy("Zapisz plan", "Save plan")}
                   </Button>
                 </div>
               ) : null}
 
               <div className="pt-5">
-                <SectionHeading title="Kolejne kroki" description="Otwarte zadania tworzą prosty plan pracy - bez dodatkowego systemu roadmap." />
+                <SectionHeading title={copy("Kolejne kroki", "Next steps")} description={copy("Otwarte zadania tworzą prosty plan pracy - bez dodatkowego systemu roadmap.", "Open tasks form a simple plan without another roadmap tool.")} />
                 <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
                   {openTasks.length ? openTasks.slice(0, 8).map((task) => (
                     <button key={task.id} type="button" onClick={() => setTab("tasks")} className="grid w-full gap-1 py-3 text-left sm:grid-cols-[1fr_150px_130px] sm:items-center">
                       <span className="text-[13px] font-medium text-[var(--bc-ink)]">{task.title}</span>
-                      <span className="text-[12px] text-[var(--bc-muted)]">{task.assignee?.username ?? "Nieprzypisane"}</span>
-                      <span className="text-[11px] text-[var(--bc-faint)] sm:text-right">{TASK_LABELS[task.status]}</span>
+                      <span className="text-[12px] text-[var(--bc-muted)]">{task.assignee?.username ?? copy("Nieprzypisane", "Unassigned")}</span>
+                      <span className="text-[11px] text-[var(--bc-faint)] sm:text-right">{workspaceLabels.tasks[task.status]}</span>
                     </button>
-                  )) : <EmptyLine title="Brak otwartych zadań" description="Dodaj następne kroki w zakładce Zadania." />}
+                  )) : <EmptyLine title={copy("Brak otwartych zadań", "No open tasks")} description={copy("Dodaj następne kroki w zakładce Zadania.", "Add next steps in the Tasks tab.")} />}
                 </div>
               </div>
             </section>
@@ -614,12 +611,12 @@ export function ProjectWorkspace({
 
           {tab === "links" ? (
             <section className="pt-5">
-              <SectionHeading title="Linki zespołu" description="Repo, Figma, Notion, Discord, demo i dokumentacja w jednym miejscu. Pliki zostają w narzędziach, które już ich pilnują." />
+              <SectionHeading title={copy("Linki zespołu", "Team links")} description={copy("Repo, Figma, Notion, Discord, demo i dokumentacja w jednym miejscu. Pliki zostają w narzędziach, które już ich pilnują.", "Keep repositories, Figma, Notion, Discord, demos and docs in one place while files stay in the tools that own them.")} />
               <div className="grid gap-2 border-b border-[var(--bc-line)] pb-5 md:grid-cols-[130px_180px_minmax(0,1fr)_auto]">
                 <select className={selectClass} value={linkKind} onChange={(event) => setLinkKind(event.target.value as WorkspaceLink["kind"])}>
-                  {Object.entries(LINK_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  {Object.entries(workspaceLabels.links).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
-                <Input value={linkLabel} maxLength={60} onChange={(event) => setLinkLabel(event.target.value)} placeholder="Nazwa, np. Repo" />
+                <Input value={linkLabel} maxLength={60} onChange={(event) => setLinkLabel(event.target.value)} placeholder={copy("Nazwa, np. Repo", "Name, e.g. Repository")} />
                 <Input value={linkUrl} onChange={(event) => setLinkUrl(event.target.value)} placeholder="https://…" />
                 <Button
                   type="button"
@@ -632,9 +629,9 @@ export function ProjectWorkspace({
                       setLinkUrl("");
                     }
                     return result;
-                  }, "Dodano link")}
+                  }, copy("Dodano link", "Link added"))}
                 >
-                  Dodaj
+                  {copy("Dodaj", "Add")}
                 </Button>
               </div>
               <div className="divide-y divide-[var(--bc-line)] border-b border-[var(--bc-line)]">
@@ -642,16 +639,16 @@ export function ProjectWorkspace({
                   const canDelete = link.createdBy === viewerId || isOwner;
                   return (
                     <div key={link.id} className="grid gap-2 py-3 sm:grid-cols-[120px_minmax(0,1fr)_150px_auto] sm:items-center">
-                      <span className="text-[11px] uppercase tracking-[0.06em] text-[var(--bc-faint)]">{LINK_LABELS[link.kind]}</span>
+                      <span className="text-[11px] uppercase tracking-[0.06em] text-[var(--bc-faint)]">{workspaceLabels.links[link.kind]}</span>
                       <a href={link.url} target="_blank" rel="noopener noreferrer" className="min-w-0 truncate text-sm font-medium text-[var(--bc-ink)] hover:underline">{link.label}</a>
-                      <span className="text-[11px] text-[var(--bc-faint)]">Dodano {formatDate(link.createdAt)}</span>
+                      <span className="text-[11px] text-[var(--bc-faint)]">{copy("Dodano", "Added")} {formatDate(link.createdAt, locale)}</span>
                       <div className="flex items-center justify-end gap-1">
-                        <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={`Otwórz ${link.label}`} className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><ExternalLink className="h-3.5 w-3.5" /></a>
-                        {canDelete ? <IconDeleteButton label="Usuń link" onClick={() => run(() => deleteProjectWorkspaceLink(link.id))} /> : null}
+                        <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={copy(`Otwórz ${link.label}`, `Open ${link.label}`)} className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><ExternalLink className="h-3.5 w-3.5" /></a>
+                        {canDelete ? <IconDeleteButton label={copy("Usuń link", "Delete link")} onClick={() => run(() => deleteProjectWorkspaceLink(link.id))} /> : null}
                       </div>
                     </div>
                   );
-                }) : <EmptyLine title="Brak linków zespołu" description="Dodaj tylko rzeczy, do których zespół naprawdę wraca podczas pracy." />}
+                }) : <EmptyLine title={copy("Brak linków zespołu", "No team links")} description={copy("Dodaj tylko rzeczy, do których zespół naprawdę wraca podczas pracy.", "Add only links the team actually uses while working.")} />}
               </div>
             </section>
           ) : null}
@@ -659,7 +656,7 @@ export function ProjectWorkspace({
           {tab === "activity" ? (
             <section className="pt-5">
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--bc-line)] pb-4">
-                <SectionHeading title="Aktywność projektu" description="Historia ważnych zmian: plan, zadania, linki i zespół. Treść czatu nie jest tutaj kopiowana." />
+                <SectionHeading title={copy("Aktywność projektu", "Project activity")} description={copy("Historia ważnych zmian: plan, zadania, linki i zespół. Treść czatu nie jest tutaj kopiowana.", "A history of important changes to the plan, tasks, links and team. Chat content is not copied here.")} />
                 <div className="flex flex-wrap gap-1">
                   {(["ALL", "TASKS", "PROJECT", "TEAM"] as ActivityFilter[]).map((filter) => (
                     <button
@@ -668,7 +665,7 @@ export function ProjectWorkspace({
                       onClick={() => setActivityFilter(filter)}
                       className={`rounded-[5px] px-2.5 py-1.5 text-[12px] ${activityFilter === filter ? "bg-[var(--bc-surface-subtle)] font-medium text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"}`}
                     >
-                      {filter === "ALL" ? "Wszystko" : filter === "TASKS" ? "Zadania" : filter === "TEAM" ? "Zespół" : "Projekt"}
+                      {filter === "ALL" ? copy("Wszystko", "All") : filter === "TASKS" ? copy("Zadania", "Tasks") : filter === "TEAM" ? copy("Zespół", "Team") : copy("Projekt", "Project")}
                     </button>
                   ))}
                 </div>
@@ -678,9 +675,9 @@ export function ProjectWorkspace({
                   <div key={item.id} className="grid gap-1 py-3 sm:grid-cols-[130px_minmax(0,1fr)_150px] sm:items-baseline">
                     <span className="text-[12px] font-medium text-[var(--bc-ink)]">{item.actor?.username ?? "BuildCrew"}</span>
                     <span className="text-[13px] text-[var(--bc-muted)]">{item.body}</span>
-                    <time className="text-[11px] text-[var(--bc-faint)] sm:text-right" dateTime={item.createdAt}>{formatDateTime(item.createdAt)}</time>
+                    <time className="text-[11px] text-[var(--bc-faint)] sm:text-right" dateTime={item.createdAt}>{formatDateTime(item.createdAt, locale)}</time>
                   </div>
-                )) : <EmptyLine title="Brak aktywności" description="Zmiany pojawią się tutaj automatycznie." />}
+                )) : <EmptyLine title={copy("Brak aktywności", "No activity yet")} description={copy("Zmiany pojawią się tutaj automatycznie.", "Changes will appear here automatically.")} />}
               </div>
             </section>
           ) : null}
@@ -719,16 +716,17 @@ function WorkspaceTabs({
   openTaskCount: number;
   linkCount: number;
 }) {
+  const copy = useCopy();
   const items: { key: Tab; label: string; count?: number }[] = [
-    { key: "overview", label: "Przegląd" },
-    { key: "chat", label: "Rozmowa", count: unreadCount },
-    { key: "tasks", label: "Zadania", count: openTaskCount },
-    { key: "plan", label: "Plan" },
-    { key: "links", label: "Linki", count: linkCount },
-    { key: "activity", label: "Aktywność" },
+    { key: "overview", label: copy("Przegląd", "Overview") },
+    { key: "chat", label: copy("Rozmowa", "Chat"), count: unreadCount },
+    { key: "tasks", label: copy("Zadania", "Tasks"), count: openTaskCount },
+    { key: "plan", label: copy("Plan", "Plan") },
+    { key: "links", label: copy("Linki", "Links"), count: linkCount },
+    { key: "activity", label: copy("Aktywność", "Activity") },
   ];
   return (
-    <div className="flex overflow-x-auto border-b border-[var(--bc-line)]" role="tablist" aria-label="Workspace projektu">
+    <div className="flex overflow-x-auto border-b border-[var(--bc-line)]" role="tablist" aria-label={copy("Workspace projektu", "Project workspace")}>
       {items.map((item) => (
         <WorkspaceTab key={item.key} active={tab === item.key} onClick={() => setTab(item.key)}>
           {item.label}{item.count ? <span className="ml-1.5 text-[11px] text-[var(--bc-faint)]">{item.count}</span> : null}
@@ -765,48 +763,51 @@ function OverviewTab({
   onOpenPlan: () => void;
   onFocusMessage: (id: string) => void;
 }) {
+  const copy = useCopy();
+  const locale = useLocale();
+  const workspaceLabels = workspaceLabelSets(locale);
   const latestMessages = messages.filter((message) => !message.deletedAt).slice(-3).reverse();
   return (
     <section className="pt-5">
       <div className="grid border-y border-[var(--bc-line)] md:grid-cols-2">
         <div className="border-b border-[var(--bc-line)] py-5 md:border-b-0 md:border-r md:pr-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Na teraz</p>
-          <p className="mt-2 max-w-[620px] text-[15px] font-medium leading-6 text-[var(--bc-ink)]">{workspace?.currentFocus || "Brak ustawionego fokusu."}</p>
-          {isOwner ? <button type="button" onClick={onOpenPlan} className="mt-3 text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">{workspace?.currentFocus ? "Edytuj fokus" : "Ustaw fokus"}</button> : null}
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Na teraz", "Current focus")}</p>
+          <p className="mt-2 max-w-[620px] text-[15px] font-medium leading-6 text-[var(--bc-ink)]">{workspace?.currentFocus || copy("Brak ustawionego fokusu.", "No current focus set.")}</p>
+          {isOwner ? <button type="button" onClick={onOpenPlan} className="mt-3 text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">{workspace?.currentFocus ? copy("Edytuj fokus", "Edit focus") : copy("Ustaw fokus", "Set focus")}</button> : null}
         </div>
         <div className="py-5 md:pl-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Najbliższy milestone</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Najbliższy milestone", "Next milestone")}</p>
           <div className="mt-2 flex items-start justify-between gap-4">
             <div>
-              <p className="text-[14px] font-medium leading-5 text-[var(--bc-ink)]">{workspace?.milestoneTitle || "Brak ustawionego milestone'u"}</p>
-              {workspace?.milestoneDueAt ? <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{formatDate(workspace.milestoneDueAt)} · {MILESTONE_LABELS[workspace.milestoneStatus]}</p> : workspace?.milestoneTitle ? <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{MILESTONE_LABELS[workspace.milestoneStatus]}</p> : null}
+              <p className="text-[14px] font-medium leading-5 text-[var(--bc-ink)]">{workspace?.milestoneTitle || copy("Brak ustawionego milestone'u", "No milestone set")}</p>
+              {workspace?.milestoneDueAt ? <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{formatDate(workspace.milestoneDueAt, locale)} · {workspaceLabels.milestones[workspace.milestoneStatus]}</p> : workspace?.milestoneTitle ? <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{workspaceLabels.milestones[workspace.milestoneStatus]}</p> : null}
             </div>
             {workspace?.milestoneStatus === "DONE" ? <CheckCircle2 className="h-4 w-4 text-[var(--bc-accent-strong)]" /> : null}
           </div>
-          {isOwner ? <button type="button" onClick={onOpenPlan} className="mt-3 text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">{workspace?.milestoneTitle ? "Edytuj milestone" : "Ustaw milestone"}</button> : null}
+          {isOwner ? <button type="button" onClick={onOpenPlan} className="mt-3 text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">{workspace?.milestoneTitle ? copy("Edytuj milestone", "Edit milestone") : copy("Ustaw milestone", "Set milestone")}</button> : null}
         </div>
       </div>
 
       <div className="grid border-b border-[var(--bc-line)] md:grid-cols-[1fr_1fr]">
         <div className="border-b border-[var(--bc-line)] py-5 md:border-b-0 md:border-r md:pr-6">
           <div className="flex items-center justify-between gap-3">
-            <SectionHeading title="Zadania" description="Stan pracy zespołu." />
-            <button type="button" onClick={onOpenTasks} className="text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">Otwórz →</button>
+            <SectionHeading title={copy("Zadania", "Tasks")} description={copy("Stan pracy zespołu.", "Team work status.")} />
+            <button type="button" onClick={onOpenTasks} className="text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{copy("Otwórz", "Open")} →</button>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <Metric label="Do zrobienia" value={taskCounts.TODO} />
-            <Metric label="W trakcie" value={taskCounts.DOING} />
-            <Metric label="Gotowe" value={taskCounts.DONE} />
+            <Metric label={copy("Do zrobienia", "To do")} value={taskCounts.TODO} />
+            <Metric label={copy("W trakcie", "In progress")} value={taskCounts.DOING} />
+            <Metric label={copy("Gotowe", "Done")} value={taskCounts.DONE} />
           </div>
-          {assignedToViewer.length ? <p className="mt-4 text-[12px] text-[var(--bc-muted)]">Przypisane Tobie: <strong className="font-medium text-[var(--bc-ink)]">{assignedToViewer.length}</strong></p> : null}
-          {overdueTasks.length ? <p className="mt-1 text-[12px] text-red-700 dark:text-red-400">Po terminie: {overdueTasks.length}</p> : null}
-          {!tasks.length ? <p className="mt-4 text-[12px] text-[var(--bc-faint)]">Nie dodano jeszcze zadań.</p> : null}
+          {assignedToViewer.length ? <p className="mt-4 text-[12px] text-[var(--bc-muted)]">{copy("Przypisane Tobie:", "Assigned to you:")} <strong className="font-medium text-[var(--bc-ink)]">{assignedToViewer.length}</strong></p> : null}
+          {overdueTasks.length ? <p className="mt-1 text-[12px] text-red-700 dark:text-red-400">{copy("Po terminie:", "Overdue:")} {overdueTasks.length}</p> : null}
+          {!tasks.length ? <p className="mt-4 text-[12px] text-[var(--bc-faint)]">{copy("Nie dodano jeszcze zadań.", "No tasks have been added yet.")}</p> : null}
         </div>
 
         <div className="py-5 md:pl-6">
           <div className="flex items-center justify-between gap-3">
-            <SectionHeading title="Ostatnia rozmowa" description="Najnowsze ustalenia zespołu." />
-            <button type="button" onClick={onOpenChat} className="text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">Rozmowa →</button>
+            <SectionHeading title={copy("Ostatnia rozmowa", "Latest conversation")} description={copy("Najnowsze ustalenia zespołu.", "The team's latest discussion.")} />
+            <button type="button" onClick={onOpenChat} className="text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{copy("Rozmowa", "Chat")} →</button>
           </div>
           <div className="divide-y divide-[var(--bc-line)]">
             {latestMessages.length ? latestMessages.map((message) => (
@@ -814,21 +815,21 @@ function OverviewTab({
                 <span className="truncate text-[11px] font-medium text-[var(--bc-ink)]">{message.sender?.username ?? "Builder"}</span>
                 <span className="truncate text-[12px] text-[var(--bc-muted)]">{message.body}</span>
               </button>
-            )) : <p className="py-4 text-[12px] text-[var(--bc-faint)]">Brak wiadomości.</p>}
+            )) : <p className="py-4 text-[12px] text-[var(--bc-faint)]">{copy("Brak wiadomości.", "No messages.")}</p>}
           </div>
         </div>
       </div>
 
       <div className="py-5">
-        <SectionHeading title="Ostatnia aktywność" description="Najważniejsze zmiany poza rozmową." />
+        <SectionHeading title={copy("Ostatnia aktywność", "Latest activity")} description={copy("Najważniejsze zmiany poza rozmową.", "Important changes outside the conversation.")} />
         <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
           {activity.length ? activity.slice(0, 5).map((item) => (
             <div key={item.id} className="grid gap-1 py-2.5 sm:grid-cols-[130px_minmax(0,1fr)_150px] sm:items-baseline">
               <span className="text-[11px] font-medium text-[var(--bc-ink)]">{item.actor?.username ?? "BuildCrew"}</span>
               <span className="text-[12px] text-[var(--bc-muted)]">{item.body}</span>
-              <time className="text-[11px] text-[var(--bc-faint)] sm:text-right">{formatDateTime(item.createdAt)}</time>
+              <time className="text-[11px] text-[var(--bc-faint)] sm:text-right">{formatDateTime(item.createdAt, locale)}</time>
             </div>
-          )) : <p className="py-5 text-[12px] text-[var(--bc-faint)]">Aktywność pojawi się po pierwszych zmianach w workspace.</p>}
+          )) : <p className="py-5 text-[12px] text-[var(--bc-faint)]">{copy("Aktywność pojawi się po pierwszych zmianach w workspace.", "Activity will appear after the first workspace changes.")}</p>}
         </div>
       </div>
     </section>
@@ -872,6 +873,8 @@ function MessageRow({
   onReaction: (reaction: "CHECK" | "LIKE") => void;
   onFocusReply: (id: string) => void;
 }) {
+  const copy = useCopy();
+  const locale = useLocale();
   const username = item.sender?.username ?? "Builder";
   const canEdit = item.senderId === viewerId && !item.deletedAt;
   const canDelete = (item.senderId === viewerId || isOwner) && !item.deletedAt;
@@ -887,9 +890,9 @@ function MessageRow({
         {!grouped ? (
           <div className="flex min-h-6 flex-wrap items-center gap-x-2 gap-y-0.5">
             <span className="text-sm font-semibold text-[var(--bc-ink)]">{username}</span>
-            <time className="text-[11px] text-[var(--bc-faint)]" dateTime={item.createdAt}>{formatDateTime(item.createdAt)}</time>
-            {item.editedAt && !item.deletedAt ? <span className="text-[11px] text-[var(--bc-faint)]">edytowano</span> : null}
-            {item.pinnedAt ? <Pin className="h-3 w-3 text-[var(--bc-muted)]" aria-label="Przypięta wiadomość" /> : null}
+            <time className="text-[11px] text-[var(--bc-faint)]" dateTime={item.createdAt}>{formatDateTime(item.createdAt, locale)}</time>
+            {item.editedAt && !item.deletedAt ? <span className="text-[11px] text-[var(--bc-faint)]">{copy("edytowano", "edited")}</span> : null}
+            {item.pinnedAt ? <Pin className="h-3 w-3 text-[var(--bc-muted)]" aria-label={copy("Przypięta wiadomość", "Pinned message")} /> : null}
           </div>
         ) : null}
 
@@ -904,35 +907,35 @@ function MessageRow({
           <div className="mt-1">
             <Textarea value={editingMessageBody} maxLength={MAX_MESSAGE_LENGTH} onChange={(event) => setEditingMessageBody(event.target.value)} className="min-h-[72px]" />
             <div className="mt-2 flex gap-2">
-              <Button type="button" size="sm" disabled={pending || !editingMessageBody.trim()} onClick={onSaveEdit}>Zapisz</Button>
-              <Button type="button" size="sm" variant="ghost" onClick={() => { setEditingMessageId(null); setEditingMessageBody(""); }}>Anuluj</Button>
+              <Button type="button" size="sm" disabled={pending || !editingMessageBody.trim()} onClick={onSaveEdit}>{copy("Zapisz", "Save")}</Button>
+              <Button type="button" size="sm" variant="ghost" onClick={() => { setEditingMessageId(null); setEditingMessageBody(""); }}>{copy("Anuluj", "Cancel")}</Button>
             </div>
           </div>
         ) : item.deletedAt ? (
-          <p className="mt-0.5 text-[13px] italic leading-5 text-[var(--bc-faint)]">Wiadomość została usunięta.</p>
+          <p className="mt-0.5 text-[13px] italic leading-5 text-[var(--bc-faint)]">{copy("Wiadomość została usunięta.", "This message was deleted.")}</p>
         ) : (
           <p className="mt-0.5 whitespace-pre-wrap break-words text-sm leading-5 text-[var(--bc-ink)]">{renderMentions(item.body)}</p>
         )}
 
         {!item.deletedAt && editingMessageId !== item.id ? (
           <div className="mt-1 flex min-h-7 flex-wrap items-center gap-1">
-            {checkUsers.length ? <ReactionButton active={checkedByViewer} label="Potwierdzone" count={checkUsers.length} icon={<Check className="h-3 w-3" />} onClick={() => onReaction("CHECK")} /> : null}
-            {likeUsers.length ? <ReactionButton active={likedByViewer} label="Lubię" count={likeUsers.length} icon={<ThumbsUp className="h-3 w-3" />} onClick={() => onReaction("LIKE")} /> : null}
+            {checkUsers.length ? <ReactionButton active={checkedByViewer} label={copy("Potwierdzone", "Confirmed")} count={checkUsers.length} icon={<Check className="h-3 w-3" />} onClick={() => onReaction("CHECK")} /> : null}
+            {likeUsers.length ? <ReactionButton active={likedByViewer} label={copy("Lubię", "Like")} count={likeUsers.length} icon={<ThumbsUp className="h-3 w-3" />} onClick={() => onReaction("LIKE")} /> : null}
 
             <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-              {!checkUsers.length ? <MiniAction label="Potwierdź" onClick={() => onReaction("CHECK")}><Check className="h-3 w-3" /></MiniAction> : null}
-              {!likeUsers.length ? <MiniAction label="Lubię" onClick={() => onReaction("LIKE")}><ThumbsUp className="h-3 w-3" /></MiniAction> : null}
-              <MiniAction label="Odpowiedz" onClick={onReply}><Reply className="h-3 w-3" /></MiniAction>
+              {!checkUsers.length ? <MiniAction label={copy("Potwierdź", "Confirm")} onClick={() => onReaction("CHECK")}><Check className="h-3 w-3" /></MiniAction> : null}
+              {!likeUsers.length ? <MiniAction label={copy("Lubię", "Like")} onClick={() => onReaction("LIKE")}><ThumbsUp className="h-3 w-3" /></MiniAction> : null}
+              <MiniAction label={copy("Odpowiedz", "Reply")} onClick={onReply}><Reply className="h-3 w-3" /></MiniAction>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button type="button" aria-label="Więcej akcji" className="inline-flex h-7 w-7 items-center justify-center rounded-[5px] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><MoreHorizontal className="h-3.5 w-3.5" /></button>
+                  <button type="button" aria-label={copy("Więcej akcji", "More actions")} className="inline-flex h-7 w-7 items-center justify-center rounded-[5px] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><MoreHorizontal className="h-3.5 w-3.5" /></button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  <DropdownMenuItem onSelect={onCreateTask}><ListPlus className="h-3.5 w-3.5" /> Utwórz zadanie</DropdownMenuItem>
-                  {isOwner ? <DropdownMenuItem onSelect={onPin}>{item.pinnedAt ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />} {item.pinnedAt ? "Odepnij" : "Przypnij"}</DropdownMenuItem> : null}
-                  {canEdit ? <DropdownMenuItem onSelect={onEdit}><Pencil className="h-3.5 w-3.5" /> Edytuj</DropdownMenuItem> : null}
+                  <DropdownMenuItem onSelect={onCreateTask}><ListPlus className="h-3.5 w-3.5" /> {copy("Utwórz zadanie", "Create task")}</DropdownMenuItem>
+                  {isOwner ? <DropdownMenuItem onSelect={onPin}>{item.pinnedAt ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />} {item.pinnedAt ? copy("Odepnij", "Unpin") : copy("Przypnij", "Pin")}</DropdownMenuItem> : null}
+                  {canEdit ? <DropdownMenuItem onSelect={onEdit}><Pencil className="h-3.5 w-3.5" /> {copy("Edytuj", "Edit")}</DropdownMenuItem> : null}
                   {canDelete ? <DropdownMenuSeparator /> : null}
-                  {canDelete ? <DropdownMenuItem onSelect={onDelete} className="text-red-700 focus:text-red-700 dark:text-red-400"><Trash2 className="h-3.5 w-3.5" /> Usuń</DropdownMenuItem> : null}
+                  {canDelete ? <DropdownMenuItem onSelect={onDelete} className="text-red-700 focus:text-red-700 dark:text-red-400"><Trash2 className="h-3.5 w-3.5" /> {copy("Usuń", "Delete")}</DropdownMenuItem> : null}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -988,23 +991,26 @@ function TaskRow({
   onDelete: () => void;
   onSourceMessage: () => void;
 }) {
+  const copy = useCopy();
+  const locale = useLocale();
+  const workspaceLabels = workspaceLabelSets(locale);
   const canDelete = task.createdBy === viewerId || projectOwnerId === viewerId;
   const overdue = Boolean(task.dueAt && task.status !== "DONE" && new Date(task.dueAt).getTime() < Date.now());
   if (editing) {
     return (
       <div className="grid gap-2 py-3">
         <Input value={editTitle} maxLength={160} onChange={(event) => setEditTitle(event.target.value)} />
-        <Textarea value={editDescription} maxLength={800} onChange={(event) => setEditDescription(event.target.value)} placeholder="Opis zadania" className="min-h-[72px]" />
+        <Textarea value={editDescription} maxLength={800} onChange={(event) => setEditDescription(event.target.value)} placeholder={copy("Opis zadania", "Task description")} className="min-h-[72px]" />
         <div className="grid gap-2 sm:grid-cols-2">
           <select className={selectClass} value={editAssignee} onChange={(event) => setEditAssignee(event.target.value)}>
-            <option value="">Nieprzypisane</option>
+            <option value="">{copy("Nieprzypisane", "Unassigned")}</option>
             {members.map((member) => <option key={member.userId} value={member.userId}>{member.profile?.username ?? "Builder"}</option>)}
           </select>
           <Input type="date" value={editDueAt} onChange={(event) => setEditDueAt(event.target.value)} />
         </div>
         <div className="flex gap-2">
-          <Button type="button" size="sm" disabled={pending || editTitle.trim().length < 2} onClick={onSaveEdit}>Zapisz</Button>
-          <Button type="button" size="sm" variant="ghost" onClick={onCancelEdit}>Anuluj</Button>
+          <Button type="button" size="sm" disabled={pending || editTitle.trim().length < 2} onClick={onSaveEdit}>{copy("Zapisz", "Save")}</Button>
+          <Button type="button" size="sm" variant="ghost" onClick={onCancelEdit}>{copy("Anuluj", "Cancel")}</Button>
         </div>
       </div>
     );
@@ -1016,21 +1022,21 @@ function TaskRow({
         <button type="button" onClick={onBeginEdit} className="max-w-full text-left text-[13px] font-medium text-[var(--bc-ink)] hover:underline">{task.title}</button>
         {task.description ? <p className="mt-1 line-clamp-2 max-w-[680px] text-[12px] leading-5 text-[var(--bc-muted)]">{task.description}</p> : null}
         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--bc-faint)]">
-          {task.dueAt ? <span className={overdue ? "text-red-700 dark:text-red-400" : ""}>Termin: {formatDate(task.dueAt)}{overdue ? " · po terminie" : ""}</span> : null}
-          {task.sourceMessageId ? <button type="button" onClick={onSourceMessage} className="underline underline-offset-2">Z rozmowy →</button> : null}
+          {task.dueAt ? <span className={overdue ? "text-red-700 dark:text-red-400" : ""}>{copy("Termin:", "Due:")} {formatDate(task.dueAt, locale)}{overdue ? copy(" · po terminie", " · overdue") : ""}</span> : null}
+          {task.sourceMessageId ? <button type="button" onClick={onSourceMessage} className="underline underline-offset-2">{copy("Z rozmowy", "From chat")} →</button> : null}
         </div>
       </div>
       <select className={`${selectClass} h-9 text-[12px]`} value={task.assigneeId ?? ""} onChange={(event) => onAssign(event.target.value)}>
-        <option value="">Nieprzypisane</option>
+        <option value="">{copy("Nieprzypisane", "Unassigned")}</option>
         {members.map((member) => <option key={member.userId} value={member.userId}>{member.profile?.username ?? "Builder"}</option>)}
       </select>
       <select className={`${selectClass} h-9 text-[12px]`} value={task.status} onChange={(event) => onStatus(event.target.value as WorkspaceTask["status"])}>
-        {Object.entries(TASK_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+        {Object.entries(workspaceLabels.tasks).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
       </select>
       <div className="flex items-center justify-end gap-1">
-        {!task.assigneeId ? <button type="button" onClick={() => onAssign(viewerId)} className="mr-1 text-[11px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">Przypisz mnie</button> : null}
-        <button type="button" aria-label="Edytuj zadanie" onClick={onBeginEdit} className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Pencil className="h-3.5 w-3.5" /></button>
-        {canDelete ? <IconDeleteButton label="Usuń zadanie" onClick={onDelete} /> : null}
+        {!task.assigneeId ? <button type="button" onClick={() => onAssign(viewerId)} className="mr-1 text-[11px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{copy("Przypisz mnie", "Assign me")}</button> : null}
+        <button type="button" aria-label={copy("Edytuj zadanie", "Edit task")} onClick={onBeginEdit} className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Pencil className="h-3.5 w-3.5" /></button>
+        {canDelete ? <IconDeleteButton label={copy("Usuń zadanie", "Delete task")} onClick={onDelete} /> : null}
       </div>
     </div>
   );
@@ -1057,12 +1063,16 @@ function ProjectPulse({
   onOpenPlan: () => void;
   onOpenPinned: (id: string) => void;
 }) {
+  const copy = useCopy();
+  const locale = useLocale();
+  const labels = labelsFor(locale);
+  const workspaceLabels = workspaceLabelSets(locale);
   return (
     <div className="space-y-6">
       <section className="border-b border-[var(--bc-line)] pb-5">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Zespół · {members.length}</p>
-          {assignedToViewer ? <span className="text-[11px] text-[var(--bc-muted)]">{assignedToViewer} dla Ciebie</span> : null}
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Zespół", "Team")} · {members.length}</p>
+          {assignedToViewer ? <span className="text-[11px] text-[var(--bc-muted)]">{assignedToViewer} {copy("dla Ciebie", "for you")}</span> : null}
         </div>
         <div className="mt-3 divide-y divide-[var(--bc-line)]">
           {members.map((member) => {
@@ -1071,10 +1081,10 @@ function ProjectPulse({
               <Link key={member.userId} href={`/builders/${member.userId}`} className="flex items-center gap-3 py-2 first:pt-0 hover:bg-[var(--bc-surface-subtle)]">
                 <Avatar username={username} seed={member.userId} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-medium text-[var(--bc-ink)]">{username}{member.userId === viewerId ? " · Ty" : ""}</p>
-                  <p className="text-[11px] text-[var(--bc-faint)]">{member.isOwner ? "Autor" : member.roleType ? ROLE_LABELS[member.roleType] : member.profile?.role ? ROLE_LABELS[member.profile.role] : "Członek"}</p>
+                  <p className="truncate text-[13px] font-medium text-[var(--bc-ink)]">{username}{member.userId === viewerId ? copy(" · Ty", " · You") : ""}</p>
+                  <p className="text-[11px] text-[var(--bc-faint)]">{member.isOwner ? copy("Autor", "Owner") : member.roleType ? labels.roles[member.roleType] : member.profile?.role ? labels.roles[member.profile.role] : copy("Członek", "Member")}</p>
                 </div>
-                <span className="text-[11px] text-[var(--bc-faint)]">{activityLabel(member.profile?.lastActiveAt ?? null)}</span>
+                <span className="text-[11px] text-[var(--bc-faint)]">{activityLabel(member.profile?.lastActiveAt ?? null, locale)}</span>
               </Link>
             );
           })}
@@ -1083,43 +1093,43 @@ function ProjectPulse({
 
       <section className="border-b border-[var(--bc-line)] pb-5">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Na teraz</p>
-          {isOwner ? <button type="button" onClick={onOpenPlan} className="text-[11px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">Edytuj</button> : null}
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Na teraz", "Current focus")}</p>
+          {isOwner ? <button type="button" onClick={onOpenPlan} className="text-[11px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{copy("Edytuj", "Edit")}</button> : null}
         </div>
-        <p className="mt-2 text-[13px] leading-5 text-[var(--bc-ink)]">{workspace?.currentFocus || "Brak ustawionego fokusu."}</p>
+        <p className="mt-2 text-[13px] leading-5 text-[var(--bc-ink)]">{workspace?.currentFocus || copy("Brak ustawionego fokusu.", "No current focus set.")}</p>
       </section>
 
       <section className="border-b border-[var(--bc-line)] pb-5">
         <div className="flex items-center justify-between gap-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Milestone</p>
-          {isOwner ? <button type="button" onClick={onOpenPlan} className="text-[11px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">Edytuj</button> : null}
+          {isOwner ? <button type="button" onClick={onOpenPlan} className="text-[11px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{copy("Edytuj", "Edit")}</button> : null}
         </div>
-        <p className="mt-2 text-[13px] font-medium leading-5 text-[var(--bc-ink)]">{workspace?.milestoneTitle || "Brak ustawionego milestone'u"}</p>
-        {workspace?.milestoneDueAt ? <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{formatDate(workspace.milestoneDueAt)}</p> : null}
-        {workspace?.milestoneTitle ? <span className="mt-2 inline-flex rounded-[4px] border border-[var(--bc-line)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--bc-muted)]">{MILESTONE_LABELS[workspace.milestoneStatus]}</span> : null}
+        <p className="mt-2 text-[13px] font-medium leading-5 text-[var(--bc-ink)]">{workspace?.milestoneTitle || copy("Brak ustawionego milestone'u", "No milestone set")}</p>
+        {workspace?.milestoneDueAt ? <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{formatDate(workspace.milestoneDueAt, locale)}</p> : null}
+        {workspace?.milestoneTitle ? <span className="mt-2 inline-flex rounded-[4px] border border-[var(--bc-line)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--bc-muted)]">{workspaceLabels.milestones[workspace.milestoneStatus]}</span> : null}
       </section>
 
       <section className="border-b border-[var(--bc-line)] pb-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Przypięte · {pinnedMessages.length}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Przypięte", "Pinned")} · {pinnedMessages.length}</p>
         <div className="mt-2 divide-y divide-[var(--bc-line)]">
           {pinnedMessages.length ? pinnedMessages.slice(0, 4).map((item) => (
             <button key={item.id} type="button" onClick={() => onOpenPinned(item.id)} className="w-full py-2 text-left">
               <p className="line-clamp-2 text-[12px] leading-4 text-[var(--bc-ink)]">{item.body}</p>
-              <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{item.sender?.username ?? "Builder"} · {formatDate(item.createdAt)}</p>
+              <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{item.sender?.username ?? "Builder"} · {formatDate(item.createdAt, locale)}</p>
             </button>
-          )) : <p className="py-2 text-[11px] text-[var(--bc-faint)]">Brak przypiętych ustaleń.</p>}
+          )) : <p className="py-2 text-[11px] text-[var(--bc-faint)]">{copy("Brak przypiętych ustaleń.", "No pinned messages.")}</p>}
         </div>
       </section>
 
       <section>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Linki · {links.length}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Linki", "Links")} · {links.length}</p>
         <div className="mt-2 space-y-1.5">
           {links.length ? links.slice(0, 4).map((link) => (
             <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-2 py-1 text-[12px] text-[var(--bc-ink)] hover:underline">
               <span className="truncate">{link.label}</span>
               <ExternalLink className="h-3 w-3 shrink-0 text-[var(--bc-faint)]" />
             </a>
-          )) : <p className="py-1 text-[11px] text-[var(--bc-faint)]">Brak linków projektu.</p>}
+          )) : <p className="py-1 text-[11px] text-[var(--bc-faint)]">{copy("Brak linków projektu.", "No project links.")}</p>}
         </div>
       </section>
     </div>
@@ -1127,15 +1137,18 @@ function ProjectPulse({
 }
 
 function MilestoneReadOnly({ workspace }: { workspace: WorkspaceOverview }) {
-  if (!workspace?.milestoneTitle) return <p className="text-[13px] text-[var(--bc-muted)]">Brak ustawionego milestone'u.</p>;
+  const copy = useCopy();
+  const locale = useLocale();
+  const workspaceLabels = workspaceLabelSets(locale);
+  if (!workspace?.milestoneTitle) return <p className="text-[13px] text-[var(--bc-muted)]">{copy("Brak ustawionego milestone'u.", "No milestone set.")}</p>;
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-[15px] font-medium text-[var(--bc-ink)]">{workspace.milestoneTitle}</p>
-        <span className="rounded-[4px] border border-[var(--bc-line)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--bc-muted)]">{MILESTONE_LABELS[workspace.milestoneStatus]}</span>
+        <span className="rounded-[4px] border border-[var(--bc-line)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--bc-muted)]">{workspaceLabels.milestones[workspace.milestoneStatus]}</span>
       </div>
       {workspace.milestoneDescription ? <p className="mt-2 max-w-[720px] text-sm leading-6 text-[var(--bc-muted)]">{workspace.milestoneDescription}</p> : null}
-      {workspace.milestoneDueAt ? <p className="mt-2 text-[12px] text-[var(--bc-faint)]">Termin: {formatDate(workspace.milestoneDueAt)}</p> : null}
+      {workspace.milestoneDueAt ? <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{copy("Termin:", "Due:")} {formatDate(workspace.milestoneDueAt, locale)}</p> : null}
     </div>
   );
 }
@@ -1190,19 +1203,19 @@ function isUnreadMessage(item: WorkspaceMessage, viewerId: string, lastReadAt: s
   return new Date(item.createdAt).getTime() > new Date(lastReadAt).getTime();
 }
 
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+function formatDateTime(value: string, locale: "pl" | "en") {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "pl-PL", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
+function formatDate(value: string, locale: "pl" | "en") {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "pl-PL", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
 }
 
-function activityLabel(value: string | null) {
+function activityLabel(value: string | null, locale: "pl" | "en") {
   if (!value) return "";
   const diff = Date.now() - new Date(value).getTime();
-  if (diff < 24 * 60 * 60 * 1000) return "dziś";
-  if (diff < 7 * 24 * 60 * 60 * 1000) return "ten tydz.";
+  if (diff < 24 * 60 * 60 * 1000) return locale === "en" ? "today" : "dziś";
+  if (diff < 7 * 24 * 60 * 60 * 1000) return locale === "en" ? "this week" : "ten tydz.";
   return "";
 }
 

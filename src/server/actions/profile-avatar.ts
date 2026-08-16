@@ -208,7 +208,7 @@ export async function moderateProfileAvatar(formData: FormData) {
       "Zdjęcie profilowe zaakceptowane",
       "Twoje zdjęcie profilowe jest już widoczne w BuildCrew.",
       "/profile",
-      { entityType: "profile_avatar", entityId: avatarId },
+      { entityType: "profile_avatar", entityId: avatarId, titleEn: "Profile photo approved", bodyEn: "Your profile photo is now visible on BuildCrew." },
     );
   } else {
     const safeReason = reason || "Zdjęcie nie spełnia zasad profilu BuildCrew. Możesz przesłać inne.";
@@ -243,7 +243,7 @@ export async function moderateProfileAvatar(formData: FormData) {
       "Zdjęcie profilowe wymaga zmiany",
       safeReason,
       "/profile",
-      { entityType: "profile_avatar", entityId: avatarId },
+      { entityType: "profile_avatar", entityId: avatarId, titleEn: "Your profile photo needs changes", bodyEn: "Your photo did not meet the BuildCrew profile guidelines. You can upload another one." },
     );
   }
 

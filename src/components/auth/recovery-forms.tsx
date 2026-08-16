@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AuthFormState } from "@/server/actions/auth";
-import { useCopy } from "@/components/i18n/locale-provider";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 import {
   adminVerifyAction,
   forgotPasswordAction,
@@ -16,8 +17,9 @@ import {
 } from "@/server/actions/auth";
 
 function StateMessage({ state }: { state: AuthFormState }) {
-  if (state.error) return <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">{state.error}</p>;
-  if (state.success) return <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{state.success}</p>;
+  const locale = useLocale();
+  if (state.error) return <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">{appMessage(state.error, locale)}</p>;
+  if (state.success) return <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">{locale === "en" ? "Done. Check your email or continue below." : state.success}</p>;
   return null;
 }
 

@@ -144,7 +144,7 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
       `${data.name} jest już projektem`,
       "Pomysł, którym się interesowałeś, został rozwinięty w pełny projekt.",
       `/projects/${result.project.id}`,
-      { actorId: user.id, entityType: "project", entityId: result.project.id },
+      { actorId: user.id, entityType: "project", entityId: result.project.id, titleEn: `${data.name} is now a project`, bodyEn: "An idea you were interested in has been developed into a full project." },
     )));
   }
   await logEvent("project_created", user.id, { projectId: result.project.id, name: data.name, sourceIdeaId: data.sourceIdeaId });
@@ -157,7 +157,7 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
       `${actor[0]?.username ?? "Obserwowany builder"} opublikował nowy projekt`,
       data.name,
       `/projects/${result.project.id}`,
-      { actorId: user.id, entityType: "project", entityId: result.project.id },
+      { actorId: user.id, entityType: "project", entityId: result.project.id, titleEn: `${actor[0]?.username ?? "A builder you follow"} published a new project`, bodyEn: data.name },
     )));
   }
   revalidatePath("/projects");

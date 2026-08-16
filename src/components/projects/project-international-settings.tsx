@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { COUNTRY_OPTIONS, FUNDING_STAGE_OPTIONS, PROJECT_LANGUAGE_OPTIONS, PROJECT_MARKET_SCOPE_OPTIONS, PROJECT_NEED_OPTIONS, internationalLabels } from "@/lib/international";
+import { appMessage } from "@/lib/server-copy";
 import type { FundingStage, ProjectLanguage, ProjectMarketScope, ProjectNeed } from "@/db/schema";
 import { updateProjectInternationalSettings } from "@/server/actions/projects";
 
@@ -20,7 +21,7 @@ export function ProjectInternationalSettings({ projectId, initial }: { projectId
   const save = () => startTransition(async () => {
     const result = await updateProjectInternationalSettings(projectId, { ...state, fundingStage: state.fundingStage || undefined });
     if ("error" in result && result.error) {
-      toast.error(result.error);
+      toast.error(appMessage(result.error, locale));
       return;
     }
     toast.success(copy("Ustawienia projektu zapisane.", "Project settings saved."));

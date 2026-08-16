@@ -5,7 +5,10 @@ import { VerificationWaitingRoom } from "@/components/auth/verification-waiting-
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 
-export const metadata: Metadata = { title: "Potwierdź e-mail - BuildCrew" };
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return { title: locale === "en" ? "Confirm your email - BuildCrew" : "Potwierdź e-mail - BuildCrew" };
+}
 
 export default async function VerifyEmailPage({
   searchParams,

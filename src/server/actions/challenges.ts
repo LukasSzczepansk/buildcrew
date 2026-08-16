@@ -38,7 +38,7 @@ export async function setChallengeStatus(challengeId: string, status: "OPEN" | "
   if (!rows[0]) return { error: "Challenge nie istnieje." };
 
   const participants = await db.select({ userId: challengeParticipants.userId }).from(challengeParticipants).where(eq(challengeParticipants.challengeId, challengeId));
-  await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status został zmieniony`, status === "BUILDING" ? "Czas budować. Powodzenia!" : status === "VOTING" ? "Możecie publikować projekty i głosować." : status === "CLOSED" ? "Challenge zakończony - zobacz wyniki." : "Zapisy są otwarte.", `/showcase/challenges/${challengeId}`, { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge" })));
+  await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status został zmieniony`, status === "BUILDING" ? "Czas budować. Powodzenia!" : status === "VOTING" ? "Możecie publikować projekty i głosować." : status === "CLOSED" ? "Challenge zakończony - zobacz wyniki." : "Zapisy są otwarte.", `/showcase/challenges/${challengeId}`, { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge", titleEn: `${rows[0].title}: status changed`, bodyEn: status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open." })));
   revalidatePath(`/showcase/challenges/${challengeId}`);
   revalidatePath("/showcase/challenges");
   revalidatePath("/admin/challenges");

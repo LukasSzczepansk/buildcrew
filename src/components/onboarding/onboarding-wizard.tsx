@@ -28,6 +28,7 @@ import {
 import type { Commitment, Goal, Level, LookingFor, RoleType, WorkModePreference } from "@/db/schema";
 import { completeOnboarding } from "@/server/actions/profile";
 import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
 import { COUNTRY_OPTIONS, LANGUAGE_OPTIONS, WORK_MODE_OPTIONS, internationalLabels } from "@/lib/international";
 
 type FormState = {
@@ -198,7 +199,7 @@ export function OnboardingWizard() {
       });
 
       if (result?.error) {
-        toast.error(result.error);
+        toast.error(appMessage(result.error, locale));
         setPending(false);
       }
     } catch (err) {

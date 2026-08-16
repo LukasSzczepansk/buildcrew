@@ -20,6 +20,7 @@ import {
   SKILL_GROUPS,
 } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
 import {
   COUNTRY_OPTIONS,
   LANGUAGE_OPTIONS,
@@ -67,7 +68,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
     setPending(true);
     const result = await updateProfile(form).catch(() => ({ error: copy("Nie udało się zapisać profilu.", "We couldn't save your profile.") }));
     setPending(false);
-    if (result?.error) { toast.error(result.error); return; }
+    if (result?.error) { toast.error(appMessage(result.error, locale)); return; }
     toast.success(copy("Profil zapisany.", "Profile saved."));
   }
 

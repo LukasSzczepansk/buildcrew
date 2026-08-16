@@ -72,9 +72,9 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
               {collaborators.length ? collaborators.map((item) => (
                 <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={en ? `${item.sharedProjects} shared ${item.sharedProjects === 1 ? "project" : "projects"}${item.latestProject ? ` · latest ${item.latestProject.name}` : ""}` : `${item.sharedProjects} ${item.sharedProjects === 1 ? "wspólny projekt" : "wspólne projekty"}${item.latestProject ? ` · ostatnio ${item.latestProject.name}` : ""}`} openToBuild={item.profile.lookingFor.includes("OPEN_TO_BUILD") || item.profile.lookingFor.includes("WANTS_PROJECT")}>
                   <FollowButton targetUserId={item.profile.userId} initialFollowing={followingIds.has(item.profile.userId)} compact />
-                  <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>Profil</Link></Button>
+                  <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>{en ? "Profile" : "Profil"}</Link></Button>
                 </PersonRow>
-              )) : <EmptyNetwork title="Jeszcze nie masz historii współpracy" text="Dołącz do projektu albo stwórz własny zespół. Wspólne projekty automatycznie zaczną budować Twoją sieć." href="/projects" cta="Znajdź projekt" />}
+              )) : <EmptyNetwork title={en ? "No collaboration history yet" : "Jeszcze nie masz historii współpracy"} text={en ? "Join a project or create your own team. Shared projects will automatically start building your network." : "Dołącz do projektu albo stwórz własny zespół. Wspólne projekty automatycznie zaczną budować Twoją sieć."} href="/projects" cta={en ? "Find a project" : "Znajdź projekt"} />}
             </NetworkSection>
           ) : null}
 
@@ -83,9 +83,9 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
               {following.length ? following.map((item) => (
                 <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={en ? `Following since ${timeAgo(item.since, locale)}` : `Obserwujesz od ${timeAgo(item.since, locale)}`} openToBuild={item.profile.lookingFor.includes("OPEN_TO_BUILD") || item.profile.lookingFor.includes("WANTS_PROJECT")}>
                   <FollowButton targetUserId={item.profile.userId} initialFollowing compact />
-                  <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>Profil</Link></Button>
+                  <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>{en ? "Profile" : "Profil"}</Link></Button>
                 </PersonRow>
-              )) : <EmptyNetwork title="Nikogo jeszcze nie obserwujesz" text="Obserwuj osoby, z którymi potencjalnie chciałbyś coś zbudować. Nie musisz od razu wysyłać zaproszenia do kontaktów." href="/builders" cta="Znajdź ludzi" />}
+              )) : <EmptyNetwork title={en ? "You are not following anyone yet" : "Nikogo jeszcze nie obserwujesz"} text={en ? "Follow people you might want to build with. You do not need to send a connection request right away." : "Obserwuj osoby, z którymi potencjalnie chciałbyś coś zbudować. Nie musisz od razu wysyłać zaproszenia do kontaktów."} href="/builders" cta={en ? "Find people" : "Znajdź ludzi"} />}
             </NetworkSection>
           ) : null}
 
@@ -94,9 +94,9 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
               {followers.length ? followers.map((item) => (
                 <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={en ? `Following you since ${timeAgo(item.since, locale)}` : `Obserwuje Cię od ${timeAgo(item.since, locale)}`} openToBuild={item.profile.lookingFor.includes("OPEN_TO_BUILD") || item.profile.lookingFor.includes("WANTS_PROJECT")}>
                   <FollowButton targetUserId={item.profile.userId} initialFollowing={followingIds.has(item.profile.userId)} compact />
-                  <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>Profil</Link></Button>
+                  <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>{en ? "Profile" : "Profil"}</Link></Button>
                 </PersonRow>
-              )) : <EmptyNetwork title="Brak obserwujących" text="Uzupełnij profil, zaznacz czego szukasz i bierz udział w projektach. Sieć ma wynikać z realnej aktywności, nie z losowych zaproszeń." href="/profile" cta="Uzupełnij profil" />}
+              )) : <EmptyNetwork title={en ? "No followers yet" : "Brak obserwujących"} text={en ? "Complete your profile, say what you are looking for and take part in projects. Your network should grow from real activity, not random invites." : "Uzupełnij profil, zaznacz czego szukasz i bierz udział w projektach. Sieć ma wynikać z realnej aktywności, nie z losowych zaproszeń."} href="/profile" cta={en ? "Complete profile" : "Uzupełnij profil"} />}
             </NetworkSection>
           ) : null}
 
@@ -107,7 +107,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
                   <PersonRow locale={locale} key={item.friendshipId} profile={item.profile} meta={en ? `Connected since ${timeAgo(item.since, locale)}` : `Kontakt od ${timeAgo(item.since, locale)}`} openToBuild={item.profile.lookingFor.includes("OPEN_TO_BUILD") || item.profile.lookingFor.includes("WANTS_PROJECT")}>
                     <FriendRelationActions targetUserId={item.profile.userId} state={{ kind: "FRIENDS", conversationId: item.conversationId }} compact />
                   </PersonRow>
-                )) : <EmptyNetwork title="Brak zaakceptowanych kontaktów" text="Kontakt ma sens, gdy chcecie rozmawiać 1:1. Do śledzenia ciekawych osób użyj obserwowania." href="/builders" cta="Znajdź ludzi" />}
+                )) : <EmptyNetwork title={en ? "No accepted connections yet" : "Brak zaakceptowanych kontaktów"} text={en ? "Connections are useful when you want to talk one-on-one. Follow people when you only want to keep up with them." : "Kontakt ma sens, gdy chcecie rozmawiać 1:1. Do śledzenia ciekawych osób użyj obserwowania."} href="/builders" cta={en ? "Find people" : "Znajdź ludzi"} />}
               </NetworkSection>
 
               {(requests.incoming.length || requests.outgoing.length) ? (
@@ -116,13 +116,13 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
                   <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
                     {requests.incoming.map((request) => (
                       <div key={request.id} className="flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center">
-                        <Link href={`/builders/${request.profile.userId}`} className="flex min-w-0 flex-1 items-center gap-3"><Avatar username={request.profile.username} seed={request.profile.userId} size="sm" /><div><p className="text-sm font-medium">{request.profile.username}</p><p className="text-[12px] text-[var(--bc-faint)]">Chce dodać Cię do kontaktów · {timeAgo(request.createdAt, locale)}</p></div></Link>
+                        <Link href={`/builders/${request.profile.userId}`} className="flex min-w-0 flex-1 items-center gap-3"><Avatar username={request.profile.username} seed={request.profile.userId} size="sm" /><div><p className="text-sm font-medium">{request.profile.username}</p><p className="text-[12px] text-[var(--bc-faint)]">{en ? "Wants to connect" : "Chce dodać Cię do kontaktów"} · {timeAgo(request.createdAt, locale)}</p></div></Link>
                         <FriendRelationActions targetUserId={request.profile.userId} state={{ kind: "INCOMING", requestId: request.id }} compact />
                       </div>
                     ))}
                     {requests.outgoing.map((request) => (
                       <div key={request.id} className="flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center">
-                        <Link href={`/builders/${request.profile.userId}`} className="flex min-w-0 flex-1 items-center gap-3"><Avatar username={request.profile.username} seed={request.profile.userId} size="sm" /><div><p className="text-sm font-medium">{request.profile.username}</p><p className="text-[12px] text-[var(--bc-faint)]">Oczekujące zaproszenie · {timeAgo(request.createdAt, locale)}</p></div></Link>
+                        <Link href={`/builders/${request.profile.userId}`} className="flex min-w-0 flex-1 items-center gap-3"><Avatar username={request.profile.username} seed={request.profile.userId} size="sm" /><div><p className="text-sm font-medium">{request.profile.username}</p><p className="text-[12px] text-[var(--bc-faint)]">{en ? "Pending request" : "Oczekujące zaproszenie"} · {timeAgo(request.createdAt, locale)}</p></div></Link>
                         <FriendRelationActions targetUserId={request.profile.userId} state={{ kind: "OUTGOING", requestId: request.id }} compact />
                       </div>
                     ))}

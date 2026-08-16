@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TechnologyStack } from "@/components/ui/technology-badge";
-import { COMMITMENT_LABELS, LEVEL_LABELS, ROLE_LABELS } from "@/lib/constants";
+import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import type { Commitment, Level, RoleType } from "@/db/schema";
 import { inviteToCrew, sendBuildProposal } from "@/server/actions/crews";
 
@@ -31,6 +33,9 @@ export type BuildPoolPerson = {
 };
 
 export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; myCrewId: string | null }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [pending, setPending] = React.useState(false);
@@ -42,8 +47,8 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
     setPending(true);
     const res = myCrewId ? await inviteToCrew(myCrewId, person.userId, message) : await sendBuildProposal(person.userId, message);
     setPending(false);
-    if (res?.error) { toast.error(res.error); return; }
-    toast.success(myCrewId ? "Zaproszenie wysłane" : "Wiadomość wysłana");
+    if (res?.error) { toast.error(appMessage(res.error, locale)); return; }
+    toast.success(myCrewId ? copy("Zaproszenie wysłane", "Invitation sent") : copy("Wiadomość wysłana", "Message sent"));
     setOpen(false);
     setMessage("");
   }
@@ -55,19 +60,19 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
           <Link href={`/builders/${person.userId}`} className="shrink-0"><Avatar username={person.username} seed={person.userId} className="h-14 w-14 text-[19px]" /></Link>
           <div className="min-w-0">
             <Link href={`/builders/${person.userId}`} className="truncate text-[17px] font-semibold tracking-[-0.018em] hover:underline">{person.username}</Link>
-            <p className="mt-0.5 text-sm text-[var(--bc-muted)]">{ROLE_LABELS[person.role]}</p>
+            <p className="mt-0.5 text-sm text-[var(--bc-muted)]">{labels.roles[person.role]}</p>
             <p className="mt-2 line-clamp-1 text-[13px] font-medium text-[var(--bc-ink)]">{person.headline}</p>
             <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-[var(--bc-muted)]">
-              <span>{LEVEL_LABELS[person.level]}</span>
-              <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{COMMITMENT_LABELS[person.weeklyHours]}</span>
-              <span className="inline-flex items-center gap-1"><UsersRound className="h-3 w-3" />{person.preferredCrewSize} os.</span>
+              <span>{labels.levels[person.level]}</span>
+              <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{labels.commitments[person.weeklyHours]}</span>
+              <span className="inline-flex items-center gap-1"><UsersRound className="h-3 w-3" />{person.preferredCrewSize} {copy("os.", "people")}</span>
             </div>
           </div>
         </div>
 
         <div className="min-w-0 border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
           {person.technologies.length > 0 ? <TechnologyStack items={person.technologies} max={5} compact className="gap-1.5" /> : null}
-          <p className="mt-3 truncate text-[13px] text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">Wspólny punkt: </span>{insight}</p>
+          <p className="mt-3 truncate text-[13px] text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{copy("Wspólny punkt: ", "Why you match: ")}</span>{insight}</p>
         </div>
 
         <div className="border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
@@ -78,17 +83,17 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
 
         <div className="flex flex-wrap items-center gap-2 border-t border-[var(--bc-line)] pt-4 xl:justify-end xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button size="sm">{myCrewId ? "Zaproś" : "Napisz"}</Button></DialogTrigger>
+            <DialogTrigger asChild><Button size="sm">{myCrewId ? copy("Zaproś", "Invite") : copy("Napisz", "Message")}</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{myCrewId ? `Zaproś ${person.username}` : `Napisz do ${person.username}`}</DialogTitle>
-                <DialogDescription>{myCrewId ? "Dodaj krótką wiadomość do zaproszenia." : "Napisz konkretnie, co moglibyście zbudować."}</DialogDescription>
+                <DialogTitle>{myCrewId ? copy(`Zaproś ${person.username}`, `Invite ${person.username}`) : copy(`Napisz do ${person.username}`, `Message ${person.username}`)}</DialogTitle>
+                <DialogDescription>{myCrewId ? copy("Dodaj krótką wiadomość do zaproszenia.", "Add a short note to the invitation.") : copy("Napisz konkretnie, co moglibyście zbudować.", "Be specific about what you could build together.")}</DialogDescription>
               </DialogHeader>
-              <Textarea placeholder="Cześć! Mamy podobny kierunek…" maxLength={300} value={message} onChange={(event) => setMessage(event.target.value)} />
-              <DialogFooter><Button onClick={handleSend} disabled={pending}>{pending ? "Wysyłanie…" : "Wyślij"}</Button></DialogFooter>
+              <Textarea placeholder={copy("Cześć! Mamy podobny kierunek…", "Hi! It looks like we are interested in similar things…")} maxLength={300} value={message} onChange={(event) => setMessage(event.target.value)} />
+              <DialogFooter><Button onClick={handleSend} disabled={pending}>{pending ? copy("Wysyłanie…", "Sending…") : copy("Wyślij", "Send")}</Button></DialogFooter>
             </DialogContent>
           </Dialog>
-          <Link href={`/builders/${person.userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">Profil <ArrowRight className="h-3.5 w-3.5" /></Link>
+          <Link href={`/builders/${person.userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">{copy("Profil", "Profile")} <ArrowRight className="h-3.5 w-3.5" /></Link>
         </div>
       </div>
     </article>

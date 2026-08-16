@@ -8,7 +8,9 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { SHOWCASE_CATEGORY_LABELS, SHOWCASE_STATUS_LABELS } from "@/lib/constants";
+import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import type { ShowcaseCategory, ShowcaseReaction, ShowcaseStatus } from "@/db/schema";
 import { toggleShowcaseReaction } from "@/server/actions/showcase";
 
@@ -37,24 +39,26 @@ export type ShowcaseCardData = {
   isDemo: boolean;
 };
 
-const reactions = [
-  { key: "APPLAUSE" as const, Icon: ThumbsUp, label: "Dobra robota" },
-  { key: "IDEA" as const, Icon: Lightbulb, label: "Ciekawy pomysł" },
-  { key: "POTENTIAL" as const, Icon: TrendingUp, label: "Ma potencjał" },
-];
-
 export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData; currentUserId?: string }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
+  const reactions = [
+    { key: "APPLAUSE" as const, Icon: ThumbsUp, label: labels.showcaseReactions.APPLAUSE },
+    { key: "IDEA" as const, Icon: Lightbulb, label: labels.showcaseReactions.IDEA },
+    { key: "POTENTIAL" as const, Icon: TrendingUp, label: labels.showcaseReactions.POTENTIAL },
+  ];
   const [counts, setCounts] = React.useState(entry.reactionCounts);
   const [active, setActive] = React.useState(new Set(entry.viewerReactions));
   const [pending, setPending] = React.useState<ShowcaseReaction | null>(null);
 
   async function react(reaction: ShowcaseReaction) {
-    if (!currentUserId) { toast.error("Zaloguj się, żeby zareagować."); return; }
-    if (currentUserId === entry.creatorId) { toast.error("Nie możesz oceniać własnego projektu."); return; }
+    if (!currentUserId) { toast.error(copy("Zaloguj się, żeby zareagować.", "Log in to react.")); return; }
+    if (currentUserId === entry.creatorId) { toast.error(copy("Nie możesz oceniać własnego projektu.", "You cannot react to your own project.")); return; }
     setPending(reaction);
     const result = await toggleShowcaseReaction(entry.id, reaction);
     setPending(null);
-    if (result?.error) { toast.error(result.error); return; }
+    if (result?.error) { toast.error(appMessage(result.error, locale)); return; }
     setActive((previous) => { const next = new Set(previous); if (result?.active) next.add(reaction); else next.delete(reaction); return next; });
     setCounts((previous) => ({ ...previous, [reaction]: Math.max(0, previous[reaction] + (result?.active ? 1 : -1)) }));
   }
@@ -64,17 +68,17 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
       {entry.screenshotUrl ? (
         <Link href={`/showcase/${entry.id}`} className="block aspect-[16/9] overflow-hidden bg-[var(--bc-surface-2)]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={entry.screenshotUrl} alt={`Podgląd ${entry.title}`} className="h-full w-full object-cover" />
+          <img src={entry.screenshotUrl} alt={copy(`Podgląd ${entry.title}`, `${entry.title} preview`)} className="h-full w-full object-cover" />
         </Link>
       ) : (
         <Link href={`/showcase/${entry.id}`} className="flex aspect-[16/9] items-end border-b border-[var(--bc-line)] bg-[var(--bc-surface-2)] p-5"><span className="text-[24px] font-semibold tracking-[-0.03em] text-[var(--bc-faint)]">{entry.title.slice(0, 2).toUpperCase()}</span></Link>
       )}
       <div className="p-4">
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge variant="outline">{SHOWCASE_CATEGORY_LABELS[entry.category]}</Badge>
-          <Badge variant="secondary">{SHOWCASE_STATUS_LABELS[entry.status]}</Badge>
+          <Badge variant="outline">{labels.showcaseCategories[entry.category]}</Badge>
+          <Badge variant="secondary">{labels.showcaseStatuses[entry.status]}</Badge>
           {entry.isDemo ? <Badge variant="outline">Demo</Badge> : null}
-          {entry.crewId ? <Badge variant="outline">Ekipa BuildCrew</Badge> : null}
+          {entry.crewId ? <Badge variant="outline">{copy("Ekipa BuildCrew", "BuildCrew team")}</Badge> : null}
           {entry.challengeId ? <Badge variant="warning">Challenge</Badge> : null}
         </div>
         <Link href={`/showcase/${entry.id}`}><h3 className="mt-3 text-[17px] font-semibold tracking-[-0.015em] hover:underline">{entry.title}</h3></Link>
@@ -85,7 +89,7 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
           <div className="flex items-center gap-1.5 text-[12px] text-[var(--bc-faint)]"><Users className="h-3.5 w-3.5" /> {Math.max(1, entry.team.length)}</div>
         </div>
 
-        {entry.lookingForCollaborators ? <p className="mt-3 line-clamp-2 border-l-2 border-[var(--bc-accent)] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">Szukają współtwórców.</span>{entry.lookingForText ? ` ${entry.lookingForText}` : ""}</p> : null}
+        {entry.lookingForCollaborators ? <p className="mt-3 line-clamp-2 border-l-2 border-[var(--bc-accent)] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{copy("Szukają współtwórców.", "Looking for collaborators.")}</span>{entry.lookingForText ? ` ${entry.lookingForText}` : ""}</p> : null}
 
         <div className="mt-3 grid grid-cols-3 gap-1.5">
           {reactions.map(({ key, Icon, label }) => (
@@ -94,10 +98,10 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
         </div>
 
         <div className="mt-3 flex items-center justify-between text-[12px] text-[var(--bc-faint)]">
-          <span>{entry.feedbackCount} feedbacków{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% zainteresowanych` : ""}</span>
-          <div className="flex gap-2">{entry.githubUrl ? <a href={entry.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><ExternalLink className="h-3.5 w-3.5" /></a> : null}{entry.liveUrl ? <a href={entry.liveUrl} target="_blank" rel="noreferrer" aria-label="Otwórz projekt"><ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
+          <span>{entry.feedbackCount} {copy("feedbacków", entry.feedbackCount === 1 ? "feedback" : "feedback items")}{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% ${copy("zainteresowanych", "would use")}` : ""}</span>
+          <div className="flex gap-2">{entry.githubUrl ? <a href={entry.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><ExternalLink className="h-3.5 w-3.5" /></a> : null}{entry.liveUrl ? <a href={entry.liveUrl} target="_blank" rel="noreferrer" aria-label={copy("Otwórz projekt", "Open project")}><ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
         </div>
-        <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link href={`/showcase/${entry.id}`}>Zobacz projekt</Link></Button>
+        <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link href={`/showcase/${entry.id}`}>{copy("Zobacz projekt", "View project")}</Link></Button>
       </div>
     </Card>
   );

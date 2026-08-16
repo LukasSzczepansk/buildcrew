@@ -15,6 +15,7 @@ import {
   type RoleType,
 } from "@/db/schema";
 import { computeHackathonMatch } from "@/lib/hackathon-matching";
+import type { AppLocale } from "@/lib/site-config";
 import { getHackathonPhase } from "@/lib/hackathons";
 import { isUuid, safeHttpUrl } from "@/lib/security";
 
@@ -140,7 +141,7 @@ export async function getHackathonTeamForUser(hackathonId: string, userId: strin
   return { ...membership.team, viewerIsLead: membership.member.isLead, members };
 }
 
-export async function listHackathonMatches(hackathonId: string, userId: string) {
+export async function listHackathonMatches(hackathonId: string, userId: string, locale: AppLocale = "pl") {
   const meRows = await db.select({ participant: hackathonParticipants, level: profiles.level })
     .from(hackathonParticipants)
     .innerJoin(profiles, eq(profiles.userId, hackathonParticipants.userId))
@@ -175,6 +176,7 @@ export async function listHackathonMatches(hackathonId: string, userId: string) 
     const match = computeHackathonMatch(
       { ...me.participant, level: me.level },
       { ...row.participant, level: row.level },
+      locale,
     );
     return {
       userId: row.participant.userId,

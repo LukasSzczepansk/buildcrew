@@ -33,7 +33,8 @@ import { FriendRelationActions, type FriendRelationState } from "@/components/fr
 import { FollowButton } from "@/components/network/follow-button";
 import { inviteToProject } from "@/server/actions/projects";
 import { blockUser } from "@/server/actions/moderation";
-import { useCopy } from "@/components/i18n/locale-provider";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 
 export function BuilderProfileActions({
   targetUserId,
@@ -47,6 +48,7 @@ export function BuilderProfileActions({
   initialFollowing: boolean;
 }) {
   const copy = useCopy();
+  const locale = useLocale();
   const [inviteOpen, setInviteOpen] = React.useState(false);
   const [reportOpen, setReportOpen] = React.useState(false);
   const [projectId, setProjectId] = React.useState<string>(myProjects[0]?.id ?? "");
@@ -59,7 +61,7 @@ export function BuilderProfileActions({
     const res = await inviteToProject(projectId, targetUserId, undefined, message);
     setPending(false);
     if (res?.error) {
-      toast.error(res.error);
+      toast.error(appMessage(res.error, locale));
       return;
     }
     toast.success(copy("Zaproszenie wysłane!", "Invitation sent!"));
@@ -69,7 +71,7 @@ export function BuilderProfileActions({
 
   async function handleBlock() {
     const res = await blockUser(targetUserId);
-    if (res?.error) toast.error(res.error);
+    if (res?.error) toast.error(appMessage(res.error, locale));
     else toast.success(copy("Użytkownik zablokowany.", "User blocked."));
   }
 

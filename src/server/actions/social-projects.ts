@@ -93,7 +93,7 @@ export async function publishProjectUpdate(input: { projectId: string; kind: Pro
     `${project.name} ma nową aktualizację`,
     parsed.data.body.length > 140 ? `${parsed.data.body.slice(0, 137)}…` : parsed.data.body,
     `/projects/${project.id}`,
-    { actorId: user.id, entityType: "project", entityId: project.id },
+    { actorId: user.id, entityType: "project", entityId: project.id, titleEn: `${project.name} has a new update`, bodyEn: parsed.data.body.length > 140 ? `${parsed.data.body.slice(0, 137)}…` : parsed.data.body },
   )));
   await logEvent("project_update_published", user.id, { projectId: project.id, updateId: created?.id, kind: parsed.data.kind, followers: followers.length });
 
@@ -196,7 +196,7 @@ export async function completeProject(input: { projectId: string; outcome: strin
     `${outcome.project.name} został ukończony`,
     "Zespół zamknął projekt. Rezultat i credits są teraz częścią historii współpracy.",
     `/projects/${outcome.project.id}`,
-    { actorId: user.id, entityType: "project", entityId: outcome.project.id },
+    { actorId: user.id, entityType: "project", entityId: outcome.project.id, titleEn: `${outcome.project.name} was completed`, bodyEn: "The team completed the project. The result and contributor credits are now part of your collaboration history." },
   )));
   await logEvent("project_completed", user.id, { projectId: outcome.project.id, creditedUsers: outcome.memberIds.length });
 

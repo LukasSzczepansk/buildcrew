@@ -4,7 +4,8 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useCopy } from "@/components/i18n/locale-provider";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 import { respondToBuildProposal, respondToCrewInvite } from "@/server/actions/crews";
 import { respondToProjectInvite } from "@/server/actions/projects";
 
@@ -16,6 +17,7 @@ type Props =
 export function InvitationActions(props: Props) {
   const router = useRouter();
   const copy = useCopy();
+  const locale = useLocale();
   const [pending, setPending] = React.useState<"accept" | "reject" | null>(null);
 
   async function respond(decision: "ACCEPTED" | "REJECTED") {
@@ -24,7 +26,7 @@ export function InvitationActions(props: Props) {
       if (props.type === "BUILD_PROPOSAL") {
         const result = await respondToBuildProposal(props.id, decision);
         if ("error" in result && result.error) {
-          toast.error(result.error);
+          toast.error(appMessage(result.error, locale));
           return;
         }
         if (decision === "ACCEPTED" && result?.crewId) {
@@ -35,7 +37,7 @@ export function InvitationActions(props: Props) {
       } else if (props.type === "CREW_INVITE") {
         const result = await respondToCrewInvite(props.id, decision);
         if ("error" in result && result.error) {
-          toast.error(result.error);
+          toast.error(appMessage(result.error, locale));
           return;
         }
         if (decision === "ACCEPTED") {
@@ -46,7 +48,7 @@ export function InvitationActions(props: Props) {
       } else {
         const result = await respondToProjectInvite(props.id, decision);
         if ("error" in result && result.error) {
-          toast.error(result.error);
+          toast.error(appMessage(result.error, locale));
           return;
         }
         if (decision === "ACCEPTED") {

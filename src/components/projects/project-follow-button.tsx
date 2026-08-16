@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { followProject, unfollowProject } from "@/server/actions/social-projects";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 
 export function ProjectFollowButton({ projectId, initialFollowing, initialFollowers = 0, owner = false, compact = false }: { projectId: string; initialFollowing: boolean; initialFollowers?: number; owner?: boolean; compact?: boolean }) {
   const locale = useLocale();
@@ -28,7 +29,7 @@ export function ProjectFollowButton({ projectId, initialFollowing, initialFollow
       if (result?.error) {
         setFollowing(!next);
         setFollowers((value) => Math.max(0, value + (next ? -1 : 1)));
-        toast.error(result.error);
+        toast.error(appMessage(result.error, locale));
         return;
       }
       toast.success(next ? copy("Obserwujesz projekt.", "You are following this project.") : copy("Przestałeś obserwować projekt.", "You stopped following this project."));

@@ -102,7 +102,12 @@ async function notifyMessageRecipients(input: {
         entityId: input.projectId,
         emailPreference: "emailWorkspace",
         emailCtaLabel: "Otwórz rozmowę",
+        emailCtaLabelEn: "Open conversation",
+        titleEn: `Reply in ${input.projectName}`,
+        bodyEn: input.body.slice(0, 180),
+        emailTitleEn: `Reply in ${input.projectName}`,
         emailIntro: "Masz nową odpowiedź w prywatnym workspace projektu. Otwórz BuildCrew, żeby zobaczyć treść.",
+        emailIntroEn: "You have a new reply in a private project workspace. Open BuildCrew to read it.",
       },
     );
   }
@@ -131,7 +136,12 @@ async function notifyMessageRecipients(input: {
         entityId: input.projectId,
         emailPreference: "emailWorkspace",
         emailCtaLabel: "Otwórz rozmowę",
+        emailCtaLabelEn: "Open conversation",
+        titleEn: `You were mentioned in ${input.projectName}`,
+        bodyEn: input.body.slice(0, 180),
+        emailTitleEn: `You were mentioned in ${input.projectName}`,
         emailIntro: "Ktoś oznaczył Cię w prywatnym workspace projektu. Otwórz BuildCrew, żeby zobaczyć treść.",
+        emailIntroEn: "Someone mentioned you in a private project workspace. Open BuildCrew to read it.",
       },
     );
   }
@@ -429,6 +439,9 @@ export async function addProjectWorkspaceTask(
         entityId: projectId,
         emailPreference: "emailWorkspace",
         emailCtaLabel: "Otwórz zadania",
+        emailCtaLabelEn: "Open tasks",
+        titleEn: `A task was assigned to you${project ? ` in ${project.name}` : ""}`,
+        bodyEn: parsed.data.title,
       },
     );
   }
@@ -485,6 +498,9 @@ export async function updateProjectWorkspaceTask(
         entityId: task.projectId,
         emailPreference: "emailWorkspace",
         emailCtaLabel: "Otwórz zadania",
+        emailCtaLabelEn: "Open tasks",
+        titleEn: `A task was assigned to you${project ? ` in ${project.name}` : ""}`,
+        bodyEn: parsed.data.title ?? task.title,
       },
     );
   }

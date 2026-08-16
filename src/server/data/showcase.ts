@@ -16,6 +16,7 @@ import {
 } from "@/db/schema";
 import { isUuid, safeHttpUrl } from "@/lib/security";
 import { computeMatch } from "@/lib/matching";
+import type { AppLocale } from "@/lib/site-config";
 import { getProfileByUserId } from "@/server/data/profiles";
 
 export type ShowcaseTab = "popular" | "new" | "week" | "month";
@@ -192,7 +193,7 @@ export async function getChallengeParticipantCount(challengeId: string) {
   return rows[0]?.count ?? 0;
 }
 
-export async function listChallengeMatches(challengeId: string, userId: string) {
+export async function listChallengeMatches(challengeId: string, userId: string, locale: AppLocale = "pl") {
   const me = await getProfileByUserId(userId);
   if (!me) return [];
   const participantRows = await db.select({ userId: challengeParticipants.userId, crewId: challengeParticipants.crewId })
@@ -202,6 +203,6 @@ export async function listChallengeMatches(challengeId: string, userId: string) 
   const profilesList = (await Promise.all(candidates.map((row) => getProfileByUserId(row.userId)))).filter((profile): profile is NonNullable<typeof profile> => Boolean(profile));
   return profilesList.map((profile) => ({
     profile,
-    ...computeMatch({ userId: me.userId, username: me.username, role: me.role, level: me.level, weeklyHours: me.weeklyHours, interests: me.interests, goals: me.goals }, { userId: profile.userId, username: profile.username, role: profile.role, level: profile.level, weeklyHours: profile.weeklyHours, interests: profile.interests, goals: profile.goals }),
+    ...computeMatch({ userId: me.userId, username: me.username, role: me.role, level: me.level, weeklyHours: me.weeklyHours, interests: me.interests, goals: me.goals }, { userId: profile.userId, username: profile.username, role: profile.role, level: profile.level, weeklyHours: profile.weeklyHours, interests: profile.interests, goals: profile.goals }, locale),
   })).sort((a, b) => b.score - a.score).slice(0, 8);
 }

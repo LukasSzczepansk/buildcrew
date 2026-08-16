@@ -78,7 +78,14 @@ export async function sendBuildProposal(receiverId: string, message: string, cha
   }
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(receiverId, challengeId ? "CHALLENGE_MATCH" : "BUILD_PROPOSAL", `${profileRows[0]?.username ?? "Ktoś"} chce zbudować coś z Tobą razem`, message || (challengeId ? "Propozycja wspólnej ekipy do Build Challenge." : undefined), "/invitations", { actorId: user.id, entityType: challengeId ? "challenge" : "build_proposal", entityId: challengeId ?? undefined, emailPreference: "emailBuildPool" });
+  await createNotification(receiverId, challengeId ? "CHALLENGE_MATCH" : "BUILD_PROPOSAL", `${profileRows[0]?.username ?? "Ktoś"} chce zbudować coś z Tobą razem`, message || (challengeId ? "Propozycja wspólnej ekipy do Build Challenge." : undefined), "/invitations", {
+    actorId: user.id,
+    entityType: challengeId ? "challenge" : "build_proposal",
+    entityId: challengeId ?? undefined,
+    emailPreference: "emailBuildPool",
+    titleEn: `${profileRows[0]?.username ?? "Someone"} wants to build something with you`,
+    bodyEn: message || (challengeId ? "A suggested team-up for the Build Challenge." : null),
+  });
   await logEvent("crew_invite_sent", user.id, { receiverId, type: "build_proposal" });
   revalidatePath("/build");
   return { success: true };
@@ -125,11 +132,20 @@ export async function respondToBuildProposal(proposalId: string, decision: "ACCE
   if (decision === "ACCEPTED" && outcome.crewId) {
     await logEvent("crew_created", user.id, { crewId: outcome.crewId, members: [outcome.proposal.senderId, outcome.proposal.receiverId] });
     await logEvent("contact_revealed", user.id, { withUserId: outcome.proposal.senderId });
-    await createNotification(outcome.proposal.senderId, "CREW_INVITE_ACCEPTED", "Twoja propozycja została zaakceptowana! Macie nową ekipę 🎉", outcome.proposal.challengeId ? "Możecie teraz wspólnie budować projekt w Build Challenge." : undefined, `/crews/${outcome.crewId}`, { actorId: user.id, entityType: "crew", entityId: outcome.crewId, emailPreference: "emailCrew" });
+    await createNotification(outcome.proposal.senderId, "CREW_INVITE_ACCEPTED", "Twoja propozycja została zaakceptowana! Macie nową ekipę 🎉", outcome.proposal.challengeId ? "Możecie teraz wspólnie budować projekt w Build Challenge." : undefined, `/crews/${outcome.crewId}`, {
+      actorId: user.id,
+      entityType: "crew",
+      entityId: outcome.crewId,
+      emailPreference: "emailCrew",
+      titleEn: "Your proposal was accepted! You have a new team 🎉",
+      bodyEn: outcome.proposal.challengeId ? "You can now build together in the Build Challenge." : null,
+    });
     revalidatePath("/build");
     return { success: true, crewId: outcome.crewId };
   }
-  await createNotification(outcome.proposal.senderId, "CREW_INVITE_ACCEPTED", "Twoja propozycja nie została przyjęta tym razem.", undefined, "/build");
+  await createNotification(outcome.proposal.senderId, "CREW_INVITE_ACCEPTED", "Twoja propozycja nie została przyjęta tym razem.", undefined, "/build", {
+    titleEn: "Your proposal was not accepted this time.",
+  });
   revalidatePath("/build");
   return { success: true };
 }
@@ -170,7 +186,14 @@ export async function inviteToCrew(crewId: string, inviteeId: string, message: s
   }
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(inviteeId, "CREW_INVITE", `${profileRows[0]?.username ?? "Ktoś"} zaprasza Cię do swojej ekipy`, message || undefined, "/invitations", { actorId: user.id, entityType: "crew", entityId: crewId, emailPreference: "emailCrew" });
+  await createNotification(inviteeId, "CREW_INVITE", `${profileRows[0]?.username ?? "Ktoś"} zaprasza Cię do swojej ekipy`, message || undefined, "/invitations", {
+    actorId: user.id,
+    entityType: "crew",
+    entityId: crewId,
+    emailPreference: "emailCrew",
+    titleEn: `${profileRows[0]?.username ?? "Someone"} invited you to their team`,
+    bodyEn: message || null,
+  });
   await logEvent("crew_invite_sent", user.id, { crewId, inviteeId, type: "crew_invite" });
   revalidatePath(`/crews/${crewId}`);
   return { success: true };
@@ -211,7 +234,13 @@ export async function respondToCrewInvite(inviteId: string, decision: "ACCEPTED"
   if ("error" in outcome) return outcome;
   if (decision === "ACCEPTED") {
     await logEvent("contact_revealed", user.id, { crewId: outcome.invite.crewId });
-    await createNotification(outcome.invite.inviterId, "CREW_INVITE_ACCEPTED", "Zaproszenie do ekipy zostało zaakceptowane! 🎉", undefined, `/crews/${outcome.invite.crewId}`, { actorId: user.id, entityType: "crew", entityId: outcome.invite.crewId, emailPreference: "emailCrew" });
+    await createNotification(outcome.invite.inviterId, "CREW_INVITE_ACCEPTED", "Zaproszenie do ekipy zostało zaakceptowane! 🎉", undefined, `/crews/${outcome.invite.crewId}`, {
+      actorId: user.id,
+      entityType: "crew",
+      entityId: outcome.invite.crewId,
+      emailPreference: "emailCrew",
+      titleEn: "Your team invitation was accepted! 🎉",
+    });
   }
   revalidatePath(`/crews/${outcome.invite.crewId}`);
   return { success: true };

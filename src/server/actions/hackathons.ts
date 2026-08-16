@@ -293,7 +293,16 @@ export async function createSuggestedHackathonTeam(hackathonId: string) {
     `${profileRows[0]?.username ?? "Ktoś"} zaprasza Cię do teamu na ${event.name}`,
     "BuildCrew dopasował Was na podstawie roli, kierunku i dostępności. Sprawdź skład i zdecyduj, czy chcesz dołączyć.",
     `/hackathons/${event.slug}`,
-    { actorId: user.id, entityType: "hackathon", entityId: event.id, emailPreference: "emailChallenge", emailCtaLabel: "Zobacz team" },
+    {
+      actorId: user.id,
+      entityType: "hackathon",
+      entityId: event.id,
+      emailPreference: "emailChallenge",
+      emailCtaLabel: "Zobacz team",
+      emailCtaLabelEn: "View team",
+      titleEn: `${profileRows[0]?.username ?? "Someone"} invited you to a team for ${event.name}`,
+      bodyEn: "BuildCrew matched you based on role, direction and availability. Review the team and decide whether you want to join.",
+    },
   )));
   await logEvent("hackathon_team_created", user.id, { hackathonId: event.id, teamId: outcome.teamId, suggested: true, invited: selected.length });
   revalidateHackathon(event.slug);
@@ -338,7 +347,16 @@ export async function inviteToHackathonTeam(input: unknown) {
     if (isUniqueViolation(error)) return { error: "Ta osoba ma już oczekujące zaproszenie do Twojego teamu." };
     throw error;
   }
-  await createNotification(parsed.data.inviteeId, "HACKATHON_TEAM_INVITE", `Zaproszenie do ${row.team.name} na ${row.eventName}`, parsed.data.message || "Sprawdź skład teamu i zdecyduj, czy chcesz dołączyć.", `/hackathons/${row.eventSlug}`, { actorId: user.id, entityType: "hackathon", entityId: event.id, emailPreference: "emailChallenge", emailCtaLabel: "Zobacz zaproszenie" });
+  await createNotification(parsed.data.inviteeId, "HACKATHON_TEAM_INVITE", `Zaproszenie do ${row.team.name} na ${row.eventName}`, parsed.data.message || "Sprawdź skład teamu i zdecyduj, czy chcesz dołączyć.", `/hackathons/${row.eventSlug}`, {
+    actorId: user.id,
+    entityType: "hackathon",
+    entityId: event.id,
+    emailPreference: "emailChallenge",
+    emailCtaLabel: "Zobacz zaproszenie",
+    emailCtaLabelEn: "View invitation",
+    titleEn: `Invitation to ${row.team.name} for ${row.eventName}`,
+    bodyEn: parsed.data.message || "Review the team and decide whether you want to join.",
+  });
   await logEvent("hackathon_team_invite_sent", user.id, { hackathonId: event.id, teamId: row.team.id, inviteeId: parsed.data.inviteeId });
   revalidateHackathon(event.slug);
   return { success: true };
@@ -392,7 +410,14 @@ export async function respondHackathonTeamInvite(input: unknown) {
   const event = await db.select({ slug: hackathons.slug, name: hackathons.name }).from(hackathons).where(eq(hackathons.id, outcome.invite.hackathonId)).limit(1);
   if (event[0]) revalidateHackathon(event[0].slug);
   if (outcome.accepted && outcome.team) {
-    await createNotification(outcome.invite.inviterId, "HACKATHON_TEAM_JOINED", `${user.username ?? "Nowa osoba"} dołącza do ${outcome.team.name}`, `Wasz team na ${event[0]?.name ?? "hackathon"} ma nowego członka.`, event[0] ? `/hackathons/${event[0].slug}` : "/hackathons", { actorId: user.id, entityType: "hackathon", entityId: outcome.invite.hackathonId, emailPreference: "emailChallenge" });
+    await createNotification(outcome.invite.inviterId, "HACKATHON_TEAM_JOINED", `${user.username ?? "Nowa osoba"} dołącza do ${outcome.team.name}`, `Wasz team na ${event[0]?.name ?? "hackathon"} ma nowego członka.`, event[0] ? `/hackathons/${event[0].slug}` : "/hackathons", {
+      actorId: user.id,
+      entityType: "hackathon",
+      entityId: outcome.invite.hackathonId,
+      emailPreference: "emailChallenge",
+      titleEn: `${user.username ?? "A new member"} is joining ${outcome.team.name}`,
+      bodyEn: `Your team for ${event[0]?.name ?? "the hackathon"} has a new member.`,
+    });
     await logEvent("hackathon_team_joined", user.id, { hackathonId: outcome.invite.hackathonId, teamId: outcome.team.id, source: "invite" });
   }
   return { success: true };
@@ -432,7 +457,16 @@ export async function requestToJoinHackathonTeam(input: unknown) {
     throw error;
   }
   const leads = leadRows;
-  await Promise.all(leads.map((lead) => createNotification(lead.userId, "HACKATHON_TEAM_REQUEST", `${user.username ?? "Ktoś"} chce dołączyć do ${row.team.name}`, parsed.data.message || "Sprawdź profil i zdecyduj, czy pasuje do Waszego składu.", `/hackathons/${row.slug}`, { actorId: user.id, entityType: "hackathon", entityId: row.team.hackathonId, emailPreference: "emailChallenge", emailCtaLabel: "Sprawdź zgłoszenie" })));
+  await Promise.all(leads.map((lead) => createNotification(lead.userId, "HACKATHON_TEAM_REQUEST", `${user.username ?? "Ktoś"} chce dołączyć do ${row.team.name}`, parsed.data.message || "Sprawdź profil i zdecyduj, czy pasuje do Waszego składu.", `/hackathons/${row.slug}`, {
+    actorId: user.id,
+    entityType: "hackathon",
+    entityId: row.team.hackathonId,
+    emailPreference: "emailChallenge",
+    emailCtaLabel: "Sprawdź zgłoszenie",
+    emailCtaLabelEn: "Review request",
+    titleEn: `${user.username ?? "Someone"} wants to join ${row.team.name}`,
+    bodyEn: parsed.data.message || "Review their profile and decide whether they are a good fit for your team.",
+  })));
   revalidateHackathon(row.slug);
   return { success: true };
 }
@@ -468,7 +502,14 @@ export async function respondHackathonTeamRequest(input: unknown) {
   const event = await db.select({ slug: hackathons.slug, name: hackathons.name }).from(hackathons).where(eq(hackathons.id, outcome.request.hackathonId)).limit(1);
   if (event[0]) revalidateHackathon(event[0].slug);
   if (outcome.accepted && outcome.team) {
-    await createNotification(outcome.request.applicantId, "HACKATHON_TEAM_JOINED", `Dołączasz do ${outcome.team.name}`, `Twoje zgłoszenie do teamu na ${event[0]?.name ?? "hackathon"} zostało zaakceptowane.`, event[0] ? `/hackathons/${event[0].slug}` : "/hackathons", { actorId: user.id, entityType: "hackathon", entityId: outcome.request.hackathonId, emailPreference: "emailChallenge" });
+    await createNotification(outcome.request.applicantId, "HACKATHON_TEAM_JOINED", `Dołączasz do ${outcome.team.name}`, `Twoje zgłoszenie do teamu na ${event[0]?.name ?? "hackathon"} zostało zaakceptowane.`, event[0] ? `/hackathons/${event[0].slug}` : "/hackathons", {
+      actorId: user.id,
+      entityType: "hackathon",
+      entityId: outcome.request.hackathonId,
+      emailPreference: "emailChallenge",
+      titleEn: `You're joining ${outcome.team.name}`,
+      bodyEn: `Your request to join the team for ${event[0]?.name ?? "the hackathon"} was accepted.`,
+    });
     await logEvent("hackathon_team_joined", outcome.request.applicantId, { hackathonId: outcome.request.hackathonId, teamId: outcome.team.id, source: "request" });
   }
   return { success: true };

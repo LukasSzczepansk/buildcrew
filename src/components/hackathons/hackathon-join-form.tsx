@@ -8,41 +8,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { HACKATHON_AVAILABILITY_LABELS, HACKATHON_GOAL_LABELS, ROLE_LABELS } from "@/lib/constants";
+import { labelsFor } from "@/lib/constants-i18n";
+import { appMessage } from "@/lib/server-copy";
 import { cn } from "@/lib/utils";
 import { saveHackathonParticipation } from "@/server/actions/hackathons";
 
 const ROLES = Object.keys(ROLE_LABELS) as RoleType[];
 const GOALS = Object.keys(HACKATHON_GOAL_LABELS) as HackathonGoal[];
 const AVAILABILITY = Object.keys(HACKATHON_AVAILABILITY_LABELS) as HackathonAvailability[];
-const STEPS = ["Rola", "Stack", "Podejście", "Gotowe"] as const;
 
-function csv(value: string) {
-  return value.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 12);
-}
+function csv(value: string) { return value.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 12); }
 
-export function HackathonJoinForm({
-  hackathonId,
-  eventThemes,
-  minTeamSize,
-  maxTeamSize,
-  initial,
-}: {
-  hackathonId: string;
-  eventThemes: string[];
-  minTeamSize: number;
-  maxTeamSize: number;
-  initial?: {
-    role: RoleType;
-    technologies: string[];
-    themes: string[];
-    hasIdea: boolean;
-    ideaSummary: string | null;
-    goal: HackathonGoal;
-    availability: HackathonAvailability;
-    preferredTeamSize: number;
-  } | null;
-}) {
+export function HackathonJoinForm({ hackathonId, eventThemes, minTeamSize, maxTeamSize, initial }: { hackathonId: string; eventThemes: string[]; minTeamSize: number; maxTeamSize: number; initial?: { role: RoleType; technologies: string[]; themes: string[]; hasIdea: boolean; ideaSummary: string | null; goal: HackathonGoal; availability: HackathonAvailability; preferredTeamSize: number; } | null; }) {
+  const copy = useCopy();
+  const locale = useLocale();
+  const labels = labelsFor(locale);
+  const steps = locale === "en" ? ["Role", "Stack", "Approach", "Ready"] : ["Rola", "Stack", "Podejście", "Gotowe"];
   const [step, setStep] = React.useState(0);
   const [pending, setPending] = React.useState(false);
   const [role, setRole] = React.useState<RoleType>(initial?.role ?? "FULLSTACK");
@@ -55,207 +38,28 @@ export function HackathonJoinForm({
   const [preferredTeamSize, setPreferredTeamSize] = React.useState(initial?.preferredTeamSize ?? Math.min(4, maxTeamSize));
 
   async function submit(event: React.FormEvent) {
-    event.preventDefault();
-    setPending(true);
-    const result = await saveHackathonParticipation({
-      hackathonId,
-      role,
-      technologies: csv(technologies),
-      themes,
-      goal,
-      availability,
-      hasIdea,
-      ideaSummary,
-      preferredTeamSize,
-    });
+    event.preventDefault(); setPending(true);
+    const result = await saveHackathonParticipation({ hackathonId, role, technologies: csv(technologies), themes, goal, availability, hasIdea, ideaSummary, preferredTeamSize });
     setPending(false);
-    if (result?.error) {
-      toast.error(result.error);
-      return;
-    }
-    toast.success(initial ? "Preferencje zapisane." : "Jesteś w puli. Pokażemy Ci ludzi i teamy z tego wydarzenia.");
+    if (result?.error) { toast.error(appMessage(result.error, locale)); return; }
+    toast.success(initial ? copy("Preferencje zapisane.", "Preferences saved.") : copy("Jesteś w puli. Pokażemy Ci ludzi i teamy z tego wydarzenia.", "You're in the pool. We'll show you people and teams from this event."));
   }
 
-  function toggleTheme(theme: string) {
-    setThemes((current) => current.includes(theme)
-      ? current.filter((item) => item !== theme)
-      : current.length < 8 ? [...current, theme] : current);
-  }
-
-  function next() {
-    if (step === 1 && csv(technologies).length === 0) {
-      toast.error("Dodaj przynajmniej jedną technologię lub narzędzie, żeby matching miał lepszy kontekst.");
-      return;
-    }
-    setStep((current) => Math.min(3, current + 1));
-  }
+  function toggleTheme(theme: string) { setThemes((current) => current.includes(theme) ? current.filter((item) => item !== theme) : current.length < 8 ? [...current, theme] : current); }
+  function next() { if (step === 1 && csv(technologies).length === 0) { toast.error(copy("Dodaj przynajmniej jedną technologię lub narzędzie, żeby matching miał lepszy kontekst.", "Add at least one technology or tool so matching has enough context.")); return; } setStep((current) => Math.min(3, current + 1)); }
 
   return (
     <form id="join" onSubmit={submit} className="scroll-mt-24 border-y border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
       <div className="px-4 py-5 sm:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Find your team · około 60 sekund</p>
-            <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.02em]">{initial ? "Dopasuj preferencje" : "Powiedz, kogo szukasz"}</h2>
-            <p className="mt-1 max-w-[620px] text-[13px] leading-5 text-[var(--bc-muted)]">Nie tworzysz nowego profilu od zera. Ustawiasz tylko kontekst dla tego wydarzenia.</p>
-          </div>
-          <span className="text-[12px] font-medium tabular-nums text-[var(--bc-faint)]">Krok {step + 1} / 4</span>
-        </div>
-
-        <div className="mt-5 grid grid-cols-4 border-y border-[var(--bc-line)]">
-          {STEPS.map((label, index) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => index <= step && setStep(index)}
-              className={cn(
-                "relative min-w-0 border-r border-[var(--bc-line)] px-2 py-3 text-left last:border-r-0 sm:px-3",
-                index === step && "bg-[var(--bc-surface-subtle)]",
-              )}
-            >
-              {index === step ? <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bc-accent)]" /> : null}
-              <span className="block text-[10px] font-semibold tabular-nums text-[var(--bc-faint)]">0{index + 1}</span>
-              <span className={cn("mt-0.5 block truncate text-[12px] font-medium", index <= step ? "text-[var(--bc-ink)]" : "text-[var(--bc-faint)]")}>{label}</span>
-            </button>
-          ))}
-        </div>
-
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Find your team · {copy("około 60 sekund", "about 60 seconds")}</p><h2 className="mt-1 text-[20px] font-semibold tracking-[-0.02em]">{initial ? copy("Dopasuj preferencje", "Update your preferences") : copy("Powiedz, kogo szukasz", "Tell us who you're looking for")}</h2><p className="mt-1 max-w-[620px] text-[13px] leading-5 text-[var(--bc-muted)]">{copy("Nie tworzysz nowego profilu od zera. Ustawiasz tylko kontekst dla tego wydarzenia.", "You're not creating a new profile from scratch. You're only setting context for this event.")}</p></div><span className="text-[12px] font-medium tabular-nums text-[var(--bc-faint)]">{copy("Krok", "Step")} {step + 1} / 4</span></div>
+        <div className="mt-5 grid grid-cols-4 border-y border-[var(--bc-line)]">{steps.map((label, index) => <button key={label} type="button" onClick={() => index <= step && setStep(index)} className={cn("relative min-w-0 border-r border-[var(--bc-line)] px-2 py-3 text-left last:border-r-0 sm:px-3", index === step && "bg-[var(--bc-surface-subtle)]")}>{index === step ? <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bc-accent)]" /> : null}<span className="block text-[10px] font-semibold tabular-nums text-[var(--bc-faint)]">0{index + 1}</span><span className={cn("mt-0.5 block truncate text-[12px] font-medium", index <= step ? "text-[var(--bc-ink)]" : "text-[var(--bc-faint)]")}>{label}</span></button>)}</div>
         <div className="min-h-[260px] py-5">
-          {step === 0 ? (
-            <div>
-              <p className="text-[14px] font-semibold">Jaka jest Twoja główna rola?</p>
-              <p className="mt-1 text-[12px] text-[var(--bc-muted)]">Wybierz to, co realnie chcesz robić podczas hackathonu.</p>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {ROLES.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setRole(item)}
-                    className={cn(
-                      "flex min-h-11 items-center justify-between rounded-[6px] border px-3 py-2.5 text-left text-[13px] font-medium transition-colors",
-                      role === item
-                        ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950"
-                        : "border-[var(--bc-line)] bg-[var(--bc-surface)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]",
-                    )}
-                  >
-                    <span>{ROLE_LABELS[item]}</span>
-                    {role === item ? <Check className="h-3.5 w-3.5" /> : null}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-5 max-w-[320px]">
-                <Label>Preferowany rozmiar teamu</Label>
-                <select value={preferredTeamSize} onChange={(e) => setPreferredTeamSize(Number(e.target.value))} className="mt-1.5 h-10 w-full rounded-[6px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-3 text-sm">
-                  {Array.from({ length: maxTeamSize - minTeamSize + 1 }, (_, index) => minTeamSize + index).map((size) => <option key={size} value={size}>{size} osoby</option>)}
-                </select>
-              </div>
-            </div>
-          ) : null}
-
-          {step === 1 ? (
-            <div>
-              <div className="max-w-[760px]">
-                <Label>Technologie i narzędzia, z którymi chcesz pracować</Label>
-                <Input className="mt-1.5" value={technologies} onChange={(e) => setTechnologies(e.target.value)} placeholder="React, TypeScript, Python, Figma" />
-                <p className="mt-1 text-[11px] text-[var(--bc-faint)]">Wystarczą 2–5 najważniejszych. Oddziel przecinkami.</p>
-              </div>
-              {eventThemes.length ? (
-                <div className="mt-5">
-                  <Label>Co Cię interesuje w tym wydarzeniu?</Label>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {eventThemes.map((theme) => (
-                      <button
-                        type="button"
-                        key={theme}
-                        onClick={() => toggleTheme(theme)}
-                        className={cn(
-                          "rounded-[6px] border px-2.5 py-1.5 text-[12px] font-medium transition-colors",
-                          themes.includes(theme)
-                            ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950"
-                            : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]",
-                        )}
-                      >
-                        {theme}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-
-          {step === 2 ? (
-            <div className="grid gap-6 md:grid-cols-2">
-              <div>
-                <p className="text-[14px] font-semibold">Jak chcesz podejść do wydarzenia?</p>
-                <div className="mt-3 space-y-2">
-                  {GOALS.map((item) => (
-                    <label key={item} className={cn("flex cursor-pointer items-start gap-3 rounded-[6px] border px-3 py-3 text-[13px]", goal === item ? "border-[var(--bc-line-strong)] bg-[var(--bc-surface-subtle)]" : "border-[var(--bc-line)]")}>
-                      <input type="radio" className="mt-0.5" checked={goal === item} onChange={() => setGoal(item)} />
-                      <span>{HACKATHON_GOAL_LABELS[item]}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[14px] font-semibold">Ile czasu realnie masz?</p>
-                <div className="mt-3 space-y-2">
-                  {AVAILABILITY.map((item) => (
-                    <label key={item} className={cn("flex cursor-pointer items-start gap-3 rounded-[6px] border px-3 py-3 text-[13px]", availability === item ? "border-[var(--bc-line-strong)] bg-[var(--bc-surface-subtle)]" : "border-[var(--bc-line)]")}>
-                      <input type="radio" className="mt-0.5" checked={availability === item} onChange={() => setAvailability(item)} />
-                      <span>{HACKATHON_AVAILABILITY_LABELS[item]}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {step === 3 ? (
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-              <div>
-                <p className="text-[14px] font-semibold">Masz już pomysł?</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => setHasIdea(false)} className={cn("rounded-[6px] border px-3 py-2 text-[13px] font-medium", !hasIdea ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)]")}>Nie - jestem otwarty</button>
-                  <button type="button" onClick={() => setHasIdea(true)} className={cn("rounded-[6px] border px-3 py-2 text-[13px] font-medium", hasIdea ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)]")}>Tak - mam kierunek</button>
-                </div>
-                {hasIdea ? (
-                  <div className="mt-4">
-                    <Label>Pomysł w 1–2 zdaniach</Label>
-                    <Textarea className="mt-1.5 min-h-24" value={ideaSummary} onChange={(e) => setIdeaSummary(e.target.value)} maxLength={360} placeholder="Co chcesz spróbować zbudować?" />
-                  </div>
-                ) : (
-                  <p className="mt-4 max-w-[580px] text-[13px] leading-5 text-[var(--bc-muted)]">To w porządku. Matching może połączyć Cię z osobami, które mają pomysł albo są otwarte na wspólne wymyślenie kierunku.</p>
-                )}
-              </div>
-              <div className="border-t border-[var(--bc-line)] pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Podsumowanie</p>
-                <dl className="mt-3 space-y-2 text-[13px]">
-                  <div className="flex justify-between gap-4"><dt className="text-[var(--bc-muted)]">Rola</dt><dd className="font-medium text-right">{ROLE_LABELS[role]}</dd></div>
-                  <div className="flex justify-between gap-4"><dt className="text-[var(--bc-muted)]">Team</dt><dd className="font-medium">{preferredTeamSize} os.</dd></div>
-                  <div className="flex justify-between gap-4"><dt className="text-[var(--bc-muted)]">Cel</dt><dd className="max-w-[180px] text-right font-medium">{HACKATHON_GOAL_LABELS[goal]}</dd></div>
-                  <div className="flex justify-between gap-4"><dt className="text-[var(--bc-muted)]">Dostępność</dt><dd className="max-w-[180px] text-right font-medium">{HACKATHON_AVAILABILITY_LABELS[availability]}</dd></div>
-                </dl>
-                <p className="mt-4 text-[11px] leading-4 text-[var(--bc-faint)]">To nie zapisuje Cię na oficjalny hackathon. BuildCrew służy tylko do znalezienia ludzi.</p>
-              </div>
-            </div>
-          ) : null}
+          {step === 0 ? <div><p className="text-[14px] font-semibold">{copy("Jaka jest Twoja główna rola?", "What's your main role?")}</p><p className="mt-1 text-[12px] text-[var(--bc-muted)]">{copy("Wybierz to, co realnie chcesz robić podczas hackathonu.", "Choose what you actually want to work on during the hackathon.")}</p><div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{ROLES.map((item) => <button key={item} type="button" onClick={() => setRole(item)} className={cn("flex min-h-11 items-center justify-between rounded-[6px] border px-3 py-2.5 text-left text-[13px] font-medium transition-colors", role === item ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)] bg-[var(--bc-surface)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]")}><span>{labels.roles[item]}</span>{role === item ? <Check className="h-3.5 w-3.5" /> : null}</button>)}</div><div className="mt-5 max-w-[320px]"><Label>{copy("Preferowany rozmiar teamu", "Preferred team size")}</Label><select value={preferredTeamSize} onChange={(e) => setPreferredTeamSize(Number(e.target.value))} className="mt-1.5 h-10 w-full rounded-[6px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-3 text-sm">{Array.from({ length: maxTeamSize - minTeamSize + 1 }, (_, index) => minTeamSize + index).map((size) => <option key={size} value={size}>{size} {locale === "en" ? (size === 1 ? "person" : "people") : "osoby"}</option>)}</select></div></div> : null}
+          {step === 1 ? <div><div className="max-w-[760px]"><Label>{copy("Technologie i narzędzia, z którymi chcesz pracować", "Technologies and tools you want to work with")}</Label><Input className="mt-1.5" value={technologies} onChange={(e) => setTechnologies(e.target.value)} placeholder="React, TypeScript, Python, Figma" /><p className="mt-1 text-[11px] text-[var(--bc-faint)]">{copy("Wystarczą 2–5 najważniejszych. Oddziel przecinkami.", "2–5 key items are enough. Separate them with commas.")}</p></div>{eventThemes.length ? <div className="mt-5"><Label>{copy("Co Cię interesuje w tym wydarzeniu?", "What are you interested in at this event?")}</Label><div className="mt-2 flex flex-wrap gap-2">{eventThemes.map((theme) => <button type="button" key={theme} onClick={() => toggleTheme(theme)} className={cn("rounded-[6px] border px-2.5 py-1.5 text-[12px] font-medium transition-colors", themes.includes(theme) ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:text-[var(--bc-ink)]")}>{theme}</button>)}</div></div> : null}</div> : null}
+          {step === 2 ? <div className="grid gap-6 md:grid-cols-2"><div><p className="text-[14px] font-semibold">{copy("Jak chcesz podejść do wydarzenia?", "How do you want to approach the event?")}</p><div className="mt-3 space-y-2">{GOALS.map((item) => <label key={item} className={cn("flex cursor-pointer items-start gap-3 rounded-[6px] border px-3 py-3 text-[13px]", goal === item ? "border-[var(--bc-line-strong)] bg-[var(--bc-surface-subtle)]" : "border-[var(--bc-line)]")}><input type="radio" className="mt-0.5" checked={goal === item} onChange={() => setGoal(item)} /><span>{labels.hackathonGoals[item]}</span></label>)}</div></div><div><p className="text-[14px] font-semibold">{copy("Ile czasu realnie masz?", "How much time do you realistically have?")}</p><div className="mt-3 space-y-2">{AVAILABILITY.map((item) => <label key={item} className={cn("flex cursor-pointer items-start gap-3 rounded-[6px] border px-3 py-3 text-[13px]", availability === item ? "border-[var(--bc-line-strong)] bg-[var(--bc-surface-subtle)]" : "border-[var(--bc-line)]")}><input type="radio" className="mt-0.5" checked={availability === item} onChange={() => setAvailability(item)} /><span>{labels.hackathonAvailability[item]}</span></label>)}</div></div></div> : null}
+          {step === 3 ? <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]"><div><p className="text-[14px] font-semibold">{copy("Masz już pomysł?", "Do you already have an idea?")}</p><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => setHasIdea(false)} className={cn("rounded-[6px] border px-3 py-2 text-[13px] font-medium", !hasIdea ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)]")}>{copy("Nie - jestem otwarty", "No - I'm open")}</button><button type="button" onClick={() => setHasIdea(true)} className={cn("rounded-[6px] border px-3 py-2 text-[13px] font-medium", hasIdea ? "border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-neutral-950" : "border-[var(--bc-line)]")}>{copy("Tak - mam kierunek", "Yes - I have a direction")}</button></div>{hasIdea ? <div className="mt-4"><Label>{copy("Pomysł w 1–2 zdaniach", "Idea in 1–2 sentences")}</Label><Textarea className="mt-1.5 min-h-24" value={ideaSummary} onChange={(e) => setIdeaSummary(e.target.value)} maxLength={360} placeholder={copy("Co chcesz spróbować zbudować?", "What would you like to try building?")} /></div> : <p className="mt-4 max-w-[580px] text-[13px] leading-5 text-[var(--bc-muted)]">{copy("To w porządku. Matching może połączyć Cię z osobami, które mają pomysł albo są otwarte na wspólne wymyślenie kierunku.", "That's fine. Matching can connect you with people who already have an idea or are open to finding a direction together.")}</p>}</div><div className="border-t border-[var(--bc-line)] pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0"><p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Podsumowanie", "Summary")}</p><dl className="mt-3 space-y-2 text-[13px]"><div className="flex justify-between gap-4"><dt className="text-[var(--bc-muted)]">{copy("Rola", "Role")}</dt><dd className="font-medium text-right">{labels.roles[role]}</dd></div><div className="flex justify-between gap-4"><dt className="text-[var(--bc-muted)]">Team</dt><dd className="font-medium">{preferredTeamSize}</dd></div><div className="flex justify-between gap-4"><dt className="text-[var(--bc-muted)]">{copy("Cel", "Goal")}</dt><dd className="max-w-[180px] text-right font-medium">{labels.hackathonGoals[goal]}</dd></div><div className="flex justify-between gap-4"><dt className="text-[var(--bc-muted)]">{copy("Dostępność", "Availability")}</dt><dd className="max-w-[180px] text-right font-medium">{labels.hackathonAvailability[availability]}</dd></div></dl><p className="mt-4 text-[11px] leading-4 text-[var(--bc-faint)]">{copy("To nie zapisuje Cię na oficjalny hackathon. BuildCrew służy tylko do znalezienia ludzi.", "This does not register you for the official hackathon. BuildCrew only helps you find people.")}</p></div></div> : null}
         </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--bc-line)] pt-4">
-          <Button type="button" variant="ghost" onClick={() => setStep((current) => Math.max(0, current - 1))} disabled={step === 0 || pending}>
-            <ArrowLeft className="h-3.5 w-3.5" /> Wstecz
-          </Button>
-          {step < 3 ? (
-            <Button type="button" onClick={next}>
-              Dalej <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          ) : (
-            <Button type="submit" disabled={pending}>
-              {pending ? "Zapisywanie…" : initial ? "Zapisz i pokaż dopasowania" : "Dołącz i pokaż dopasowania"}
-            </Button>
-          )}
-        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--bc-line)] pt-4"><Button type="button" variant="ghost" onClick={() => setStep((current) => Math.max(0, current - 1))} disabled={step === 0 || pending}><ArrowLeft className="h-3.5 w-3.5" /> {copy("Wstecz", "Back")}</Button>{step < 3 ? <Button type="button" onClick={next}>{copy("Dalej", "Next")} <ArrowRight className="h-3.5 w-3.5" /></Button> : <Button type="submit" disabled={pending}>{pending ? copy("Zapisywanie…", "Saving…") : initial ? copy("Zapisz i pokaż dopasowania", "Save and show matches") : copy("Dołącz i pokaż dopasowania", "Join and show matches")}</Button>}</div>
       </div>
     </form>
   );

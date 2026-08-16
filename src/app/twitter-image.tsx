@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "BuildCrew - znajdź ludzi i zbudujcie projekt";
+export const alt = "BuildCrew - find people and build together";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -27,16 +27,16 @@ export default function TwitterImage() {
 
         <div style={{ display: "flex", flexDirection: "column", maxWidth: "930px" }}>
           <div style={{ fontSize: "70px", lineHeight: 1.02, letterSpacing: "-3px", fontWeight: 700 }}>
-            Znajdź ludzi. Zróbcie projekt.
+            Find people. Build together.
           </div>
           <div style={{ marginTop: "26px", fontSize: "26px", lineHeight: 1.4, color: "#5F5F5A" }}>
-            Projekty do portfolio, side-projecty i ludzie do wspólnego budowania.
+            Projects, side projects and people ready to build.
           </div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #CFCFC7", paddingTop: "22px", fontSize: "20px", color: "#6F6F69" }}>
-          <span>Programowanie · Design · Product</span>
-          <span>buildcreww.pl</span>
+          <span>Engineering · Design · Product</span>
+          <span>buildcreww.com</span>
         </div>
       </div>
     ),

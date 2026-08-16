@@ -6,7 +6,10 @@ import { safeInternalRedirect } from "@/lib/redirects";
 import { loginAction } from "@/server/actions/auth";
 import { getRequestLocale } from "@/lib/site-server";
 
-export const metadata: Metadata = { title: "Zaloguj się - BuildCrew" };
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return { title: locale === "en" ? "Log in - BuildCrew" : "Zaloguj się - BuildCrew" };
+}
 
 const GOOGLE_ERRORS: Record<string, string> = {
   "access-denied": "Logowanie przez Google zostało anulowane.",

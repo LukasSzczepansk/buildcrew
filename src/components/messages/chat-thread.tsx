@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 
 type ChatMessage = {
   id: string;
@@ -71,7 +72,7 @@ export function ChatThread({
       });
       const payload = await response.json() as { message?: ChatMessage; error?: string };
       if (!response.ok || !payload.message) {
-        toast.error(payload.error ?? copy("Nie udało się wysłać wiadomości.", "Could not send the message."));
+        toast.error(payload.error ? appMessage(payload.error, locale, "Could not send the message.") : copy("Nie udało się wysłać wiadomości.", "Could not send the message."));
         return;
       }
       setMessages((current) => current.some((item) => item.id === payload.message!.id) ? current : [...current, payload.message!]);

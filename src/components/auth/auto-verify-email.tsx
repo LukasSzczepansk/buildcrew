@@ -5,10 +5,12 @@ import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { AuthFormState } from "@/server/actions/auth";
 import { verifyEmailAction } from "@/server/actions/auth";
-import { useCopy } from "@/components/i18n/locale-provider";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 
 export function AutoVerifyEmail({ token, nextPath }: { token: string; nextPath?: string }) {
   const copy = useCopy();
+  const locale = useLocale();
   const [state, action, pending] = useActionState<AuthFormState, FormData>(verifyEmailAction, {});
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -34,7 +36,7 @@ export function AutoVerifyEmail({ token, nextPath }: { token: string; nextPath?:
 
       {state.error ? (
         <div className="space-y-3">
-          <p className="text-sm leading-5 text-red-600 dark:text-red-400">{state.error}</p>
+          <p className="text-sm leading-5 text-red-600 dark:text-red-400">{appMessage(state.error, locale)}</p>
           <Button type="submit" className="w-full" disabled={pending}>
             {copy("Spróbuj ponownie", "Try again")}
           </Button>

@@ -11,7 +11,7 @@ import { useCopy } from "@/components/i18n/locale-provider";
 export type FilterOption = { value: string; label: string };
 export type FilterDef = { key: string; label: string; options: FilterOption[] };
 
-export function FilterBar({ filters, showSearch, searchPlaceholder = "Szukaj…" }: { filters: FilterDef[]; showSearch?: boolean; searchPlaceholder?: string }) {
+export function FilterBar({ filters, showSearch, searchPlaceholder }: { filters: FilterDef[]; showSearch?: boolean; searchPlaceholder?: string }) {
   const router = useRouter();
   const copy = useCopy();
   const searchParams = useSearchParams();
@@ -49,7 +49,7 @@ export function FilterBar({ filters, showSearch, searchPlaceholder = "Szukaj…"
           <div className="relative w-full xl:max-w-[340px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bc-faint)]" />
             <Input
-              placeholder={searchPlaceholder}
+              placeholder={searchPlaceholder ?? copy("Szukaj…", "Search…")}
               defaultValue={searchParams.get("q") ?? ""}
               className="h-10 bg-[var(--bc-surface)] pl-9 text-sm"
               onKeyDown={(event) => { if (event.key === "Enter") setParam("q", (event.target as HTMLInputElement).value || null); }}

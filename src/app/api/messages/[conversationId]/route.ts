@@ -88,9 +88,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
         entityId: conversationId,
         emailPreference: "emailMessages",
         emailCtaLabel: "Otwórz rozmowę",
+        emailCtaLabelEn: "Open conversation",
         emailDelayMinutes: 15,
+        titleEn: `${senderName} sent you a message`,
+        bodyEn: preview,
         emailTitle: `Masz nowe wiadomości od ${senderName}`,
+        emailTitleEn: `You have new messages from ${senderName}`,
         emailIntro: "Wiadomości są nadal nieprzeczytane. Otwórz rozmowę w BuildCrew, żeby odpowiedzieć.",
+        emailIntroEn: "Your messages are still unread. Open the conversation in BuildCrew to reply.",
       },
     );
   }

@@ -6,7 +6,8 @@ import { Check, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { AuthFormState } from "@/server/actions/auth";
 import { logoutAction, resendVerificationAction } from "@/server/actions/auth";
-import { useCopy } from "@/components/i18n/locale-provider";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 
 type VerificationStatus = {
   authenticated?: boolean;
@@ -23,6 +24,7 @@ export function VerificationWaitingRoom({
 }) {
   const router = useRouter();
   const copy = useCopy();
+  const locale = useLocale();
   const [verified, setVerified] = useState(false);
   const [checking, setChecking] = useState(true);
   const [cooldown, setCooldown] = useState(initialCooldown ? 60 : 0);
@@ -152,8 +154,8 @@ export function VerificationWaitingRoom({
           </Button>
         </form>
 
-        {state.error ? <p className="text-[13px] leading-5 text-red-600 dark:text-red-400">{state.error}</p> : null}
-        {state.success ? <p className="text-[13px] leading-5 text-[#2F7D4A] dark:text-lime-300">{state.success}</p> : null}
+        {state.error ? <p className="text-[13px] leading-5 text-red-600 dark:text-red-400">{appMessage(state.error, locale)}</p> : null}
+        {state.success ? <p className="text-[13px] leading-5 text-[#2F7D4A] dark:text-lime-300">{appMessage(state.success, locale, "Done.")}</p> : null}
 
         <p className="text-[13px] leading-5 text-[var(--bc-faint)]">
           {copy("Nie widzisz wiadomości? Sprawdź folder Spam lub Oferty.", "Can’t find the message? Check your Spam or Promotions folder.")}
