@@ -29,6 +29,7 @@ import {
 import { absoluteUrl, buildCrewEmail, sendTransactionalEmail } from "@/lib/email";
 import { checkRateLimit, getRequestIp, randomSixDigitCode, randomToken, sha256 } from "@/lib/security";
 import { safeInternalRedirect } from "@/lib/redirects";
+import { getRequestLocale, getRequestOrigin } from "@/lib/site-server";
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -51,32 +52,58 @@ function isUniqueViolation(error: unknown) {
 }
 
 async function issueVerificationEmail(userId: string, email: string, nextPath?: string) {
+  const [locale, baseUrl] = await Promise.all([getRequestLocale(), getRequestOrigin()]);
   const token = randomToken(32);
   const tokenHash = sha256(token);
   const expiresAt = new Date(Date.now() + VERIFY_TTL_MS);
   await db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, userId));
   await db.insert(emailVerificationTokens).values({ userId, tokenHash, expiresAt });
-  const link = absoluteUrl(`/verify-email?token=${encodeURIComponent(token)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`);
+  const verifyPath = `/verify-email?token=${encodeURIComponent(token)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`;
+  const link = absoluteUrl(verifyPath, baseUrl);
   return sendTransactionalEmail({
     to: email,
-    subject: "Potwierdź e-mail w BuildCrew",
-    html: buildCrewEmail({ eyebrow: "Bezpieczeństwo konta", title: "Potwierdź swój e-mail", intro: "Potwierdź adres, aby korzystać z BuildCrew.", ctaLabel: "Potwierdź e-mail", ctaHref: `/verify-email?token=${encodeURIComponent(token)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`, footer: "Link wygasa po 24 godzinach. Jeśli to nie Ty zakładałeś konto, możesz zignorować tę wiadomość." }),
-    devPreview: `Link weryfikacyjny: ${link}`,
+    subject: locale === "en" ? "Confirm your BuildCrew email" : "Potwierdź e-mail w BuildCrew",
+    html: buildCrewEmail({
+      locale,
+      baseUrl,
+      eyebrow: locale === "en" ? "Account security" : "Bezpieczeństwo konta",
+      title: locale === "en" ? "Confirm your email" : "Potwierdź swój e-mail",
+      intro: locale === "en" ? "Confirm your address to start using BuildCrew." : "Potwierdź adres, aby korzystać z BuildCrew.",
+      ctaLabel: locale === "en" ? "Confirm email" : "Potwierdź e-mail",
+      ctaHref: verifyPath,
+      footer: locale === "en"
+        ? "This link expires in 24 hours. If you did not create this account, you can ignore this message."
+        : "Link wygasa po 24 godzinach. Jeśli to nie Ty zakładałeś konto, możesz zignorować tę wiadomość.",
+    }),
+    devPreview: `${locale === "en" ? "Verification link" : "Link weryfikacyjny"}: ${link}`,
   });
 }
 
 async function issuePasswordResetEmail(userId: string, email: string) {
+  const [locale, baseUrl] = await Promise.all([getRequestLocale(), getRequestOrigin()]);
   const token = randomToken(32);
   const tokenHash = sha256(token);
   const expiresAt = new Date(Date.now() + RESET_TTL_MS);
   await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, userId));
   await db.insert(passwordResetTokens).values({ userId, tokenHash, expiresAt });
-  const link = absoluteUrl(`/reset-password?token=${encodeURIComponent(token)}`);
+  const resetPath = `/reset-password?token=${encodeURIComponent(token)}`;
+  const link = absoluteUrl(resetPath, baseUrl);
   return sendTransactionalEmail({
     to: email,
-    subject: "Reset hasła BuildCrew",
-    html: buildCrewEmail({ eyebrow: "Bezpieczeństwo konta", title: "Ustaw nowe hasło", intro: "Otrzymaliśmy prośbę o zmianę hasła do Twojego konta.", ctaLabel: "Ustaw nowe hasło", ctaHref: `/reset-password?token=${encodeURIComponent(token)}`, footer: "Link wygasa po 30 minutach. Jeśli to nie Ty wysłałeś prośbę, zignoruj tę wiadomość." }),
-    devPreview: `Link resetu hasła: ${link}`,
+    subject: locale === "en" ? "Reset your BuildCrew password" : "Reset hasła BuildCrew",
+    html: buildCrewEmail({
+      locale,
+      baseUrl,
+      eyebrow: locale === "en" ? "Account security" : "Bezpieczeństwo konta",
+      title: locale === "en" ? "Set a new password" : "Ustaw nowe hasło",
+      intro: locale === "en" ? "We received a request to change the password for your account." : "Otrzymaliśmy prośbę o zmianę hasła do Twojego konta.",
+      ctaLabel: locale === "en" ? "Set new password" : "Ustaw nowe hasło",
+      ctaHref: resetPath,
+      footer: locale === "en"
+        ? "This link expires in 30 minutes. If you did not request a password reset, ignore this message."
+        : "Link wygasa po 30 minutach. Jeśli to nie Ty wysłałeś prośbę, zignoruj tę wiadomość.",
+    }),
+    devPreview: `${locale === "en" ? "Password reset link" : "Link resetu hasła"}: ${link}`,
   });
 }
 

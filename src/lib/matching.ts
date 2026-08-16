@@ -1,4 +1,6 @@
-import { LEVEL_ORDER, ROLE_LABELS } from "@/lib/constants";
+import { LEVEL_ORDER } from "@/lib/constants";
+import { labelsFor } from "@/lib/constants-i18n";
+import type { AppLocale } from "@/lib/site-config";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
 export type MatchableProfile = {
@@ -37,17 +39,21 @@ export type MatchResult = {
   reasons: string[];
 };
 
-export function computeMatch(me: MatchableProfile, other: MatchableProfile): MatchResult {
+export function computeMatch(me: MatchableProfile, other: MatchableProfile, locale: AppLocale = "pl"): MatchResult {
+  const labels = labelsFor(locale);
+  const en = locale === "en";
   let score = 0;
   const reasons: string[] = [];
 
   if (rolesComplementary(me.role, other.role)) {
     score += 30;
     reasons.push(
-      `${other.role ? ROLE_LABELS[other.role] : "Ich rola"} uzupełnia Twoją (${me.role ? ROLE_LABELS[me.role] : "brak"})`,
+      en
+        ? `${other.role ? labels.roles[other.role] : "Their role"} complements yours (${me.role ? labels.roles[me.role] : "not set"})`
+        : `${other.role ? labels.roles[other.role] : "Ich rola"} uzupełnia Twoją (${me.role ? labels.roles[me.role] : "brak"})`,
     );
   } else if (me.role && other.role && me.role === other.role) {
-    reasons.push(`Oboje jesteście ${ROLE_LABELS[me.role]} - możecie się wspierać`);
+    reasons.push(en ? `You are both ${labels.roles[me.role]} - you can support each other` : `Oboje jesteście ${labels.roles[me.role]} - możecie się wspierać`);
     score += 8;
   }
 
@@ -55,25 +61,25 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile): Mat
   if (sharedInterests.length > 0) {
     const interestScore = Math.min(25, sharedInterests.length * 10);
     score += interestScore;
-    reasons.push(`Oboje interesujecie się ${sharedInterests.slice(0, 2).join(", ")}`);
+    reasons.push(en ? `You’re both interested in ${sharedInterests.slice(0, 2).join(", ")}` : `Oboje interesujecie się ${sharedInterests.slice(0, 2).join(", ")}`);
   }
 
   if (me.weeklyHours && other.weeklyHours && me.weeklyHours === other.weeklyHours) {
     score += 15;
-    reasons.push(`Oboje macie ${other.weeklyHours}h tygodniowo`);
+    reasons.push(en ? `You both have ${labels.commitments[other.weeklyHours]}` : `Oboje macie ${other.weeklyHours}h tygodniowo`);
   }
 
   const sharedGoals = me.goals.filter((g) => other.goals.includes(g));
   if (sharedGoals.length > 0) {
     score += 15;
-    reasons.push(`Podobny cel: ${sharedGoals[0].toLowerCase()}`);
+    reasons.push(en ? `Similar goal: ${labels.goals[sharedGoals[0]].toLowerCase()}` : `Podobny cel: ${labels.goals[sharedGoals[0]].toLowerCase()}`);
   }
 
   if (me.level && other.level) {
     const diff = Math.abs(LEVEL_ORDER[me.level] - LEVEL_ORDER[other.level]);
     if (diff <= 1) {
       score += 15;
-      reasons.push("Podobny poziom doświadczenia");
+      reasons.push(en ? "Similar experience level" : "Podobny poziom doświadczenia");
     }
   }
 

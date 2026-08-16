@@ -5,14 +5,18 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { followProject, unfollowProject } from "@/server/actions/social-projects";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 
 export function ProjectFollowButton({ projectId, initialFollowing, initialFollowers = 0, owner = false, compact = false }: { projectId: string; initialFollowing: boolean; initialFollowers?: number; owner?: boolean; compact?: boolean }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const en = locale === "en";
   const [following, setFollowing] = React.useState(initialFollowing);
   const [followers, setFollowers] = React.useState(initialFollowers);
   const [pending, startTransition] = React.useTransition();
 
   if (owner) {
-    return <span className="inline-flex h-9 items-center gap-1.5 text-[12px] text-[var(--bc-muted)]"><Eye className="h-3.5 w-3.5" />{followers} {followers === 1 ? "obserwujący" : "obserwujących"}</span>;
+    return <span className="inline-flex h-9 items-center gap-1.5 text-[12px] text-[var(--bc-muted)]"><Eye className="h-3.5 w-3.5" />{followers} {en ? (followers === 1 ? "follower" : "followers") : (followers === 1 ? "obserwujący" : "obserwujących")}</span>;
   }
 
   function toggle() {
@@ -27,14 +31,14 @@ export function ProjectFollowButton({ projectId, initialFollowing, initialFollow
         toast.error(result.error);
         return;
       }
-      toast.success(next ? "Obserwujesz projekt." : "Przestałeś obserwować projekt.");
+      toast.success(next ? copy("Obserwujesz projekt.", "You are following this project.") : copy("Przestałeś obserwować projekt.", "You stopped following this project."));
     });
   }
 
   return (
     <Button type="button" variant={following ? "secondary" : "outline"} size={compact ? "sm" : "default"} onClick={toggle} disabled={pending} className="gap-1.5">
       {following ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-      {following ? "Obserwujesz" : "Obserwuj"}
+      {following ? copy("Obserwujesz", "Following") : copy("Obserwuj", "Follow")}
       <span className="text-[11px] tabular-nums opacity-65">{followers}</span>
     </Button>
   );

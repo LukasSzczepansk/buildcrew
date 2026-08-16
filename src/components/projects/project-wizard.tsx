@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { labelsFor } from "@/lib/constants-i18n";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -147,6 +149,8 @@ export function ProjectWizard({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const locale = useLocale();
+  const copy = useCopy();
   const crewId = searchParams.get("crewId") ?? undefined;
   const storageKey = `${DRAFT_KEY_PREFIX}:${draftKey}${sourceIdeaId ? `:idea:${sourceIdeaId}` : ""}`;
   const initialForm: FormState = {
@@ -232,13 +236,13 @@ export function ProjectWizard({
 
   const qualityHints = React.useMemo(() => {
     const hints: string[] = [];
-    if (!form.ownerContribution.trim()) hints.push("Dodaj krótko, za co odpowiadasz jako autor projektu.");
-    if (!form.existingAssets.length) hints.push("Zaznacz, co już istnieje - ułatwia ocenę, czy projekt żyje.");
-    if (!form.repositoryUrl && !form.demoUrl && !form.designUrl) hints.push("Jeśli możesz, dodaj repo, demo albo projekt w Figmie.");
-    if (form.roles.some((role) => !role.description.trim())) hints.push("Dopisz zakres odpowiedzialności przynajmniej do najważniejszej roli.");
-    if (form.roles.some((role) => role.skills.length === 0)) hints.push("Dodaj technologie lub umiejętności do ról, żeby poprawić przyszłe dopasowania.");
+    if (!form.ownerContribution.trim()) hints.push(copy("Dodaj krótko, za co odpowiadasz jako autor projektu.", "Briefly describe what you are responsible for as the project owner."));
+    if (!form.existingAssets.length) hints.push(copy("Zaznacz, co już istnieje - ułatwia ocenę, czy projekt żyje.", "Mark what already exists - it helps people see that the project is real and active."));
+    if (!form.repositoryUrl && !form.demoUrl && !form.designUrl) hints.push(copy("Jeśli możesz, dodaj repo, demo albo projekt w Figmie.", "If possible, add a repository, demo or Figma design."));
+    if (form.roles.some((role) => !role.description.trim())) hints.push(copy("Dopisz zakres odpowiedzialności przynajmniej do najważniejszej roli.", "Add responsibilities for at least the most important open role."));
+    if (form.roles.some((role) => role.skills.length === 0)) hints.push(copy("Dodaj technologie lub umiejętności do ról, żeby poprawić przyszłe dopasowania.", "Add technologies or skills to open roles to improve future matching."));
     return hints;
-  }, [form]);
+  }, [form, copy]);
 
   function updateRole(index: number, patch: Partial<RoleDraft>) {
     setForm((current) => ({
@@ -256,7 +260,7 @@ export function ProjectWizard({
   }
 
   function clearDraft() {
-    if (hasUsefulDraft(form) && !window.confirm("Wyczyścić cały zapisany szkic projektu?")) return;
+    if (hasUsefulDraft(form) && !window.confirm(copy("Wyczyścić cały zapisany szkic projektu?", "Clear the entire saved project draft?"))) return;
     window.localStorage.removeItem(storageKey);
     setForm(initialForm);
     setStep(1);
@@ -294,7 +298,7 @@ export function ProjectWizard({
       character: form.character,
       crewId,
       sourceIdeaId,
-    }).catch(() => ({ error: "Nie udało się utworzyć projektu." }));
+    }).catch(() => ({ error: copy("Nie udało się utworzyć projektu.", "Could not create the project.") }));
     setPending(false);
 
     if ("error" in result && result.error) {
@@ -304,7 +308,7 @@ export function ProjectWizard({
 
     if ("projectId" in result && result.projectId) {
       window.localStorage.removeItem(storageKey);
-      toast.success("Projekt został opublikowany.");
+      toast.success(copy("Projekt został opublikowany.", "Project published."));
       router.push(`/projects/${result.projectId}?created=1`);
       router.refresh();
     }
@@ -329,7 +333,7 @@ export function ProjectWizard({
     <div className="mx-auto w-full max-w-[900px] pb-16">
       <div className="border-y border-[var(--bc-line)]">
         <div className="flex min-w-max overflow-x-auto">
-          {STEP_LABELS.map((label, index) => {
+          {(locale === "en" ? ["Basics", "Project", "Team", "Collaboration", "Preview"] : STEP_LABELS).map((label, index) => {
             const currentStep = index + 1;
             const active = currentStep === step;
             const done = currentStep < step;
@@ -353,16 +357,16 @@ export function ProjectWizard({
       <div className="mt-4 flex min-h-5 items-center justify-between gap-4 text-[12px] text-[var(--bc-faint)]">
         <span>
           {draftState === "restored"
-            ? "Przywrócono szkic zapisany na tym urządzeniu."
+            ? copy("Przywrócono szkic zapisany na tym urządzeniu.", "Restored a draft saved on this device.")
             : draftState === "saving"
-              ? "Zapisywanie szkicu…"
+              ? copy("Zapisywanie szkicu…", "Saving draft…")
               : draftState === "saved"
-                ? "Szkic zapisany lokalnie."
-                : "Szkic zapisuje się automatycznie na tym urządzeniu."}
+                ? copy("Szkic zapisany lokalnie.", "Draft saved locally.")
+                : copy("Szkic zapisuje się automatycznie na tym urządzeniu.", "Draft saves automatically on this device.")}
         </span>
         {hasUsefulDraft(form) ? (
           <button type="button" onClick={clearDraft} className="shrink-0 text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">
-            Wyczyść szkic
+            {copy("Wyczyść szkic", "Clear draft")}
           </button>
         ) : null}
       </div>
@@ -377,12 +381,12 @@ export function ProjectWizard({
 
       <div className="mt-10 flex items-center justify-between border-t border-[var(--bc-line)] pt-5">
         <Button type="button" variant="ghost" onClick={back} disabled={step === 1 || pending}>
-          Wstecz
+          {copy("Wstecz", "Back")}
         </Button>
         <div className="flex items-center gap-3">
-          {!canProceed && step < TOTAL_STEPS ? <span className="hidden text-[12px] text-[var(--bc-faint)] sm:inline">Uzupełnij wymagane pola.</span> : null}
+          {!canProceed && step < TOTAL_STEPS ? <span className="hidden text-[12px] text-[var(--bc-faint)] sm:inline">{copy("Uzupełnij wymagane pola.", "Complete the required fields.")}</span> : null}
           <Button type="button" onClick={next} disabled={!canProceed || pending}>
-            {pending ? "Publikowanie…" : step === TOTAL_STEPS ? "Opublikuj projekt" : "Dalej"}
+            {pending ? copy("Publikowanie…", "Publishing…") : step === TOTAL_STEPS ? copy("Opublikuj projekt", "Publish project") : copy("Dalej", "Next")}
           </Button>
         </div>
       </div>
@@ -391,48 +395,51 @@ export function ProjectWizard({
 }
 
 function BasicsStep({ form, setForm }: { form: FormState; setForm: React.Dispatch<React.SetStateAction<FormState>> }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   return (
     <StepShell
-      eyebrow="01 / Podstawy"
-      title="Najpierw powiedz, co właściwie budujecie."
-      subtitle="To są informacje, które ludzie zobaczą jako pierwsze na liście projektów."
+      eyebrow={copy("01 / Podstawy", "01 / Basics")}
+      title={copy("Najpierw powiedz, co właściwie budujecie.", "First, tell people what you’re actually building.")}
+      subtitle={copy("To są informacje, które ludzie zobaczą jako pierwsze na liście projektów.", "These are the first details people will see in project discovery.")}
     >
-      <Field label="Nazwa projektu" required hint={`${form.name.length}/60`}>
+      <Field label={copy("Nazwa projektu", "Project name")} required hint={`${form.name.length}/60`}>
         <Input
           value={form.name}
           onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-          placeholder="np. Splitly"
+          placeholder={copy("np. Splitly", "e.g. Splitly")}
           maxLength={60}
           autoFocus
         />
       </Field>
 
-      <Field label="Jedno zdanie o projekcie" required hint={`${form.tagline.length}/120`}>
+      <Field label={copy("Jedno zdanie o projekcie", "One sentence about the project")} required hint={`${form.tagline.length}/120`}>
         <Input
           value={form.tagline}
           onChange={(event) => setForm((current) => ({ ...current, tagline: event.target.value }))}
-          placeholder="np. Prosty podział wspólnych wydatków bez arkuszy."
+          placeholder={copy("np. Prosty podział wspólnych wydatków bez arkuszy.", "e.g. Split shared expenses without spreadsheets.")}
           maxLength={120}
         />
       </Field>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Typ projektu" required>
+        <Field label={copy("Typ projektu", "Project type")} required>
           <Select value={form.projectType || undefined} onValueChange={(value) => setForm((current) => ({ ...current, projectType: value as ProjectType }))}>
-            <SelectTrigger><SelectValue placeholder="Wybierz typ" /></SelectTrigger>
-            <SelectContent>{PROJECT_TYPE_OPTIONS.map((type) => <SelectItem key={type} value={type}>{PROJECT_TYPE_LABELS[type]}</SelectItem>)}</SelectContent>
+            <SelectTrigger><SelectValue placeholder={copy("Wybierz typ", "Choose a type")} /></SelectTrigger>
+            <SelectContent>{PROJECT_TYPE_OPTIONS.map((type) => <SelectItem key={type} value={type}>{labels.projectTypes[type]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
 
-        <Field label="Etap" required>
+        <Field label={copy("Etap", "Stage")} required>
           <Select value={form.stage || undefined} onValueChange={(value) => setForm((current) => ({ ...current, stage: value as Stage }))}>
-            <SelectTrigger><SelectValue placeholder="Wybierz etap" /></SelectTrigger>
-            <SelectContent>{STAGE_OPTIONS.map((stage) => <SelectItem key={stage} value={stage}>{STAGE_LABELS[stage]}</SelectItem>)}</SelectContent>
+            <SelectTrigger><SelectValue placeholder={copy("Wybierz etap", "Choose a stage")} /></SelectTrigger>
+            <SelectContent>{STAGE_OPTIONS.map((stage) => <SelectItem key={stage} value={stage}>{labels.stages[stage]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
       </div>
 
-      <Field label="Obszary" required description="Wybierz 1–5 tematów. Pomagają w discovery i przyszłych dopasowaniach.">
+      <Field label={copy("Obszary", "Areas")} required description={copy("Wybierz 1–5 tematów. Pomagają w discovery i przyszłych dopasowaniach.", "Choose 1–5 topics. They help discovery and future matching.")}>
         <div className="flex flex-wrap gap-2">
           {INTEREST_OPTIONS.map((interest) => (
             <ToggleButton
@@ -451,32 +458,35 @@ function BasicsStep({ form, setForm }: { form: FormState; setForm: React.Dispatc
 }
 
 function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispatch<React.SetStateAction<FormState>> }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   return (
     <StepShell
-      eyebrow="02 / Projekt"
-      title="Pokaż stan projektu, nie tylko pomysł."
-      subtitle="Im więcej konkretu, tym łatwiej komuś zdecydować, czy chce poświęcić czas na rozmowę."
+      eyebrow={copy("02 / Projekt", "02 / Project")}
+      title={copy("Pokaż stan projektu, nie tylko pomysł.", "Show the state of the project, not just the idea.")}
+      subtitle={copy("Im więcej konkretu, tym łatwiej komuś zdecydować, czy chce poświęcić czas na rozmowę.", "The more concrete the project is, the easier it is for someone to decide whether it’s worth a conversation.")}
     >
-      <Field label="Opis" required hint={`${form.description.length}/2400`} description="Jaki problem rozwiązujecie, dla kogo i co chcecie zbudować w pierwszej wersji?">
+      <Field label={copy("Opis", "Description")} required hint={`${form.description.length}/2400`} description={copy("Jaki problem rozwiązujecie, dla kogo i co chcecie zbudować w pierwszej wersji?", "What problem are you solving, for whom, and what do you want to build first?")}>
         <Textarea
           value={form.description}
           onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-          placeholder="Opisz problem, odbiorcę i najważniejszy zakres pierwszej wersji…"
+          placeholder={copy("Opisz problem, odbiorcę i najważniejszy zakres pierwszej wersji…", "Describe the problem, target user and the core scope of the first version…")}
           rows={7}
           maxLength={2400}
         />
       </Field>
 
-      <Field label="Stack projektu" required description="To technologie używane przez projekt jako całość. Wymagania konkretnej roli dodasz w następnym kroku.">
+      <Field label={copy("Stack projektu", "Project stack")} required description={copy("To technologie używane przez projekt jako całość. Wymagania konkretnej roli dodasz w następnym kroku.", "These are technologies used by the project as a whole. You’ll add role-specific requirements in the next step.")}>
         <TechnologyPicker
           values={form.technologies}
           onChange={(values) => setForm((current) => ({ ...current, technologies: values }))}
-          placeholder="Szukaj np. React, Supabase, Figma…"
+          placeholder={copy("Szukaj np. React, Supabase, Figma…", "Search e.g. React, Supabase, Figma…")}
           max={15}
         />
       </Field>
 
-      <Field label="Co już istnieje?" description="Zaznacz realny stan. Nie musisz mieć MVP, żeby opublikować projekt.">
+      <Field label={copy("Co już istnieje?", "What already exists?")} description={copy("Zaznacz realny stan. Nie musisz mieć MVP, żeby opublikować projekt.", "Mark the real current state. You don’t need an MVP to publish a project.")}>
         <div className="grid gap-px overflow-hidden border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-2">
           {PROJECT_ASSET_OPTIONS.map((asset) => {
             const active = form.existingAssets.includes(asset);
@@ -491,7 +501,7 @@ function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispat
                   active && "font-medium text-[var(--bc-ink)]",
                 )}
               >
-                <span>{PROJECT_ASSET_LABELS[asset]}</span>
+                <span>{labels.projectAssets[asset]}</span>
                 <span className={cn("h-2 w-2 rounded-full border border-[var(--bc-line-strong)]", active && "border-[var(--bc-accent)] bg-[var(--bc-accent)]")} />
               </button>
             );
@@ -499,20 +509,20 @@ function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispat
         </div>
       </Field>
 
-      <Field label="Najbliższy cel" required hint={`${form.goal.length}/240`} description="Jedna konkretna rzecz, którą chcecie dowieźć jako następną.">
+      <Field label={copy("Najbliższy cel", "Next goal")} required hint={`${form.goal.length}/240`} description={copy("Jedna konkretna rzecz, którą chcecie dowieźć jako następną.", "One concrete thing you want to deliver next.")}>
         <Input
           value={form.goal}
           onChange={(event) => setForm((current) => ({ ...current, goal: event.target.value }))}
-          placeholder="np. Wypuścić MVP i zebrać feedback od pierwszych 20 użytkowników."
+          placeholder={copy("np. Wypuścić MVP i zebrać feedback od pierwszych 20 użytkowników.", "e.g. Launch the MVP and collect feedback from the first 20 users.")}
           maxLength={240}
         />
       </Field>
 
-      <Field label="Twój wkład" hint={`${form.ownerContribution.length}/400`} description="Opcjonalne, ale pomaga zrozumieć, czego nie szukasz u innych.">
+      <Field label={copy("Twój wkład", "Your contribution")} hint={`${form.ownerContribution.length}/400`} description={copy("Opcjonalne, ale pomaga zrozumieć, czego nie szukasz u innych.", "Optional, but it helps others understand what you’re already covering.")}>
         <Textarea
           value={form.ownerContribution}
           onChange={(event) => setForm((current) => ({ ...current, ownerContribution: event.target.value }))}
-          placeholder="np. Backend, architektura i kontakt z pierwszymi użytkownikami."
+          placeholder={copy("np. Backend, architektura i kontakt z pierwszymi użytkownikami.", "e.g. Backend, architecture and talking to the first users.")}
           rows={3}
           maxLength={400}
         />
@@ -520,14 +530,14 @@ function ProjectStep({ form, setForm }: { form: FormState; setForm: React.Dispat
 
       <div>
         <div className="mb-3">
-          <Label className="text-sm font-medium">Linki</Label>
-          <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">Dodaj tylko to, co faktycznie istnieje. Wszystkie pola są opcjonalne.</p>
+          <Label className="text-sm font-medium">{copy("Linki", "Links")}</Label>
+          <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("Dodaj tylko to, co faktycznie istnieje. Wszystkie pola są opcjonalne.", "Only add links that actually exist. All fields are optional.")}</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <LinkField label="Repozytorium" value={form.repositoryUrl} onChange={(repositoryUrl) => setForm((current) => ({ ...current, repositoryUrl }))} placeholder="https://github.com/…" />
+          <LinkField label={copy("Repozytorium", "Repository")} value={form.repositoryUrl} onChange={(repositoryUrl) => setForm((current) => ({ ...current, repositoryUrl }))} placeholder="https://github.com/…" />
           <LinkField label="Demo / landing" value={form.demoUrl} onChange={(demoUrl) => setForm((current) => ({ ...current, demoUrl }))} placeholder="https://…" />
           <LinkField label="Design / Figma" value={form.designUrl} onChange={(designUrl) => setForm((current) => ({ ...current, designUrl }))} placeholder="https://figma.com/…" />
-          <LinkField label="Dokumentacja" value={form.docsUrl} onChange={(docsUrl) => setForm((current) => ({ ...current, docsUrl }))} placeholder="https://…" />
+          <LinkField label={copy("Dokumentacja", "Documentation")} value={form.docsUrl} onChange={(docsUrl) => setForm((current) => ({ ...current, docsUrl }))} placeholder="https://…" />
         </div>
       </div>
     </StepShell>
@@ -545,44 +555,47 @@ function CrewStep({
   addRole: () => void;
   removeRole: (index: number) => void;
 }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   return (
     <StepShell
-      eyebrow="03 / Ekipa"
-      title="Opisz osoby, których naprawdę potrzebujesz."
-      subtitle="Wymagania zapisane przy roli są bardziej użyteczne niż ogólny stack projektu."
+      eyebrow={copy("03 / Ekipa", "03 / Team")}
+      title={copy("Opisz osoby, których naprawdę potrzebujesz.", "Describe the people you actually need.")}
+      subtitle={copy("Wymagania zapisane przy roli są bardziej użyteczne niż ogólny stack projektu.", "Role-specific requirements are more useful than a generic project stack.")}
     >
       <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
         {form.roles.map((role, index) => (
           <div key={index} className="py-6 first:pt-5 last:pb-5">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold">Rola {index + 1}</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">Określ rolę, liczbę miejsc i konkretny zakres.</p>
+                <p className="text-sm font-semibold">{copy(`Rola ${index + 1}`, `Role ${index + 1}`)}</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{copy("Określ rolę, liczbę miejsc i konkretny zakres.", "Set the role, number of openings and a concrete scope.")}</p>
               </div>
               {form.roles.length > 1 ? (
-                <Button type="button" variant="ghost" size="sm" onClick={() => removeRole(index)} aria-label={`Usuń rolę ${index + 1}`}>
-                  <Trash2 className="h-3.5 w-3.5" /> Usuń
+                <Button type="button" variant="ghost" size="sm" onClick={() => removeRole(index)} aria-label={copy(`Usuń rolę ${index + 1}`, `Remove role ${index + 1}`)}>
+                  <Trash2 className="h-3.5 w-3.5" /> {copy("Usuń", "Remove")}
                 </Button>
               ) : null}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-[1fr_1fr_110px]">
-              <Field label="Rola" required compact>
+              <Field label={copy("Rola", "Role")} required compact>
                 <Select value={role.roleType || undefined} onValueChange={(value) => updateRole(index, { roleType: value as RoleType })}>
-                  <SelectTrigger><SelectValue placeholder="Wybierz rolę" /></SelectTrigger>
-                  <SelectContent>{ROLE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{ROLE_LABELS[option]}</SelectItem>)}</SelectContent>
+                  <SelectTrigger><SelectValue placeholder={copy("Wybierz rolę", "Choose a role")} /></SelectTrigger>
+                  <SelectContent>{ROLE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.roles[option]}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
-              <Field label="Poziom" compact>
+              <Field label={copy("Poziom", "Level")} compact>
                 <Select value={role.preferredLevel || "ANY"} onValueChange={(value) => updateRole(index, { preferredLevel: value === "ANY" ? "" : value as Level })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ANY">Dowolny</SelectItem>
-                    {LEVEL_OPTIONS.map((option) => <SelectItem key={option} value={option}>{LEVEL_LABELS[option]}</SelectItem>)}
+                    <SelectItem value="ANY">{copy("Dowolny", "Any")}</SelectItem>
+                    {LEVEL_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.levels[option]}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Miejsca" compact>
+              <Field label={copy("Miejsca", "Openings")} compact>
                 <Input
                   type="number"
                   min={1}
@@ -594,11 +607,11 @@ function CrewStep({
             </div>
 
             <div className="mt-4">
-              <Field label="Zakres odpowiedzialności" hint={`${role.description.length}/360`} compact>
+              <Field label={copy("Zakres odpowiedzialności", "Responsibilities")} hint={`${role.description.length}/360`} compact>
                 <Textarea
                   value={role.description}
                   onChange={(event) => updateRole(index, { description: event.target.value })}
-                  placeholder="np. Zbudowanie dashboardu, integracja z API i dopracowanie responsive."
+                  placeholder={copy("np. Zbudowanie dashboardu, integracja z API i dopracowanie responsive.", "e.g. Build the dashboard, integrate the API and polish responsive behavior.")}
                   rows={3}
                   maxLength={360}
                 />
@@ -606,11 +619,11 @@ function CrewStep({
             </div>
 
             <div className="mt-4">
-              <Field label="Umiejętności dla tej roli" description="Nie muszą być identyczne ze stackiem projektu." compact>
+              <Field label={copy("Umiejętności dla tej roli", "Skills for this role")} description={copy("Nie muszą być identyczne ze stackiem projektu.", "They don’t have to match the project stack exactly.")} compact>
                 <TechnologyPicker
                   values={role.skills}
                   onChange={(skills) => updateRole(index, { skills })}
-                  placeholder="np. React, TypeScript, UI Design…"
+                  placeholder={copy("np. React, TypeScript, UI Design…", "e.g. React, TypeScript, UI Design…")}
                   max={12}
                 />
               </Field>
@@ -620,50 +633,53 @@ function CrewStep({
       </div>
 
       <Button type="button" variant="outline" onClick={addRole} disabled={form.roles.length >= 8}>
-        <Plus className="h-4 w-4" /> Dodaj kolejną rolę
+        <Plus className="h-4 w-4" /> {copy("Dodaj kolejną rolę", "Add another role")}
       </Button>
     </StepShell>
   );
 }
 
 function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.Dispatch<React.SetStateAction<FormState>> }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   return (
     <StepShell
-      eyebrow="04 / Współpraca"
-      title="Ustal oczekiwania zanim zacznie się rozmowa."
-      subtitle="Te dane pomagają odsiać niedopasowania czasowe i organizacyjne."
+      eyebrow={copy("04 / Współpraca", "04 / Collaboration")}
+      title={copy("Ustal oczekiwania zanim zacznie się rozmowa.", "Set expectations before the conversation starts.")}
+      subtitle={copy("Te dane pomagają odsiać niedopasowania czasowe i organizacyjne.", "These details help filter out mismatches in time commitment and working style.")}
     >
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Zaangażowanie" required>
+        <Field label={copy("Zaangażowanie", "Commitment")} required>
           <Select value={form.commitment || undefined} onValueChange={(value) => setForm((current) => ({ ...current, commitment: value as Commitment }))}>
-            <SelectTrigger><SelectValue placeholder="Wybierz czas" /></SelectTrigger>
-            <SelectContent>{COMMITMENT_OPTIONS.map((option) => <SelectItem key={option} value={option}>{COMMITMENT_LABELS[option]}</SelectItem>)}</SelectContent>
+            <SelectTrigger><SelectValue placeholder={copy("Wybierz czas", "Choose time")} /></SelectTrigger>
+            <SelectContent>{COMMITMENT_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.commitments[option]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
 
-        <Field label="Tryb współpracy" required>
+        <Field label={copy("Tryb współpracy", "Collaboration mode")} required>
           <Select value={form.collaborationMode || undefined} onValueChange={(value) => setForm((current) => ({ ...current, collaborationMode: value as CollaborationMode }))}>
-            <SelectTrigger><SelectValue placeholder="Wybierz tryb" /></SelectTrigger>
-            <SelectContent>{COLLABORATION_MODE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{COLLABORATION_MODE_LABELS[option]}</SelectItem>)}</SelectContent>
+            <SelectTrigger><SelectValue placeholder={copy("Wybierz tryb", "Choose a mode")} /></SelectTrigger>
+            <SelectContent>{COLLABORATION_MODE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.collaborationModes[option]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
 
-        <Field label="Tempo" required>
+        <Field label={copy("Tempo", "Pace")} required>
           <Select value={form.collaborationPace || undefined} onValueChange={(value) => setForm((current) => ({ ...current, collaborationPace: value as CollaborationPace }))}>
-            <SelectTrigger><SelectValue placeholder="Wybierz tempo" /></SelectTrigger>
-            <SelectContent>{COLLABORATION_PACE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{COLLABORATION_PACE_LABELS[option]}</SelectItem>)}</SelectContent>
+            <SelectTrigger><SelectValue placeholder={copy("Wybierz tempo", "Choose a pace")} /></SelectTrigger>
+            <SelectContent>{COLLABORATION_PACE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.collaborationPaces[option]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
 
-        <Field label="Planowany horyzont" required>
+        <Field label={copy("Planowany horyzont", "Planned horizon")} required>
           <Select value={form.duration || undefined} onValueChange={(value) => setForm((current) => ({ ...current, duration: value as ProjectDuration }))}>
-            <SelectTrigger><SelectValue placeholder="Wybierz horyzont" /></SelectTrigger>
-            <SelectContent>{PROJECT_DURATION_OPTIONS.map((option) => <SelectItem key={option} value={option}>{PROJECT_DURATION_LABELS[option]}</SelectItem>)}</SelectContent>
+            <SelectTrigger><SelectValue placeholder={copy("Wybierz horyzont", "Choose a horizon")} /></SelectTrigger>
+            <SelectContent>{PROJECT_DURATION_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.durations[option]}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
       </div>
 
-      <Field label="Charakter projektu" required description="Wybierz maksymalnie 3. To opis intencji projektu, nie model prawny współpracy.">
+      <Field label={copy("Charakter projektu", "Project character")} required description={copy("Wybierz maksymalnie 3. To opis intencji projektu, nie model prawny współpracy.", "Choose up to 3. This describes the project’s intent, not the legal model of collaboration.")}>
         <div className="flex flex-wrap gap-2">
           {CHARACTER_OPTIONS.map((character) => (
             <ToggleButton
@@ -672,42 +688,45 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
               disabled={!form.character.includes(character) && form.character.length >= 3}
               onClick={() => setForm((current) => ({ ...current, character: toggleValue(current.character, character) }))}
             >
-              {CHARACTER_LABELS[character]}
+              {labels.characters[character]}
             </ToggleButton>
           ))}
         </div>
       </Field>
 
       <div className="border-l-2 border-[var(--bc-accent)] pl-4 text-[13px] leading-5 text-[var(--bc-muted)]">
-        BuildCrew pomaga znaleźć współtwórców. Ustalenia dotyczące wynagrodzenia, udziałów, praw do kodu i odpowiedzialności ustalacie bezpośrednio między sobą.
+        {copy("BuildCrew pomaga znaleźć współtwórców. Ustalenia dotyczące wynagrodzenia, udziałów, praw do kodu i odpowiedzialności ustalacie bezpośrednio między sobą.", "BuildCrew helps you find collaborators. Compensation, equity, code ownership and responsibilities are agreements you make directly with each other.")}
       </div>
     </StepShell>
   );
 }
 
 function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: string[] }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   return (
     <StepShell
-      eyebrow="05 / Podgląd"
-      title="Sprawdź, czy projekt mówi wystarczająco dużo."
-      subtitle="Po publikacji od razu przejdziesz do projektu i będziesz mógł go udostępnić."
+      eyebrow={copy("05 / Podgląd", "05 / Preview")}
+      title={copy("Sprawdź, czy projekt mówi wystarczająco dużo.", "Check whether the project says enough.")}
+      subtitle={copy("Po publikacji od razu przejdziesz do projektu i będziesz mógł go udostępnić.", "After publishing, you’ll go straight to the project and can share it immediately.")}
     >
       <div className="border-y border-[var(--bc-line)] py-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] uppercase tracking-[0.07em] text-[var(--bc-faint)]">
-          <span>{form.projectType ? PROJECT_TYPE_LABELS[form.projectType] : "Typ projektu"}</span>
+          <span>{form.projectType ? labels.projectTypes[form.projectType] : copy("Typ projektu", "Project type")}</span>
           <span>·</span>
-          <span>{form.stage ? STAGE_LABELS[form.stage] : "Etap"}</span>
+          <span>{form.stage ? labels.stages[form.stage] : copy("Etap", "Stage")}</span>
           <span>·</span>
-          <span>{form.commitment ? COMMITMENT_LABELS[form.commitment] : "Czas"}</span>
+          <span>{form.commitment ? labels.commitments[form.commitment] : copy("Czas", "Time")}</span>
         </div>
-        <h2 className="mt-4 text-[30px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)]">{form.name || "Nazwa projektu"}</h2>
-        <p className="mt-2 max-w-3xl text-[15px] leading-6 text-[var(--bc-muted)]">{form.tagline || "Krótki opis projektu."}</p>
+        <h2 className="mt-4 text-[30px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)]">{form.name || copy("Nazwa projektu", "Project name")}</h2>
+        <p className="mt-2 max-w-3xl text-[15px] leading-6 text-[var(--bc-muted)]">{form.tagline || copy("Krótki opis projektu.", "Short project description.")}</p>
         <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-6 text-[var(--bc-muted)]">{form.description}</p>
 
         <div className="mt-6 grid gap-px border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-3">
-          <PreviewCell label="Najbliższy cel" value={form.goal || "-"} />
-          <PreviewCell label="Tryb" value={form.collaborationMode ? COLLABORATION_MODE_LABELS[form.collaborationMode] : "-"} />
-          <PreviewCell label="Horyzont" value={form.duration ? PROJECT_DURATION_LABELS[form.duration] : "-"} />
+          <PreviewCell label={copy("Najbliższy cel", "Next goal")} value={form.goal || "-"} />
+          <PreviewCell label={copy("Tryb", "Mode")} value={form.collaborationMode ? labels.collaborationModes[form.collaborationMode] : "-"} />
+          <PreviewCell label={copy("Horyzont", "Horizon")} value={form.duration ? labels.durations[form.duration] : "-"} />
         </div>
 
         <div className="mt-6">
@@ -717,19 +736,19 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
       </div>
 
       <div>
-        <p className="text-[13px] font-semibold uppercase tracking-[0.07em] text-[var(--bc-faint)]">Otwarte role</p>
+        <p className="text-[13px] font-semibold uppercase tracking-[0.07em] text-[var(--bc-faint)]">{copy("Otwarte role", "Open roles")}</p>
         <div className="mt-2 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
           {form.roles.map((role, index) => (
             <div key={index} className="grid gap-3 py-4 sm:grid-cols-[180px_minmax(0,1fr)_90px] sm:items-start">
               <div>
-                <p className="text-sm font-semibold">{role.roleType ? ROLE_LABELS[role.roleType] : `Rola ${index + 1}`}</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{role.preferredLevel ? LEVEL_LABELS[role.preferredLevel] : "Dowolny poziom"}</p>
+                <p className="text-sm font-semibold">{role.roleType ? labels.roles[role.roleType] : copy(`Rola ${index + 1}`, `Role ${index + 1}`)}</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{role.preferredLevel ? labels.levels[role.preferredLevel] : copy("Dowolny poziom", "Any level")}</p>
               </div>
               <div>
-                <p className="text-[13px] leading-5 text-[var(--bc-muted)]">{role.description || "Zakres nie został jeszcze opisany."}</p>
+                <p className="text-[13px] leading-5 text-[var(--bc-muted)]">{role.description || copy("Zakres nie został jeszcze opisany.", "Responsibilities have not been described yet.")}</p>
                 {role.skills.length ? <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{role.skills.join(" · ")}</p> : null}
               </div>
-              <p className="text-[13px] tabular-nums text-[var(--bc-muted)] sm:text-right">{role.slots} {role.slots === 1 ? "miejsce" : "miejsca"}</p>
+              <p className="text-[13px] tabular-nums text-[var(--bc-muted)] sm:text-right">{role.slots} {copy(role.slots === 1 ? "miejsce" : "miejsca", role.slots === 1 ? "opening" : "openings")}</p>
             </div>
           ))}
         </div>
@@ -738,15 +757,15 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
       <div className="border-l-2 border-[var(--bc-line-strong)] pl-4">
         {qualityHints.length ? (
           <>
-            <p className="text-sm font-semibold">Możesz opublikować teraz. Warto jeszcze rozważyć:</p>
+            <p className="text-sm font-semibold">{copy("Możesz opublikować teraz. Warto jeszcze rozważyć:", "You can publish now. It may still be worth adding:")}</p>
             <ul className="mt-2 space-y-1.5 text-[13px] leading-5 text-[var(--bc-muted)]">
               {qualityHints.slice(0, 4).map((hint) => <li key={hint}>- {hint}</li>)}
             </ul>
           </>
         ) : (
           <>
-            <p className="text-sm font-semibold">Projekt ma komplet najważniejszych informacji.</p>
-            <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">Po publikacji możesz go udostępnić albo przejść do szukania osób.</p>
+            <p className="text-sm font-semibold">{copy("Projekt ma komplet najważniejszych informacji.", "The project has all the key information.")}</p>
+            <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("Po publikacji możesz go udostępnić albo przejść do szukania osób.", "After publishing, you can share it or start looking for people.")}</p>
           </>
         )}
       </div>
@@ -835,6 +854,7 @@ function ToggleButton({ active, disabled, onClick, children }: { active: boolean
 }
 
 function TechnologyPicker({ values, onChange, placeholder, max }: { values: string[]; onChange: (values: string[]) => void; placeholder: string; max: number }) {
+  const copy = useCopy();
   const [query, setQuery] = React.useState("");
   const normalized = query.trim().toLowerCase();
   const suggestions = React.useMemo(() => {
@@ -861,7 +881,7 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
               type="button"
               onClick={() => onChange(values.filter((item) => item !== value))}
               className="inline-flex min-h-8 items-center gap-1.5 rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2.5 text-[12px] text-[var(--bc-ink)] hover:border-[var(--bc-line-strong)]"
-              title={`Usuń ${value}`}
+              title={`${copy("Usuń", "Remove")} ${value}`}
             >
               {value}<X className="h-3 w-3 text-[var(--bc-faint)]" />
             </button>
@@ -879,7 +899,7 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
             else if (canAddCustom) add(query);
           }
         }}
-        placeholder={values.length >= max ? `Maksymalnie ${max}` : placeholder}
+        placeholder={values.length >= max ? copy(`Maksymalnie ${max}`, `Maximum ${max}`) : placeholder}
         disabled={values.length >= max}
       />
 
@@ -892,7 +912,7 @@ function TechnologyPicker({ values, onChange, placeholder, max }: { values: stri
           ))}
           {canAddCustom ? (
             <button type="button" onClick={() => add(query)} className="block w-full border-t border-[var(--bc-line)] px-3 py-2 text-left text-[13px] font-medium hover:bg-[var(--bc-surface-subtle)]">
-              Dodaj własne: “{query.trim()}”
+              {copy("Dodaj własne", "Add custom")}: “{query.trim()}”
             </button>
           ) : null}
         </div>

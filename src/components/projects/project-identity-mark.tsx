@@ -75,36 +75,36 @@ export function inferProjectVisualKind(input: {
   return "generic";
 }
 
-export function inferProjectCategoryLabel(kind: VisualKind) {
+export function inferProjectCategoryLabel(kind: VisualKind, locale: "pl" | "en" = "pl") {
   switch (kind) {
     case "shopping":
-      return "Porównywarka";
+      return locale === "en" ? "Comparison" : "Porównywarka";
     case "ai":
       return "AI / ML";
     case "devtool":
-      return "Narzędzie dev";
+      return locale === "en" ? "Developer tool" : "Narzędzie dev";
     case "marketplace":
       return "Marketplace";
     case "community":
       return "Community";
     case "game":
-      return "Gra";
+      return locale === "en" ? "Game" : "Gra";
     case "opensource":
       return "Open source";
     case "data":
-      return "Analityka";
+      return locale === "en" ? "Analytics" : "Analityka";
     case "bot":
       return "Bot";
     case "health":
-      return "Zdrowie";
+      return locale === "en" ? "Health" : "Zdrowie";
     case "education":
-      return "Edukacja";
+      return locale === "en" ? "Education" : "Edukacja";
     case "mobile":
       return "Mobile";
     case "web":
       return "Web";
     default:
-      return "Projekt cyfrowy";
+      return locale === "en" ? "Digital project" : "Projekt cyfrowy";
   }
 }
 

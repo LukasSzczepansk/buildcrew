@@ -12,7 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ROLE_LABELS } from "@/lib/constants";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { labelsFor } from "@/lib/constants-i18n";
 import type { RoleType } from "@/db/schema";
 
 type ShareRole = {
@@ -37,12 +38,15 @@ export function ShareProjectButton({
   openRoles?: ShareRole[];
   compact?: boolean;
 }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   const [open, setOpen] = React.useState(false);
   const [copied, setCopied] = React.useState<"link" | "text" | "discord" | null>(null);
   const [mode, setMode] = React.useState<ShareMode>({ type: "project" });
 
   const role = mode.type === "role" ? openRoles.find((item) => item.id === mode.roleId) : undefined;
-  const roleLabel = role ? ROLE_LABELS[role.roleType] : null;
+  const roleLabel = role ? labels.roles[role.roleType] : null;
 
   const relativeUrl = mode.type === "role"
     ? `/p/${projectId}?share=role&role=${encodeURIComponent(mode.roleId)}`
@@ -57,12 +61,12 @@ export function ShareProjectButton({
 
   function getShareText() {
     if (roleLabel) {
-      return `Szukamy ${roleLabel} do projektu ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}Zobacz projekt na BuildCrew.`;
+      return copy(`Szukamy ${roleLabel} do projektu ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}Zobacz projekt na BuildCrew.`, `We’re looking for a ${roleLabel} for ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}See the project on BuildCrew.`);
     }
-    return `${projectName} na BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}Zobacz projekt i ekipę.`;
+    return copy(`${projectName} na BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}Zobacz projekt i ekipę.`, `${projectName} on BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}See the project and team.`);
   }
 
-  async function copy(kind: "link" | "text" | "discord") {
+  async function copyShare(kind: "link" | "text" | "discord") {
     const url = getShareUrl();
     const value = kind === "link" ? url : `${getShareText()}\n${url}`;
     try {
@@ -89,14 +93,14 @@ export function ShareProjectButton({
   async function nativeShare() {
     const url = getShareUrl();
     if (!navigator.share) {
-      await copy("link");
+      await copyShare("link");
       return;
     }
 
     try {
       await navigator.share({ title: `${projectName} - BuildCrew`, text: getShareText(), url });
     } catch (error) {
-      if ((error as DOMException)?.name !== "AbortError") await copy("link");
+      if ((error as DOMException)?.name !== "AbortError") await copyShare("link");
     }
   }
 
@@ -107,25 +111,25 @@ export function ShareProjectButton({
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size={compact ? "sm" : "default"} className="gap-1.5">
           <Share2 className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
-          {compact ? "Udostępnij" : "Udostępnij projekt"}
+          {compact ? copy("Udostępnij", "Share") : copy("Udostępnij projekt", "Share project")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] max-w-[760px] overflow-y-auto p-0">
         <DialogHeader className="border-b border-[var(--bc-line)] px-5 py-5 pr-12 sm:px-6">
-          <DialogTitle>Udostępnij projekt</DialogTitle>
+          <DialogTitle>{copy("Udostępnij projekt", "Share project")}</DialogTitle>
           <DialogDescription>
-            Publiczny link ma własną grafikę Open Graph. Facebook, LinkedIn i komunikatory pobiorą ją automatycznie.
+            {copy("Publiczny link ma własną grafikę Open Graph. Facebook, LinkedIn i komunikatory pobiorą ją automatycznie.", "The public link has its own Open Graph image. Facebook, LinkedIn and messaging apps will pick it up automatically.")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="px-5 py-5 sm:px-6">
           {openRoles.length > 0 ? (
             <div className="mb-5 border-b border-[var(--bc-line)] pb-5">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Typ udostępnienia</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Typ udostępnienia", "Share type")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <ModeButton active={mode.type === "project"} onClick={() => setMode({ type: "project" })}>
-                  Cały projekt
+                  {copy("Cały projekt", "Whole project")}
                 </ModeButton>
                 {openRoles.map((item) => (
                   <ModeButton
@@ -133,7 +137,7 @@ export function ShareProjectButton({
                     active={mode.type === "role" && mode.roleId === item.id}
                     onClick={() => setMode({ type: "role", roleId: item.id })}
                   >
-                    Szukamy: {ROLE_LABELS[item.roleType]}
+                    {copy("Szukamy:", "Looking for:")} {labels.roles[item.roleType]}
                   </ModeButton>
                 ))}
               </div>
@@ -143,7 +147,7 @@ export function ShareProjectButton({
           <div className="overflow-hidden rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-canvas)]">
             <Image
               src={imageUrl}
-              alt={`Podgląd grafiki udostępniania projektu ${projectName}`}
+              alt={`${copy("Podgląd grafiki udostępniania projektu", "Project share image preview")} ${projectName}`}
               width={1200}
               height={630}
               unoptimized
@@ -153,14 +157,14 @@ export function ShareProjectButton({
 
           <div className="mt-5 grid gap-5 sm:grid-cols-[minmax(0,1fr)_240px]">
             <div>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Udostępnij</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Udostępnij", "Share")}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button type="button" size="sm" onClick={() => openShareWindow("facebook")}>Facebook</Button>
                 <Button type="button" size="sm" variant="outline" onClick={() => openShareWindow("linkedin")}>LinkedIn</Button>
                 <Button type="button" size="sm" variant="outline" onClick={() => openShareWindow("x")}>X</Button>
-                <Button type="button" size="sm" variant="outline" onClick={() => copy("discord")}>
+                <Button type="button" size="sm" variant="outline" onClick={() => copyShare("discord")}>
                   {copied === "discord" ? <Check className="h-3.5 w-3.5" /> : null}
-                  {copied === "discord" ? "Skopiowano" : "Dla Discorda"}
+                  {copied === "discord" ? copy("Skopiowano", "Copied") : copy("Dla Discorda", "For Discord")}
                 </Button>
               </div>
               <button
@@ -169,25 +173,25 @@ export function ShareProjectButton({
                 className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
-                Otwórz systemowe udostępnianie
+                {copy("Otwórz systemowe udostępnianie", "Open system share")}
               </button>
             </div>
 
             <div className="border-t border-[var(--bc-line)] pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">Link i grafika</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Link i grafika", "Link and image")}</p>
               <div className="mt-2 space-y-2">
-                <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={() => copy("link")}>
+                <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={() => copyShare("link")}>
                   {copied === "link" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied === "link" ? "Link skopiowany" : "Kopiuj link"}
+                  {copied === "link" ? copy("Link skopiowany", "Link copied") : copy("Kopiuj link", "Copy link")}
                 </Button>
-                <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={() => copy("text")}>
+                <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={() => copyShare("text")}>
                   {copied === "text" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied === "text" ? "Tekst skopiowany" : "Kopiuj tekst + link"}
+                  {copied === "text" ? copy("Tekst skopiowany", "Text copied") : copy("Kopiuj tekst + link", "Copy text + link")}
                 </Button>
                 <Button asChild variant="outline" size="sm" className="w-full justify-start">
                   <a href={imageUrl} download={downloadName}>
                     <Download className="h-3.5 w-3.5" />
-                    Pobierz grafikę PNG
+                    {copy("Pobierz grafikę PNG", "Download PNG image")}
                   </a>
                 </Button>
               </div>

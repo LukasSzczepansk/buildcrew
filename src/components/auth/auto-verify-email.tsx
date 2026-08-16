@@ -5,8 +5,10 @@ import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { AuthFormState } from "@/server/actions/auth";
 import { verifyEmailAction } from "@/server/actions/auth";
+import { useCopy } from "@/components/i18n/locale-provider";
 
 export function AutoVerifyEmail({ token, nextPath }: { token: string; nextPath?: string }) {
+  const copy = useCopy();
   const [state, action, pending] = useActionState<AuthFormState, FormData>(verifyEmailAction, {});
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -23,10 +25,10 @@ export function AutoVerifyEmail({ token, nextPath }: { token: string; nextPath?:
       <div className="border-y border-[var(--bc-line)] py-5">
         <div className="flex items-center gap-2.5 text-[14px] font-medium text-[var(--bc-ink)]">
           <LoaderCircle className="h-4 w-4 animate-spin text-[var(--bc-muted)]" aria-hidden="true" />
-          {pending ? "Potwierdzamy adres e-mail…" : state.error ? "Nie udało się potwierdzić adresu" : "Potwierdzamy adres e-mail…"}
+          {pending ? copy("Potwierdzamy adres e-mail…", "Confirming your email…") : state.error ? copy("Nie udało się potwierdzić adresu", "We couldn’t confirm your email") : copy("Potwierdzamy adres e-mail…", "Confirming your email…")}
         </div>
         <p className="mt-2 text-sm leading-5 text-[var(--bc-muted)]">
-          Nie zamykaj tej karty. Po poprawnej weryfikacji przejdziemy dalej automatycznie.
+          {copy("Nie zamykaj tej karty. Po poprawnej weryfikacji przejdziemy dalej automatycznie.", "Keep this tab open. After verification, we’ll continue automatically.")}
         </p>
       </div>
 
@@ -34,12 +36,12 @@ export function AutoVerifyEmail({ token, nextPath }: { token: string; nextPath?:
         <div className="space-y-3">
           <p className="text-sm leading-5 text-red-600 dark:text-red-400">{state.error}</p>
           <Button type="submit" className="w-full" disabled={pending}>
-            Spróbuj ponownie
+            {copy("Spróbuj ponownie", "Try again")}
           </Button>
         </div>
       ) : (
         <Button type="submit" className="sr-only" tabIndex={-1} disabled={pending}>
-          Potwierdź e-mail
+          {copy("Potwierdź e-mail", "Confirm email")}
         </Button>
       )}
     </form>

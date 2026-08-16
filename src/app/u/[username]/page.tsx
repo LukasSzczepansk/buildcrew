@@ -6,8 +6,9 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { UserRoleBadge } from "@/components/ui/user-role-badge";
-import { COMMITMENT_LABELS, GOAL_LABELS, LOOKING_FOR_LABELS, ROLE_LABELS } from "@/lib/constants";
-import { SITE_URL } from "@/lib/seo";
+import { labelsFor } from "@/lib/constants-i18n";
+import { getRequestLocale } from "@/lib/site-server";
+import { siteUrlForLocale } from "@/lib/site-config";
 import { getActivityState, activityLabel } from "@/lib/activity";
 import { getEndorsementSummary, getNetworkCounts, getPublicProfileByUsername } from "@/server/data/network";
 import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
@@ -15,11 +16,14 @@ import { listCreditsForUser } from "@/server/data/social-projects";
 import type { RoleType } from "@/db/schema";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
-  const { username } = await params;
+  const [{ username }, locale] = await Promise.all([params, getRequestLocale()]);
+  const en = locale === "en";
+  const labels = labelsFor(locale);
   const profile = await getPublicProfileByUsername(decodeURIComponent(username));
-  if (!profile) return { title: "Profil niedostępny | BuildCrew", robots: { index: false, follow: false } };
-  const role = profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder";
-  const description = profile.bio?.trim() || `${role} na BuildCrew. Umiejętności: ${profile.skills.slice(0, 5).join(", ") || "profil buildera"}.`;
+  if (!profile) return { title: `${en ? "Profile unavailable" : "Profil niedostępny"} | BuildCrew`, robots: { index: false, follow: false } };
+  const role = profile.role ? labels.roles[profile.role as RoleType] : "Builder";
+  const skills = profile.skills.slice(0, 5).join(", ");
+  const description = profile.bio?.trim() || (en ? `${role} on BuildCrew. Skills: ${skills || "builder profile"}.` : `${role} na BuildCrew. Umiejętności: ${skills || "profil buildera"}.`);
   return {
     title: `${profile.username} - ${role} | BuildCrew`,
     description,
@@ -37,7 +41,9 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
 }
 
 export default async function PublicBuilderProfilePage({ params }: { params: Promise<{ username: string }> }) {
-  const { username } = await params;
+  const [{ username }, locale] = await Promise.all([params, getRequestLocale()]);
+  const en = locale === "en";
+  const labels = labelsFor(locale);
   const profile = await getPublicProfileByUsername(decodeURIComponent(username));
   if (!profile) notFound();
   const [ownedProjects, memberProjects, counts, endorsements, completedCredits] = await Promise.all([
@@ -48,8 +54,8 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
     listCreditsForUser(profile.userId),
   ]);
   const projects = [
-    ...ownedProjects.filter((project) => project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: "Autor" })),
-    ...memberProjects.filter((project) => project.ownerId !== profile.userId && project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: "Członek zespołu" })),
+    ...ownedProjects.filter((project) => project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: en ? "Owner" : "Autor" })),
+    ...memberProjects.filter((project) => project.ownerId !== profile.userId && project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: en ? "Team member" : "Członek zespołu" })),
   ];
   const openToBuild = profile.lookingFor.includes("OPEN_TO_BUILD") || profile.lookingFor.includes("WANTS_PROJECT");
   const activityState = getActivityState(profile.lastActiveAt);
@@ -58,7 +64,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
     "@context": "https://schema.org",
     "@type": "Person",
     name: profile.username,
-    url: `${SITE_URL}/u/${encodeURIComponent(profile.username)}`,
+    url: `${siteUrlForLocale(locale)}/u/${encodeURIComponent(profile.username)}`,
     knowsAbout: profile.skills.slice(0, 12),
   };
 
@@ -68,7 +74,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
       <header className="border-b border-[var(--bc-line)] bg-[var(--bc-surface)]">
         <div className="mx-auto flex max-w-[1120px] items-center justify-between px-5 py-4 sm:px-8">
           <Link href="/" className="text-[15px] font-semibold tracking-[-0.02em]">BuildCrew</Link>
-          <div className="flex gap-2"><Button asChild variant="outline" size="sm"><Link href="/projekty">Projekty</Link></Button><Button asChild size="sm"><Link href="/signup">Dołącz do BuildCrew</Link></Button></div>
+          <div className="flex gap-2"><Button asChild variant="outline" size="sm"><Link href={en ? "/explore/projects" : "/projekty"}>{en ? "Projects" : "Projekty"}</Link></Button><Button asChild size="sm"><Link href="/signup">{en ? "Join BuildCrew" : "Dołącz do BuildCrew"}</Link></Button></div>
         </div>
       </header>
 
@@ -79,49 +85,49 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
               <Avatar username={profile.username} seed={profile.userId} size="lg" className={profile.isFounder ? "ring-2 ring-[#C8F169] ring-offset-2 ring-offset-[var(--bc-canvas)]" : undefined} />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2"><h1 className="text-[30px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{openToBuild ? <span className="inline-flex items-center gap-1.5 text-[12px] font-medium"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />Open to build</span> : null}</div>
-                <p className="mt-1 text-sm text-[var(--bc-muted)]">{profile.role ? ROLE_LABELS[profile.role as RoleType] : "Builder"} · {activityState === "TODAY" ? activityLabel(profile.lastActiveAt) : "profil BuildCrew"}</p>
+                <p className="mt-1 text-sm text-[var(--bc-muted)]">{profile.role ? labels.roles[profile.role as RoleType] : "Builder"} · {activityState === "TODAY" ? activityLabel(profile.lastActiveAt, locale) : (en ? "BuildCrew profile" : "profil BuildCrew")}</p>
               </div>
             </div>
             {profile.bio ? <p className="mt-5 max-w-[760px] text-[15px] leading-6 text-[var(--bc-muted)]">{profile.bio}</p> : null}
-            {profile.isFounder ? <p className="mt-3 max-w-[760px] border-l-2 border-[#C8F169] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]"><strong className="font-semibold text-[var(--bc-ink)]">Founder BuildCrew.</strong> Buduję platformę i zbieram feedback od społeczności.</p> : null}
+            {profile.isFounder ? <p className="mt-3 max-w-[760px] border-l-2 border-[#C8F169] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]"><strong className="font-semibold text-[var(--bc-ink)]">BuildCrew founder.</strong> {en ? "I’m building the platform and collecting feedback from the community." : "Buduję platformę i zbieram feedback od społeczności."}</p> : null}
             <div className="mt-5"><TechnologyStack items={profile.skills} max={8} compact /></div>
           </div>
 
           <aside className="border-l-0 border-[var(--bc-line)] lg:border-l lg:pl-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Sieć współpracy</p>
-            <div className="mt-3 grid grid-cols-3 gap-4"><Metric value={counts.collaborators} label="współprac." /><Metric value={counts.followers} label="obserwuje" /><Metric value={endorsements.total} label="poleceń" /></div>
-            {endorsements.strengths.length ? <p className="mt-4 text-[12px] leading-5 text-[var(--bc-muted)]">Polecany za: <span className="font-medium text-[var(--bc-ink)]">{endorsements.strengths.slice(0, 3).map((item) => item.label).join(" · ")}</span></p> : null}
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Collaboration network" : "Sieć współpracy"}</p>
+            <div className="mt-3 grid grid-cols-3 gap-4"><Metric value={counts.collaborators} label={en ? "collabs" : "współprac."} /><Metric value={counts.followers} label={en ? "followers" : "obserwuje"} /><Metric value={endorsements.total} label={en ? "endorsements" : "poleceń"} /></div>
+            {endorsements.strengths.length ? <p className="mt-4 text-[12px] leading-5 text-[var(--bc-muted)]">{en ? "Endorsed for:" : "Polecany za:"} <span className="font-medium text-[var(--bc-ink)]">{endorsements.strengths.slice(0, 3).map((item) => item.label).join(" · ")}</span></p> : null}
           </aside>
         </section>
 
         <section className="grid gap-8 py-8 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="space-y-8">
-            <PublicSection title="Szukam teraz">
-              <p className="text-sm leading-6 text-[var(--bc-muted)]">{profile.lookingFor.map((item) => LOOKING_FOR_LABELS[item]).join(" · ") || "Brak informacji"}</p>
-              <p className="mt-2 text-[13px] text-[var(--bc-faint)]">Dostępność: {profile.weeklyHours ? COMMITMENT_LABELS[profile.weeklyHours] : "-"}</p>
+            <PublicSection title={en ? "Looking for" : "Szukam teraz"}>
+              <p className="text-sm leading-6 text-[var(--bc-muted)]">{profile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || (en ? "No information" : "Brak informacji")}</p>
+              <p className="mt-2 text-[13px] text-[var(--bc-faint)]">{en ? "Availability:" : "Dostępność:"} {profile.weeklyHours ? labels.commitments[profile.weeklyHours] : "-"}</p>
             </PublicSection>
 
             {completedCredits.length ? (
-              <PublicSection title="Zbudowane na BuildCrew">
+              <PublicSection title={en ? "Built on BuildCrew" : "Zbudowane na BuildCrew"}>
                 <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-                  {completedCredits.map((credit) => <Link key={credit.creditId} href={`/p/${credit.projectId}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{credit.projectName}</p><p className="mt-0.5 bc-truncate-2 text-[12px] leading-4 text-[var(--bc-muted)]">{credit.outcome || credit.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{credit.isOwner ? "Autor" : credit.roleType ? ROLE_LABELS[credit.roleType] : "Współtwórca"}</span></Link>)}
+                  {completedCredits.map((credit) => <Link key={credit.creditId} href={`/p/${credit.projectId}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{credit.projectName}</p><p className="mt-0.5 bc-truncate-2 text-[12px] leading-4 text-[var(--bc-muted)]">{credit.outcome || credit.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Collaborator" : "Współtwórca")}</span></Link>)}
                 </div>
               </PublicSection>
             ) : null}
 
-            <PublicSection title="Projekty i współpraca">
-              {projects.length ? <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{projects.map((project) => <Link key={`${project.id}-${project.relation}`} href={`/p/${project.id}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{project.name}</p><p className="mt-0.5 text-[12px] text-[var(--bc-muted)]">{project.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{project.relation}</span></Link>)}</div> : <p className="text-[13px] text-[var(--bc-muted)]">Brak publicznych projektów w historii profilu.</p>}
+            <PublicSection title={en ? "Projects and collaboration" : "Projekty i współpraca"}>
+              {projects.length ? <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{projects.map((project) => <Link key={`${project.id}-${project.relation}`} href={`/p/${project.id}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{project.name}</p><p className="mt-0.5 text-[12px] text-[var(--bc-muted)]">{project.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{project.relation}</span></Link>)}</div> : <p className="text-[13px] text-[var(--bc-muted)]">{en ? "No public projects in this profile yet." : "Brak publicznych projektów w historii profilu."}</p>}
             </PublicSection>
 
-            {endorsements.total ? <PublicSection title="Rekomendacje współpracy"><p className="text-sm leading-6 text-[var(--bc-muted)]">{endorsements.wouldAgain} z {endorsements.total} osób zaznaczyło, że chętnie pracowałoby z tym builderem ponownie.</p><div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[12px]">{endorsements.strengths.slice(0, 6).map((item) => <span key={item.key}><strong className="font-semibold text-[var(--bc-ink)]">{item.count}</strong> {item.label}</span>)}</div></PublicSection> : null}
+            {endorsements.total ? <PublicSection title={en ? "Collaboration endorsements" : "Rekomendacje współpracy"}><p className="text-sm leading-6 text-[var(--bc-muted)]">{en ? `${endorsements.wouldAgain} of ${endorsements.total} people said they would gladly work with this builder again.` : `${endorsements.wouldAgain} z ${endorsements.total} osób zaznaczyło, że chętnie pracowałoby z tym builderem ponownie.`}</p><div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[12px]">{endorsements.strengths.slice(0, 6).map((item) => <span key={item.key}><strong className="font-semibold text-[var(--bc-ink)]">{item.count}</strong> {item.label}</span>)}</div></PublicSection> : null}
           </div>
 
           <aside>
             <div className="border-y border-[var(--bc-line)] py-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Kierunek</p>
-              <dl className="mt-3 space-y-3 text-[13px]"><div><dt className="text-[11px] text-[var(--bc-faint)]">Obszary</dt><dd className="mt-0.5 text-[var(--bc-ink)]">{profile.interests.join(" · ") || "-"}</dd></div><div><dt className="text-[11px] text-[var(--bc-faint)]">Cele</dt><dd className="mt-0.5 text-[var(--bc-ink)]">{profile.goals.map((goal) => GOAL_LABELS[goal]).join(" · ") || "-"}</dd></div></dl>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Direction" : "Kierunek"}</p>
+              <dl className="mt-3 space-y-3 text-[13px]"><div><dt className="text-[11px] text-[var(--bc-faint)]">{en ? "Interests" : "Obszary"}</dt><dd className="mt-0.5 text-[var(--bc-ink)]">{profile.interests.join(" · ") || "-"}</dd></div><div><dt className="text-[11px] text-[var(--bc-faint)]">{en ? "Goals" : "Cele"}</dt><dd className="mt-0.5 text-[var(--bc-ink)]">{profile.goals.map((goal) => labels.goals[goal]).join(" · ") || "-"}</dd></div></dl>
             </div>
-            {(profile.githubUrl || profile.portfolioUrl || profile.linkedinUrl) ? <div className="border-b border-[var(--bc-line)] py-4"><p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Linki</p><div className="mt-3 space-y-2 text-[13px]">{profile.githubUrl ? <PublicLink href={profile.githubUrl}>GitHub</PublicLink> : null}{profile.portfolioUrl ? <PublicLink href={profile.portfolioUrl}>Portfolio</PublicLink> : null}{profile.linkedinUrl ? <PublicLink href={profile.linkedinUrl}>LinkedIn</PublicLink> : null}</div></div> : null}
+            {(profile.githubUrl || profile.portfolioUrl || profile.linkedinUrl) ? <div className="border-b border-[var(--bc-line)] py-4"><p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Links" : "Linki"}</p><div className="mt-3 space-y-2 text-[13px]">{profile.githubUrl ? <PublicLink href={profile.githubUrl}>GitHub</PublicLink> : null}{profile.portfolioUrl ? <PublicLink href={profile.portfolioUrl}>Portfolio</PublicLink> : null}{profile.linkedinUrl ? <PublicLink href={profile.linkedinUrl}>LinkedIn</PublicLink> : null}</div></div> : null}
           </aside>
         </section>
       </div>

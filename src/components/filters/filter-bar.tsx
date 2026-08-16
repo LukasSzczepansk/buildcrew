@@ -6,12 +6,14 @@ import { ChevronDown, Search, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useCopy } from "@/components/i18n/locale-provider";
 
 export type FilterOption = { value: string; label: string };
 export type FilterDef = { key: string; label: string; options: FilterOption[] };
 
 export function FilterBar({ filters, showSearch, searchPlaceholder = "Szukaj…" }: { filters: FilterDef[]; showSearch?: boolean; searchPlaceholder?: string }) {
   const router = useRouter();
+  const copy = useCopy();
   const searchParams = useSearchParams();
   const [showMore, setShowMore] = React.useState(() => filters.slice(3).some((filter) => Boolean(searchParams.get(filter.key))));
 
@@ -59,13 +61,13 @@ export function FilterBar({ filters, showSearch, searchPlaceholder = "Szukaj…"
           {quickFilters.map(renderFilter)}
           {extraFilters.length > 0 ? (
             <Button type="button" variant="ghost" size="sm" className="h-10 gap-1.5 px-2.5 text-[13px]" onClick={() => setShowMore((value) => !value)} aria-expanded={showMore}>
-              Więcej{extraActiveCount > 0 ? ` (${extraActiveCount})` : ""}
+              {copy("Więcej", "More")}{extraActiveCount > 0 ? ` (${extraActiveCount})` : ""}
               <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showMore ? "rotate-180" : ""}`} />
             </Button>
           ) : null}
           {activeCount > 0 ? (
             <Button variant="ghost" size="sm" className="h-10 gap-1 px-2.5 text-[13px]" onClick={() => router.push("?")}>
-              <X className="h-3.5 w-3.5" /> Wyczyść
+              <X className="h-3.5 w-3.5" /> {copy("Wyczyść", "Clear")}
             </Button>
           ) : null}
         </div>

@@ -32,11 +32,11 @@ export function isGoogleOAuthConfigured() {
   return Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim());
 }
 
-export function googleRedirectUri() {
-  return absoluteUrl("/api/auth/google/callback");
+export function googleRedirectUri(origin?: string) {
+  return absoluteUrl("/api/auth/google/callback", origin);
 }
 
-export async function createGoogleAuthorizationUrl(intent: GoogleAuthIntent, nextPath?: string | null) {
+export async function createGoogleAuthorizationUrl(intent: GoogleAuthIntent, nextPath?: string | null, origin?: string) {
   const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
   if (!clientId || !process.env.GOOGLE_CLIENT_SECRET?.trim()) {
     throw new Error("Google OAuth is not configured");
@@ -57,7 +57,7 @@ export async function createGoogleAuthorizationUrl(intent: GoogleAuthIntent, nex
 
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", clientId);
-  url.searchParams.set("redirect_uri", googleRedirectUri());
+  url.searchParams.set("redirect_uri", googleRedirectUri(origin));
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", "openid email profile");
   url.searchParams.set("state", state);
@@ -93,7 +93,7 @@ export async function consumeGoogleOAuthContext(receivedState: string | null) {
   };
 }
 
-export async function exchangeGoogleCode(code: string, verifier: string) {
+export async function exchangeGoogleCode(code: string, verifier: string, origin?: string) {
   const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
   if (!clientId || !clientSecret) throw new Error("Google OAuth is not configured");
@@ -107,7 +107,7 @@ export async function exchangeGoogleCode(code: string, verifier: string) {
       code,
       code_verifier: verifier,
       grant_type: "authorization_code",
-      redirect_uri: googleRedirectUri(),
+      redirect_uri: googleRedirectUri(origin),
     }),
     cache: "no-store",
   });

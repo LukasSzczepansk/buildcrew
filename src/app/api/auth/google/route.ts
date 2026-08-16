@@ -10,14 +10,14 @@ export async function GET(request: NextRequest) {
   const nextPath = rawNext ? safeInternalRedirect(rawNext, "") : "";
 
   if (!isGoogleOAuthConfigured()) {
-    return NextResponse.redirect(absoluteUrl(withNext(`${fallback}?google=not-configured`, nextPath)));
+    return NextResponse.redirect(absoluteUrl(withNext(`${fallback}?google=not-configured`, nextPath), request.nextUrl.origin));
   }
 
   try {
-    const authorizationUrl = await createGoogleAuthorizationUrl(intent, nextPath);
+    const authorizationUrl = await createGoogleAuthorizationUrl(intent, nextPath, request.nextUrl.origin);
     return NextResponse.redirect(authorizationUrl);
   } catch (error) {
     console.error("Google OAuth start failed", error);
-    return NextResponse.redirect(absoluteUrl(withNext(`${fallback}?google=failed`, nextPath)));
+    return NextResponse.redirect(absoluteUrl(withNext(`${fallback}?google=failed`, nextPath), request.nextUrl.origin));
   }
 }

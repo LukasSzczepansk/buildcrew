@@ -1,9 +1,10 @@
 import "server-only";
 
-const appUrl = () => (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
+const appUrl = () => (process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL_PL || "http://localhost:3000").replace(/\/$/, "");
 
-export function absoluteUrl(path: string) {
-  return `${appUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+export function absoluteUrl(path: string, baseUrl?: string) {
+  const base = (baseUrl || appUrl()).replace(/\/$/, "");
+  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 export function escapeEmailHtml(value: string) {
@@ -17,6 +18,8 @@ export function escapeEmailHtml(value: string) {
 }
 
 export function buildCrewEmail(input: {
+  locale?: "pl" | "en";
+  baseUrl?: string;
   eyebrow?: string;
   title: string;
   intro?: string;
@@ -25,14 +28,17 @@ export function buildCrewEmail(input: {
   ctaHref?: string;
   footer?: string;
 }) {
-  const target = input.ctaHref ? absoluteUrl(input.ctaHref) : undefined;
+  const locale = input.locale ?? "pl";
+  const target = input.ctaHref ? absoluteUrl(input.ctaHref, input.baseUrl) : undefined;
   const footerText = escapeEmailHtml(
     input.footer ??
-      "Wiadomość została wysłana przez BuildCrew. Ustawienia powiadomień możesz zmienić w swoim profilu.",
+      (locale === "en"
+        ? "This message was sent by BuildCrew. You can change notification settings in your profile."
+        : "Wiadomość została wysłana przez BuildCrew. Ustawienia powiadomień możesz zmienić w swoim profilu."),
   );
 
   return `<!doctype html>
-<html lang="pl">
+<html lang="${locale}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
@@ -67,11 +73,11 @@ export function buildCrewEmail(input: {
               <td style="padding:18px 28px;border-top:1px solid #DADAD3;font-size:12px;line-height:18px;color:#9A9A94;">
                 ${footerText}
                 <div style="margin-top:12px;">
-                  <a href="${absoluteUrl("/")}" style="color:#70706B;text-decoration:none;">BuildCrew</a>
+                  <a href="${absoluteUrl("/", input.baseUrl)}" style="color:#70706B;text-decoration:none;">BuildCrew</a>
                   <span style="color:#B0B0AA;"> · </span>
-                  <a href="${absoluteUrl("/polityka-prywatnosci")}" style="color:#70706B;text-decoration:none;">Prywatność</a>
+                  <a href="${absoluteUrl(locale === "en" ? "/privacy" : "/polityka-prywatnosci", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Privacy" : "Prywatność"}</a>
                   <span style="color:#B0B0AA;"> · </span>
-                  <a href="${absoluteUrl("/regulamin")}" style="color:#70706B;text-decoration:none;">Regulamin</a>
+                  <a href="${absoluteUrl(locale === "en" ? "/terms" : "/regulamin", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Terms" : "Regulamin"}</a>
                 </div>
               </td>
             </tr>

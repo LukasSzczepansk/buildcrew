@@ -1,5 +1,6 @@
 import type { HackathonLocationType } from "@/db/schema";
 import { HACKATHON_LOCATION_LABELS } from "@/lib/constants";
+import type { AppLocale } from "@/lib/site-config";
 
 export type HackathonPhase = "TEAM_FORMING" | "REGISTRATION_CLOSED" | "ONGOING" | "ENDED" | "CANCELLED";
 
@@ -25,20 +26,38 @@ export const HACKATHON_PHASE_LABELS: Record<HackathonPhase, string> = {
   CANCELLED: "Odwołany",
 };
 
-export function hackathonLocationLabel(locationType: HackathonLocationType, city?: string | null) {
+export const HACKATHON_PHASE_LABELS_EN: Record<HackathonPhase, string> = {
+  TEAM_FORMING: "Team forming",
+  REGISTRATION_CLOSED: "Team formation closed",
+  ONGOING: "Ongoing",
+  ENDED: "Ended",
+  CANCELLED: "Cancelled",
+};
+
+export function hackathonPhaseLabel(phase: HackathonPhase, locale: AppLocale = "pl") {
+  return locale === "en" ? HACKATHON_PHASE_LABELS_EN[phase] : HACKATHON_PHASE_LABELS[phase];
+}
+
+export function hackathonLocationLabel(locationType: HackathonLocationType, city?: string | null, locale: AppLocale = "pl") {
+  if (locale === "en") {
+    if (locationType === "ONLINE") return "Online";
+    const prefix = locationType === "HYBRID" ? "Hybrid" : "On-site";
+    return city ? `${prefix} · ${city}` : prefix;
+  }
   if (locationType === "ONLINE") return HACKATHON_LOCATION_LABELS.ONLINE;
   const prefix = locationType === "HYBRID" ? "Hybrydowo" : "Stacjonarnie";
   return city ? `${prefix} · ${city}` : prefix;
 }
 
-export function hackathonDateLabel(startsAt: Date, endsAt: Date) {
+export function hackathonDateLabel(startsAt: Date, endsAt: Date, locale: AppLocale = "pl") {
+  const localeCode = locale === "en" ? "en-US" : "pl-PL";
   const sameDay = startsAt.toDateString() === endsAt.toDateString();
   if (sameDay) {
-    return startsAt.toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
+    return startsAt.toLocaleDateString(localeCode, { day: "numeric", month: "long", year: "numeric" });
   }
   const sameYear = startsAt.getFullYear() === endsAt.getFullYear();
-  const start = startsAt.toLocaleDateString("pl-PL", { day: "numeric", month: "short", year: sameYear ? undefined : "numeric" });
-  const end = endsAt.toLocaleDateString("pl-PL", { day: "numeric", month: "short", year: "numeric" });
+  const start = startsAt.toLocaleDateString(localeCode, { day: "numeric", month: "short", year: sameYear ? undefined : "numeric" });
+  const end = endsAt.toLocaleDateString(localeCode, { day: "numeric", month: "short", year: "numeric" });
   return `${start} – ${end}`;
 }
 

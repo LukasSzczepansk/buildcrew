@@ -14,7 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { COMMITMENT_LABELS, LEVEL_LABELS, ROLE_LABELS } from "@/lib/constants";
+import { labelsFor } from "@/lib/constants-i18n";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import type { Commitment, Level, RoleType } from "@/db/schema";
 import { applyToProject } from "@/server/actions/projects";
 
@@ -29,6 +30,9 @@ export function ApplyDialog({
   roleType: RoleType;
   myProfile: { role: RoleType | null; skills: string[]; level: Level | null; weeklyHours: Commitment | null };
 }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [pending, setPending] = React.useState(false);
@@ -41,7 +45,7 @@ export function ApplyDialog({
       toast.error(res.error);
       return;
     }
-    toast.success("Twoja chęć dołączenia została wysłana!");
+    toast.success(copy("Twoja chęć dołączenia została wysłana!", "Your request to join has been sent!"));
     setOpen(false);
     setMessage("");
   }
@@ -49,25 +53,25 @@ export function ApplyDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">Chcę dołączyć</Button>
+        <Button size="sm">{copy("Chcę dołączyć", "I want to join")}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Dołącz jako {ROLE_LABELS[roleType]}</DialogTitle>
-          <DialogDescription>To nie rozmowa o pracę. Autor pomysłu zobaczy Twój profil i krótką wiadomość o tym, co chcesz wnieść do wspólnego projektu.</DialogDescription>
+          <DialogTitle>{copy("Dołącz jako", "Join as")} {labels.roles[roleType]}</DialogTitle>
+          <DialogDescription>{copy("To nie rozmowa o pracę. Autor projektu zobaczy Twój profil i krótką wiadomość o tym, co chcesz wnieść do wspólnego projektu.", "This is not a job application. The project owner will see your profile and a short note about what you want to contribute.")}</DialogDescription>
         </DialogHeader>
 
         <div className="rounded-[6px] bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
-          <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">Twoje dane</p>
+          <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{copy("Twoje dane", "Your profile")}</p>
           <div className="flex flex-col gap-1.5">
             <p>
-              <span className="text-neutral-400">Rola:</span> {myProfile.role ? ROLE_LABELS[myProfile.role] : "-"}
+              <span className="text-neutral-400">{copy("Rola:", "Role:")}</span> {myProfile.role ? labels.roles[myProfile.role] : "-"}
             </p>
             <p>
-              <span className="text-neutral-400">Poziom:</span> {myProfile.level ? LEVEL_LABELS[myProfile.level] : "-"}
+              <span className="text-neutral-400">{copy("Poziom:", "Level:")}</span> {myProfile.level ? labels.levels[myProfile.level] : "-"}
             </p>
             <p>
-              <span className="text-neutral-400">Dostępność:</span> {myProfile.weeklyHours ? COMMITMENT_LABELS[myProfile.weeklyHours] : "-"}
+              <span className="text-neutral-400">{copy("Dostępność:", "Availability:")}</span> {myProfile.weeklyHours ? labels.commitments[myProfile.weeklyHours] : "-"}
             </p>
             <div className="flex flex-wrap gap-1.5 pt-1">
               {myProfile.skills.slice(0, 6).map((s) => (
@@ -80,14 +84,14 @@ export function ApplyDialog({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium">Co chciałbyś wnieść do projektu?</label>
-          <Textarea placeholder="Np. Mogę ogarnąć frontend i chciałbym razem dowieźć pierwsze MVP…" maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} />
+          <label className="text-sm font-medium">{copy("Co chciałbyś wnieść do projektu?", "What would you like to contribute?")}</label>
+          <Textarea placeholder={copy("Np. Mogę ogarnąć frontend i chciałbym razem dowieźć pierwsze MVP…", "For example: I can take care of the frontend and help ship the first MVP…")} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} />
           <p className="text-right text-[13px] text-neutral-400">{message.length}/500</p>
         </div>
 
         <DialogFooter>
           <Button onClick={handleSubmit} disabled={pending}>
-            {pending ? "Wysyłanie…" : "Wyślij chęć dołączenia"}
+            {pending ? copy("Wysyłanie…", "Sending…") : copy("Wyślij chęć dołączenia", "Send request")}
           </Button>
         </DialogFooter>
       </DialogContent>

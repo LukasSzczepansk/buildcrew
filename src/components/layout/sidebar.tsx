@@ -9,23 +9,27 @@ import { Button } from "@/components/ui/button";
 import { UserRoleBadge } from "@/components/ui/user-role-badge";
 import { logoutAction } from "@/server/actions/auth";
 import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { useCopy } from "@/components/i18n/locale-provider";
 
 const PRIMARY_NAV = [
-  { href: "/dashboard", label: "Start", icon: LayoutDashboard },
-  { href: "/builders", label: "Ludzie", icon: Users },
-  { href: "/projects", label: "Projekty", icon: FolderKanban },
-  { href: "/hackathons", label: "Hackathony", icon: CalendarRange },
-  { href: "/ideas", label: "Pomysły", icon: Lightbulb },
-];
+  { href: "/dashboard", key: "start", icon: LayoutDashboard },
+  { href: "/builders", key: "people", icon: Users },
+  { href: "/projects", key: "projects", icon: FolderKanban },
+  { href: "/hackathons", key: "hackathons", icon: CalendarRange },
+  { href: "/ideas", key: "ideas", icon: Lightbulb },
+] as const;
 
 const COMMUNITY_NAV = [
-  { href: "/network", label: "Moja sieć", icon: UserRoundCheck },
-  { href: "/my-projects", label: "Moje projekty", icon: FolderKanban },
-  { href: "/messages", label: "Wiadomości", icon: MessageCircle },
-  { href: "/showcase", label: "Zbudowane", icon: Trophy },
-];
+  { href: "/network", key: "network", icon: UserRoundCheck },
+  { href: "/my-projects", key: "myProjects", icon: FolderKanban },
+  { href: "/messages", key: "messages", icon: MessageCircle },
+  { href: "/showcase", key: "built", icon: Trophy },
+] as const;
 
-function NavGroup({ label, items, pathname, unreadMessages }: { label: string; items: typeof PRIMARY_NAV; pathname: string; unreadMessages: number }) {
+type NavItem = (typeof PRIMARY_NAV)[number] | (typeof COMMUNITY_NAV)[number];
+
+function NavGroup({ label, items, pathname, unreadMessages, labels }: { label: string; items: readonly NavItem[]; pathname: string; unreadMessages: number; labels: Record<string, string> }) {
   return (
     <div>
       <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--bc-faint)]">{label}</p>
@@ -44,7 +48,7 @@ function NavGroup({ label, items, pathname, unreadMessages }: { label: string; i
             >
               {active ? <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-full bg-[var(--bc-accent)]" /> : null}
               <Icon className="h-[15px] w-[15px] shrink-0" strokeWidth={1.8} />
-              <span className="min-w-0 flex-1">{item.label}</span>
+              <span className="min-w-0 flex-1">{labels[item.key]}</span>
               {item.href === "/messages" && unreadMessages > 0 ? <span className="min-w-5 rounded-full bg-[var(--bc-accent)] px-1.5 py-0.5 text-center text-[11px] font-semibold text-neutral-950">{unreadMessages > 99 ? "99+" : unreadMessages}</span> : null}
             </Link>
           );
@@ -56,6 +60,12 @@ function NavGroup({ label, items, pathname, unreadMessages }: { label: string; i
 
 export function Sidebar({ username, avatarEmoji, admin = false, founder = false, unreadMessages = 0 }: { username: string; avatarEmoji: string; admin?: boolean; founder?: boolean; unreadMessages?: number }) {
   const pathname = usePathname();
+  const copy = useCopy();
+  const labels = {
+    start: copy("Start", "Home"), people: copy("Ludzie", "People"), projects: copy("Projekty", "Projects"),
+    hackathons: copy("Hackathony", "Hackathons"), ideas: copy("Pomysły", "Ideas"), network: copy("Moja sieć", "My network"),
+    myProjects: copy("Moje projekty", "My projects"), messages: copy("Wiadomości", "Messages"), built: copy("Zbudowane", "Built"),
+  };
 
   return (
     <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 overflow-y-auto border-r border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-4 py-5 lg:flex lg:flex-col xl:w-[256px]">
@@ -65,8 +75,8 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
       </Link>
 
       <div className="space-y-7">
-        <NavGroup label="Odkrywaj" items={PRIMARY_NAV} pathname={pathname} unreadMessages={unreadMessages} />
-        <NavGroup label="Twoje" items={COMMUNITY_NAV} pathname={pathname} unreadMessages={unreadMessages} />
+        <NavGroup label={copy("Odkrywaj", "Discover")} items={PRIMARY_NAV} pathname={pathname} unreadMessages={unreadMessages} labels={labels} />
+        <NavGroup label={copy("Twoje", "Yours")} items={COMMUNITY_NAV} pathname={pathname} unreadMessages={unreadMessages} labels={labels} />
       </div>
 
       {admin ? (
@@ -79,7 +89,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
             )}
           >
             <ShieldCheck className="h-[15px] w-[15px] shrink-0" strokeWidth={1.8} />
-            <span className="min-w-0 truncate">Panel admina</span>
+            <span className="min-w-0 truncate">{copy("Panel admina", "Admin panel")}</span>
           </Link>
         </div>
       ) : null}
@@ -95,13 +105,14 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
             className="block rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-3 text-[12px] leading-4 text-[var(--bc-muted)] transition-colors hover:text-[var(--bc-ink)]"
           >
             <span className="block font-semibold text-[var(--bc-ink)]">{AI_CONTEST.shortTitle}</span>
-            <span className="mt-1 inline-flex items-center gap-1">do {AI_CONTEST.deadlineLabel} <ExternalLink className="h-3 w-3" /></span>
+            <span className="mt-1 inline-flex items-center gap-1">{copy("do", "until")} {AI_CONTEST.deadlineLabel} <ExternalLink className="h-3 w-3" /></span>
           </a>
         ) : null}
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-2 text-[13px] text-[var(--bc-faint)]">
+          <LanguageSwitcher compact />
           <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--bc-ink)] hover:underline">Discord</a>
-          <Link href="/help" className="inline-flex items-center gap-1 hover:text-[var(--bc-ink)] hover:underline"><CircleHelp className="h-3.5 w-3.5 shrink-0" /> Pomoc</Link>
+          <Link href="/help" className="inline-flex items-center gap-1 hover:text-[var(--bc-ink)] hover:underline"><CircleHelp className="h-3.5 w-3.5 shrink-0" /> {copy("Pomoc", "Help")}</Link>
         </div>
 
         <div className="border-t border-[var(--bc-line)] pt-3">
@@ -112,12 +123,12 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
                 <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{username}</p>
                 {founder ? <UserRoleBadge founder compact /> : admin ? <UserRoleBadge systemRole="ADMIN" compact /> : null}
               </div>
-              <p className="text-[12px] text-[var(--bc-faint)]">Profil i ustawienia</p>
+              <p className="text-[12px] text-[var(--bc-faint)]">{copy("Profil i ustawienia", "Profile and settings")}</p>
             </div>
           </Link>
           <form action={logoutAction}>
             <Button type="submit" variant="ghost" size="sm" className="mt-1 w-full justify-start gap-2 px-2 text-[var(--bc-muted)] hover:text-[var(--bc-danger)]">
-              <LogOut className="h-3.5 w-3.5 shrink-0" /> Wyloguj
+              <LogOut className="h-3.5 w-3.5 shrink-0" /> {copy("Wyloguj", "Log out")}
             </Button>
           </form>
         </div>

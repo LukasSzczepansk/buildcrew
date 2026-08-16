@@ -1,51 +1,65 @@
-# BuildCrew - retention email patch
+# BuildCrew - dual-domain PL/EN patch
 
-Ten patch dodaje powiadomienia e-mail, których celem jest przywracanie użytkownika wtedy, gdy na BuildCrew wydarzyło się coś realnie wartego sprawdzenia.
+## Cel
 
-## Co dodaje
+Jedna aplikacja i jedna baza danych, ale dwa wejścia:
 
-- e-mail o nowej wiadomości, ale tylko gdy odbiorca nie jest aktywny i nie ma już nieprzeczytanej wiadomości w tej rozmowie,
-- e-mail o zaproszeniu / zgłoszeniu do projektu,
-- e-mail o akceptacji i odrzuceniu zgłoszenia,
-- e-mail o mocnych dopasowaniach builderów i projektów,
-- tygodniowy digest z najlepszymi dopasowaniami i liczbą nieprzeczytanych wiadomości,
-- ustawienia wszystkich tych kategorii w profilu,
-- spójny szablon e-mail BuildCrew: off-white / black / lime,
-- cron jobs na Vercelu,
-- cooldown 72h dla maili o dopasowaniach,
-- brak maila o matchach, jeśli użytkownik był aktywny w ostatnich 6 godzinach.
+- `.pl` -> polski interfejs,
+- `buildcreww.com` -> angielski interfejs.
 
-## Wymagane po podmianie plików
+Obecni użytkownicy, projekty i dane nie są przenoszone ani duplikowane.
 
-Zmienia się schema bazy (`notification_preferences`), więc uruchom:
+## Najważniejsze zmiany
 
-```bash
-npm run db:push
-npm run dev
-```
+- host-aware locale (`pl` / `en`),
+- przełącznik `PL | EN` przenoszący między domenami,
+- dynamiczne `lang`, metadata i podstawowe SEO/hreflang,
+- osobne publiczne aliasy EN: `/explore/projects`, `/explore/hackathons`,
+- sitemap i robots generowane dla aktualnego hosta,
+- Google OAuth korzysta z originu requestu, dzięki czemu działa z obu domen,
+- weryfikacja e-mail / reset hasła zachowują domenę i język requestu,
+- angielska wersja najważniejszego flow: landing -> auth -> onboarding -> discovery -> profil/projekt -> aplikowanie,
+- przetłumaczone główne komponenty kart, filtrów, matchingu, follow/share/update,
+- jedna wspólna baza i wspólne konta.
 
-## Vercel Environment Variables
+## Konfiguracja
 
-Ustaw w Vercel → Project → Settings → Environment Variables:
+Pełna instrukcja: `DUAL-DOMAIN-SETUP.md`.
+
+Najważniejsze envy:
 
 ```env
-RESEND_API_KEY=re_...
-EMAIL_FROM=BuildCrew <hello@twojadomena.pl>
-NEXT_PUBLIC_APP_URL=https://twojadomena.pl
-CRON_SECRET=dlugi-losowy-sekret
+NEXT_PUBLIC_APP_URL=https://buildcreww.pl
+NEXT_PUBLIC_APP_URL_PL=https://buildcreww.pl
+NEXT_PUBLIC_APP_URL_EN=https://buildcreww.com
+NEXT_PUBLIC_DEFAULT_LOCALE=pl
 ```
 
-`CRON_SECRET` powinien być długim, losowym sekretem i nie może trafić do repozytorium.
+Jeśli Twoja domena `.pl` ma inną nazwę, wpisz dokładny aktualny URL zamiast przykładu `buildcreww.pl`.
 
-## Resend
+## Google OAuth
 
-Domena użyta w `EMAIL_FROM` musi być zweryfikowana w Resend. API key pozostaje wyłącznie po stronie serwera.
+Dodaj w Google Cloud oba callbacki:
 
-## Harmonogram
+```text
+https://buildcreww.pl/api/auth/google/callback
+https://buildcreww.com/api/auth/google/callback
+```
 
-`vercel.json`:
+## Baza
 
-- mocne dopasowania: wtorek–sobota, 08:00 UTC,
-- tygodniowy digest: poniedziałek, 08:00 UTC.
+Ten patch i18n/dual-domain **nie dodaje nowych kolumn i nie wymaga migracji bazy**. Korzysta z obecnej wspólnej bazy.
 
-Poniedziałek jest celowo wyłączony z maili o matchach, żeby użytkownik nie dostał dwóch retention maili tego samego ranka.
+## Sesje
+
+Cookie sesyjne `__Host-...` jest host-only. To prawidłowe i bezpieczne. Użytkownik przechodzący pierwszy raz z `.pl` na `.com` musi zalogować się na `.com` jeden raz, ale trafia do tego samego konta w tej samej bazie.
+
+## Walidacja patcha
+
+- parser/syntax check wszystkich plików `src/**/*.ts(x)`: OK,
+- `node scripts/check-punctuation.mjs`: OK,
+- pełny `npm ci` / `npm run typecheck` nie był możliwy w środowisku przygotowania patcha, bo instalacja zależności z registry nie została ukończona.
+
+## Ważne przed większym EN launch'em
+
+Część głębszych ekranów (workspace/admin/niektóre dialogi i background notifications) nadal może zawierać polskie teksty. Dokumenty prawne wymagają osobnej, profesjonalnej wersji EN. Szczegóły są w `DUAL-DOMAIN-SETUP.md`.

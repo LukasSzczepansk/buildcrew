@@ -1,7 +1,7 @@
 export const SITE_NAME = "BuildCrew";
 
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://buildcreww.pl"
+  process.env.NEXT_PUBLIC_APP_URL_PL?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://buildcreww.pl"
 ).replace(/\/$/, "");
 
 export const DEFAULT_SEO_TITLE =

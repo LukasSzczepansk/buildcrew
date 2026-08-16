@@ -1,23 +1,32 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/seo";
+import { getRequestLocale } from "@/lib/site-server";
+import { siteUrlForLocale } from "@/lib/site-config";
 import { listProjectsForSitemap } from "@/server/data/projects";
 import { listPublicProfilesForSitemap } from "@/server/data/network";
 import { listHackathonsForSitemap } from "@/server/data/hackathons";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [projects, publicProfiles, hackathons] = await Promise.all([listProjectsForSitemap(), listPublicProfilesForSitemap(), listHackathonsForSitemap()]);
+  const locale = await getRequestLocale();
+  const base = siteUrlForLocale(locale);
+  const [projects, publicProfiles, hackathons] = await Promise.all([
+    listProjectsForSitemap(),
+    listPublicProfilesForSitemap(),
+    listHackathonsForSitemap(),
+  ]);
+  const projectsPath = locale === "en" ? "/explore/projects" : "/projekty";
+  const hackathonsPath = locale === "en" ? "/explore/hackathons" : "/hackathony";
 
   return [
-    { url: SITE_URL },
-    { url: `${SITE_URL}/projekty` },
-    { url: `${SITE_URL}/hackathony` },
-    ...hackathons.map((event) => ({ url: `${SITE_URL}/hackathony/${event.slug}`, lastModified: event.updatedAt })),
+    { url: base },
+    { url: `${base}${projectsPath}` },
+    { url: `${base}${hackathonsPath}` },
+    ...hackathons.map((event) => ({ url: `${base}${hackathonsPath}/${event.slug}`, lastModified: event.updatedAt })),
     ...projects.map((project) => ({
-      url: `${SITE_URL}/p/${project.id}`,
+      url: `${base}/p/${project.id}`,
       lastModified: project.updatedAt,
     })),
     ...publicProfiles.map((profile) => ({
-      url: `${SITE_URL}/u/${encodeURIComponent(profile.username)}`,
+      url: `${base}/u/${encodeURIComponent(profile.username)}`,
       lastModified: profile.updatedAt,
     })),
   ];

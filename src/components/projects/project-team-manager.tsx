@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCopy } from "@/components/i18n/locale-provider";
 import { LogOut, MoreHorizontal, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/ui/avatar";
@@ -122,6 +123,7 @@ export function ProjectTeamManager({ projectId, members }: { projectId: string; 
 
 export function LeaveProjectButton({ projectId, projectName }: { projectId: string; projectName: string }) {
   const router = useRouter();
+  const copy = useCopy();
   const [open, setOpen] = React.useState(false);
   const [pending, startTransition] = React.useTransition();
 
@@ -132,7 +134,7 @@ export function LeaveProjectButton({ projectId, projectName }: { projectId: stri
         toast.error(result.error);
         return;
       }
-      toast.success(`Opuściłeś projekt ${projectName}.`);
+      toast.success(copy(`Opuściłeś projekt ${projectName}.`, `You left ${projectName}.`));
       setOpen(false);
       router.push("/my-projects");
       router.refresh();
@@ -142,20 +144,20 @@ export function LeaveProjectButton({ projectId, projectName }: { projectId: stri
   return (
     <>
       <Button type="button" variant="ghost" size="sm" className="w-full justify-start text-[var(--bc-muted)] hover:text-red-700" onClick={() => setOpen(true)}>
-        <LogOut className="h-3.5 w-3.5" /> Opuść projekt
+        <LogOut className="h-3.5 w-3.5" /> {copy("Opuść projekt", "Leave project")}
       </Button>
       <Dialog open={open} onOpenChange={(value) => { if (!pending) setOpen(value); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Opuścić {projectName}?</DialogTitle>
-            <DialogDescription>Stracisz dostęp do prywatnego workspace&apos;u projektu i nowych wiadomości zespołu.</DialogDescription>
+            <DialogTitle>{copy(`Opuścić ${projectName}?`, `Leave ${projectName}?`)}</DialogTitle>
+            <DialogDescription>{copy("Stracisz dostęp do prywatnego workspace’u projektu i nowych wiadomości zespołu.", "You will lose access to the project’s private workspace and new team messages.")}</DialogDescription>
           </DialogHeader>
           <div className="border-y border-[var(--bc-line)] py-3 text-[13px] leading-5 text-[var(--bc-muted)]">
-            Twoje wcześniejsze wiadomości mogą pozostać w historii projektu. Jeśli byłeś przypisany do zadania, zostanie ono bez przypisanej osoby.
+            {copy("Twoje wcześniejsze wiadomości mogą pozostać w historii projektu. Jeśli byłeś przypisany do zadania, zostanie ono bez przypisanej osoby.", "Your previous messages may remain in the project history. Tasks assigned to you will become unassigned.")}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" disabled={pending} onClick={() => setOpen(false)}>Zostań w projekcie</Button>
-            <Button type="button" variant="destructive" disabled={pending} onClick={confirmLeave}>{pending ? "Opuszczanie…" : "Opuść projekt"}</Button>
+            <Button type="button" variant="outline" disabled={pending} onClick={() => setOpen(false)}>{copy("Zostań w projekcie", "Stay in project")}</Button>
+            <Button type="button" variant="destructive" disabled={pending} onClick={confirmLeave}>{pending ? copy("Opuszczanie…", "Leaving…") : copy("Opuść projekt", "Leave project")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

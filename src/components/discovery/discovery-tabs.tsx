@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useCopy } from "@/components/i18n/locale-provider";
 
 export function DiscoveryTabs({
   active,
@@ -7,15 +10,16 @@ export function DiscoveryTabs({
   active: "projects" | "hackathons" | "ideas" | "people";
   counts?: Partial<Record<"projects" | "hackathons" | "ideas" | "people", number>>;
 }) {
+  const copy = useCopy();
   const tabs = [
-    { key: "projects", label: "Projekty", href: "/projects" },
-    { key: "hackathons", label: "Hackathony", href: "/hackathons" },
-    { key: "ideas", label: "Pomysły", href: "/ideas" },
-    { key: "people", label: "Ludzie chcący budować", href: "/build" },
+    { key: "projects", label: copy("Projekty", "Projects"), href: "/projects" },
+    { key: "hackathons", label: copy("Hackathony", "Hackathons"), href: "/hackathons" },
+    { key: "ideas", label: copy("Pomysły", "Ideas"), href: "/ideas" },
+    { key: "people", label: copy("Ludzie chcący budować", "People ready to build"), href: "/build" },
   ] as const;
 
   return (
-    <nav className="-mx-1 flex gap-1 overflow-x-auto border-b border-[var(--bc-line)] px-1 text-sm" aria-label="Odkrywanie BuildCrew">
+    <nav className="-mx-1 flex gap-1 overflow-x-auto border-b border-[var(--bc-line)] px-1 text-sm" aria-label={copy("Odkrywanie BuildCrew", "Discover BuildCrew")}>
       {tabs.map((tab) => {
         const selected = active === tab.key;
         const count = counts?.[tab.key];
