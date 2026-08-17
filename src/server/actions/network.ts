@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { collaborationEndorsements, follows, profiles, projectMembers, projects, users } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
 import { logEvent } from "@/lib/analytics";
-import { enforceUserRateLimit } from "@/lib/security";
+import { enforceUserRateLimit, isNewAccount } from "@/lib/security";
 import { collaborationEndorsementSchema, uuidSchema } from "@/lib/validations";
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import { createNotification } from "@/server/services/notifications";
@@ -16,7 +16,7 @@ export async function followUser(targetUserId: string) {
   const user = await getVerifiedCurrentUser();
   if (!user) return { error: "You must be logged in." };
   if (user.id === targetUserId) return { error: "You cannot follow yourself." };
-  const rateError = await enforceUserRateLimit("action:network:follow", user.id, 60, 24 * 60 * 60);
+  const rateError = await enforceUserRateLimit("action:network:follow", user.id, (await isNewAccount(user.id)) ? 25 : 60, 24 * 60 * 60);
   if (rateError) return { error: rateError };
   if (await isBlockedEitherWay(user.id, targetUserId)) return { error: "This person is not available." };
 
@@ -53,19 +53,19 @@ export async function endorseCollaborator(input: unknown) {
   const rateError = await enforceUserRateLimit("action:network:endorse", user.id, 20, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
-  const membershipRows = await db.select({ userId: projectMembers.userId })
-    .from(projectMembers)
-    .where(and(eq(projectMembers.projectId, parsed.data.projectId), eq(projectMembers.userId, user.id)));
-  const targetRows = await db.select({ userId: projectMembers.userId })
-    .from(projectMembers)
-    .where(and(eq(projectMembers.projectId, parsed.data.projectId), eq(projectMembers.userId, parsed.data.targetUserId)));
-  if (!membershipRows[0] || !targetRows[0]) return { error: "You can endorse only someone you actually worked with on the same project." };
-
-  const [project, targetProfile] = await Promise.all([
-    db.select({ name: projects.name }).from(projects).where(eq(projects.id, parsed.data.projectId)).limit(1),
+  const [membershipRows, targetRows, project, targetProfile] = await Promise.all([
+    db.select({ isOwner: projectMembers.isOwner, collaborationStatus: projectMembers.collaborationStatus }).from(projectMembers)
+      .where(and(eq(projectMembers.projectId, parsed.data.projectId), eq(projectMembers.userId, user.id))).limit(1),
+    db.select({ isOwner: projectMembers.isOwner, collaborationStatus: projectMembers.collaborationStatus }).from(projectMembers)
+      .where(and(eq(projectMembers.projectId, parsed.data.projectId), eq(projectMembers.userId, parsed.data.targetUserId))).limit(1),
+    db.select({ name: projects.name, ownerId: projects.ownerId }).from(projects).where(eq(projects.id, parsed.data.projectId)).limit(1),
     db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, parsed.data.targetUserId)).limit(1),
   ]);
-  if (!project[0] || !targetProfile[0]) return { error: "Project or user not found." };
+  if (!membershipRows[0] || !targetRows[0] || !project[0] || !targetProfile[0]) return { error: "Project or user not found." };
+  const verifiedPair = project[0].ownerId === user.id
+    ? targetRows[0].collaborationStatus === "CONFIRMED"
+    : project[0].ownerId === parsed.data.targetUserId && membershipRows[0].collaborationStatus === "CONFIRMED";
+  if (!verifiedPair) return { error: "Endorsements unlock only after both sides confirm that the collaboration actually started." };
 
   await db.insert(collaborationEndorsements).values({
     projectId: parsed.data.projectId,

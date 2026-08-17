@@ -17,7 +17,7 @@ import { getPrivateContact, getProfileByUserId } from "@/server/data/profiles";
 import { getProfileAvatarState } from "@/server/data/profile-avatars";
 import { listProjectsForMember } from "@/server/data/projects";
 import { getNotificationPreferences } from "@/server/data/notifications";
-import { getBuilderBadges, listShowcaseForUser } from "@/server/data/showcase";
+import { getBuilderBadges } from "@/server/data/showcase";
 import { listCreditsForUser } from "@/server/data/social-projects";
 import { logoutAction } from "@/server/actions/auth";
 
@@ -34,19 +34,19 @@ export default async function ProfilePage() {
   const labels = labelsFor(locale);
   if (!user) redirect("/login");
 
-  const [profile, privateContact, helpfulCount, projects, notificationPrefs, showcaseEntries, badges, avatarState, completedCredits] = await Promise.all([
+  const [profile, privateContact, helpfulCount, projects, notificationPrefs, badges, avatarState, completedCredits] = await Promise.all([
     getProfileByUserId(user.id),
     getPrivateContact(user.id),
     countHelpfulAnswersForUser(user.id),
     listProjectsForMember(user.id),
     getNotificationPreferences(user.id),
-    listShowcaseForUser(user.id),
     getBuilderBadges(user.id),
     getProfileAvatarState(user.id),
     listCreditsForUser(user.id),
   ]);
 
   if (!profile || !profile.role || !profile.level || !profile.weeklyHours) redirect("/onboarding");
+  const activeProjects = projects.filter((project) => project.lifecycleStatus !== "COMPLETED");
 
   const matchingGaps = [
     !profile.bio?.trim() ? (en ? "a short bio" : "short bio") : null,
@@ -55,7 +55,7 @@ export default async function ProfilePage() {
     !profile.country ? (en ? "country" : "kraj") : null,
     profile.skills.length < 3 ? (en ? "at least 3 skills" : "at least 3 skills") : null,
     profile.interests.length < 2 ? (en ? "areas you want to build in" : "areas you want to build in") : null,
-    profile.lookingFor.length === 0 ? (en ? "what you're looking for" : "what you are looking for now") : null,
+    profile.lookingFor.length === 0 ? "what opportunities you are open to" : null,
     !profile.githubUrl && !profile.portfolioUrl ? (en ? "GitHub or portfolio" : "GitHub or portfolio") : null,
   ].filter((value): value is string => Boolean(value));
 
@@ -64,7 +64,7 @@ export default async function ProfilePage() {
       <Topbar title={en ? "Your profile" : "Your profile"} subtitle={en ? "This is what other builders see and what matching uses." : "This is what other builders see and what matching uses."} />
 
       <div className="mb-6 flex justify-end lg:hidden">
-        <form action={logoutAction}><Button type="submit" variant="outline" size="sm" className="gap-2"><LogOut className="h-4 w-4" /> {en ? "Log out" : "Wyloguj"}</Button></form>
+        <form action={logoutAction}><Button type="submit" variant="outline" size="sm" className="gap-2"><LogOut className="h-4 w-4" /> Log out</Button></form>
       </div>
 
       <section className="mb-7 grid gap-5 border-b border-[var(--bc-line)] pb-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
@@ -77,8 +77,8 @@ export default async function ProfilePage() {
             </div>
             {profile.bio ? <p className="bc-truncate-2 mt-1.5 max-w-[680px] text-[13px] leading-5 text-[var(--bc-muted)]">{profile.bio}</p> : null}
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--bc-faint)]">
-              <span>{projects.length} {en ? "active" : "aktywnych"} · {completedCredits.length} {en ? "completed" : "completed"}</span>
-              <span>{helpfulCount} {en ? "helpful answers" : "helpful answers"}</span>
+              <span>{activeProjects.length} active · {completedCredits.length} completed</span>
+              <span>{helpfulCount} helpful answers</span>
               {badges.slice(0, 2).map((badge) => <span key={badge.key}>{badge.label}</span>)}
             </div>
           </div>
@@ -122,11 +122,11 @@ export default async function ProfilePage() {
         }}
       />
 
-      {showcaseEntries.length ? (
+      {completedCredits.length ? (
         <section className="mt-7 border-t border-[var(--bc-line)] pt-5">
-          <div className="flex items-center justify-between gap-4"><h2 className="text-[16px] font-semibold">Showcase</h2><Button asChild variant="ghost" size="sm"><Link href="/showcase/new">{en ? "Add project" : "Add project"}</Link></Button></div>
+          <div className="flex items-center justify-between gap-4"><h2 className="text-[16px] font-semibold">Built</h2><span className="text-[12px] text-[var(--bc-faint)]">Projects that are part of your BuildCrew track record.</span></div>
           <div className="mt-2 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-            {showcaseEntries.map((entry) => <Link key={entry.id} href={`/showcase/${entry.id}`} className="flex items-center justify-between gap-4 py-3 text-[13px] hover:bg-[var(--bc-surface-subtle)]"><span className="min-w-0 truncate font-medium">{entry.title}</span><span className="shrink-0 text-[11px] text-[var(--bc-faint)]">{entry.reactionCounts.POTENTIAL} {en ? "reactions" : "reakcji"} · {entry.feedbackCount} {en ? "comments" : "komentarzy"}</span></Link>)}
+            {completedCredits.map((credit) => <Link key={credit.creditId} href={`/projects/${credit.projectId}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{credit.projectName}</p><p className="mt-0.5 bc-truncate-2 text-[12px] leading-4 text-[var(--bc-muted)]">{credit.outcome || credit.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{credit.isOwner ? "Owner" : credit.roleType ? labels.roles[credit.roleType] : "Collaborator"}</span></Link>)}
           </div>
         </section>
       ) : null}

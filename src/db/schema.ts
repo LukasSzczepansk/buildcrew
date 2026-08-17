@@ -52,6 +52,8 @@ export const authAccounts = pgTable("auth_accounts", {
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   provider: text("provider").notNull(),
   providerAccountId: text("provider_account_id").notNull(),
+  providerLogin: text("provider_login"),
+  providerProfileUrl: text("provider_profile_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   uniqueIndex("auth_accounts_provider_account_idx").on(t.provider, t.providerAccountId),
@@ -131,7 +133,7 @@ export const goalEnum = [
 ] as const;
 export type Goal = (typeof goalEnum)[number];
 
-export const lookingForEnum = ["HAS_PROJECT", "WANTS_PROJECT", "OPEN_TO_BUILD"] as const;
+export const lookingForEnum = ["HAS_PROJECT", "WANTS_PROJECT", "OPEN_TO_BUILD", "COFOUNDER", "FULL_TIME", "FREELANCE", "INTERNSHIP", "NETWORKING"] as const;
 export type LookingFor = (typeof lookingForEnum)[number];
 
 export const workModePreferenceEnum = ["REMOTE", "HYBRID", "ON_SITE", "FLEXIBLE"] as const;
@@ -384,12 +386,20 @@ export const projectRoles = pgTable("project_roles", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [check("project_roles_slots_check", sql`${t.slots} between 1 and 10`)]);
 
+export const projectMemberCollaborationStatusEnum = ["PENDING", "CONFIRMED", "NOT_STARTED", "ENDED"] as const;
+export type ProjectMemberCollaborationStatus = (typeof projectMemberCollaborationStatusEnum)[number];
+
 export const projectMembers = pgTable("project_members", {
   projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   roleId: uuid("role_id").references(() => projectRoles.id, { onDelete: "set null" }),
   roleType: text("role_type").$type<RoleType>(),
   isOwner: boolean("is_owner").notNull().default(false),
+  collaborationStatus: text("collaboration_status").$type<ProjectMemberCollaborationStatus>().notNull().default("PENDING"),
+  memberConfirmedAt: timestamp("member_confirmed_at", { withTimezone: true }),
+  ownerConfirmedAt: timestamp("owner_confirmed_at", { withTimezone: true }),
+  collaborationEndedAt: timestamp("collaboration_ended_at", { withTimezone: true }),
+  collaborationCheckRequestedAt: timestamp("collaboration_check_requested_at", { withTimezone: true }),
   joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [primaryKey({ columns: [t.projectId, t.userId] })]);
 
@@ -1013,6 +1023,8 @@ export const notificationTypeEnum = [
   "PROFILE_AVATAR_REJECTED",
   "PROJECT_UPDATE",
   "PROJECT_COMPLETED",
+  "COLLABORATION_CHECK",
+  "COLLABORATION_CONFIRMED",
   "HACKATHON_TEAM_INVITE",
   "HACKATHON_TEAM_REQUEST",
   "HACKATHON_TEAM_JOINED",
@@ -1053,6 +1065,8 @@ export const notifications = pgTable("notifications", {
 
 export const reportReasonEnum = ["spam", "scam", "harassment", "inappropriate", "other"] as const;
 export type ReportReason = (typeof reportReasonEnum)[number];
+export const reportTargetTypeEnum = ["USER", "PROJECT", "MESSAGE"] as const;
+export type ReportTargetType = (typeof reportTargetTypeEnum)[number];
 
 export const blocks = pgTable("blocks", {
   id: uuidPk(),
@@ -1065,6 +1079,8 @@ export const reports = pgTable("reports", {
   id: uuidPk(),
   reporterId: uuid("reporter_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   reportedId: uuid("reported_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  targetType: text("target_type").$type<ReportTargetType>().notNull().default("USER"),
+  targetId: text("target_id"),
   reason: text("reason").$type<ReportReason>().notNull(),
   description: text("description"),
   status: text("status").notNull().default("open"),
@@ -1110,6 +1126,9 @@ export const analyticsEventTypeEnum = [
   "network_follow",
   "network_unfollow",
   "collaboration_endorsed",
+  "collaboration_check_submitted",
+  "collaboration_confirmed",
+  "content_reported",
   "public_profile_updated",
   "profile_avatar_uploaded",
   "profile_avatar_removed",

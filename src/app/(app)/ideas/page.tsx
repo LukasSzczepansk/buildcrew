@@ -1,2 +1,2 @@
 import { redirect } from "next/navigation";
-export default function IdeasPage() { redirect("/projects?stage=IDEA"); }
+export default function IdeasRedirect() { redirect("/projects?stage=IDEA"); }

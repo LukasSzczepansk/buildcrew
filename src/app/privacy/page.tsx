@@ -33,19 +33,18 @@ export default function PrivacyPage() {
           <li>profile data such as username, headline, bio, role, experience, skills, interests, availability, languages, location, collaboration preferences and links you provide;</li>
           <li>project and collaboration data such as project descriptions, roles, team membership, applications, invitations, updates, tasks, workspace messages, links, milestones, credits and endorsements;</li>
           <li>messages, reports, help questions, feedback, reactions and other content you submit;</li>
-          <li>hackathon participation, team preferences and related matching data;</li>
           <li>technical and security data such as IP address, device/browser information, timestamps, logs, rate-limit events and security signals;</li>
           <li>email-delivery and notification metadata;</li>
           <li>analytics data where you have given the required consent.</li>
         </ul>
       </LegalSection>
 
-      <LegalSection title="3. Google sign-in">
-        <p>If you choose Google sign-in, BuildCrew may receive the identifiers and email information needed to create or recognize your BuildCrew account. BuildCrew does not receive your Google password and does not use Google sign-in to access Gmail, Drive or unrelated Google data.</p>
+      <LegalSection title="3. Third-party sign-in">
+        <p>If you choose Google or GitHub sign-in, BuildCrew may receive the account identifier, email address and limited public profile information needed to create, recognize or enrich your BuildCrew account. BuildCrew does not receive your provider password. GitHub sign-in may also provide your GitHub login and public profile URL so you can connect your builder profile.</p>
       </LegalSection>
 
       <LegalSection title="4. Why we process data">
-        <p>Data may be processed to provide and secure your account, operate profiles and projects, enable team formation and communication, generate recommendations and matching, provide hackathon and Showcase functionality, deliver notifications, moderate content, prevent abuse, maintain records of collaboration and comply with legal obligations.</p>
+        <p>Data may be processed to provide and secure your account, operate profiles and projects, enable team formation and communication, generate recommendations and matching, support professional-network and collaboration-history features, deliver notifications, moderate content, prevent abuse, maintain records of collaboration and comply with legal obligations.</p>
         <p>Depending on the specific processing activity, the legal basis may include performance of the service agreement, compliance with legal obligations, legitimate interests such as security and service improvement, or consent where required (for example selected analytics).</p>
       </LegalSection>
 
@@ -83,8 +82,8 @@ export default function PrivacyPage() {
         <p>Requests can be sent to <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>. Additional information may be requested where necessary to verify identity.</p>
       </LegalSection>
 
-      <LegalSection title="13. Security">
-        <p>BuildCrew uses technical and organizational safeguards appropriate to the service, including authentication controls, access restrictions, rate limits, validation and security logging. No internet service can guarantee absolute security.</p>
+      <LegalSection title="13. Safety, reports and security">
+        <p>BuildCrew uses technical and organizational safeguards appropriate to the service, including authentication controls, access restrictions, rate limits, validation and security logging. Reports about profiles, projects or messages may be stored with moderation notes and review metadata. Blocking removes or restricts relevant network and messaging relationships. No internet service can guarantee absolute security.</p>
       </LegalSection>
 
       <LegalSection title="14. Changes and contact">

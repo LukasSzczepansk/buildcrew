@@ -1,7 +1,7 @@
 import { LEVEL_ORDER } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
 import type { AppLocale } from "@/lib/site-config";
-import type { Commitment, Goal, Level, RoleType, WorkModePreference } from "@/db/schema";
+import type { Commitment, Goal, Level, LookingFor, RoleType, WorkModePreference } from "@/db/schema";
 
 export type MatchableProfile = {
   userId: string;
@@ -11,25 +11,19 @@ export type MatchableProfile = {
   weeklyHours: Commitment | null;
   interests: string[];
   goals: Goal[];
+  skills?: string[];
+  lookingFor?: LookingFor[];
   languages?: string[];
   workModePreference?: WorkModePreference | null;
   country?: string | null;
+  lastActiveAt?: Date | string | null;
 };
 
 const COMPLEMENTARY_PAIRS: [RoleType, RoleType][] = [
-  ["FRONTEND", "BACKEND"],
-  ["FRONTEND", "UI_UX"],
-  ["BACKEND", "UI_UX"],
-  ["PRODUCT", "FRONTEND"],
-  ["PRODUCT", "BACKEND"],
-  ["PRODUCT", "FULLSTACK"],
-  ["PRODUCT", "UI_UX"],
-  ["UI_UX", "MOBILE"],
-  ["FRONTEND", "MOBILE"],
-  ["AI_ML", "BACKEND"],
-  ["AI_ML", "FRONTEND"],
-  ["MARKETING", "PRODUCT"],
-  ["MARKETING", "FRONTEND"],
+  ["FRONTEND", "BACKEND"], ["FRONTEND", "UI_UX"], ["BACKEND", "UI_UX"],
+  ["PRODUCT", "FRONTEND"], ["PRODUCT", "BACKEND"], ["PRODUCT", "FULLSTACK"], ["PRODUCT", "UI_UX"],
+  ["UI_UX", "MOBILE"], ["FRONTEND", "MOBILE"], ["AI_ML", "BACKEND"], ["AI_ML", "FRONTEND"],
+  ["MARKETING", "PRODUCT"], ["MARKETING", "FRONTEND"],
 ];
 
 function rolesComplementary(a: RoleType | null, b: RoleType | null) {
@@ -37,59 +31,68 @@ function rolesComplementary(a: RoleType | null, b: RoleType | null) {
   return COMPLEMENTARY_PAIRS.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
 }
 
-export type MatchResult = {
-  score: number;
-  reasons: string[];
-};
+function intentCompatibility(a: LookingFor[] = [], b: LookingFor[] = []) {
+  const aHasProject = a.includes("HAS_PROJECT");
+  const bHasProject = b.includes("HAS_PROJECT");
+  const aWantsBuild = a.some((item) => item === "WANTS_PROJECT" || item === "OPEN_TO_BUILD" || item === "COFOUNDER");
+  const bWantsBuild = b.some((item) => item === "WANTS_PROJECT" || item === "OPEN_TO_BUILD" || item === "COFOUNDER");
+  if ((aHasProject && bWantsBuild) || (bHasProject && aWantsBuild)) return "project" as const;
+  if (a.includes("COFOUNDER") && b.includes("COFOUNDER")) return "cofounder" as const;
+  if (a.includes("NETWORKING") && b.includes("NETWORKING")) return "network" as const;
+  if (aWantsBuild && bWantsBuild) return "build" as const;
+  return null;
+}
 
-export function computeMatch(me: MatchableProfile, other: MatchableProfile, locale: AppLocale = "pl"): MatchResult {
+export type MatchResult = { score: number; reasons: string[] };
+
+export function computeMatch(me: MatchableProfile, other: MatchableProfile, locale: AppLocale = "en"): MatchResult {
   const labels = labelsFor(locale);
-  const en = locale === "en";
   let score = 0;
   const reasons: string[] = [];
 
   if (rolesComplementary(me.role, other.role)) {
-    score += 25;
-    reasons.push(
-      en
-        ? `${other.role ? labels.roles[other.role] : "Their role"} complements yours (${me.role ? labels.roles[me.role] : "not set"})`
-        : `${other.role ? labels.roles[other.role] : "Their role"} complements yours (${me.role ? labels.roles[me.role] : "none"})`,
-    );
+    score += 22;
+    reasons.push(`${other.role ? labels.roles[other.role] : "Their role"} complements your ${me.role ? labels.roles[me.role] : "profile"}`);
   } else if (me.role && other.role && me.role === other.role) {
-    reasons.push(`You are both ${labels.roles[me.role]} - you can support each other`);
     score += 8;
+    reasons.push(`You both work as ${labels.roles[me.role]}`);
   }
 
-  const sharedInterests = me.interests.filter((i) => other.interests.includes(i));
-  if (sharedInterests.length > 0) {
-    const interestScore = Math.min(20, sharedInterests.length * 8);
-    score += interestScore;
-    reasons.push(`You’re both interested in ${sharedInterests.slice(0, 2).join(", ")}`);
+  const sharedSkills = (me.skills ?? []).filter((skill) => (other.skills ?? []).includes(skill));
+  if (sharedSkills.length) {
+    score += Math.min(18, sharedSkills.length * 6);
+    reasons.push(`${sharedSkills.slice(0, 3).join(", ")} in common`);
+  }
+
+  const sharedInterests = me.interests.filter((interest) => other.interests.includes(interest));
+  if (sharedInterests.length) {
+    score += Math.min(14, sharedInterests.length * 7);
+    reasons.push(`Shared interest: ${sharedInterests.slice(0, 2).join(" / ")}`);
   }
 
   if (me.weeklyHours && other.weeklyHours && me.weeklyHours === other.weeklyHours) {
-    score += 12;
-    reasons.push(en ? `You both have ${labels.commitments[other.weeklyHours]}` : `Oboje macie ${labels.commitments[other.weeklyHours]}`);
+    score += 10;
+    reasons.push(`Same availability: ${labels.commitments[other.weeklyHours]}`);
   }
 
-  const sharedGoals = me.goals.filter((g) => other.goals.includes(g));
-  if (sharedGoals.length > 0) {
-    score += 12;
-    reasons.push(en ? `Similar goal: ${labels.goals[sharedGoals[0]].toLowerCase()}` : `Podobny cel: ${labels.goals[sharedGoals[0]].toLowerCase()}`);
+  const sharedGoals = me.goals.filter((goal) => other.goals.includes(goal));
+  if (sharedGoals.length) {
+    score += 8;
+    reasons.push(`Similar goal: ${labels.goals[sharedGoals[0]].toLowerCase()}`);
   }
 
   if (me.level && other.level) {
     const diff = Math.abs(LEVEL_ORDER[me.level] - LEVEL_ORDER[other.level]);
     if (diff <= 1) {
-      score += 10;
-      reasons.push(en ? "Similar experience level" : "Similar experience level");
+      score += 7;
+      reasons.push("Compatible experience level");
     }
   }
 
   const sharedLanguages = (me.languages ?? []).filter((language) => (other.languages ?? []).includes(language));
-  if (sharedLanguages.length > 0) {
-    score += 12;
-    reasons.push(`You can collaborate in ${sharedLanguages.slice(0, 2).join(" / ")}`);
+  if (sharedLanguages.length) {
+    score += 10;
+    reasons.push(`You can work in ${sharedLanguages.slice(0, 2).join(" / ")}`);
   } else if ((me.languages?.length ?? 0) > 0 && (other.languages?.length ?? 0) > 0) {
     score = Math.max(0, score - 12);
   }
@@ -97,15 +100,29 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile, loca
   if (me.workModePreference && other.workModePreference) {
     const compatible = me.workModePreference === "FLEXIBLE" || other.workModePreference === "FLEXIBLE" || me.workModePreference === other.workModePreference;
     if (compatible) {
-      score += 6;
-      reasons.push(en ? "Compatible work-mode preference" : "Matching collaboration mode");
+      score += 5;
+      reasons.push("Compatible work setup");
     }
   }
 
   if (me.country && other.country && me.country === other.country) {
     score += 3;
-    reasons.push(en ? `Same country: ${me.country}` : `Ten sam kraj: ${me.country}`);
+    reasons.push(`Same country: ${me.country}`);
   }
 
-  return { score: Math.min(100, score), reasons };
+  const intent = intentCompatibility(me.lookingFor, other.lookingFor);
+  if (intent) {
+    score += intent === "project" ? 12 : 7;
+    reasons.push(intent === "project" ? "One of you has a project and the other is open to joining" : intent === "cofounder" ? "You are both open to a co-founder conversation" : intent === "network" ? "You are both open to professional networking" : "You are both open to building something new");
+  }
+
+  if (other.lastActiveAt) {
+    const timestamp = new Date(other.lastActiveAt).getTime();
+    if (Number.isFinite(timestamp) && Date.now() - timestamp <= 7 * 24 * 60 * 60 * 1000) {
+      score += 4;
+      reasons.push("Active this week");
+    }
+  }
+
+  return { score: Math.min(100, Math.max(0, score)), reasons: reasons.slice(0, 5) };
 }

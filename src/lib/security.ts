@@ -93,3 +93,10 @@ export function safeHttpUrl(value: string | null | undefined) {
 export function isUuid(value: string | null | undefined) {
   return Boolean(value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
 }
+
+export async function isNewAccount(userId: string, hours = 24) {
+  if (!isUuid(userId)) return false;
+  const result = await pool.query<{ created_at: Date }>("select created_at from users where id = $1 limit 1", [userId]);
+  const createdAt = result.rows[0]?.created_at;
+  return Boolean(createdAt && Date.now() - new Date(createdAt).getTime() < hours * 60 * 60 * 1000);
+}

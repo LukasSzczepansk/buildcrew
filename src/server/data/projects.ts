@@ -43,12 +43,12 @@ async function attachRelations(projectRows: (typeof projects.$inferSelect)[]) {
     db.select().from(projectRoles).where(inArray(projectRoles.projectId, ids)),
     db.select().from(projectMembers).where(inArray(projectMembers.projectId, ids)),
     db
-      .select({ userId: profiles.userId, username: profiles.username, avatarEmoji: profiles.avatarEmoji, isSuspended: users.isSuspended, lastActiveAt: users.lastActiveAt, lastLoginAt: users.lastLoginAt })
+      .select({ userId: profiles.userId, username: profiles.username, avatarEmoji: profiles.avatarEmoji, email: users.email, isSuspended: users.isSuspended, lastActiveAt: users.lastActiveAt, lastLoginAt: users.lastLoginAt })
       .from(profiles)
       .innerJoin(users, eq(users.id, profiles.userId)),
   ]);
 
-  const ownerMap = new Map(ownerRows.map((o) => [o.userId, { ...o, lastActiveAt: o.lastActiveAt ?? o.lastLoginAt }]));
+  const ownerMap = new Map(ownerRows.map((o) => [o.userId, { ...o, isDemo: o.email.toLowerCase().endsWith(".invalid"), lastActiveAt: o.lastActiveAt ?? o.lastLoginAt }]));
 
   return projectRows.map((project) => {
     const technologies = techRows.filter((t) => t.projectId === project.id).map((t) => t.name);

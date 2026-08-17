@@ -12,13 +12,11 @@ import { getProjectFreshness } from "@/lib/project-freshness";
 import { getRequestLocale } from "@/lib/site-server";
 import { listApplicationsForProject } from "@/server/data/applications";
 import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
-import { getWorkspaceSignalsForProjects } from "@/server/data/project-workspace";
 import { refreshProjectRecruitmentAction } from "@/server/actions/projects";
 import type { AppLocale } from "@/lib/site-config";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale();
-  return { title: locale === "en" ? "My projects - BuildCrew" : "My Projects - BuildCrew" };
+  return { title: "My projects - BuildCrew" };
 }
 
 type View = "owned" | "joined";
@@ -28,7 +26,6 @@ export default async function MyProjectsPage({ searchParams }: { searchParams: P
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const locale = await getRequestLocale();
-  const en = locale === "en";
   const labels = labelsFor(locale);
 
   const params = await searchParams;
@@ -39,10 +36,6 @@ export default async function MyProjectsPage({ searchParams }: { searchParams: P
     listProjectsForMember(user.id),
   ]);
   const joined = allMemberships.filter((project) => project.ownerId !== user.id);
-  const workspaceSignals = await getWorkspaceSignalsForProjects(
-    Array.from(new Set([...owned.map((project) => project.id), ...joined.map((project) => project.id)])),
-    user.id,
-  );
 
   const pendingByProject = new Map<string, number>();
   await Promise.all(owned.map(async (project) => {
@@ -52,24 +45,21 @@ export default async function MyProjectsPage({ searchParams }: { searchParams: P
 
   return (
     <div>
-      <Topbar
-        title={en ? "My projects" : "My Projects"}
-        subtitle={en ? "Projects you lead and teams you belong to, all in one place." : "Projects you lead and teams you belong to - all in one place."}
-      />
+      <Topbar title="My projects" subtitle="Projects you lead and teams you belong to, all in one place." />
 
-      <nav aria-label={en ? "My projects view" : "My projects view"} className="mb-5 flex items-center gap-6 border-b border-[var(--bc-line)]">
+      <nav aria-label="My projects view" className="mb-5 flex items-center gap-6 border-b border-[var(--bc-line)]">
         <TabLink href="/my-projects?view=owned" active={view === "owned"} count={owned.length} ariaLabel={`${owned.length} projects`}>
-          {en ? "Leading" : "I lead"}
+          Leading
         </TabLink>
         <TabLink href="/my-projects?view=joined" active={view === "joined"} count={joined.length} ariaLabel={`${joined.length} projects`}>
-          {en ? "Member" : "I’m a member"}
+          Member
         </TabLink>
       </nav>
 
       {view === "owned" ? (
-        <OwnedProjects projects={owned} pendingByProject={pendingByProject} workspaceSignals={workspaceSignals} locale={locale} labels={labels} />
+        <OwnedProjects projects={owned} pendingByProject={pendingByProject} locale={locale} labels={labels} />
       ) : (
-        <JoinedProjects projects={joined} userId={user.id} workspaceSignals={workspaceSignals} locale={locale} labels={labels} />
+        <JoinedProjects projects={joined} userId={user.id} labels={labels} />
       )}
     </div>
   );
@@ -85,31 +75,28 @@ function TabLink({ href, active, count, children, ariaLabel }: { href: string; a
   );
 }
 
-function OwnedProjects({ projects, pendingByProject, workspaceSignals, locale, labels }: {
+function OwnedProjects({ projects, pendingByProject, locale, labels }: {
   projects: Awaited<ReturnType<typeof listProjectsForOwner>>;
   pendingByProject: Map<string, number>;
-  workspaceSignals: Map<string, { unreadMessages: number; assignedTasks: number }>;
   locale: AppLocale;
   labels: Labels;
 }) {
-  const en = locale === "en";
   if (!projects.length) {
-    return <EmptyState title={en ? "You are not leading a project yet." : "You are not leading any projects yet."} description={en ? "Create a project draft and keep refining it as you form a team." : "Create a project draft and complete it later as your team comes together."} actionHref="/projects/new" actionLabel={en ? "Create project" : "Add project"} />;
+    return <EmptyState title="You are not leading a project yet." description="Create a project, describe who you need, and start meeting people who can help you build it." actionHref="/projects/new" actionLabel="Create project" />;
   }
 
   return (
     <section aria-labelledby="owned-projects-heading">
       <div className="mb-3 flex items-baseline justify-between gap-4">
         <div>
-          <h2 id="owned-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">{en ? "Projects you lead" : "Projects you lead"}</h2>
-          <p className="mt-1 text-[13px] text-[var(--bc-muted)]">{en ? "Items that may need your attention appear first." : "We show the items that may need your attention first."}</p>
+          <h2 id="owned-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">Projects you lead</h2>
+          <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Applications and recruiting activity that need your attention appear first.</p>
         </div>
       </div>
 
       <div className="border-y border-[var(--bc-line)]">
         {projects.map((project, index) => {
           const pending = pendingByProject.get(project.id) ?? 0;
-          const signals = workspaceSignals.get(project.id) ?? { unreadMessages: 0, assignedTasks: 0 };
           const memberCount = Math.max(project.members.length, 1);
           const openRoleCount = project.openRoles.length;
           const openSlots = project.openRoles.reduce((sum, role) => sum + Math.max(0, role.open ?? 0), 0);
@@ -118,7 +105,7 @@ function OwnedProjects({ projects, pendingByProject, workspaceSignals, locale, l
           const openRoleNames = project.openRoles.slice(0, 2).map((role) => labels.roles[role.roleType]).join(", ");
 
           return (
-            <article key={project.id} className={`grid gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_220px_190px] lg:items-center ${index > 0 ? "border-t border-[var(--bc-line)]" : ""}`}>
+            <article key={project.id} className={`grid gap-4 py-4 lg:grid-cols-[minmax(0,1fr)_220px_150px] lg:items-center ${index > 0 ? "border-t border-[var(--bc-line)]" : ""}`}>
               <div className="flex min-w-0 gap-3.5">
                 <ProjectIdentityMark name={project.name} tagline={project.tagline} projectType={project.projectType} technologies={project.technologies} size="sm" />
                 <div className="min-w-0 flex-1">
@@ -129,37 +116,35 @@ function OwnedProjects({ projects, pendingByProject, workspaceSignals, locale, l
                   <p className="mt-1 line-clamp-1 max-w-[700px] text-[13px] leading-5 text-[var(--bc-muted)]">{project.tagline}</p>
                   <TechnologyStack items={project.technologies} max={3} compact className="mt-2.5 gap-1.5" />
                   <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--bc-faint)]">
-                    <span className="inline-flex items-center gap-1.5"><UsersRound className="h-3.5 w-3.5" strokeWidth={1.7} />{memberCount} {en ? (memberCount === 1 ? "person" : "people") : (memberCount === 1 ? "person" : "people")}</span>
-                    {signals.unreadMessages > 0 ? <span className="font-medium text-[var(--bc-ink)]">{signals.unreadMessages} {en ? (signals.unreadMessages === 1 ? "new message" : "new messages") : "new messages"}</span> : null}
-                    {signals.assignedTasks > 0 ? <span>{signals.assignedTasks} {en ? (signals.assignedTasks === 1 ? "task for you" : "tasks for you") : (signals.assignedTasks === 1 ? "task for you" : "tasks for you")}</span> : null}
-                    {openRoleCount > 0 ? <span>{en ? "Looking for:" : "Looking for:"} <span className="text-[var(--bc-muted)]">{openRoleNames}{openRoleCount > 2 ? ` +${openRoleCount - 2}` : ""}</span></span> : <span>{en ? "Team complete" : "Team complete"}</span>}
-                    {openSlots === 1 ? <span className="rounded-[5px] bg-[#C8F169] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-neutral-950">{en ? "Last spot" : "Last spot"}</span> : null}
+                    <span className="inline-flex items-center gap-1.5"><UsersRound className="h-3.5 w-3.5" strokeWidth={1.7} />{memberCount} {memberCount === 1 ? "person" : "people"}</span>
+                    {openRoleCount > 0 ? <span>Looking for: <span className="text-[var(--bc-muted)]">{openRoleNames}{openRoleCount > 2 ? ` +${openRoleCount - 2}` : ""}</span></span> : <span>Team complete</span>}
+                    {openSlots === 1 ? <span className="rounded-[5px] bg-[#C8F169] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-neutral-950">Last spot</span> : null}
                     {openRoleCount > 0 ? <span className={staleRecruitment ? "font-medium text-amber-700 dark:text-amber-300" : ""}>{freshness.shortLabel}</span> : null}
                   </div>
                 </div>
               </div>
 
               <div className="lg:border-l lg:border-[var(--bc-line)] lg:pl-5">
-                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{pending > 0 ? (en ? "Needs review" : "Needs review") : openRoleCount > 0 ? (en ? "Recruiting" : "Recruiting") : (en ? "Team" : "Team")}</p>
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{pending > 0 ? "Needs review" : openRoleCount > 0 ? "Recruiting" : "Team"}</p>
                 {pending > 0 ? (
                   <>
-                    <p className="mt-1.5 text-sm font-semibold text-[var(--bc-ink)]">{pending} {en ? (pending === 1 ? "new application" : "new applications") : (pending === 1 ? "new application" : "new applications")}</p>
-                    <Link href={`/projects/${project.id}/applications`} className="mt-1 inline-flex text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">{en ? "Review applications" : "Open applications"}</Link>
+                    <p className="mt-1.5 text-sm font-semibold text-[var(--bc-ink)]">{pending} {pending === 1 ? "new application" : "new applications"}</p>
+                    <Link href={`/projects/${project.id}/applications`} className="mt-1 inline-flex text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">Review applications</Link>
                   </>
                 ) : openRoleCount > 0 ? (
                   <>
-                    <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{staleRecruitment ? (en ? "Still looking for people?" : "Are you still looking for people?") : `${openRoleCount} ${en ? (openRoleCount === 1 ? "open role" : "open roles") : (openRoleCount === 1 ? "open role" : "open roles")}`}</p>
+                    <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{staleRecruitment ? "Still looking for people?" : `${openRoleCount} ${openRoleCount === 1 ? "open role" : "open roles"}`}</p>
                     <p className={`mt-1 line-clamp-2 text-[12px] ${staleRecruitment ? "text-amber-700 dark:text-amber-300" : "text-[var(--bc-muted)]"}`}>{staleRecruitment ? freshness.label : openRoleNames}</p>
-                    {staleRecruitment ? <form action={refreshProjectRecruitmentAction} className="mt-2"><input type="hidden" name="projectId" value={project.id} /><Button type="submit" variant="outline" size="sm" className="h-8 gap-1.5 px-2.5 text-[12px]"><RefreshCw className="h-3.5 w-3.5" />{en ? "Still recruiting" : "Yes, still looking"}</Button></form> : null}
+                    {staleRecruitment ? <form action={refreshProjectRecruitmentAction} className="mt-2"><input type="hidden" name="projectId" value={project.id} /><Button type="submit" variant="outline" size="sm" className="h-8 gap-1.5 px-2.5 text-[12px]"><RefreshCw className="h-3.5 w-3.5" />Still recruiting</Button></form> : null}
                   </>
                 ) : (
-                  <><p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{en ? "Team complete" : "Team complete"}</p><p className="mt-1 text-[12px] text-[var(--bc-muted)]">{en ? "No open roles." : "No open roles."}</p></>
+                  <><p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">Team complete</p><p className="mt-1 text-[12px] text-[var(--bc-muted)]">No open roles.</p></>
                 )}
               </div>
 
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                <Button asChild variant="outline" size="sm"><Link href={`/projects/${project.id}/workspace`}>Workspace</Link></Button>
-                <Button asChild size="sm"><Link href={`/projects/${project.id}/manage`}>{en ? "Manage" : "Manage"} <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
+                <Button asChild variant="outline" size="sm"><Link href={`/projects/${project.id}`}>View</Link></Button>
+                <Button asChild size="sm"><Link href={`/projects/${project.id}/manage`}>Manage <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
               </div>
             </article>
           );
@@ -169,34 +154,30 @@ function OwnedProjects({ projects, pendingByProject, workspaceSignals, locale, l
   );
 }
 
-function JoinedProjects({ projects, userId, workspaceSignals, locale, labels }: {
+function JoinedProjects({ projects, userId, labels }: {
   projects: Awaited<ReturnType<typeof listProjectsForMember>>;
   userId: string;
-  workspaceSignals: Map<string, { unreadMessages: number; assignedTasks: number }>;
-  locale: AppLocale;
   labels: Labels;
 }) {
-  const en = locale === "en";
   if (!projects.length) {
-    return <EmptyState title={en ? "You are not a member of another project yet." : "You are not a member of another project yet."} description={en ? "Browse open projects and find one that needs your skills." : "Browse open projects and find one that needs your skills."} actionHref="/projects" actionLabel={en ? "Browse projects" : "Browse projects"} />;
+    return <EmptyState title="You are not a member of another project yet." description="Browse projects and find a team that needs your skills." actionHref="/projects" actionLabel="Browse projects" />;
   }
 
   return (
     <section aria-labelledby="joined-projects-heading">
       <div className="mb-3">
-        <h2 id="joined-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">{en ? "Teams you belong to" : "Teams you belong to"}</h2>
-        <p className="mt-1 text-[13px] text-[var(--bc-muted)]">{en ? "Your role and quick access to your team's workspace." : "Your role and quick access to the team workspace."}</p>
+        <h2 id="joined-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">Teams you belong to</h2>
+        <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Projects where you are already building with other people.</p>
       </div>
 
       <div className="border-y border-[var(--bc-line)]">
         {projects.map((project, index) => {
           const membership = project.members.find((member) => member.userId === userId);
-          const signals = workspaceSignals.get(project.id) ?? { unreadMessages: 0, assignedTasks: 0 };
-          const roleLabel = membership?.roleType ? labels.roles[membership.roleType] : (en ? "Team member" : "Team member");
+          const roleLabel = membership?.roleType ? labels.roles[membership.roleType] : "Team member";
           const memberCount = Math.max(project.members.length, 1);
 
           return (
-            <article key={project.id} className={`grid gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_190px_190px] lg:items-center ${index > 0 ? "border-t border-[var(--bc-line)]" : ""}`}>
+            <article key={project.id} className={`grid gap-4 py-4 lg:grid-cols-[minmax(0,1fr)_190px_150px] lg:items-center ${index > 0 ? "border-t border-[var(--bc-line)]" : ""}`}>
               <div className="flex min-w-0 gap-3.5">
                 <ProjectIdentityMark name={project.name} tagline={project.tagline} projectType={project.projectType} technologies={project.technologies} size="sm" />
                 <div className="min-w-0 flex-1">
@@ -207,15 +188,13 @@ function JoinedProjects({ projects, userId, workspaceSignals, locale, labels }: 
               </div>
 
               <div className="lg:border-l lg:border-[var(--bc-line)] lg:pl-5">
-                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Your role" : "Your role"}</p>
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Your role</p>
                 <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{roleLabel}</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{memberCount} {en ? (memberCount === 1 ? "person" : "people") : (memberCount === 1 ? "person" : "people")} {en ? "on the team" : "on the team"}</p>
-                {signals.unreadMessages > 0 || signals.assignedTasks > 0 ? <p className="mt-2 text-[11px] font-medium text-[var(--bc-ink)]">{signals.unreadMessages > 0 ? `${signals.unreadMessages} ${en ? (signals.unreadMessages === 1 ? "new message" : "new messages") : "new messages"}` : ""}{signals.unreadMessages > 0 && signals.assignedTasks > 0 ? " · " : ""}{signals.assignedTasks > 0 ? `${signals.assignedTasks} ${en ? (signals.assignedTasks === 1 ? "task" : "tasks") : (signals.assignedTasks === 1 ? "task" : "tasks")} ${en ? "for you" : "for you"}` : ""}</p> : null}
+                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{memberCount} {memberCount === 1 ? "person" : "people"} on the team</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                <Button asChild variant="outline" size="sm"><Link href={`/projects/${project.id}`}>{en ? "Project" : "Project"}</Link></Button>
-                <Button asChild size="sm"><Link href={`/projects/${project.id}/workspace`}>Workspace <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
+                <Button asChild size="sm"><Link href={`/projects/${project.id}`}>Open project <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
               </div>
             </article>
           );

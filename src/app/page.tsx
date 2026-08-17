@@ -1,102 +1,41 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { JsonLd } from "@/components/seo/json-ld";
-import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
-import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
 import { labelsFor } from "@/lib/constants-i18n";
-import { getRequestLocale } from "@/lib/site-server";
+import { opportunityStatusLabel } from "@/lib/opportunities";
 import { localeCode, openGraphLocale, siteUrlForLocale } from "@/lib/site-config";
 import { listPublicProjectsForLanding } from "@/server/data/projects";
 import { listPublicBuildersForLanding } from "@/server/data/profiles";
 
-const COPY = {
-  pl: {
-    title: "BuildCrew - find people to build projects with",
-    description: "Find people for your project, build something together, and create a track record of real collaboration. Projects, teams, and a builder network in one place.",
-    projects: "Projects", hackathons: "Hackathons", how: "How it works", forWho: "Who it is for", login: "Log in", signup: "Create account",
-    eyebrow: "Digital projects · people · collaboration", hero1: "Find people.", hero2: "Build something together.",
-    heroBody: "BuildCrew helps developers, designers, and product builders find a team, build something together, and keep a record of real collaboration. No job listings and no fake recruiting.",
-    seeProjects: "View projects", createProfile: "Create profile", current: "Active projects", seeAll: "View all",
-    communityProject: "Community project", completeTeam: "team complete", noProjects: "The first public projects will appear here once they are published.",
-    canStart: "You can start without a project.", entry: "Choose how you want to start.",
-    startRows: [
-      ["I have a project", "Describe the direction, stage, and roles you need."],
-      ["I want to join", "Browse projects by technology, role, and time commitment."],
-      ["I am looking for people", "Find people with a matching profile and start a conversation."],
-      ["I’m joining a hackathon", "Choose an event, join the pool, and find a team with complementary roles."],
-    ],
-    howTitle: "How it works", minimum: "A simple process.",
-    processRows: [
-      ["Complete profile", "Role, skills, availability, and what you want to build."],
-      ["Find the right context", "A project or a person. Filters and matching help narrow the options."],
-      ["Start a conversation", "Agree on scope, pace, and responsibilities without extra workflow."],
-      ["Build and leave a track record", "Shared projects build your collaboration history, portfolio, and network of people you have actually worked with."],
-    ],
-    closing: "Do not collect contacts. Build a network of people you have actually created something with.",
-    terms: "Terms", privacy: "Privacy", auth: "Logowanie", until: "do",
-    buildersTitle: "People open to projects", buildersLead: "Active builders who want to join a project or start something new.", viewProfile: "View profile",
-  },
-  en: {
-    title: "BuildCrew - find people to build projects with",
-    description: "Find people for your project, build together and create a track record of real collaboration. Projects, teams and builders in one place.",
-    projects: "Projects", hackathons: "Hackathons", how: "How it works", forWho: "For builders", login: "Log in", signup: "Create account",
-    eyebrow: "Digital projects · people · collaboration", hero1: "Find your people.", hero2: "Build something real.",
-    heroBody: "BuildCrew helps developers, designers and product builders find teammates, build projects together and create a track record of real collaboration. No job listings and no fake recruiting process.",
-    seeProjects: "Explore projects", createProfile: "Create profile", current: "Projects looking for people", seeAll: "See all",
-    communityProject: "Community project", completeTeam: "team complete", noProjects: "Public projects will appear here as soon as builders publish them.",
-    canStart: "You can start without a project.", entry: "Choose your way in.",
-    startRows: [
-      ["I have a project", "Describe the direction, stage and roles you need."],
-      ["I want to join", "Browse projects by technology, role and weekly commitment."],
-      ["I'm looking for people", "Find builders with a matching profile and start a conversation."],
-      ["I'm joining a hackathon", "Pick an event, join the pool and find teammates with complementary roles."],
-    ],
-    howTitle: "How it works", minimum: "Just enough process.",
-    processRows: [
-      ["Complete your profile", "Add your role, skills, availability and what you want to build."],
-      ["Find the right context", "A project or a person. Filters and matching help narrow the choice."],
-      ["Talk", "Agree on scope, pace and ownership without another heavy workflow."],
-      ["Build and leave a track record", "Shared projects create collaboration history, portfolio proof and a network of people you actually worked with."],
-    ],
-    closing: "Don't collect contacts. Build a network of people you've actually shipped things with.",
-    terms: "Terms", privacy: "Privacy", auth: "Login", until: "until",
-    buildersTitle: "Builders open to projects", buildersLead: "Active builders looking to join a project or start something new.", viewProfile: "View profile",
-  },
-} as const;
+const TITLE = "BuildCrew - professional network for people who build";
+const DESCRIPTION = "Find teammates, co-founders and collaborators, showcase what you build, grow your professional network and get discovered for new opportunities.";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale();
-  const copy = COPY[locale];
-  return {
-    title: copy.title,
-    description: copy.description,
-    alternates: { canonical: siteUrlForLocale(locale) },
-    openGraph: { type: "website", locale: openGraphLocale(locale), siteName: "BuildCrew", title: copy.title, description: copy.description, url: siteUrlForLocale(locale) },
-    twitter: { card: "summary_large_image", title: copy.title, description: copy.description },
-    robots: { index: true, follow: true },
-  };
-}
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: siteUrlForLocale("en") },
+  openGraph: { type: "website", locale: openGraphLocale("en"), siteName: "BuildCrew", title: TITLE, description: DESCRIPTION, url: siteUrlForLocale("en") },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  robots: { index: true, follow: true },
+};
 
 export default async function LandingPage() {
-  const [user, locale] = await Promise.all([getCurrentUser(), getRequestLocale()]);
+  const user = await getCurrentUser();
   if (user) redirect(user.onboardingCompleted ? "/dashboard" : "/onboarding");
 
-  const [featuredProjects, featuredBuilders] = await Promise.all([listPublicProjectsForLanding(3), listPublicBuildersForLanding(4)]);
-  const copy = COPY[locale];
-  const labels = labelsFor(locale);
-  const publicProjectsHref = locale === "en" ? "/explore/projects" : "/projekty";
-  const publicHackathonsHref = locale === "en" ? "/explore/hackathons" : "/hackathony";
+  const [featuredProjects, featuredBuilders] = await Promise.all([listPublicProjectsForLanding(4), listPublicBuildersForLanding(4)]);
+  const labels = labelsFor("en");
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "BuildCrew",
-    url: siteUrlForLocale(locale),
-    description: copy.description,
-    inLanguage: localeCode(locale),
+    url: siteUrlForLocale("en"),
+    description: DESCRIPTION,
+    inLanguage: localeCode("en"),
   };
 
   return (
@@ -106,71 +45,88 @@ export default async function LandingPage() {
         <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between px-5 sm:px-8 lg:px-10">
           <Link href="/" className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.02em]"><span className="h-4 w-[5px] bg-[#c8f169] ring-1 ring-black/10" />BuildCrew</Link>
           <nav className="hidden items-center gap-6 text-sm text-neutral-600 md:flex dark:text-neutral-400">
-            <Link href={publicProjectsHref} className="hover:text-neutral-950 hover:underline dark:hover:text-white">{copy.projects}</Link>
-            <Link href={publicHackathonsHref} className="hover:text-neutral-950 hover:underline dark:hover:text-white">{copy.hackathons}</Link>
-            <a href="#how-it-works" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{copy.how}</a>
-            <a href="#who-it-is-for" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{copy.forWho}</a>
-            <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Discord</a>
+            <a href="#people" className="hover:text-neutral-950 hover:underline dark:hover:text-white">People</a>
+            <Link href="/explore/projects" className="hover:text-neutral-950 hover:underline dark:hover:text-white">Projects</Link>
+            <a href="#how-it-works" className="hover:text-neutral-950 hover:underline dark:hover:text-white">How it works</a>
           </nav>
           <div className="flex items-center gap-1.5">
-            <LanguageSwitcher compact />
-            <Button asChild variant="ghost" size="sm"><Link href="/login">{copy.login}</Link></Button>
-            <Button asChild size="sm"><Link href="/signup">{copy.signup}</Link></Button>
+            <Button asChild variant="ghost" size="sm"><Link href="/login">Log in</Link></Button>
+            <Button asChild size="sm"><Link href="/signup">Create profile</Link></Button>
           </div>
         </div>
       </header>
 
-      {isAiContestActive() ? <div className="border-b border-[#d8d8d0] bg-[#efefe9] dark:border-[#34342f] dark:bg-[#151513]"><a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-5 py-2.5 text-[12px] sm:px-8 lg:px-10"><span><strong className="font-semibold">{AI_CONTEST.title}</strong> · {copy.until} {AI_CONTEST.deadlineLabel}</span><span className="inline-flex items-center gap-1 text-neutral-500">Discord <ExternalLink className="h-3 w-3" /></span></a></div> : null}
-
       <main>
-        <section className="mx-auto grid max-w-[1240px] gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-end lg:px-10 lg:py-24">
+        <section className="mx-auto grid max-w-[1240px] gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-end lg:px-10 lg:py-24">
           <div>
-            <p className="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">{copy.eyebrow}</p>
-            <h1 className="mt-5 max-w-[760px] text-[48px] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[64px] lg:text-[72px]">{copy.hero1}<br />{copy.hero2}</h1>
-            <p className="mt-6 max-w-xl text-[16px] leading-7 text-neutral-600 dark:text-neutral-300">{copy.heroBody}</p>
-            <div className="mt-7 flex flex-wrap gap-2"><Button asChild size="lg"><Link href={publicProjectsHref}>{copy.seeProjects} <ArrowRight className="h-3.5 w-3.5" /></Link></Button><Button asChild size="lg" variant="outline"><Link href="/signup">{copy.createProfile}</Link></Button></div>
+            <p className="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">People · projects · proof of work · opportunities</p>
+            <h1 className="mt-5 max-w-[820px] text-[48px] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[64px] lg:text-[72px]">Build your network by building real things.</h1>
+            <p className="mt-6 max-w-2xl text-[16px] leading-7 text-neutral-600 dark:text-neutral-300">Find teammates, co-founders and collaborators. Show what you are building, grow a professional network around real work and make it easier for the right people to discover you.</p>
+            <div className="mt-7 flex flex-wrap gap-2">
+              <Button asChild size="lg"><Link href="/signup">Create your profile <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
+              <Button asChild size="lg" variant="outline"><Link href="/explore/projects">Explore projects</Link></Button>
+            </div>
           </div>
 
           <div className="border-t border-[#b9b9b1] dark:border-neutral-600">
-            <div className="flex items-center justify-between border-b border-[#d8d8d0] py-3 text-[12px] text-neutral-500 dark:border-neutral-700 dark:text-neutral-400"><span>{copy.current}</span><Link href={publicProjectsHref} className="hover:text-neutral-950 hover:underline dark:hover:text-white">{copy.seeAll}</Link></div>
+            <div className="flex items-center justify-between border-b border-[#d8d8d0] py-3 text-[12px] text-neutral-500 dark:border-neutral-700 dark:text-neutral-400"><span>Projects looking for people</span><Link href="/explore/projects" className="hover:text-neutral-950 hover:underline dark:hover:text-white">See all</Link></div>
             {featuredProjects.length ? featuredProjects.map((project) => {
               const roles = project.openRoles.slice(0, 2).map((role) => labels.roles[role.roleType]).join(" + ");
-              const stack = project.technologies.slice(0, 3).join(" · ") || copy.communityProject;
-              return <PreviewRow key={project.id} href={`/p/${project.id}`} name={project.name} meta={`${labels.stages[project.stage]} · ${roles || copy.completeTeam}`} stack={stack} />;
-            }) : <div className="border-b border-[#d8d8d0] py-5 text-[13px] leading-5 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">{copy.noProjects}</div>}
+              const stack = project.technologies.slice(0, 3).join(" · ") || "Digital project";
+              return <PreviewRow key={project.id} href={`/p/${project.id}`} name={project.name} meta={`${labels.stages[project.stage]} · ${roles || "team complete"}`} stack={stack} />;
+            }) : <div className="border-b border-[#d8d8d0] py-5 text-[13px] leading-5 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">Public projects will appear here as soon as builders publish them.</div>}
           </div>
         </section>
 
-        <section className="border-y border-[#d8d8d0] bg-white dark:border-[#34342f] dark:bg-[#171715]">
+        <section id="people" className="border-y border-[#d8d8d0] bg-white dark:border-[#34342f] dark:bg-[#171715]">
           <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 lg:px-10">
             <div className="mb-7 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-              <div><p className="text-[13px] font-medium text-neutral-500">BuildCrew network</p><h2 className="mt-1 text-[28px] font-semibold tracking-[-0.025em]">{copy.buildersTitle}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">{copy.buildersLead}</p></div>
-              <Link href="/signup" className="text-sm font-medium hover:underline">{copy.createProfile} <ArrowRight className="inline h-3.5 w-3.5" /></Link>
+              <div><p className="text-[13px] font-medium text-neutral-500">BuildCrew network</p><h2 className="mt-1 text-[28px] font-semibold tracking-[-0.025em]">People open to opportunities</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">Discover people by skills, projects, availability and what they are open to next.</p></div>
+              <Link href="/signup" className="text-sm font-medium hover:underline">Join the network <ArrowRight className="inline h-3.5 w-3.5" /></Link>
             </div>
             {featuredBuilders.length ? <div className="grid gap-px overflow-hidden border border-[#d8d8d0] bg-[#d8d8d0] sm:grid-cols-2 lg:grid-cols-4 dark:border-neutral-700 dark:bg-neutral-700">
               {featuredBuilders.map((builder) => <Link key={builder.userId} href={`/u/${builder.username}`} className="bg-white p-5 transition-colors hover:bg-[#f7f7f3] dark:bg-[#171715] dark:hover:bg-[#1d1d1a]">
-                <div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold">{builder.username}</h3><p className="mt-0.5 text-[12px] text-neutral-500">{builder.role ? labels.roles[builder.role] : "Builder"}</p></div><span className="h-2 w-2 rounded-full bg-[#a8d62f]" /></div>
-                <p className="mt-4 min-h-10 text-[13px] leading-5 text-neutral-600 dark:text-neutral-300">{builder.skills.slice(0, 4).join(" · ") || "Open to building"}</p>
-                <p className="mt-4 text-[12px] text-neutral-500">{builder.skills.slice(0, 3).join(" · ") || (locale === "en" ? "Open to building" : "Open to building")}</p>
+                <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate font-semibold">{builder.username}</h3><p className="mt-0.5 text-[12px] text-neutral-500">{builder.headline || (builder.role ? labels.roles[builder.role] : "Builder")}</p></div><span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#a8d62f]" /></div>
+                <p className="mt-4 min-h-10 text-[13px] leading-5 text-neutral-600 dark:text-neutral-300">{builder.skills.slice(0, 4).join(" · ") || "Building a professional profile"}</p>
+                <p className="mt-4 text-[12px] font-medium text-neutral-700 dark:text-neutral-200">{opportunityStatusLabel(builder.lookingFor) || "Open to connecting"}</p>
                 <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-500">{builder.country ? <span>{builder.country}</span> : null}{builder.languages.length ? <span>{builder.languages.slice(0,2).join(", ")}</span> : null}</div>
-                <p className="mt-5 text-[12px] font-medium">{copy.viewProfile} →</p>
+                <p className="mt-5 text-[12px] font-medium">View profile →</p>
               </Link>)}
-            </div> : <div className="border-y border-[#d8d8d0] py-6 text-sm text-neutral-500 dark:border-neutral-700">{locale === "en" ? "Create a profile and be among the first builders visible here." : "Create a profile and become one of the first builders shown here."}</div>}
+            </div> : <div className="border-y border-[#d8d8d0] py-6 text-sm text-neutral-500 dark:border-neutral-700">Create a public profile and be among the first people visible here.</div>}
           </div>
         </section>
 
-        <section id="who-it-is-for" className="border-y border-[#d8d8d0] bg-white dark:border-[#34342f] dark:bg-[#171715]"><div className="mx-auto grid max-w-[1240px] px-5 sm:px-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-10"><div className="border-b border-[#d8d8d0] py-10 lg:border-b-0 lg:border-r lg:py-14 lg:pr-10 dark:border-neutral-700"><p className="text-[13px] font-medium text-neutral-500">{copy.canStart}</p><h2 className="mt-2 text-[26px] font-semibold leading-8 tracking-[-0.025em]">{copy.entry}</h2></div><div className="lg:pl-10">{copy.startRows.map(([title, text], index) => <StartRow key={title} index={`0${index + 1}`} title={title} text={text} />)}</div></div></section>
+        <section className="mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
+          <div className="grid gap-10 lg:grid-cols-[280px_minmax(0,1fr)]">
+            <div><p className="text-[13px] font-medium text-neutral-500">One profile</p><h2 className="mt-2 text-[30px] font-semibold tracking-[-0.025em]">More than a CV.</h2><p className="mt-3 text-sm leading-6 text-neutral-500 dark:text-neutral-400">BuildCrew connects your skills with the projects, people and collaboration history behind them.</p></div>
+            <div className="border-t border-[#b9b9b1] dark:border-neutral-600">
+              <ValueRow number="01" title="Find people" text="Meet teammates, co-founders and specialists based on skills, interests, availability and real project context." />
+              <ValueRow number="02" title="Build and showcase projects" text="Projects become proof of what you can create, not just another line in a profile." />
+              <ValueRow number="03" title="Grow your professional network" text="Connections become more meaningful when you can see what someone built and who they worked with." />
+              <ValueRow number="04" title="Get discovered for work" text="Mark yourself open to full-time, freelance or internship opportunities and let your work speak before a traditional recruiting process starts." />
+            </div>
+          </div>
+        </section>
 
-        <section id="how-it-works" className="mx-auto max-w-[1240px] px-5 py-16 sm:px-8 sm:py-20 lg:px-10"><div className="grid gap-10 lg:grid-cols-[280px_minmax(0,1fr)]"><div><p className="text-[13px] font-medium text-neutral-500">{copy.howTitle}</p><h2 className="mt-2 text-[28px] font-semibold tracking-[-0.025em]">{copy.minimum}</h2></div><ol className="border-t border-[#b9b9b1] dark:border-neutral-600">{copy.processRows.map(([title, text], index) => <ProcessRow key={title} number={String(index + 1)} title={title} text={text} />)}</ol></div></section>
+        <section id="how-it-works" className="border-y border-[#d8d8d0] bg-white dark:border-[#34342f] dark:bg-[#171715]">
+          <div className="mx-auto grid max-w-[1240px] gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-10">
+            <div><p className="text-[13px] font-medium text-neutral-500">How it works</p><h2 className="mt-2 text-[28px] font-semibold tracking-[-0.025em]">Profile → people → projects → reputation.</h2></div>
+            <ol className="border-t border-[#b9b9b1] dark:border-neutral-600">
+              <ValueRow number="1" title="Create your builder profile" text="Add skills, interests, availability, links and the opportunities you are open to." />
+              <ValueRow number="2" title="Meet the right people" text="Search the network or use recommendations to find people worth talking to." />
+              <ValueRow number="3" title="Build something together" text="Join a project, invite someone to yours and keep your project history connected to the people behind it." />
+              <ValueRow number="4" title="Turn work into reputation" text="Completed projects and collaboration history make your profile stronger for the next project, co-founder conversation or job opportunity." />
+            </ol>
+          </div>
+        </section>
 
-        <section className="border-y border-neutral-800 bg-[#151513] text-neutral-100"><div className="mx-auto grid max-w-[1240px] gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:px-10"><div><p className="text-[13px] text-neutral-400">BuildCrew</p><h2 className="mt-3 max-w-3xl text-[34px] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[42px]">{copy.closing}</h2></div><Button asChild variant="secondary" size="lg"><Link href="/signup">{copy.signup}</Link></Button></div></section>
+        <section className="border-y border-neutral-800 bg-[#151513] text-neutral-100"><div className="mx-auto grid max-w-[1240px] gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:px-10"><div><p className="text-[13px] text-neutral-400">BuildCrew</p><h2 className="mt-3 max-w-3xl text-[34px] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[42px]">Show what you build. Meet people worth building with. Create opportunities from real work.</h2></div><Button asChild variant="secondary" size="lg"><Link href="/signup">Create profile</Link></Button></div></section>
       </main>
 
-      <footer className="border-t border-[#d8d8d0] dark:border-[#34342f]"><div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-4 px-5 py-7 text-[12px] text-neutral-500 sm:flex-row sm:items-center sm:px-8 lg:px-10"><p>© {new Date().getFullYear()} BuildCrew</p><div className="flex flex-wrap gap-5"><Link href={publicProjectsHref} className="hover:underline">{copy.projects}</Link><Link href={publicHackathonsHref} className="hover:underline">{copy.hackathons}</Link><Link href={locale === "en" ? "/terms" : "/terms"} className="hover:underline">{copy.terms}</Link><Link href={locale === "en" ? "/privacy" : "/privacy"} className="hover:underline">{copy.privacy}</Link><a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="hover:underline">Discord</a><Link href="/login" className="hover:underline">{copy.auth}</Link></div></div></footer>
+      <footer className="border-t border-[#d8d8d0] dark:border-[#34342f]"><div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-4 px-5 py-7 text-[12px] text-neutral-500 sm:flex-row sm:items-center sm:px-8 lg:px-10"><p>© {new Date().getFullYear()} BuildCrew</p><div className="flex flex-wrap gap-5"><Link href="/explore/projects" className="hover:underline">Projects</Link><Link href="/terms" className="hover:underline">Terms</Link><Link href="/privacy" className="hover:underline">Privacy</Link><Link href="/login" className="hover:underline">Log in</Link></div></div></footer>
     </div>
   );
 }
 
 function PreviewRow({ href, name, meta, stack }: { href: string; name: string; meta: string; stack: string }) { return <Link href={href} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#d8d8d0] py-4 transition-colors hover:bg-black/[0.025] dark:border-neutral-700 dark:hover:bg-white/[0.03]"><div><p className="text-[14px] font-semibold tracking-[-0.01em]">{name}</p><p className="mt-1 text-[12px] text-neutral-500 dark:text-neutral-400">{meta}</p></div><p className="max-w-[190px] self-end text-right text-[12px] text-neutral-500 dark:text-neutral-400">{stack}</p></Link>; }
-function StartRow({ index, title, text }: { index: string; title: string; text: string }) { return <div className="grid gap-2 border-b border-[#d8d8d0] py-7 last:border-b-0 sm:grid-cols-[42px_180px_minmax(0,1fr)] sm:items-baseline dark:border-neutral-700"><span className="text-[12px] tabular-nums text-neutral-400">{index}</span><h3 className="text-[15px] font-semibold">{title}</h3><p className="max-w-xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">{text}</p></div>; }
-function ProcessRow({ number, title, text }: { number: string; title: string; text: string }) { return <li className="grid gap-2 border-b border-[#d8d8d0] py-5 sm:grid-cols-[34px_190px_minmax(0,1fr)] sm:items-baseline dark:border-neutral-700"><span className="text-[12px] tabular-nums text-neutral-400">{number}</span><h3 className="text-[14px] font-semibold">{title}</h3><p className="max-w-xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">{text}</p></li>; }
+function ValueRow({ number, title, text }: { number: string; title: string; text: string }) { return <div className="grid gap-2 border-b border-[#d8d8d0] py-5 sm:grid-cols-[42px_210px_minmax(0,1fr)] sm:items-baseline dark:border-neutral-700"><span className="text-[12px] tabular-nums text-neutral-400">{number}</span><h3 className="text-[14px] font-semibold">{title}</h3><p className="max-w-xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">{text}</p></div>; }

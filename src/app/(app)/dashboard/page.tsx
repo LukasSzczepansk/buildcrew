@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Bell, ExternalLink, FolderCheck, MessageCircle, Users2 } from "lucide-react";
+import { ArrowRight, Bell, MessageCircle, Users2 } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { DashboardVisitMarker } from "@/components/dashboard/dashboard-visit-marker";
 import { ProjectCard } from "@/components/projects/project-card";
 import { BuilderCard } from "@/components/builders/builder-card";
 import { Button } from "@/components/ui/button";
+import { FeedStoryCard } from "@/components/feed/feed-story-card";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { computeMatch } from "@/lib/matching";
 import { computeProjectMatch } from "@/lib/project-matching";
-import { AI_CONTEST, DISCORD_INVITE_URL, isAiContestActive } from "@/lib/community";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
 import { getDashboardSinceLastVisit } from "@/server/data/dashboard";
 import { listNetworkActivity } from "@/server/data/network";
-import { getDashboardAttention, listFollowedProjectUpdates, PROJECT_UPDATE_KIND_LABELS } from "@/server/data/social-projects";
+import { getDashboardAttention, listFollowedProjectUpdates, listRecentGlobalProjectUpdates } from "@/server/data/social-projects";
 import { listProjects } from "@/server/data/projects";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
@@ -32,11 +32,12 @@ export default async function DashboardPage() {
   const profile = await getProfileByUserId(user.id);
   if (!profile) redirect("/onboarding");
 
-  const [allProjects, allBuilders, attention, followedUpdates, networkActivity, sinceLastVisit] = await Promise.all([
+  const [allProjects, allBuilders, attention, followedUpdates, globalUpdates, networkActivity, sinceLastVisit] = await Promise.all([
     listProjects({}, user.id),
     listBuilderProfiles(user.id),
     getDashboardAttention(user.id),
     listFollowedProjectUpdates(user.id, 5),
+    listRecentGlobalProjectUpdates(5),
     listNetworkActivity(user.id, 5),
     getDashboardSinceLastVisit(user.id, 6),
   ]);
@@ -60,17 +61,18 @@ export default async function DashboardPage() {
     .map((builder) => ({
       builder,
       match: computeMatch(
-        { userId: profile.userId, username: profile.username, role: profile.role as RoleType | null, level: profile.level as Level | null, weeklyHours: profile.weeklyHours as Commitment | null, interests: profile.interests, goals: profile.goals as Goal[], languages: profile.languages, country: profile.country, workModePreference: profile.workModePreference },
-        { userId: builder.userId, username: builder.username, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, interests: builder.interests, goals: builder.goals as Goal[], languages: builder.languages, country: builder.country, workModePreference: builder.workModePreference },
+        { userId: profile.userId, username: profile.username, role: profile.role as RoleType | null, level: profile.level as Level | null, weeklyHours: profile.weeklyHours as Commitment | null, interests: profile.interests, goals: profile.goals as Goal[], skills: profile.skills, lookingFor: profile.lookingFor, languages: profile.languages, country: profile.country, workModePreference: profile.workModePreference, lastActiveAt: profile.lastActiveAt },
+        { userId: builder.userId, username: builder.username, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, interests: builder.interests, goals: builder.goals as Goal[], skills: builder.skills, lookingFor: builder.lookingFor, languages: builder.languages, country: builder.country, workModePreference: builder.workModePreference, lastActiveAt: builder.lastActiveAt },
         locale,
       ),
     }))
     .sort((a, b) => b.match.score - a.match.score)
     .slice(0, 3);
+  const activityUpdates = followedUpdates.length > 0 ? followedUpdates : globalUpdates;
 
   return (
     <div>
-      <Topbar title="Home" subtitle={`Hi ${profile.username}. Come back here for people, projects and things that need your attention.`} />
+      <Topbar title="Home" subtitle={`Hi ${profile.username}. Discover people, projects and professional opportunities around what you build.`} />
       <DashboardVisitMarker />
 
       {profile.languages.length === 0 || !profile.country ? (
@@ -108,11 +110,10 @@ export default async function DashboardPage() {
       ) : null}
 
       <section className="mb-6 border-y border-[var(--bc-line)]">
-        <div className="grid sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid sm:grid-cols-3">
           <AttentionItem en={en} href="/messages" icon={<MessageCircle className="h-3.5 w-3.5" />} value={attention.unreadMessages} label={en ? "new messages" : "new messages"} empty={en ? "No new messages" : "No new messages"} />
           <AttentionItem en={en} href="/notifications" icon={<Bell className="h-3.5 w-3.5" />} value={attention.unreadNotifications} label={en ? "notifications" : "notifications"} empty={en ? "Notifications checked" : "Notifications checked"} />
           <AttentionItem en={en} href="/my-projects" icon={<Users2 className="h-3.5 w-3.5" />} value={attention.pendingApplications} label={en ? "new applications" : "new applications"} empty={en ? "No new applications" : "No new applications"} />
-          <AttentionItem en={en} href="/my-projects" icon={<FolderCheck className="h-3.5 w-3.5" />} value={attention.assignedTasks} label={en ? "tasks for you" : "tasks for you"} empty={en ? "No tasks to handle" : "No tasks waiting for you"} />
         </div>
       </section>
 
@@ -134,50 +135,26 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {isAiContestActive() ? (
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-5 py-3 text-[12px] text-[var(--bc-muted)] md:px-6">
-            <span><strong className="font-semibold text-[var(--bc-ink)]">{AI_CONTEST.shortTitle}</strong> <span className="mx-1 text-[var(--bc-faint)]">·</span> until {AI_CONTEST.deadlineLabel}</span>
-            <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-medium hover:text-[var(--bc-ink)]">Discord <ExternalLink className="h-3 w-3" /></a>
-          </div>
-        ) : null}
       </section>
 
       {matchingBuilders.length > 0 ? (
         <section className="mt-8">
-          <SectionHeading title={en ? "People worth talking to" : "People worth talking to"} href="/builders" label={en ? "All builders" : "All builders"} />
+          <SectionHeading title="People worth meeting" href="/builders" label="All people" />
           <div className="mt-3 space-y-2.5">
             {matchingBuilders.map(({ builder, match }) => (
-              <BuilderCard locale={locale} key={builder.userId} matchScore={match.score} matchReasons={match.reasons} builder={{ userId: builder.userId, username: builder.username, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, languages: builder.languages, country: builder.country, city: builder.city, workModePreference: builder.workModePreference, lastActiveAt: builder.lastActiveAt, createdAt: builder.createdAt }} />
+              <BuilderCard locale={locale} key={builder.userId} matchScore={match.score} matchReasons={match.reasons} builder={{ userId: builder.userId, username: builder.username, headline: builder.headline, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, languages: builder.languages, country: builder.country, city: builder.city, workModePreference: builder.workModePreference, lastActiveAt: builder.lastActiveAt, createdAt: builder.createdAt }} />
             ))}
           </div>
         </section>
       ) : null}
 
-      {(followedUpdates.length > 0 || networkActivity.length > 0) ? (
-        <section className="mt-8 grid gap-8 xl:grid-cols-2">
-          <div>
-            <SectionHeading title={en ? "Followed projects" : "Followed projects"} href="/projects" label={en ? "Discover projects" : "Discover projects"} />
-            <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-              {followedUpdates.length ? followedUpdates.map((item) => (
-                <Link key={item.updateId} href={`/projects/${item.projectId}`} className="block py-3.5 hover:bg-[var(--bc-surface-subtle)]">
-                  <div className="flex items-center justify-between gap-3"><p className="text-[12px] font-semibold">{item.projectName}</p><span className="text-[9px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? ({ PROGRESS: "Progress", ROLE: "Team", MILESTONE: "Milestone", LAUNCH: "Launch" } as const)[item.kind] : PROJECT_UPDATE_KIND_LABELS[item.kind]}</span></div>
-                  <p className="mt-1 bc-truncate-2 text-[11px] leading-4 text-[var(--bc-muted)]">{item.body}</p>
-                  <p className="mt-1 text-[9px] text-[var(--bc-faint)]">{item.authorUsername ?? (en ? "Team" : "Team")} · {item.createdAt.toLocaleDateString(en ? "en-US" : "en-US", { day: "2-digit", month: "short" })}</p>
-                </Link>
-              )) : <p className="py-5 text-[11px] leading-5 text-[var(--bc-muted)]">{en ? "Follow projects you care about. Their updates will appear here." : "Follow projects you care about. Their meaningful updates will appear here."}</p>}
-            </div>
-          </div>
-          <div>
-            <SectionHeading title={en ? "Your network activity" : "Your network activity"} href="/network" label={en ? "My network" : "My Network"} />
-            <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-              {networkActivity.length ? networkActivity.map((item) => (
-                <Link key={item.id} href={`/projects/${item.id}`} className="block py-3.5 hover:bg-[var(--bc-surface-subtle)]">
-                  <p className="text-[10px] text-[var(--bc-faint)]">{item.username}</p>
-                  <p className="mt-0.5 text-[12px] font-semibold">{item.name}</p>
-                  <p className="mt-1 bc-truncate-2 text-[11px] leading-4 text-[var(--bc-muted)]">{item.tagline}</p>
-                </Link>
-              )) : <p className="py-5 text-[11px] leading-5 text-[var(--bc-muted)]">{en ? "Follow builders and collaborate on projects. Over time, this becomes your feed of real building activity." : "Follow builders and collaborate on projects. Over time, this becomes your feed of real building activity."}</p>}
-            </div>
+      {(activityUpdates.length > 0 || networkActivity.length > 0) ? (
+        <section className="mt-8">
+          <SectionHeading title="Activity" href="/network" label="My network" />
+          <p className="mt-1 text-[12px] text-[var(--bc-faint)]">Project updates and activity from people you follow, presented as a lightweight builder feed.</p>
+          <div className="mt-4 grid gap-3 xl:grid-cols-2">
+            {activityUpdates.map((item) => <FeedStoryCard key={`update-${item.updateId}`} href={`/projects/${item.projectId}`} title={item.projectName} eyebrow={({ PROGRESS: "Progress update", ROLE: "Team update", MILESTONE: "Milestone", LAUNCH: "Launch" } as const)[item.kind]} body={item.body} meta={`${item.authorUsername ?? "Team"} · ${item.createdAt.toLocaleDateString("en-US", { day: "2-digit", month: "short" })}`} visualKind={item.kind === "LAUNCH" ? "launch" : item.kind === "ROLE" ? "people" : "project"} />)}
+            {networkActivity.map((item) => <FeedStoryCard key={`network-${item.id}`} href={`/projects/${item.id}`} title={item.name} eyebrow={`${item.username} is building`} body={item.tagline} meta={`Updated ${item.updatedAt.toLocaleDateString("en-US", { day: "2-digit", month: "short" })}`} visualKind="project" />)}
           </div>
         </section>
       ) : null}
@@ -190,8 +167,8 @@ export default async function DashboardPage() {
 
 
       <section className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[var(--bc-line)] pt-5">
-        <Link href="/build" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-ink)] hover:underline">Build Pool <ArrowRight className="h-3.5 w-3.5" /></Link>
-        <Link href="/network" className="inline-flex items-center gap-1.5 text-[13px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline"><Users2 className="h-3.5 w-3.5" /> {en ? "My network" : "My Network"}</Link>
+        <Link href="/network" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-ink)] hover:underline"><Users2 className="h-3.5 w-3.5" /> My network <ArrowRight className="h-3.5 w-3.5" /></Link>
+        <Link href="/my-projects" className="inline-flex items-center gap-1.5 text-[13px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">My projects</Link>
       </section>
     </div>
   );

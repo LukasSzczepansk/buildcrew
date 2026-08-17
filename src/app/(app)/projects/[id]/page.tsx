@@ -13,6 +13,8 @@ import { ShareProjectButton } from "@/components/projects/share-project-button";
 import { ProjectFollowButton } from "@/components/projects/project-follow-button";
 import { ProjectUpdateComposer } from "@/components/projects/project-update-composer";
 import { LeaveProjectButton } from "@/components/projects/project-team-manager";
+import { CollaborationCheckin } from "@/components/projects/collaboration-checkin";
+import { ContentReportDialog } from "@/components/moderation/content-report-dialog";
 import { labelsFor } from "@/lib/constants-i18n";
 import { internationalLabels } from "@/lib/international";
 import { getRequestLocale } from "@/lib/site-server";
@@ -62,7 +64,8 @@ export default async function ProjectDetailPage({
   ]);
 
   const isOwner = project.ownerId === user.id;
-  const isMember = project.members.some((member) => member.userId === user.id);
+  const myMembership = project.members.find((member) => member.userId === user.id);
+  const isMember = Boolean(myMembership);
   const openSlots = project.openRoles.reduce((sum, role) => sum + Math.max(0, role.open ?? 0), 0);
   const freshness = getProjectFreshness(project.updatedAt, new Date(), locale);
   const staleRecruitment = project.lifecycleStatus === "ACTIVE" && openSlots > 0 && freshness.stale;
@@ -88,6 +91,7 @@ export default async function ProjectDetailPage({
                   {project.name}
                 </h1>
                 <Badge variant="secondary">{labels.stages[project.stage]}</Badge>
+                {project.owner?.isDemo ? <Badge variant="outline">BuildCrew Lab</Badge> : null}
                 {project.lifecycleStatus === "COMPLETED" ? <Badge variant="success">{en ? "Completed" : "Completed"}</Badge> : project.lifecycleStatus === "PAUSED" ? <Badge variant="outline">{en ? "Paused" : "Paused"}</Badge> : null}
                 {project.lifecycleStatus === "ACTIVE" ? <Badge variant={staleRecruitment ? "outline" : "secondary"}>{freshness.shortLabel}</Badge> : null}
               </div>
@@ -397,11 +401,22 @@ export default async function ProjectDetailPage({
           ) : null}
 
           {!isOwner && isMember ? (
-            <div className="space-y-2 border-t border-[var(--bc-line)] pt-5">
-              <p className="text-[13px] text-[var(--bc-muted)]">{en ? "You are a member of this team." : "You are a member of this team."}</p>
+            <div className="space-y-3 border-t border-[var(--bc-line)] pt-5">
+              <p className="text-[13px] text-[var(--bc-muted)]">You are a member of this team.</p>
+              {myMembership && !myMembership.isOwner ? <CollaborationCheckin projectId={project.id} memberId={myMembership.userId} status={myMembership.collaborationStatus} memberConfirmed={Boolean(myMembership.memberConfirmedAt)} ownerConfirmed={Boolean(myMembership.ownerConfirmedAt)} viewerRole="MEMBER" joinedAt={myMembership.joinedAt} /> : null}
               <LeaveProjectButton projectId={project.id} projectName={project.name} />
             </div>
           ) : null}
+
+          {isOwner && project.members.some((member) => !member.isOwner) ? (
+            <SideSection title="Collaboration checks">
+              <div className="space-y-3">
+                {project.members.filter((member) => !member.isOwner).map((member) => <div key={member.userId} className="rounded-[7px] border border-[var(--bc-line)] p-3"><p className="mb-2 text-[12px] font-semibold text-[var(--bc-ink)]">{member.profile?.username ?? "Team member"}</p><CollaborationCheckin projectId={project.id} memberId={member.userId} status={member.collaborationStatus} memberConfirmed={Boolean(member.memberConfirmedAt)} ownerConfirmed={Boolean(member.ownerConfirmedAt)} viewerRole="OWNER" compact joinedAt={member.joinedAt} /></div>)}
+              </div>
+            </SideSection>
+          ) : null}
+
+          {!isOwner ? <div className="border-t border-[var(--bc-line)] pt-3"><ContentReportDialog targetType="PROJECT" targetId={project.id} label="Report project" compact /></div> : null}
         </aside>
       </div>
     </div>

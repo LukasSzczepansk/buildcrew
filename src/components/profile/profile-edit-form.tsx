@@ -118,7 +118,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
         </div>
       </FormSection>
 
-      <FormSection title={copy("Matching", "Matching")}>
+      <FormSection title="Opportunities" hint="Tell people what kinds of conversations and opportunities are relevant to you right now.">
         <div>
           <p className="mb-2 text-sm font-medium">{copy("Level", "Level")}</p>
           <div className="grid gap-2 sm:grid-cols-3">
@@ -136,15 +136,15 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
 
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           <div><p className="mb-2 text-sm font-medium">{copy("Goals", "Goals")}</p><div className="space-y-2">{GOAL_OPTIONS.map((goal) => <CheckRow key={goal} checked={form.goals.includes(goal)} label={labels.goals[goal]} onChange={() => setForm((f) => ({ ...f, goals: toggleValue(f.goals, goal) }))} />)}</div></div>
-          <div><p className="mb-2 text-sm font-medium">{copy("Looking for", "Looking for")}</p><div className="space-y-2">{LOOKING_FOR_OPTIONS.map((value) => <CheckRow key={value} checked={form.lookingFor.includes(value)} label={labels.lookingFor[value]} onChange={() => setForm((f) => ({ ...f, lookingFor: toggleValue(f.lookingFor, value) }))} />)}</div></div>
+          <div><p className="mb-2 text-sm font-medium">Open to</p><div className="space-y-2">{LOOKING_FOR_OPTIONS.map((value) => <CheckRow key={value} checked={form.lookingFor.includes(value)} label={labels.lookingFor[value]} onChange={() => setForm((f) => ({ ...f, lookingFor: toggleValue(f.lookingFor, value) }))} />)}</div></div>
         </div>
       </FormSection>
 
       <FormSection title={copy("Profile visibility", "Profile visibility")} hint={copy("Your public profile is optional and can be disabled at any time.", "Your public profile is optional and can be disabled at any time.")}>
         <label className="flex cursor-pointer items-start justify-between gap-5 border-y border-[var(--bc-line)] py-3.5">
           <span className="min-w-0">
-            <span className="block text-sm font-medium text-[var(--bc-ink)]">{copy("Public builder profile", "Public builder profile")}</span>
-            <span className="mt-0.5 block max-w-[680px] text-[12px] leading-4 text-[var(--bc-faint)]">{copy("Lets you share your profile outside BuildCrew and appear in public collaboration history. Discord and private contact details remain private.", "Lets you share your profile outside BuildCrew and appear in public collaboration history. Discord and private contact details remain private.")}</span>
+            <span className="block text-sm font-medium text-[var(--bc-ink)]">{copy("Public professional profile", "Public professional profile")}</span>
+            <span className="mt-0.5 block max-w-[680px] text-[12px] leading-4 text-[var(--bc-faint)]">{copy("Lets you share your profile outside BuildCrew, get discovered for projects and professional opportunities, and build a public track record. Discord and private contact details remain private.", "Lets you share your profile outside BuildCrew, get discovered for projects and professional opportunities, and build a public track record. Discord and private contact details remain private.")}</span>
           </span>
           <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#a8d72f]" checked={form.publicProfile} onChange={(event) => setForm((f) => ({ ...f, publicProfile: event.target.checked }))} />
         </label>

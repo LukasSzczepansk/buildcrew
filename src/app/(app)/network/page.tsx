@@ -11,6 +11,7 @@ import { labelsFor } from "@/lib/constants-i18n";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { timeAgo } from "@/lib/utils";
+import { isOpenToOpportunities } from "@/lib/opportunities";
 import { listFriends, listPendingFriendRequests } from "@/server/data/friends";
 import {
   getNetworkCounts,
@@ -55,7 +56,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
         <Metric value={counts.collaborators} label={en ? "collaborators" : "collaborators"} />
         <Metric value={counts.following} label={"following"} />
         <Metric value={counts.followers} label={"followers"} />
-        <Metric value={counts.endorsements} label={en ? "endorsements" : "rekomendacji"} />
+        <Metric value={counts.endorsements} label="endorsements" />
       </section>
 
       <nav className="mt-6 flex gap-1 overflow-x-auto border-b border-[var(--bc-line)]" aria-label={en ? "My network" : "My Network"}>
@@ -70,7 +71,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
           {tab === "collaborators" ? (
             <NetworkSection title={en ? "People you actually built with" : "People you have actually built with"} description={en ? "This relationship is verified automatically when you are members of the same project." : "This relationship is created automatically when you are members of the same project."}>
               {collaborators.length ? collaborators.map((item) => (
-                <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={en ? `${item.sharedProjects} shared ${item.sharedProjects === 1 ? "project" : "projects"}${item.latestProject ? ` · latest ${item.latestProject.name}` : ""}` : `${item.sharedProjects} ${item.sharedProjects === 1 ? "shared project" : "shared projects"}${item.latestProject ? ` · ostatnio ${item.latestProject.name}` : ""}`} openToBuild={item.profile.lookingFor.includes("OPEN_TO_BUILD") || item.profile.lookingFor.includes("WANTS_PROJECT")}>
+                <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={`${item.sharedProjects} shared ${item.sharedProjects === 1 ? "project" : "projects"}${item.latestProject ? ` · latest ${item.latestProject.name}` : ""}`} openToBuild={isOpenToOpportunities(item.profile.lookingFor)}>
                   <FollowButton targetUserId={item.profile.userId} initialFollowing={followingIds.has(item.profile.userId)} compact />
                   <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>{en ? "Profile" : "Profile"}</Link></Button>
                 </PersonRow>
@@ -81,7 +82,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
           {tab === "following" ? (
             <NetworkSection title="Following" description={en ? "Following does not require approval. You will get a signal when this person publishes a new project." : "Following does not require approval. You will be notified when this person publishes a new project."}>
               {following.length ? following.map((item) => (
-                <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={`Following since ${timeAgo(item.since, locale)}`} openToBuild={item.profile.lookingFor.includes("OPEN_TO_BUILD") || item.profile.lookingFor.includes("WANTS_PROJECT")}>
+                <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={`Following since ${timeAgo(item.since, locale)}`} openToBuild={isOpenToOpportunities(item.profile.lookingFor)}>
                   <FollowButton targetUserId={item.profile.userId} initialFollowing compact />
                   <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>{en ? "Profile" : "Profile"}</Link></Button>
                 </PersonRow>
@@ -92,7 +93,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
           {tab === "followers" ? (
             <NetworkSection title={en ? "Followers" : "People following you"} description={en ? "People who want to see your new projects and collaboration availability." : "These people want to see your new projects and collaboration availability."}>
               {followers.length ? followers.map((item) => (
-                <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={`Following you since ${timeAgo(item.since, locale)}`} openToBuild={item.profile.lookingFor.includes("OPEN_TO_BUILD") || item.profile.lookingFor.includes("WANTS_PROJECT")}>
+                <PersonRow locale={locale} key={item.profile.userId} profile={item.profile} meta={`Following you since ${timeAgo(item.since, locale)}`} openToBuild={isOpenToOpportunities(item.profile.lookingFor)}>
                   <FollowButton targetUserId={item.profile.userId} initialFollowing={followingIds.has(item.profile.userId)} compact />
                   <Button asChild variant="outline" size="sm"><Link href={`/builders/${item.profile.userId}`}>{en ? "Profile" : "Profile"}</Link></Button>
                 </PersonRow>
@@ -104,7 +105,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
             <div className="space-y-8">
               <NetworkSection title={"Connections"} description={en ? "Accepted connections can message each other privately on BuildCrew." : "Accepted contacts can message each other privately on BuildCrew."}>
                 {friends.length ? friends.map((item) => (
-                  <PersonRow locale={locale} key={item.friendshipId} profile={item.profile} meta={`Connected since ${timeAgo(item.since, locale)}`} openToBuild={item.profile.lookingFor.includes("OPEN_TO_BUILD") || item.profile.lookingFor.includes("WANTS_PROJECT")}>
+                  <PersonRow locale={locale} key={item.friendshipId} profile={item.profile} meta={`Connected since ${timeAgo(item.since, locale)}`} openToBuild={isOpenToOpportunities(item.profile.lookingFor)}>
                     <FriendRelationActions targetUserId={item.profile.userId} state={{ kind: "FRIENDS", conversationId: item.conversationId }} compact />
                   </PersonRow>
                 )) : <EmptyNetwork title={en ? "No accepted connections yet" : "No accepted contacts"} text={en ? "Connections are useful when you want to talk one-on-one. Follow people when you only want to keep up with them." : "Use contacts when you want to talk one-to-one. Use following to keep up with interesting people."} href="/builders" cta={en ? "Find people" : "Find people"} />}
@@ -184,7 +185,7 @@ function PersonRow({ profile, meta, openToBuild, children, locale }: { profile: 
       <Link href={`/builders/${profile.userId}`} className="flex min-w-0 items-center gap-3">
         <Avatar username={profile.username} seed={profile.userId} />
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2"><p className="truncate text-sm font-semibold">{profile.username}</p>{openToBuild ? <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--bc-muted)]"><span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />Open to build</span> : null}</div>
+          <div className="flex flex-wrap items-center gap-2"><p className="truncate text-sm font-semibold">{profile.username}</p>{openToBuild ? <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--bc-muted)]"><span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />Open to opportunities</span> : null}</div>
           <p className="mt-0.5 text-[12px] text-[var(--bc-muted)]">{profile.role ? labelsFor(locale)["roles"][profile.role] : "Builder"}{profile.skills.length ? ` · ${profile.skills.slice(0, 3).join(" · ")}` : ""}</p>
           <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{meta}</p>
         </div>

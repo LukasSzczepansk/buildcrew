@@ -86,6 +86,26 @@ export async function listFollowedProjectUpdates(userId: string, limit = 8) {
     .limit(Math.max(1, Math.min(limit, 20)));
 }
 
+export async function listRecentGlobalProjectUpdates(limit = 8) {
+  return db.select({
+    updateId: projectUpdates.id,
+    projectId: projects.id,
+    projectName: projects.name,
+    projectTagline: projects.tagline,
+    kind: projectUpdates.kind,
+    body: projectUpdates.body,
+    createdAt: projectUpdates.createdAt,
+    authorUsername: profiles.username,
+  })
+    .from(projectUpdates)
+    .innerJoin(projects, eq(projects.id, projectUpdates.projectId))
+    .innerJoin(users, eq(users.id, projects.ownerId))
+    .leftJoin(profiles, eq(profiles.userId, projectUpdates.authorId))
+    .where(and(eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE"), eq(projects.projectLanguage, "EN"), eq(users.isSuspended, false)))
+    .orderBy(desc(projectUpdates.createdAt))
+    .limit(Math.max(1, Math.min(limit, 20)));
+}
+
 export async function listProjectCredits(projectId: string) {
   if (!isUuid(projectId)) return [];
   return db.select().from(projectCredits).where(eq(projectCredits.projectId, projectId)).orderBy(desc(projectCredits.isOwner), projectCredits.creditedAt);

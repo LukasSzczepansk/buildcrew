@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Send } from "lucide-react";
+import { MoreHorizontal, Send, UserX } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { appMessage } from "@/lib/server-copy";
+import { ContentReportDialog } from "@/components/moderation/content-report-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { blockUser } from "@/server/actions/moderation";
 
 type ChatMessage = {
   id: string;
@@ -27,11 +31,12 @@ export function ChatThread({
 }: {
   conversationId: string;
   currentUserId: string;
-  otherUser: { username: string; avatarEmoji: string };
+  otherUser: { userId: string; username: string; avatarEmoji: string };
   initialMessages: ChatMessage[];
 }) {
   const copy = useCopy();
   const locale = useLocale();
+  const router = useRouter();
   const [messages, setMessages] = React.useState(initialMessages);
   const [body, setBody] = React.useState("");
   const [sending, setSending] = React.useState(false);
@@ -87,12 +92,20 @@ export function ChatThread({
   return (
     <Card className="overflow-hidden">
       <div className="border-b border-neutral-200 px-5 py-4 dark:border-neutral-800">
-        <div className="flex items-center gap-3">
-          <Avatar username={otherUser.username} size="sm" />
-          <div>
-            <p className="font-semibold">{otherUser.username}</p>
-            <p className="text-[13px] text-neutral-400">{copy("Messages refresh every few seconds", "Messages refresh every few seconds")}</p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Avatar username={otherUser.username} size="sm" />
+            <div>
+              <p className="font-semibold">{otherUser.username}</p>
+              <p className="text-[13px] text-neutral-400">Messages refresh every few seconds</p>
+            </div>
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Conversation options"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem className="text-red-600" onClick={async () => { const result = await blockUser(otherUser.userId); if (result && "error" in result && result.error) return toast.error(result.error); toast.success("User blocked."); router.push("/messages"); router.refresh(); }}><UserX className="mr-2 h-4 w-4" />Block user</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -114,10 +127,13 @@ export function ChatThread({
                       : "rounded-bl-md border border-neutral-200 bg-white text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100",
                   )}>
                     <p className="whitespace-pre-wrap break-words">{message.body}</p>
-                    <p className={cn("mt-1 text-[11px]", mine ? "text-lime-100" : "text-neutral-400")}>
-                      {new Date(message.createdAt).toLocaleTimeString(locale === "en" ? "en-US" : "en-US", { hour: "2-digit", minute: "2-digit" })}
-                      {mine ? ` · ${message.readAt ? copy("Read", "Read") : copy("Sent", "Sent")}` : ""}
-                    </p>
+                    <div className="mt-1 flex items-center justify-between gap-3">
+                      <p className={cn("text-[11px]", mine ? "text-lime-100" : "text-neutral-400")}>
+                        {new Date(message.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                        {mine ? ` · ${message.readAt ? "Read" : "Sent"}` : ""}
+                      </p>
+                      {!mine ? <ContentReportDialog targetType="MESSAGE" targetId={message.id} compact label="Report" /> : null}
+                    </div>
                   </div>
                 </div>
               );

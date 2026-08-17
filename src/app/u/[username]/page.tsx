@@ -8,6 +8,7 @@ import { TechnologyStack } from "@/components/ui/technology-badge";
 import { UserRoleBadge } from "@/components/ui/user-role-badge";
 import { labelsFor } from "@/lib/constants-i18n";
 import { internationalLabels } from "@/lib/international";
+import { opportunityStatusLabel } from "@/lib/opportunities";
 import { getRequestLocale } from "@/lib/site-server";
 import { siteUrlForLocale } from "@/lib/site-config";
 import { getActivityState, activityLabel } from "@/lib/activity";
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     title: `${profile.username} - ${role} | BuildCrew`,
     description,
     alternates: { canonical: `/u/${profile.username}` },
-    robots: { index: true, follow: true },
+    robots: profile.isDemo ? { index: false, follow: true } : { index: true, follow: true },
     openGraph: {
       type: "website",
       url: `/u/${profile.username}`,
@@ -59,7 +60,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
     ...ownedProjects.filter((project) => project.projectLanguage === "EN" && project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: "Owner" })),
     ...memberProjects.filter((project) => project.projectLanguage === "EN" && project.ownerId !== profile.userId && project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: "Team member" })),
   ];
-  const openToBuild = profile.lookingFor.includes("OPEN_TO_BUILD") || profile.lookingFor.includes("WANTS_PROJECT");
+  const opportunityStatus = opportunityStatusLabel(profile.lookingFor);
   const activityState = getActivityState(profile.lastActiveAt);
 
   const personJsonLd = {
@@ -86,7 +87,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
             <div className="flex items-start gap-4">
               <Avatar username={profile.username} seed={profile.userId} size="lg" className={profile.isFounder ? "ring-2 ring-[#C8F169] ring-offset-2 ring-offset-[var(--bc-canvas)]" : undefined} />
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2"><h1 className="text-[30px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{openToBuild ? <span className="inline-flex items-center gap-1.5 text-[12px] font-medium"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />Open to build</span> : null}</div>
+                <div className="flex flex-wrap items-center gap-2"><h1 className="text-[30px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{profile.isDemo ? <span className="rounded-full border border-[var(--bc-line)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}{opportunityStatus ? <span className="inline-flex items-center gap-1.5 text-[12px] font-medium"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />{opportunityStatus}</span> : null}</div>
                 <p className="mt-1 text-sm text-[var(--bc-muted)]">{profile.headline || (profile.role ? labels.roles[profile.role as RoleType] : "Builder")} · {activityState === "TODAY" ? activityLabel(profile.lastActiveAt, locale) : (en ? "BuildCrew profile" : "BuildCrew profile")}</p>
               </div>
             </div>
@@ -104,7 +105,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
 
         <section className="grid gap-8 py-8 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="space-y-8">
-            <PublicSection title={en ? "Looking for" : "Looking for now"}>
+            <PublicSection title="Open to">
               <p className="text-sm leading-6 text-[var(--bc-muted)]">{profile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || (en ? "No information" : "No information")}</p>
               <p className="mt-2 text-[13px] text-[var(--bc-faint)]">{en ? "Availability:" : "Availability:"} {profile.weeklyHours ? labels.commitments[profile.weeklyHours] : "-"}</p>
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-[var(--bc-faint)]">

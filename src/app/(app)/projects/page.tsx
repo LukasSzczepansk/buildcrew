@@ -72,18 +72,19 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
     .sort((a, b) => b.score - a.score || new Date(b.project.updatedAt).getTime() - new Date(a.project.updatedAt).getTime());
 
   const stageLinks: Array<{ label: string; stage?: Stage }> = [
-    { label: en ? "For you" : "For you" },
-    { label: en ? "Planning" : "Planowanie", stage: "DESIGN" },
-    { label: en ? "Building" : "Building", stage: "BUILDING" },
-    { label: en ? "Testing" : "Testing", stage: "TESTING" },
-    { label: en ? "Launched" : "Uruchomione", stage: "LAUNCHED" },
+    { label: "For you" },
+    { label: "Ideas", stage: "IDEA" },
+    { label: "Planning", stage: "DESIGN" },
+    { label: "Building", stage: "BUILDING" },
+    { label: "Testing", stage: "TESTING" },
+    { label: "Launched", stage: "LAUNCHED" },
   ];
 
   return (
     <div>
       <Topbar
-        title={en ? "Projects" : "Projects"}
-        subtitle={en ? "Projects ranked by how well they fit your skills, availability, language and preferred way of working." : "Projects ranked by fit with your skills, availability, language, and preferred way of working."}
+        title="Projects"
+        subtitle="Discover projects, ideas and teams looking for people with your skills."
       />
 
       <div className="flex flex-col gap-3 border-b border-[var(--bc-line)] pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -95,8 +96,8 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
           })}
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm"><Link href="/my-projects">{en ? "My projects" : "My Projects"}</Link></Button>
-          <Button asChild size="sm"><Link href="/projects/new">{en ? "Create project" : "Add project"}</Link></Button>
+          <Button asChild variant="outline" size="sm"><Link href="/my-projects">My projects</Link></Button>
+          <Button asChild size="sm"><Link href="/projects/new">Create project</Link></Button>
         </div>
       </div>
 

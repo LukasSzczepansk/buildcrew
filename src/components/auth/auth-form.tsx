@@ -21,15 +21,27 @@ function GoogleIcon() {
   );
 }
 
+
+function GitHubIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="currentColor">
+      <path d="M12 .7A11.3 11.3 0 0 0 8.43 22.72c.57.1.78-.25.78-.55v-2.16c-3.18.69-3.85-1.35-3.85-1.35-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.73-1.53-2.54-.29-5.21-1.27-5.21-5.59 0-1.24.44-2.25 1.17-3.04-.12-.29-.51-1.45.11-3 0 0 .96-.31 3.12 1.16A10.8 10.8 0 0 1 12 6.04c.97 0 1.93.13 2.84.38 2.16-1.47 3.11-1.16 3.11-1.16.63 1.55.24 2.71.12 3 .73.79 1.17 1.8 1.17 3.04 0 4.33-2.68 5.3-5.23 5.58.41.36.78 1.06.78 2.13v3.16c0 .3.21.66.79.55A11.3 11.3 0 0 0 12 .7Z"/>
+    </svg>
+  );
+}
+
 export function AuthForm({
   mode,
   action,
   externalError,
   nextPath,
+  googleEnabled = true,
+  githubEnabled = false,
 }: {
   mode: "login" | "signup";
   action: (prev: AuthFormState, formData: FormData) => Promise<AuthFormState>;
   googleEnabled?: boolean;
+  githubEnabled?: boolean;
   externalError?: string;
   nextPath?: string;
 }) {
@@ -45,27 +57,41 @@ export function AuthForm({
         </p>
       )}
 
-      <>
-          <Button asChild variant="outline" className="w-full" size="lg">
-            <a href={`/api/auth/google?intent=${mode}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`}>
-              <GoogleIcon />
-              {mode === "signup" ? copy("Sign up with Google", "Sign up with Google") : copy("Continue with Google", "Continue with Google")}
-            </a>
-          </Button>
-          {mode === "signup" && (
+      {(googleEnabled || githubEnabled) ? (
+        <>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {googleEnabled ? (
+              <Button asChild variant="outline" className="w-full" size="lg">
+                <a href={`/api/auth/google?intent=${mode}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`}>
+                  <GoogleIcon />
+                  Google
+                </a>
+              </Button>
+            ) : null}
+            {githubEnabled ? (
+              <Button asChild variant="outline" className="w-full" size="lg">
+                <a href={`/api/auth/github?intent=${mode}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`}>
+                  <GitHubIcon />
+                  GitHub
+                </a>
+              </Button>
+            ) : null}
+          </div>
+          {mode === "signup" ? (
             <p className="-mt-2 text-center text-[13px] leading-5 text-neutral-500">
-              {copy("By clicking ‘Sign up with Google’, you accept the", "By clicking ‘Sign up with Google’, you accept the")} {" "}
-              <Link href={copy("/terms", "/terms")} className="text-lime-600 hover:underline dark:text-lime-400">{copy("Terms", "Terms")}</Link>
-              {" "}{copy("and acknowledge the", "and acknowledge the")} {" "}
-              <Link href={copy("/privacy", "/privacy")} className="text-lime-600 hover:underline dark:text-lime-400">{copy("Privacy Policy", "Privacy Policy")}</Link>.
+              By continuing with a provider, you accept the {" "}
+              <Link href="/terms" className="text-lime-600 hover:underline dark:text-lime-400">Terms</Link>{" "}
+              and acknowledge the {" "}
+              <Link href="/privacy" className="text-lime-600 hover:underline dark:text-lime-400">Privacy Policy</Link>.
             </p>
-          )}
+          ) : null}
           <div className="flex items-center gap-3 text-[13px] text-neutral-400">
             <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
-            {copy("or email and password", "or email and password")}
+            or email and password
             <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
           </div>
-      </>
+        </>
+      ) : null}
 
       <form action={formAction} className="flex flex-col gap-5">
         {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}

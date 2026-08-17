@@ -79,9 +79,14 @@ const EN = {
     COMMERCIAL: "Potentially commercial",
   } satisfies Record<Goal, string>,
   lookingFor: {
-    HAS_PROJECT: "I have a project and I'm looking for people",
-    WANTS_PROJECT: "I want to join a project",
-    OPEN_TO_BUILD: "I want to meet people and build something together",
+    HAS_PROJECT: "I have a project and need teammates",
+    WANTS_PROJECT: "Projects and startup teams",
+    OPEN_TO_BUILD: "Meeting people to build with",
+    COFOUNDER: "Co-founder opportunities",
+    FULL_TIME: "Full-time opportunities",
+    FREELANCE: "Freelance work",
+    INTERNSHIP: "Internships",
+    NETWORKING: "Professional networking",
   } satisfies Record<LookingFor, string>,
   stages: {
     IDEA: "Idea",

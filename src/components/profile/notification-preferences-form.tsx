@@ -22,16 +22,11 @@ type Prefs = {
 
 type LabelItem = [keyof Prefs, string, string, string, string];
 const labels: LabelItem[] = [
-  ["emailMessages", "Private messages", "Private messages", "Email only after about 15 minutes if the conversation is still unread. The private message content is not included in the email.", "Email after about 15 minutes if the conversation is still unread. Private message content is never included in the email."],
-  ["emailWorkspace", "Important workspace activity", "Important workspace activity", "Replies, @mentions, and assigned tasks. These alerts may arrive sooner because they require a specific action.", "Replies, @mentions and assigned tasks. These may arrive sooner because they usually need your attention."],
-  ["emailProjectApplications", "Project invitations and applications", "Project invitations and applications", "Someone wants to join a project or is inviting you to their team.", "Someone wants to join your project or invites you to their team."],
+  ["emailMessages", "Private messages", "Private messages", "Email after about 15 minutes if the conversation is still unread.", "Email after about 15 minutes if the conversation is still unread."],
+  ["emailProjectApplications", "Project invitations and applications", "Project invitations and applications", "Someone wants to join your project or invites you to their team.", "Someone wants to join your project or invites you to their team."],
   ["emailProjectAccepted", "Application decisions", "Application decisions", "Acceptance or rejection of your project application.", "Acceptance or rejection of your project application."],
-  ["emailMatches", "New strong matches", "New strong matches", "Best-matching builders and projects. At most one email like this every few days.", "Highly relevant builders and projects. At most one such email every few days."],
-  ["emailWeeklyDigest", "Weekly digest", "Weekly digest", "A short digest of top people, projects, and unread messages.", "A short digest with relevant people, projects and unread messages."],
-  ["emailBuildPool", "Build Pool", "Build Pool", "Someone wants to build something with you.", "Someone wants to build something with you."],
-  ["emailCrew", "Crew", "Crew", "Invitations and important team changes.", "Invitations and important team changes."],
-  ["emailChallenge", "Hackathons and Build Challenges", "Hackathons and Build Challenges", "Team invitations and important event or challenge updates.", "Team invitations and important event or challenge updates."],
-  ["emailShowcaseFeedback", "Showcase feedback", "Showcase feedback", "Optional email about new constructive feedback.", "Optional email when you receive new constructive feedback."],
+  ["emailMatches", "New strong matches", "New strong matches", "Highly relevant people and projects. At most one email every few days.", "Highly relevant people and projects. At most one email every few days."],
+  ["emailWeeklyDigest", "Weekly digest", "Weekly digest", "A short digest with relevant people, projects and unread messages.", "A short digest with relevant people, projects and unread messages."],
 ];
 
 export function NotificationPreferencesForm({ initial }: { initial: Prefs }) {

@@ -1,1 +1,2 @@
-export { default, generateMetadata } from "@/app/hackathony/page";
+import { redirect } from "next/navigation";
+export default function PublicHackathonsRedirect() { redirect("/explore/projects"); }

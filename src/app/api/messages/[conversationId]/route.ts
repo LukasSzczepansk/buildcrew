@@ -3,7 +3,7 @@ import { and, eq, isNull, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { conversations, messages, profiles } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
-import { enforceUserRateLimit } from "@/lib/security";
+import { enforceUserRateLimit, isNewAccount } from "@/lib/security";
 import { messageSchema } from "@/lib/validations";
 import { getConversationForUser, listConversationMessages } from "@/server/data/messages";
 import { createNotification, markEntityNotificationsReadAndCancel } from "@/server/services/notifications";
@@ -46,9 +46,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
   const access = await getConversationForUser(conversationId, user.id);
   if (!access) return noStore({ error: "You cannot send messages in this conversation." }, { status: 403 });
 
-  const minuteLimit = await enforceUserRateLimit("api:message:minute", user.id, 30, 60);
+  const newAccount = await isNewAccount(user.id);
+  const minuteLimit = await enforceUserRateLimit("api:message:minute", user.id, newAccount ? 8 : 24, 60);
   if (minuteLimit) return noStore({ error: minuteLimit }, { status: 429 });
-  const hourLimit = await enforceUserRateLimit("api:message:hour", user.id, 300, 60 * 60);
+  const hourLimit = await enforceUserRateLimit("api:message:hour", user.id, newAccount ? 40 : 180, 60 * 60);
   if (hourLimit) return noStore({ error: hourLimit }, { status: 429 });
 
   let body: unknown;

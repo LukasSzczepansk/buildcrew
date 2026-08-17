@@ -19,6 +19,7 @@ import {
   projectWorkspaceReactionEnum,
   projectTypeEnum,
   reportReasonEnum,
+  reportTargetTypeEnum,
   roleTypeEnum,
   showcaseCategoryEnum,
   showcaseReactionEnum,
@@ -249,6 +250,13 @@ export const answerSchema = z.object({
 
 export const reportSchema = z.object({
   reportedId: z.string().uuid(),
+  reason: z.enum(reportReasonEnum),
+  description: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
+export const contentReportSchema = z.object({
+  targetType: z.enum(reportTargetTypeEnum),
+  targetId: z.string().trim().min(1).max(200),
   reason: z.enum(reportReasonEnum),
   description: z.string().trim().max(500).optional().or(z.literal("")),
 });

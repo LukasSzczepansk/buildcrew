@@ -31,7 +31,7 @@ export type ProjectCardData = {
   needs?: ProjectNeed[];
   openRoles: { id: string; roleType: RoleType; open?: number }[];
   members: { userId: string; profile: { avatarEmoji: string; username?: string } | null }[];
-  owner: { avatarEmoji: string; username: string; lastActiveAt?: Date | string | null } | null;
+  owner: { avatarEmoji: string; username: string; isDemo?: boolean; lastActiveAt?: Date | string | null } | null;
 };
 
 export function ProjectCard({
@@ -86,6 +86,7 @@ export function ProjectCard({
                 >
                   {project.name}
                 </Link>
+                {project.owner?.isDemo ? <span className="rounded-full border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}
                 <span className="inline-flex h-6 items-center gap-1.5 rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 text-[11px] font-medium text-[var(--bc-muted)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent)]" />
                   {labels.stages[project.stage]}

@@ -5,7 +5,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { conversations, friendRequests, friendships, profiles, users } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
-import { enforceUserRateLimit } from "@/lib/security";
+import { enforceUserRateLimit, isNewAccount } from "@/lib/security";
 import { uuidSchema } from "@/lib/validations";
 import { friendPair, friendPairKey } from "@/server/data/friends";
 import { isBlockedEitherWay } from "@/server/data/moderation";
@@ -20,7 +20,7 @@ export async function sendFriendRequest(targetUserId: string) {
   const user = await getVerifiedCurrentUser();
   if (!user) return { error: "You must be logged in." };
   if (user.id === targetUserId) return { error: "You cannot add yourself." };
-  const rateError = await enforceUserRateLimit("action:friend-request", user.id, 30, 24 * 60 * 60);
+  const rateError = await enforceUserRateLimit("action:friend-request", user.id, (await isNewAccount(user.id)) ? 12 : 30, 24 * 60 * 60);
   if (rateError) return { error: rateError };
   if (await isBlockedEitherWay(user.id, targetUserId)) return { error: "You cannot send an invitation to this person." };
 

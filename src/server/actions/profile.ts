@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { profileInterests, profilePrivate, profileSkills, profiles } from "@/db/schema";
+import { authAccounts, profileInterests, profilePrivate, profileSkills, profiles } from "@/db/schema";
 import { emojiForSeed } from "@/lib/utils";
 import { consumePostAuthRedirect, getVerifiedCurrentUser } from "@/lib/auth";
 import { enforceUserRateLimit } from "@/lib/security";
@@ -48,6 +48,11 @@ export async function completeOnboarding(
     return { error: appMessage(parsed.error.issues[0]?.message, locale, "Check the fields and try again.") };
   }
   const data = parsed.data;
+  const githubAccount = !data.githubUrl
+    ? await db.select({ profileUrl: authAccounts.providerProfileUrl }).from(authAccounts)
+        .where(and(eq(authAccounts.userId, user.id), eq(authAccounts.provider, "github"))).then((rows) => rows.find((row) => Boolean(row.profileUrl)) ?? null)
+    : null;
+  const resolvedGitHubUrl = data.githubUrl || githubAccount?.profileUrl || "";
 
   const existingUsername = await db
     .select({ userId: profiles.userId })
@@ -73,7 +78,7 @@ export async function completeOnboarding(
         workModePreference: data.workModePreference,
         lookingFor: data.lookingFor,
         goals: data.goals,
-        githubUrl: data.githubUrl || null,
+        githubUrl: resolvedGitHubUrl || null,
         portfolioUrl: data.portfolioUrl || null,
         linkedinUrl: data.linkedinUrl || null,
         avatarEmoji: emojiForSeed(data.username),
@@ -94,7 +99,7 @@ export async function completeOnboarding(
           workModePreference: data.workModePreference,
           lookingFor: data.lookingFor,
           goals: data.goals,
-          githubUrl: data.githubUrl || null,
+          githubUrl: resolvedGitHubUrl || null,
           portfolioUrl: data.portfolioUrl || null,
           linkedinUrl: data.linkedinUrl || null,
           onboardingCompleted: true,

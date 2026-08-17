@@ -22,7 +22,7 @@ import {
 } from "@/db/schema";
 import { getVerifiedCurrentUser } from "@/lib/auth";
 import { logEvent } from "@/lib/analytics";
-import { enforceUserRateLimit } from "@/lib/security";
+import { enforceUserRateLimit, isNewAccount } from "@/lib/security";
 import { applicationSchema, decisionSchema, projectContentUpdateSchema, projectCreateSchema, projectInternationalSettingsSchema, projectInviteSchema, uuidSchema } from "@/lib/validations";
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import { createNotification } from "@/server/services/notifications";
@@ -173,7 +173,7 @@ export async function applyToProject(projectId: string, input: z.infer<typeof ap
   if (!uuidSchema.safeParse(projectId).success) return { error: appMessage("Invalid project.", locale) };
   const user = await getVerifiedCurrentUser();
   if (!user) return { error: appMessage("You must be logged in.", locale) };
-  const rateError = await enforceUserRateLimit("action:project:apply", user.id, 20, 24 * 60 * 60);
+  const rateError = await enforceUserRateLimit("action:project:apply", user.id, (await isNewAccount(user.id)) ? 8 : 20, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
   const parsed = applicationSchema.safeParse(input);
@@ -255,7 +255,7 @@ export async function inviteToProject(projectId: string, inviteeId: string, role
   const validatedMessage = inviteInput.data.message ?? "";
   const user = await getVerifiedCurrentUser();
   if (!user) return { error: appMessage("You must be logged in.", locale) };
-  const rateError = await enforceUserRateLimit("action:project:invite", user.id, 30, 24 * 60 * 60);
+  const rateError = await enforceUserRateLimit("action:project:invite", user.id, (await isNewAccount(user.id)) ? 10 : 30, 24 * 60 * 60);
   if (rateError) return { error: rateError };
   if (validatedInviteeId === user.id) return { error: appMessage("You cannot invite yourself.", locale) };
   const inviteeRows = await db.select({ id: users.id, isSuspended: users.isSuspended, systemRole: users.systemRole, onboardingCompleted: profiles.onboardingCompleted })
@@ -549,4 +549,74 @@ export async function refreshProjectRecruitmentAction(formData: FormData) {
   revalidatePath("/projects");
   revalidatePath("/my-projects");
   revalidatePath("/dashboard");
+}
+
+export async function respondToCollaborationCheck(projectId: string, memberId: string, answer: "STARTED" | "NOT_STARTED" | "ENDED") {
+  if (!uuidSchema.safeParse(projectId).success || !uuidSchema.safeParse(memberId).success) return { error: "Invalid collaboration." };
+  const user = await getVerifiedCurrentUser();
+  if (!user) return { error: "You must be logged in." };
+  const rateError = await enforceUserRateLimit("action:collaboration:check", user.id, 30, 24 * 60 * 60);
+  if (rateError) return { error: rateError };
+
+  const outcome = await db.transaction(async (tx) => {
+    await tx.execute(sql`select project_id from project_members where project_id = ${projectId} and user_id = ${memberId} for update`);
+    const rows = await tx.select({ member: projectMembers, project: projects })
+      .from(projectMembers)
+      .innerJoin(projects, eq(projects.id, projectMembers.projectId))
+      .where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, memberId)))
+      .limit(1);
+    const row = rows[0];
+    if (!row || row.member.isOwner) return { error: "Collaboration not found." } as const;
+
+    const isOwner = row.project.ownerId === user.id;
+    const isMember = row.member.userId === user.id;
+    if (!isOwner && !isMember) return { error: "You cannot update this collaboration." } as const;
+
+    const now = new Date();
+    const checkOpensAt = row.member.joinedAt.getTime() + 7 * 24 * 60 * 60 * 1000;
+    if (row.member.collaborationStatus === "PENDING" && now.getTime() < checkOpensAt) {
+      return { error: "Collaboration confirmation opens 7 days after the person joins the project." } as const;
+    }
+    if (answer === "NOT_STARTED") {
+      await tx.update(projectMembers).set({ collaborationStatus: "NOT_STARTED", collaborationEndedAt: now, collaborationCheckRequestedAt: now })
+        .where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, memberId)));
+      return { row, confirmed: false, status: "NOT_STARTED" as const };
+    }
+    if (answer === "ENDED") {
+      await tx.update(projectMembers).set({ collaborationStatus: "ENDED", collaborationEndedAt: now, collaborationCheckRequestedAt: now })
+        .where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, memberId)));
+      return { row, confirmed: false, status: "ENDED" as const };
+    }
+
+    const nextMemberConfirmedAt = isMember ? now : row.member.memberConfirmedAt;
+    const nextOwnerConfirmedAt = isOwner ? now : row.member.ownerConfirmedAt;
+    const confirmed = Boolean(nextMemberConfirmedAt && nextOwnerConfirmedAt);
+    await tx.update(projectMembers).set({
+      memberConfirmedAt: nextMemberConfirmedAt,
+      ownerConfirmedAt: nextOwnerConfirmedAt,
+      collaborationStatus: confirmed ? "CONFIRMED" : "PENDING",
+      collaborationCheckRequestedAt: now,
+      collaborationEndedAt: null,
+    }).where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, memberId)));
+    return { row, confirmed, status: confirmed ? "CONFIRMED" as const : "PENDING" as const };
+  });
+
+  if ("error" in outcome) return outcome;
+  const otherUserId = user.id === outcome.row.project.ownerId ? memberId : outcome.row.project.ownerId;
+  await logEvent("collaboration_check_submitted", user.id, { projectId, memberId, answer, status: outcome.status });
+
+  if (outcome.confirmed) {
+    await logEvent("collaboration_confirmed", user.id, { projectId, memberId });
+    await createNotification(otherUserId, "COLLABORATION_CONFIRMED", `Collaboration confirmed on ${outcome.row.project.name}`, "This collaboration now counts toward your BuildCrew track record and collaboration reputation.", `/projects/${projectId}`, { actorId: user.id, entityType: "project", entityId: projectId });
+  } else if (answer === "STARTED") {
+    await createNotification(otherUserId, "COLLABORATION_CHECK", `Confirm your collaboration on ${outcome.row.project.name}`, "The other side confirmed that you started working together. Confirm it to add this collaboration to both profiles.", `/projects/${projectId}`, { actorId: user.id, entityType: "project", entityId: projectId });
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+  revalidatePath(`/projects/${projectId}/manage`);
+  revalidatePath("/my-projects");
+  revalidatePath("/network");
+  revalidatePath(`/builders/${memberId}`);
+  revalidatePath(`/builders/${outcome.row.project.ownerId}`);
+  return { success: true, status: outcome.status };
 }

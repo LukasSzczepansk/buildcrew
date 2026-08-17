@@ -75,7 +75,7 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
         </header>
 
         <section className="mt-8">
-          <SectionHeader title={en ? "People worth talking to" : "People worth talking to"} meta={en ? `${builderMatches.length} first matches` : `${builderMatches.length} pierwsze dopasowania`} href="/builders" locale={locale} />
+          <SectionHeader title="People worth meeting" meta={`${builderMatches.length} first matches`} href="/builders" locale={locale} />
           {builderMatches.length ? (
             <div className="mt-3 space-y-2.5">
               {builderMatches.map(({ builder, match }) => (
@@ -84,7 +84,7 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
                   key={builder.userId}
                   matchScore={match.score}
                   matchReasons={match.reasons}
-                  builder={{ userId: builder.userId, username: builder.username, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, lastActiveAt: builder.lastActiveAt, createdAt: builder.createdAt }}
+                  builder={{ userId: builder.userId, username: builder.username, headline: builder.headline, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, lastActiveAt: builder.lastActiveAt, createdAt: builder.createdAt }}
                 />
               ))}
             </div>
@@ -92,7 +92,7 @@ export default async function OnboardingRecommendationsPage({ searchParams }: { 
         </section>
 
         <section className="mt-9">
-          <SectionHeader title={en ? "Projects for you" : "Projects for you"} meta={en ? `${projectMatches.length} suggestions` : `${projectMatches.length} propozycje`} href="/projects" locale={locale} />
+          <SectionHeader title="Projects for you" meta={`${projectMatches.length} suggestions`} href="/projects" locale={locale} />
           {projectMatches.length ? (
             <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
               {projectMatches.map(({ project, match }) => (

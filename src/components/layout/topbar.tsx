@@ -1,15 +1,13 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { getCurrentUser } from "@/lib/auth";
 import { listNotifications } from "@/server/data/notifications";
-import { getRequestLocale } from "@/lib/site-server";
 
 export async function Topbar({ title, subtitle }: { title?: string; subtitle?: string }) {
-  const [user, locale] = await Promise.all([getCurrentUser(), getRequestLocale()]);
-  const en = locale === "en";
+  const user = await getCurrentUser();
   const notifications = user ? (await listNotifications(user.id)).map((n) => ({ ...n, createdAt: n.createdAt.toISOString() })) : [];
 
   return (
@@ -20,8 +18,9 @@ export async function Topbar({ title, subtitle }: { title?: string; subtitle?: s
           {subtitle ? <p className="mt-1.5 max-w-[680px] text-sm leading-5 text-[var(--bc-muted)]">{subtitle}</p> : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          <Button asChild size="sm" className="hidden sm:inline-flex"><Link href="/projects/new">{en ? "Add project" : "Add project"}</Link></Button>
-          <Button asChild size="icon" variant="secondary" className="sm:hidden" aria-label={en ? "Add project" : "Add project"}><Link href="/projects/new"><Plus className="h-4 w-4" /></Link></Button>
+          <Button asChild size="sm" className="hidden sm:inline-flex"><Link href="/projects/new">Create project</Link></Button>
+          <Button asChild size="icon" variant="secondary" className="sm:hidden" aria-label="Create project"><Link href="/projects/new"><Plus className="h-4 w-4" /></Link></Button>
+          <Button asChild size="icon" variant="ghost" className="lg:hidden" aria-label="Profile"><Link href="/profile"><User className="h-4 w-4" /></Link></Button>
           <ThemeToggle />
           <NotificationBell notifications={notifications} />
         </div>

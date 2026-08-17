@@ -67,9 +67,14 @@ export const GOAL_LABELS: Record<Goal, string> = {
 export const GOAL_OPTIONS = Object.keys(GOAL_LABELS) as Goal[];
 
 export const LOOKING_FOR_LABELS: Record<LookingFor, string> = {
-  HAS_PROJECT: "I have a project and need people",
-  WANTS_PROJECT: "I want to join a project",
-  OPEN_TO_BUILD: "I want to meet people and build something together",
+  HAS_PROJECT: "I have a project and need teammates",
+  WANTS_PROJECT: "Projects and startup teams",
+  OPEN_TO_BUILD: "Meeting people to build with",
+  COFOUNDER: "Co-founder opportunities",
+  FULL_TIME: "Full-time opportunities",
+  FREELANCE: "Freelance work",
+  INTERNSHIP: "Internships",
+  NETWORKING: "Professional networking",
 };
 export const LOOKING_FOR_OPTIONS = Object.keys(LOOKING_FOR_LABELS) as LookingFor[];
 

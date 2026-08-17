@@ -11,28 +11,29 @@ import { COUNTRY_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/international";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { computeMatch } from "@/lib/matching";
+import { BUILDING_INTENTS, WORK_INTENTS, isOpenToOpportunities } from "@/lib/opportunities";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
 import { listFollowing } from "@/server/data/network";
+import { listProjectsForOwner } from "@/server/data/projects";
+import { QuickInviteButton } from "@/components/builders/quick-invite-button";
 import { FollowButton } from "@/components/network/follow-button";
 import type { Commitment, Goal, Level, LookingFor, RoleType } from "@/db/schema";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale();
-  return { title: locale === "en" ? "People - BuildCrew" : "People - BuildCrew" };
-}
+export const metadata: Metadata = { title: "People - BuildCrew" };
 
 export default async function BuildersPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const locale = await getRequestLocale();
-  const en = locale === "en";
   const labels = labelsFor(locale);
   const params = await searchParams;
 
-  const [myProfile, allBuilders, following] = await Promise.all([getProfileByUserId(user.id), listBuilderProfiles(user.id), listFollowing(user.id)]);
+  const [myProfile, allBuilders, following, ownedProjects] = await Promise.all([getProfileByUserId(user.id), listBuilderProfiles(user.id), listFollowing(user.id), listProjectsForOwner(user.id)]);
   if (!myProfile) redirect("/onboarding");
 
   let builders = allBuilders.filter((b) => b.onboardingCompleted);
+  if (params.group === "build") builders = builders.filter((b) => BUILDING_INTENTS.some((intent) => b.lookingFor.includes(intent)));
+  if (params.group === "work") builders = builders.filter((b) => WORK_INTENTS.some((intent) => b.lookingFor.includes(intent)));
   if (params.role) builders = builders.filter((b) => b.role === params.role);
   if (params.skill) builders = builders.filter((b) => b.skills.includes(params.skill!));
   if (params.level) builders = builders.filter((b) => b.level === params.level);
@@ -44,7 +45,7 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
     const query = params.q.trim().toLowerCase();
     builders = builders.filter((b) => {
       const roleLabel = b.role ? labels.roles[b.role as RoleType] : "";
-      return [b.username, roleLabel, ...b.skills, ...b.interests].some((value) => value.toLowerCase().includes(query));
+      return [b.username, b.headline ?? "", roleLabel, ...b.skills, ...b.interests].some((value) => value.toLowerCase().includes(query));
     });
   }
 
@@ -53,16 +54,16 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
   const ranked = builders
     .map((builder) => {
       const match = computeMatch(
-        { userId: myProfile.userId, username: myProfile.username, role: myProfile.role as RoleType | null, level: myProfile.level as Level | null, weeklyHours: myProfile.weeklyHours as Commitment | null, interests: myProfile.interests, goals: myProfile.goals as Goal[], languages: myProfile.languages, workModePreference: myProfile.workModePreference, country: myProfile.country },
-        { userId: builder.userId, username: builder.username, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, interests: builder.interests, goals: builder.goals as Goal[], languages: builder.languages, workModePreference: builder.workModePreference, country: builder.country },
+        { userId: myProfile.userId, username: myProfile.username, role: myProfile.role as RoleType | null, level: myProfile.level as Level | null, weeklyHours: myProfile.weeklyHours as Commitment | null, interests: myProfile.interests, goals: myProfile.goals as Goal[], skills: myProfile.skills, lookingFor: myProfile.lookingFor, languages: myProfile.languages, workModePreference: myProfile.workModePreference, country: myProfile.country, lastActiveAt: myProfile.lastActiveAt },
+        { userId: builder.userId, username: builder.username, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, interests: builder.interests, goals: builder.goals as Goal[], skills: builder.skills, lookingFor: builder.lookingFor, languages: builder.languages, workModePreference: builder.workModePreference, country: builder.country, lastActiveAt: builder.lastActiveAt },
         locale,
       );
       return { builder, ...match };
     })
     .sort((a, b) => {
       if (sort === "open") {
-        const aOpen = a.builder.lookingFor.includes("OPEN_TO_BUILD") || a.builder.lookingFor.includes("WANTS_PROJECT") ? 1 : 0;
-        const bOpen = b.builder.lookingFor.includes("OPEN_TO_BUILD") || b.builder.lookingFor.includes("WANTS_PROJECT") ? 1 : 0;
+        const aOpen = isOpenToOpportunities(a.builder.lookingFor) ? 1 : 0;
+        const bOpen = isOpenToOpportunities(b.builder.lookingFor) ? 1 : 0;
         return bOpen - aOpen || b.score - a.score;
       }
       if (sort === "active") {
@@ -73,58 +74,67 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
       return b.score - a.score;
     });
 
+  const currentView = params.intent === "COFOUNDER" ? "cofounders" : params.group === "work" ? "work" : params.group === "build" ? "build" : "all";
+
   return (
     <div>
-      <Topbar title={en ? "People" : "People"} subtitle={en ? "Meet builders you can realistically create something with - not just collect empty connections." : "Meet builders you can actually create something with - not just collect empty connections."} />
+      <Topbar title="People" subtitle="Find teammates, co-founders, collaborators and people open to their next professional opportunity." />
 
-      <div className="mb-5 flex gap-1 border-b border-[var(--bc-line)] text-[13px] font-medium">
-        <Link href="/builders" className="relative px-3 py-2.5 text-[var(--bc-ink)]">{en ? "Discover people" : "Discover people"}<span className="absolute inset-x-2 bottom-0 h-[2px] bg-[var(--bc-accent)]" /></Link>
-        <Link href="/network" className="px-3 py-2.5 text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{en ? "My network" : "My Network"}</Link>
+      <div className="mb-5 flex flex-wrap gap-1 border-b border-[var(--bc-line)] text-[13px] font-medium">
+        <DiscoveryTab href="/builders" active={currentView === "all"}>For you</DiscoveryTab>
+        <DiscoveryTab href="/builders?group=build" active={currentView === "build"}>Open to building</DiscoveryTab>
+        <DiscoveryTab href="/builders?group=work" active={currentView === "work"}>Open to work</DiscoveryTab>
+        <DiscoveryTab href="/builders?intent=COFOUNDER" active={currentView === "cofounders"}>Co-founders</DiscoveryTab>
+        <DiscoveryTab href="/network" active={false}>My network</DiscoveryTab>
       </div>
 
       <div className="mb-5 grid gap-3 border-b border-[var(--bc-line)] pb-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Your intent" : "Your intent"}</p>
-          <p className="mt-1 max-w-[720px] text-sm leading-5 text-[var(--bc-muted)]">{myProfile.lookingFor.length ? myProfile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") : (en ? "Tell us what you're looking for to improve recommendations." : "Tell us what you are looking for to improve your recommendations.")}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">What you're open to</p>
+          <p className="mt-1 max-w-[760px] text-sm leading-5 text-[var(--bc-muted)]">{myProfile.lookingFor.length ? myProfile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") : "Complete your profile to improve recommendations and let people know why they should reach out."}</p>
         </div>
         <div className="flex flex-wrap gap-1 text-[12px] font-medium">
-          <SortLink href={withSort(params, "match")} active={sort === "match"}>{en ? "Best match" : "Best match"}</SortLink>
-          <SortLink href={withSort(params, "open")} active={sort === "open"}>Open to build</SortLink>
-          <SortLink href={withSort(params, "active")} active={sort === "active"}>{en ? "Recently active" : "Recently active"}</SortLink>
+          <SortLink href={withSort(params, "match")} active={sort === "match"}>Best match</SortLink>
+          <SortLink href={withSort(params, "open")} active={sort === "open"}>Open now</SortLink>
+          <SortLink href={withSort(params, "active")} active={sort === "active"}>Recently active</SortLink>
         </div>
       </div>
 
       <FilterBar
         showSearch
-        searchPlaceholder={en ? "Search a person, role or technology" : "Search by person, role, or technology"}
+        searchPlaceholder="Search people, roles, skills or interests"
         filters={[
-          { key: "role", label: en ? "Roles" : "Roles", options: Object.entries(labels.roles).map(([value, label]) => ({ value, label })) },
-          { key: "skill", label: en ? "Technology" : "Technology", options: Object.values(SKILL_GROUPS).flat().map((s) => ({ value: s, label: s })) },
-          { key: "level", label: en ? "Level" : "Level", options: Object.entries(labels.levels).map(([value, label]) => ({ value, label })) },
-          { key: "interest", label: en ? "Area" : "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
-          { key: "intent", label: en ? "Looking for" : "Looking for now", options: Object.entries(labels.lookingFor).map(([value, label]) => ({ value, label })) },
-          { key: "language", label: en ? "Language" : "Language", options: LANGUAGE_OPTIONS.map((value) => ({ value, label: value })) },
-          { key: "country", label: en ? "Country" : "Kraj", options: COUNTRY_OPTIONS.map((value) => ({ value, label: value })) },
+          { key: "role", label: "Role", options: Object.entries(labels.roles).map(([value, label]) => ({ value, label })) },
+          { key: "skill", label: "Skill", options: Object.values(SKILL_GROUPS).flat().map((s) => ({ value: s, label: s })) },
+          { key: "level", label: "Experience", options: Object.entries(labels.levels).map(([value, label]) => ({ value, label })) },
+          { key: "interest", label: "Interest", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
+          { key: "intent", label: "Open to", options: Object.entries(labels.lookingFor).map(([value, label]) => ({ value, label })) },
+          { key: "language", label: "Language", options: LANGUAGE_OPTIONS.map((value) => ({ value, label: value })) },
+          { key: "country", label: "Country", options: COUNTRY_OPTIONS.map((value) => ({ value, label: value })) },
         ]}
       />
 
       {ranked.length === 0 ? (
-        <EmptyState className="mt-6" title={en ? "No people match these filters" : "No people match these filters"} description={en ? "Change the filters or check the Build Pool." : "Change the filters or check the Build Pool."} ctaLabel="Build Pool" ctaHref="/build" />
+        <EmptyState className="mt-6" title="No people match these filters" description="Try broader filters or update your profile so BuildCrew can find better matches for you." ctaLabel="Edit profile" ctaHref="/profile" />
       ) : (
         <section className="mt-7">
           <div className="mb-3 flex items-center justify-between gap-4">
-            <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{en ? "Best matches" : "Best matches"}</h2>
-            <span className="text-[13px] tabular-nums text-[var(--bc-faint)]">{ranked.length} {en ? (ranked.length === 1 ? "person" : "people") : (ranked.length === 1 ? "person" : "people")}</span>
+            <div><h2 className="text-[18px] font-semibold tracking-[-0.015em]">People to meet</h2><p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">Build a network around real skills, projects and collaboration.</p></div>
+            <span className="text-[13px] tabular-nums text-[var(--bc-faint)]">{ranked.length} {ranked.length === 1 ? "person" : "people"}</span>
           </div>
           <div className="space-y-2.5">
             {ranked.map(({ builder: b, score, reasons }) => (
-              <BuilderCard locale={locale} key={b.userId} matchScore={score} matchReasons={reasons} action={<FollowButton targetUserId={b.userId} initialFollowing={followingIds.has(b.userId)} compact />} builder={{ userId: b.userId, username: b.username, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, languages: b.languages, country: b.country, city: b.city, workModePreference: b.workModePreference, lastActiveAt: b.lastActiveAt, createdAt: b.createdAt }} />
+              <BuilderCard locale={locale} key={b.userId} matchScore={score} matchReasons={reasons} action={<><QuickInviteButton targetUserId={b.userId} projects={ownedProjects.filter((project) => project.lifecycleStatus === "ACTIVE").map((project) => ({ id: project.id, name: project.name }))} /><FollowButton targetUserId={b.userId} initialFollowing={followingIds.has(b.userId)} compact /></>} builder={{ userId: b.userId, username: b.username, headline: b.headline, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, languages: b.languages, country: b.country, city: b.city, workModePreference: b.workModePreference, lastActiveAt: b.lastActiveAt, createdAt: b.createdAt }} />
             ))}
           </div>
         </section>
       )}
     </div>
   );
+}
+
+function DiscoveryTab({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return <Link href={href} className={`relative px-3 py-2.5 transition-colors ${active ? "text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"}`}>{children}{active ? <span className="absolute inset-x-2 bottom-0 h-[2px] bg-[var(--bc-accent)]" /> : null}</Link>;
 }
 
 function SortLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {

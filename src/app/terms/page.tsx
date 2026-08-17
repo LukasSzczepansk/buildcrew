@@ -29,12 +29,12 @@ export default function TermsPage() {
       </LegalSection>
 
       <LegalSection title="2. What BuildCrew is">
-        <p>BuildCrew is a professional community for people who want to build digital projects together. It helps users discover people, projects and hackathons, form teams, communicate, document collaboration and share selected public project or profile information.</p>
+        <p>BuildCrew is a professional network for people who build. It helps users discover people and projects, form teams, communicate, document confirmed collaboration, build a public portfolio and signal interest in professional opportunities.</p>
         <p>BuildCrew is not an employer, recruitment agency, freelancer marketplace, payment intermediary, investment adviser or party to agreements made between users.</p>
       </LegalSection>
 
       <LegalSection title="3. Accounts">
-        <p>Some features require an account. Registration may use email and password or an available third-party sign-in method such as Google.</p>
+        <p>Some features require an account. Registration may use email and password or an available third-party sign-in method such as Google or GitHub.</p>
         <p>You must provide accurate information, protect access to your account and promptly report suspected unauthorized access. You may not create accounts for unlawful purposes, impersonate another person or bypass account restrictions.</p>
       </LegalSection>
 
@@ -64,8 +64,9 @@ export default function TermsPage() {
         <p>Selected profiles and projects may be publicly visible without login when a user enables or publishes those features. Public pages may be indexed by search engines or cached by external services. Shared preview cards may remain cached for a period after content changes.</p>
       </LegalSection>
 
-      <LegalSection title="8. Hackathons, challenges and external events">
-        <p>BuildCrew may list external hackathons and help users find teams. Unless explicitly stated otherwise, BuildCrew is not the organizer or official partner of an external event. Official registration, fees, rules, prizes, eligibility and event decisions are governed by the organizer.</p>
+      <LegalSection title="8. Opportunities and sample content">
+        <p>Users may indicate that they are open to project collaboration, co-founder conversations, freelance work, internships, employment or networking. BuildCrew does not verify or guarantee any job, compensation, investment, engagement or opportunity and is not an employer or recruitment agency.</p>
+        <p>BuildCrew may display clearly labelled sample or demonstration profiles and projects to explain the product and avoid empty states. Sample content is fictional, is not an offer of work or investment, and should not be presented as a real user, customer or active business.</p>
       </LegalSection>
 
       <LegalSection title="9. Messages, notifications and third-party services">

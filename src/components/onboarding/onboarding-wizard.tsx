@@ -328,7 +328,7 @@ export function OnboardingWizard() {
         ) : null}
 
         {step === 3 ? (
-          <StepShell title={copy("Availability and intent", "Availability and intent")} subtitle={copy("These are some of the strongest matching signals in BuildCrew.", "These are some of the strongest matching signals in BuildCrew.")}>
+          <StepShell title="Availability and opportunities" subtitle="Tell BuildCrew how much time you have and what kinds of people, projects or work opportunities you want to discover.">
             <div className="grid gap-7 md:grid-cols-2">
               <div>
                 <Label>{copy("How much time do you have each week?", "How much time do you have each week?")}</Label>
@@ -345,7 +345,7 @@ export function OnboardingWizard() {
               </div>
 
               <div>
-                <Label>{copy("What are you looking for right now?", "What are you looking for right now?")}</Label>
+                <Label>What are you open to right now?</Label>
                 <div className="mt-2 space-y-2">
                   {LOOKING_FOR_OPTIONS.map((option) => (
                     <label
@@ -446,7 +446,7 @@ export function OnboardingWizard() {
                 <div className="mt-4 space-y-2 text-[13px] leading-5 text-[var(--bc-muted)]">
                   <p><span className="font-medium text-[var(--bc-ink)]">{copy("Skills:", "Skills:")}</span> {form.skills.slice(0, 6).join(" · ") || copy("none", "none")}</p>
                   <p><span className="font-medium text-[var(--bc-ink)]">{copy("Time:", "Time:")}</span> {form.weeklyHours ? labels.commitments[form.weeklyHours] : copy("none", "none")}</p>
-                  <p><span className="font-medium text-[var(--bc-ink)]">{copy("Looking for:", "Looking for:")}</span> {form.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || copy("none", "none")}</p>
+                  <p><span className="font-medium text-[var(--bc-ink)]">Open to:</span> {form.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || copy("none", "none")}</p>
                 </div>
               </div>
             </div>

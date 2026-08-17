@@ -13,6 +13,7 @@ import {
   type CollaborationEndorsementStrength,
 } from "@/db/schema";
 import { computeMatch } from "@/lib/matching";
+import { isOpenToOpportunities } from "@/lib/opportunities";
 import { isUuid } from "@/lib/security";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
 
@@ -72,44 +73,43 @@ export async function listFollowers(userId: string) {
 
 export async function listCollaborators(userId: string) {
   if (!isUuid(userId)) return [];
-  const myMemberships = await db.select({ projectId: projectMembers.projectId })
+  const myMemberships = await db.select({ projectId: projectMembers.projectId, isOwner: projectMembers.isOwner, collaborationStatus: projectMembers.collaborationStatus })
     .from(projectMembers).where(eq(projectMembers.userId, userId));
   const projectIds = myMemberships.map((row) => row.projectId);
   if (!projectIds.length) return [];
 
   const [memberRows, projectRows] = await Promise.all([
-    db.select({ projectId: projectMembers.projectId, userId: projectMembers.userId, roleType: projectMembers.roleType, joinedAt: projectMembers.joinedAt })
+    db.select({ projectId: projectMembers.projectId, userId: projectMembers.userId, isOwner: projectMembers.isOwner, collaborationStatus: projectMembers.collaborationStatus })
       .from(projectMembers).where(inArray(projectMembers.projectId, projectIds)),
-    db.select({ id: projects.id, name: projects.name, updatedAt: projects.updatedAt })
+    db.select({ id: projects.id, ownerId: projects.ownerId, name: projects.name, updatedAt: projects.updatedAt })
       .from(projects).where(and(inArray(projects.id, projectIds), eq(projects.entryType, "PROJECT"))),
   ]);
 
-  const projectMap = new Map(projectRows.map((project) => [project.id, project]));
+  const myMap = new Map(myMemberships.map((row) => [row.projectId, row]));
   const byUser = new Map<string, { projectIds: Set<string>; latestAt: Date; latestProject: { id: string; name: string } | null }>();
-  for (const row of memberRows) {
-    if (row.userId === userId || !projectMap.has(row.projectId)) continue;
-    const project = projectMap.get(row.projectId)!;
-    const current = byUser.get(row.userId) ?? { projectIds: new Set<string>(), latestAt: project.updatedAt, latestProject: null };
-    current.projectIds.add(row.projectId);
-    if (!current.latestProject || project.updatedAt > current.latestAt) {
-      current.latestAt = project.updatedAt;
-      current.latestProject = { id: project.id, name: project.name };
+  for (const project of projectRows) {
+    const mine = myMap.get(project.id);
+    if (!mine) continue;
+    const collaborators = project.ownerId === userId
+      ? memberRows.filter((row) => row.projectId === project.id && !row.isOwner && row.collaborationStatus === "CONFIRMED").map((row) => row.userId)
+      : mine.collaborationStatus === "CONFIRMED" ? [project.ownerId] : [];
+    for (const otherId of collaborators) {
+      if (otherId === userId) continue;
+      const current = byUser.get(otherId) ?? { projectIds: new Set<string>(), latestAt: project.updatedAt, latestProject: null };
+      current.projectIds.add(project.id);
+      if (!current.latestProject || project.updatedAt >= current.latestAt) {
+        current.latestAt = project.updatedAt;
+        current.latestProject = { id: project.id, name: project.name };
+      }
+      byUser.set(otherId, current);
     }
-    byUser.set(row.userId, current);
   }
 
   const result = await Promise.all([...byUser.entries()].map(async ([otherId, value]) => {
     const profile = await getProfileByUserId(otherId);
-    return profile ? {
-      profile,
-      sharedProjects: value.projectIds.size,
-      latestProject: value.latestProject,
-      lastCollaboratedAt: value.latestAt,
-    } : null;
+    return profile ? { profile, sharedProjects: value.projectIds.size, latestProject: value.latestProject, lastCollaboratedAt: value.latestAt } : null;
   }));
-  return result
-    .filter((item): item is NonNullable<typeof item> => Boolean(item))
-    .sort((a, b) => b.lastCollaboratedAt.getTime() - a.lastCollaboratedAt.getTime());
+  return result.filter((item): item is NonNullable<typeof item> => Boolean(item)).sort((a, b) => b.lastCollaboratedAt.getTime() - a.lastCollaboratedAt.getTime());
 }
 
 export async function getCollaborationContext(viewerId: string, targetUserId: string) {
@@ -117,23 +117,29 @@ export async function getCollaborationContext(viewerId: string, targetUserId: st
     return { sharedProjects: [], existingEndorsements: [], summary: [] as { key: CollaborationEndorsementStrength; label: string; count: number }[] };
   }
   const [mine, theirs, endorsements] = await Promise.all([
-    db.select({ projectId: projectMembers.projectId }).from(projectMembers).where(eq(projectMembers.userId, viewerId)),
-    db.select({ projectId: projectMembers.projectId }).from(projectMembers).where(eq(projectMembers.userId, targetUserId)),
+    db.select({ projectId: projectMembers.projectId, isOwner: projectMembers.isOwner, collaborationStatus: projectMembers.collaborationStatus }).from(projectMembers).where(eq(projectMembers.userId, viewerId)),
+    db.select({ projectId: projectMembers.projectId, isOwner: projectMembers.isOwner, collaborationStatus: projectMembers.collaborationStatus }).from(projectMembers).where(eq(projectMembers.userId, targetUserId)),
     db.select().from(collaborationEndorsements).where(eq(collaborationEndorsements.revieweeId, targetUserId)),
   ]);
-  const targetSet = new Set(theirs.map((row) => row.projectId));
-  const sharedIds = mine.map((row) => row.projectId).filter((id) => targetSet.has(id));
-  const sharedProjects = sharedIds.length
-    ? await db.select({ id: projects.id, name: projects.name }).from(projects).where(and(inArray(projects.id, sharedIds), eq(projects.entryType, "PROJECT")))
+  const targetMap = new Map(theirs.map((row) => [row.projectId, row]));
+  const candidateIds = mine.map((row) => row.projectId).filter((id) => targetMap.has(id));
+  const candidateProjects = candidateIds.length
+    ? await db.select({ id: projects.id, name: projects.name, ownerId: projects.ownerId }).from(projects).where(and(inArray(projects.id, candidateIds), eq(projects.entryType, "PROJECT")))
     : [];
+  const mineMap = new Map(mine.map((row) => [row.projectId, row]));
+  const sharedProjects = candidateProjects.filter((project) => {
+    const myMembership = mineMap.get(project.id);
+    const theirMembership = targetMap.get(project.id);
+    if (!myMembership || !theirMembership) return false;
+    if (project.ownerId === viewerId) return theirMembership.collaborationStatus === "CONFIRMED";
+    if (project.ownerId === targetUserId) return myMembership.collaborationStatus === "CONFIRMED";
+    return false;
+  }).map(({ id, name }) => ({ id, name }));
+  const sharedIds = sharedProjects.map((project) => project.id);
   const existingEndorsements = endorsements.filter((item) => item.reviewerId === viewerId && sharedIds.includes(item.projectId));
   const counts = new Map<CollaborationEndorsementStrength, number>();
-  for (const endorsement of endorsements) {
-    for (const strength of endorsement.strengths) counts.set(strength, (counts.get(strength) ?? 0) + 1);
-  }
-  const summary = [...counts.entries()]
-    .map(([key, count]) => ({ key, label: ENDORSEMENT_STRENGTH_LABELS[key], count }))
-    .sort((a, b) => b.count - a.count);
+  for (const endorsement of endorsements) for (const strength of endorsement.strengths) counts.set(strength, (counts.get(strength) ?? 0) + 1);
+  const summary = [...counts.entries()].map(([key, count]) => ({ key, label: ENDORSEMENT_STRENGTH_LABELS[key], count })).sort((a, b) => b.count - a.count);
   return { sharedProjects, existingEndorsements, summary };
 }
 
@@ -152,10 +158,10 @@ export async function listNetworkSuggestions(userId: string, limit = 8) {
     .filter((builder) => builder.onboardingCompleted && !excluded.has(builder.userId))
     .map((builder) => {
       const match = computeMatch(
-        { userId: me.userId, username: me.username, role: me.role, level: me.level, weeklyHours: me.weeklyHours, interests: me.interests, goals: me.goals },
-        { userId: builder.userId, username: builder.username, role: builder.role, level: builder.level, weeklyHours: builder.weeklyHours, interests: builder.interests, goals: builder.goals },
+        { userId: me.userId, username: me.username, role: me.role, level: me.level, weeklyHours: me.weeklyHours, interests: me.interests, goals: me.goals, skills: me.skills, lookingFor: me.lookingFor, languages: me.languages, country: me.country, workModePreference: me.workModePreference, lastActiveAt: me.lastActiveAt },
+        { userId: builder.userId, username: builder.username, role: builder.role, level: builder.level, weeklyHours: builder.weeklyHours, interests: builder.interests, goals: builder.goals, skills: builder.skills, lookingFor: builder.lookingFor, languages: builder.languages, country: builder.country, workModePreference: builder.workModePreference, lastActiveAt: builder.lastActiveAt },
       );
-      const openBonus = builder.lookingFor.includes("OPEN_TO_BUILD") || builder.lookingFor.includes("WANTS_PROJECT") ? 8 : 0;
+      const openBonus = isOpenToOpportunities(builder.lookingFor) ? 8 : 0;
       return { profile: builder, score: Math.min(100, match.score + openBonus), reasons: match.reasons };
     })
     .sort((a, b) => b.score - a.score)

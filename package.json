@@ -19,7 +19,10 @@
     "content:scan-polish": "node scripts/translate-existing-content-to-english.mjs",
     "content:translate-en": "node scripts/translate-existing-content-to-english.mjs --apply",
     "content:restore": "node scripts/restore-content-backup.mjs",
-    "check:english-only": "node scripts/check-english-only.mjs"
+    "check:english-only": "node scripts/check-english-only.mjs",
+    "launch:seed-samples": "node scripts/seed-launch-samples.mjs",
+    "launch:remove-samples": "node scripts/remove-launch-samples.mjs",
+    "collaboration:prepare": "node scripts/prepare-collaboration-confirmations.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
