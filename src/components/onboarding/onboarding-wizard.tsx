@@ -30,6 +30,7 @@ import { completeOnboarding } from "@/server/actions/profile";
 import { labelsFor } from "@/lib/constants-i18n";
 import { appMessage } from "@/lib/server-copy";
 import { COUNTRY_OPTIONS, LANGUAGE_OPTIONS, WORK_MODE_OPTIONS, internationalLabels } from "@/lib/international";
+import { countryLabel } from "@/lib/countries";
 
 type FormState = {
   username: string;
@@ -395,7 +396,7 @@ export function OnboardingWizard() {
                   <Label>{copy("Country", "Country")}</Label>
                   <select value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} className="mt-2 h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm outline-none focus:border-[var(--bc-line-strong)]">
                     <option value="">{copy("Select country", "Select country")}</option>
-                    {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
+                    {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{countryLabel(country)}</option>)}
                   </select>
                 </div>
                 <div>

@@ -27,6 +27,7 @@ import {
   WORK_MODE_OPTIONS,
   internationalLabels,
 } from "@/lib/international";
+import { countryLabel } from "@/lib/countries";
 import type { Commitment, Goal, Level, LookingFor, RoleType, WorkModePreference } from "@/db/schema";
 import { updateProfile } from "@/server/actions/profile";
 
@@ -92,7 +93,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
           <Field label={copy("Country", "Country")}>
             <select value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} className="h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm">
               <option value="">{copy("Select country", "Select country")}</option>
-              {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
+              {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{countryLabel(country)}</option>)}
             </select>
           </Field>
           <Field label={copy("City", "City")}><Input value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} placeholder={copy("e.g. Amsterdam", "e.g. Amsterdam")} /></Field>

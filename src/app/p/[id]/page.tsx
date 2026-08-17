@@ -16,6 +16,7 @@ import { getProjectFreshness } from "@/lib/project-freshness";
 import { ROLE_LABELS } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
 import { internationalLabels } from "@/lib/international";
+import { countryLabel } from "@/lib/countries";
 import { truncateMeta } from "@/lib/seo";
 import { getRequestLocale } from "@/lib/site-server";
 import { localeCode, openGraphLocale, siteUrlForLocale } from "@/lib/site-config";
@@ -299,7 +300,7 @@ export default async function PublicProjectPage({
                 {project.collaborationMode ? <PublicDetail label={en ? "Mode" : "Work mode"} value={labels.collaborationModes[project.collaborationMode]} /> : null}
                 <PublicDetail label={en ? "Project language" : "Project language"} value={intl.projectLanguage[project.projectLanguage]} />
                 <PublicDetail label={en ? "Reach" : "Scope"} value={intl.marketScope[project.marketScope]} />
-                {project.country ? <PublicDetail label={en ? "Country" : "Kraj"} value={project.country} /> : null}
+                {project.country ? <PublicDetail label={en ? "Country" : "Kraj"} value={countryLabel(project.country)} /> : null}
                 {project.collaborationPace ? <PublicDetail label={en ? "Pace" : "Tempo"} value={labels.collaborationPaces[project.collaborationPace]} /> : null}
                 {project.duration ? <PublicDetail label={en ? "Horizon" : "Horyzont"} value={labels.durations[project.duration]} /> : null}
               </dl>

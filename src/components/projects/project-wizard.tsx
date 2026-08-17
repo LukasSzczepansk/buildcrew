@@ -15,6 +15,7 @@ import {
   PROJECT_NEED_OPTIONS,
   internationalLabels,
 } from "@/lib/international";
+import { countryLabel } from "@/lib/countries";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -733,7 +734,7 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
       <Field label={copy("Project country / base", "Project country / base")} description={copy("Optional. For remote projects it helps people understand timezone and context.", "Optional. For remote projects it helps people understand timezone and context.")}>
         <select value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} className="h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm">
           <option value="">{copy("Not specified", "Not specified")}</option>
-          {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
+          {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{countryLabel(country)}</option>)}
         </select>
       </Field>
 

@@ -17,6 +17,7 @@ import { CollaborationCheckin } from "@/components/projects/collaboration-checki
 import { ContentReportDialog } from "@/components/moderation/content-report-dialog";
 import { labelsFor } from "@/lib/constants-i18n";
 import { internationalLabels } from "@/lib/international";
+import { countryLabel } from "@/lib/countries";
 import { getRequestLocale } from "@/lib/site-server";
 import type { AppLocale } from "@/lib/site-config";
 import { getCurrentUser } from "@/lib/auth";
@@ -322,7 +323,7 @@ export default async function ProjectDetailPage({
               {project.collaborationMode ? <Detail label={en ? "Mode" : "Work mode"} value={labels.collaborationModes[project.collaborationMode]} /> : null}
               <Detail label={en ? "Project language" : "Project language"} value={intl.projectLanguage[project.projectLanguage]} />
               <Detail label={en ? "Collaboration reach" : "Collaboration scope"} value={intl.marketScope[project.marketScope]} />
-              {project.country ? <Detail label={en ? "Country" : "Kraj"} value={project.country} /> : null}
+              {project.country ? <Detail label={en ? "Country" : "Kraj"} value={countryLabel(project.country)} /> : null}
               {project.collaborationPace ? <Detail label={en ? "Pace" : "Tempo"} value={labels.collaborationPaces[project.collaborationPace]} /> : null}
               {project.duration ? <Detail label={en ? "Duration" : "Horyzont"} value={labels.durations[project.duration]} /> : null}
               {project.character.length ? (

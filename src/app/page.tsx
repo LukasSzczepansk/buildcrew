@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { labelsFor } from "@/lib/constants-i18n";
 import { opportunityStatusLabel } from "@/lib/opportunities";
+import { countryLabel } from "@/lib/countries";
 import { localeCode, openGraphLocale, siteUrlForLocale } from "@/lib/site-config";
 import { listPublicProjectsForLanding } from "@/server/data/projects";
 import { listPublicBuildersForLanding } from "@/server/data/profiles";
@@ -89,7 +90,7 @@ export default async function LandingPage() {
                 <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate font-semibold">{builder.username}</h3><p className="mt-0.5 text-[12px] text-neutral-500">{builder.headline || (builder.role ? labels.roles[builder.role] : "Builder")}</p></div><span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#a8d62f]" /></div>
                 <p className="mt-4 min-h-10 text-[13px] leading-5 text-neutral-600 dark:text-neutral-300">{builder.skills.slice(0, 4).join(" · ") || "Building a professional profile"}</p>
                 <p className="mt-4 text-[12px] font-medium text-neutral-700 dark:text-neutral-200">{opportunityStatusLabel(builder.lookingFor) || "Open to connecting"}</p>
-                <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-500">{builder.country ? <span>{builder.country}</span> : null}{builder.languages.length ? <span>{builder.languages.slice(0,2).join(", ")}</span> : null}</div>
+                <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-neutral-500">{builder.country ? <span className="font-medium text-neutral-700 dark:text-neutral-200">{countryLabel(builder.country)}</span> : null}{builder.languages.length ? <span>{builder.languages.slice(0,2).join(", ")}</span> : null}</div>
                 <p className="mt-5 text-[12px] font-medium">View profile →</p>
               </Link>)}
             </div> : <div className="border-y border-[#d8d8d0] py-6 text-sm text-neutral-500 dark:border-neutral-700">Create a public profile and be among the first people visible here.</div>}

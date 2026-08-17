@@ -8,6 +8,7 @@ import { ProjectCard } from "@/components/projects/project-card";
 import { INTEREST_OPTIONS, ALL_SKILLS } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
 import { internationalLabels, COUNTRY_OPTIONS, PROJECT_MARKET_SCOPE_OPTIONS, PROJECT_NEED_OPTIONS } from "@/lib/international";
+import { countryLabel } from "@/lib/countries";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { computeProjectMatch } from "@/lib/project-matching";
@@ -110,7 +111,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
             { key: "technology", label: en ? "Technology" : "Technology", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
             { key: "market", label: en ? "Reach" : "Scope", options: PROJECT_MARKET_SCOPE_OPTIONS.map((value) => ({ value, label: intl.marketScope[value] })) },
             { key: "need", label: en ? "Needs" : "Needs", options: PROJECT_NEED_OPTIONS.map((value) => ({ value, label: intl.needs[value] })) },
-            { key: "country", label: en ? "Country" : "Kraj", options: COUNTRY_OPTIONS.map((country) => ({ value: country, label: country })) },
+            { key: "country", label: en ? "Country" : "Kraj", options: COUNTRY_OPTIONS.map((country) => ({ value: country, label: countryLabel(country) })) },
             { key: "level", label: en ? "Level" : "Level", options: Object.entries(labels.levels).map(([value, label]) => ({ value, label })) },
             { key: "interest", label: en ? "Area" : "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
             { key: "commitment", label: en ? "Time" : "Czas", options: Object.entries(labels.commitments).map(([value, label]) => ({ value, label })) },

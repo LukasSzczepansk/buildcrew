@@ -9,6 +9,7 @@ import { UserRoleBadge } from "@/components/ui/user-role-badge";
 import { labelsFor } from "@/lib/constants-i18n";
 import { internationalLabels } from "@/lib/international";
 import { opportunityStatusLabel } from "@/lib/opportunities";
+import { locationLabel } from "@/lib/countries";
 import { getRequestLocale } from "@/lib/site-server";
 import { siteUrlForLocale } from "@/lib/site-config";
 import { getActivityState, activityLabel } from "@/lib/activity";
@@ -89,6 +90,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2"><h1 className="text-[30px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{profile.isDemo ? <span className="rounded-full border border-[var(--bc-line)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}{opportunityStatus ? <span className="inline-flex items-center gap-1.5 text-[12px] font-medium"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />{opportunityStatus}</span> : null}</div>
                 <p className="mt-1 text-sm text-[var(--bc-muted)]">{profile.headline || (profile.role ? labels.roles[profile.role as RoleType] : "Builder")} · {activityState === "TODAY" ? activityLabel(profile.lastActiveAt, locale) : (en ? "BuildCrew profile" : "BuildCrew profile")}</p>
+                {(profile.city || profile.country) ? <p className="mt-1 text-[13px] font-medium text-[var(--bc-ink)]">{locationLabel(profile.city, profile.country)}</p> : null}
               </div>
             </div>
             {profile.bio ? <p className="mt-5 max-w-[760px] text-[15px] leading-6 text-[var(--bc-muted)]">{profile.bio}</p> : null}
@@ -110,7 +112,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
               <p className="mt-2 text-[13px] text-[var(--bc-faint)]">{en ? "Availability:" : "Availability:"} {profile.weeklyHours ? labels.commitments[profile.weeklyHours] : "-"}</p>
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-[var(--bc-faint)]">
                 {profile.languages.length ? <span>{en ? "Languages:" : "Languages:"} {profile.languages.join(", ")}</span> : null}
-                {(profile.city || profile.country) ? <span>{[profile.city, profile.country].filter(Boolean).join(", ")}</span> : null}
+                {(profile.city || profile.country) ? <span className="font-medium text-[var(--bc-ink)]">{locationLabel(profile.city, profile.country)}</span> : null}
                 {profile.workModePreference ? <span>{intl.workMode[profile.workModePreference]}</span> : null}
               </div>
             </PublicSection>

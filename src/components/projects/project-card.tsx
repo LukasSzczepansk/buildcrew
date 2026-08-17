@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { labelsFor } from "@/lib/constants-i18n";
 import { internationalLabels } from "@/lib/international";
+import { countryLabel } from "@/lib/countries";
 import type { AppLocale } from "@/lib/site-config";
 import type { Character, Commitment, ProjectLanguage, ProjectMarketScope, ProjectNeed, ProjectType, RoleType, Stage } from "@/db/schema";
 import { ShareProjectButton } from "@/components/projects/share-project-button";
@@ -117,7 +118,7 @@ export function ProjectCard({
               <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 text-[11px] text-[var(--bc-faint)]">
                 <span className="inline-flex items-center gap-1"><Languages className="h-3 w-3" />{intl.projectLanguage[projectLanguage]}</span>
                 <span className="inline-flex items-center gap-1"><Globe2 className="h-3 w-3" />{intl.marketScope[marketScope]}</span>
-                {project.country ? <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{project.country}</span> : null}
+                {project.country ? <span className="inline-flex items-center gap-1 font-medium text-[var(--bc-ink)]"><MapPin className="h-3 w-3 text-[var(--bc-faint)]" />{countryLabel(project.country)}</span> : null}
               </div>
 
               {matchReasons.length ? (

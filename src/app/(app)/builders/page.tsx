@@ -8,6 +8,7 @@ import { FilterBar } from "@/components/filters/filter-bar";
 import { INTEREST_OPTIONS, SKILL_GROUPS } from "@/lib/constants";
 import { labelsFor } from "@/lib/constants-i18n";
 import { COUNTRY_OPTIONS, LANGUAGE_OPTIONS } from "@/lib/international";
+import { countryLabel } from "@/lib/countries";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { computeMatch } from "@/lib/matching";
@@ -110,7 +111,7 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
           { key: "interest", label: "Interest", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
           { key: "intent", label: "Open to", options: Object.entries(labels.lookingFor).map(([value, label]) => ({ value, label })) },
           { key: "language", label: "Language", options: LANGUAGE_OPTIONS.map((value) => ({ value, label: value })) },
-          { key: "country", label: "Country", options: COUNTRY_OPTIONS.map((value) => ({ value, label: value })) },
+          { key: "country", label: "Country", options: COUNTRY_OPTIONS.map((value) => ({ value, label: countryLabel(value) })) },
         ]}
       />
 

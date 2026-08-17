@@ -7,6 +7,7 @@ import { labelsFor } from "@/lib/constants-i18n";
 import type { AppLocale } from "@/lib/site-config";
 import { activityLabel, getActivityState } from "@/lib/activity";
 import { opportunityStatusLabel } from "@/lib/opportunities";
+import { locationLabel } from "@/lib/countries";
 import type { Commitment, Level, LookingFor, RoleType, WorkModePreference } from "@/db/schema";
 
 export type BuilderCardData = {
@@ -60,7 +61,7 @@ export function BuilderCard({ builder, action, matchScore, matchReasons = [], lo
               {opportunityStatus ? <span className="font-medium text-[var(--bc-ink)]">{opportunityStatus}</span> : null}
               {builder.weeklyHours ? <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{labels.commitments[builder.weeklyHours]}</span> : null}
               {builder.level ? <span className="hidden 2xl:inline">{labels.levels[builder.level]}</span> : null}
-              {(builder.city || builder.country) ? <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{[builder.city, builder.country].filter(Boolean).join(", ")}</span> : null}
+              {(builder.city || builder.country) ? <span className="inline-flex items-center gap-1.5 font-medium text-[var(--bc-ink)]"><MapPin className="h-3 w-3 text-[var(--bc-faint)]" />{locationLabel(builder.city, builder.country)}</span> : null}
               {builder.languages?.length ? <span className="inline-flex items-center gap-1"><Globe2 className="h-3 w-3" />{builder.languages.slice(0, 2).join(", ")}</span> : null}
             </div>
           </div>

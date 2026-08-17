@@ -12,6 +12,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { timeAgo } from "@/lib/utils";
 import { isOpenToOpportunities } from "@/lib/opportunities";
+import { locationLabel } from "@/lib/countries";
 import { listFriends, listPendingFriendRequests } from "@/server/data/friends";
 import {
   getNetworkCounts,
@@ -179,7 +180,7 @@ function NetworkSection({ title, description, children }: { title: string; descr
   return <section><div className="mb-3"><h2 className="text-[16px] font-semibold tracking-[-0.01em]">{title}</h2><p className="mt-1 text-[12px] leading-4 text-[var(--bc-muted)]">{description}</p></div><div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{children}</div></section>;
 }
 
-function PersonRow({ profile, meta, openToBuild, children, locale }: { profile: { userId: string; username: string; role: RoleType | null; skills: string[] }; meta: string; openToBuild: boolean; children: React.ReactNode; locale: "pl" | "en" }) {
+function PersonRow({ profile, meta, openToBuild, children, locale }: { profile: { userId: string; username: string; role: RoleType | null; skills: string[]; country?: string | null; city?: string | null }; meta: string; openToBuild: boolean; children: React.ReactNode; locale: "pl" | "en" }) {
   return (
     <div className="grid gap-3 py-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
       <Link href={`/builders/${profile.userId}`} className="flex min-w-0 items-center gap-3">
@@ -187,6 +188,7 @@ function PersonRow({ profile, meta, openToBuild, children, locale }: { profile: 
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2"><p className="truncate text-sm font-semibold">{profile.username}</p>{openToBuild ? <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--bc-muted)]"><span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />Open to opportunities</span> : null}</div>
           <p className="mt-0.5 text-[12px] text-[var(--bc-muted)]">{profile.role ? labelsFor(locale)["roles"][profile.role] : "Builder"}{profile.skills.length ? ` · ${profile.skills.slice(0, 3).join(" · ")}` : ""}</p>
+          {(profile.city || profile.country) ? <p className="mt-1 text-[12px] font-medium text-[var(--bc-ink)]">{locationLabel(profile.city, profile.country)}</p> : null}
           <p className="mt-1 text-[11px] text-[var(--bc-faint)]">{meta}</p>
         </div>
       </Link>

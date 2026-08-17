@@ -23,6 +23,7 @@ import { CollaborationEndorsementDialog } from "@/components/network/collaborati
 import { getCollaborationContext, getEndorsementSummary, getFollowState, getMutualCollaborators, getNetworkCounts } from "@/server/data/network";
 import { activityLabel, getActivityState } from "@/lib/activity";
 import { opportunityStatusLabel } from "@/lib/opportunities";
+import { locationLabel } from "@/lib/countries";
 import { listCreditsForUser } from "@/server/data/social-projects";
 import type { RoleType } from "@/db/schema";
 
@@ -63,7 +64,7 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               <Avatar username={profile.username} seed={profile.userId} size="lg" className={profile.isFounder ? "ring-2 ring-[#C8F169] ring-offset-2 ring-offset-[var(--bc-canvas)]" : undefined} />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2"><h1 className="text-[28px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{profile.isDemo ? <Badge variant="outline">BuildCrew Lab</Badge> : null}</div>
-                <p className="mt-1 text-sm font-medium text-[var(--bc-ink)]">{profile.headline || (profile.role ? labels.roles[profile.role as RoleType] : "Builder")}</p><div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--bc-muted)]"><span>{profile.role ? labels.roles[profile.role as RoleType] : "Builder"}</span><span>{profile.level ? labels.levels[profile.level] : ""}</span><span className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${activityState === "TODAY" ? "bg-[var(--bc-accent-strong)]" : "bg-[var(--bc-line-strong)]"}`} />{activityLabel(profile.lastActiveAt, locale)}</span></div>
+                <p className="mt-1 text-sm font-medium text-[var(--bc-ink)]">{profile.headline || (profile.role ? labels.roles[profile.role as RoleType] : "Builder")}</p>{(profile.city || profile.country) ? <p className="mt-1 text-[13px] font-medium text-[var(--bc-ink)]">{locationLabel(profile.city, profile.country)}</p> : null}<div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--bc-muted)]"><span>{profile.role ? labels.roles[profile.role as RoleType] : "Builder"}</span><span>{profile.level ? labels.levels[profile.level] : ""}</span><span className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${activityState === "TODAY" ? "bg-[var(--bc-accent-strong)]" : "bg-[var(--bc-line-strong)]"}`} />{activityLabel(profile.lastActiveAt, locale)}</span></div>
                 {opportunityStatus ? <div className="mt-2 inline-flex items-center gap-2 text-[12px] font-medium text-[var(--bc-ink)]"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />{opportunityStatus}</div> : null}
                 {badges.length ? <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{badges.slice(0, 3).map((badge) => badge.label).join(" · ")}</p> : null}
               </div>
@@ -79,6 +80,8 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               <div><p className="text-[12px] text-[var(--bc-faint)]">Open to</p><p className="mt-1 font-medium">{profile.lookingFor.length ? profile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") : "-"}</p></div>
               <div><p className="text-[12px] text-[var(--bc-faint)]">{en ? "Interests" : "Obszary"}</p><p className="mt-1 text-[var(--bc-muted)]">{profile.interests.join(" · ") || "-"}</p></div>
               <div><p className="text-[12px] text-[var(--bc-faint)]">{en ? "Goals" : "Goals"}</p><p className="mt-1 text-[var(--bc-muted)]">{profile.goals.map((goal) => labels.goals[goal]).join(" · ") || "-"}</p></div>
+              <div><p className="text-[12px] text-[var(--bc-faint)]">Location</p><p className="mt-1 font-medium">{locationLabel(profile.city, profile.country) || "-"}</p></div>
+              <div><p className="text-[12px] text-[var(--bc-faint)]">Languages</p><p className="mt-1 text-[var(--bc-muted)]">{profile.languages.join(" · ") || "-"}</p></div>
             </div>
           </ProfileSection>
 
