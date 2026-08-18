@@ -61,9 +61,9 @@ export function ShareProjectButton({
 
   function getShareText() {
     if (roleLabel) {
-      return copy(`We’re looking for a ${roleLabel} for ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}See the project on BuildCrew.`, `We’re looking for a ${roleLabel} for ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}See the project on BuildCrew.`);
+      return copy(`Szukamy osoby w roli ${roleLabel} do projektu ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}Zobacz projekt na BuildCrew.`, `We’re looking for a ${roleLabel} for ${projectName}. ${projectTagline ? `${projectTagline} ` : ""}See the project on BuildCrew.`);
     }
-    return copy(`${projectName} on BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}See the project and team.`, `${projectName} on BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}See the project and team.`);
+    return copy(`${projectName} na BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}Zobacz projekt i zespół.`, `${projectName} on BuildCrew. ${projectTagline ? `${projectTagline} ` : ""}See the project and team.`);
   }
 
   async function copyShare(kind: "link" | "text" | "discord") {

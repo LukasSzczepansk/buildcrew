@@ -7,6 +7,7 @@ import { ProfileEditForm } from "@/components/profile/profile-edit-form";
 import { AccountSecurity } from "@/components/profile/account-security";
 import { NotificationPreferencesForm } from "@/components/profile/notification-preferences-form";
 import { AvatarPhotoSettings } from "@/components/profile/avatar-photo-settings";
+import { ShareProfileButton } from "@/components/profile/share-profile-button";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
@@ -76,7 +77,7 @@ export default async function ProfilePage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm"><Link href={`/builders/${user.id}`}>{en ? "Preview in BuildCrew" : "Podgląd w BuildCrew"}</Link></Button>
-          {profile.publicProfile ? <Button asChild variant="outline" size="sm"><Link href={`/u/${profile.username}`}>{en ? "Public profile" : "Publiczny profil"} <ExternalLink className="h-3.5 w-3.5" /></Link></Button> : null}
+          {profile.publicProfile ? <><Button asChild variant="outline" size="sm"><Link href={`/u/${profile.username}`}>{en ? "Public profile" : "Publiczny profil"} <ExternalLink className="h-3.5 w-3.5" /></Link></Button><ShareProfileButton userId={user.id} username={profile.username} /></> : null}
         </div>
       </section>
 

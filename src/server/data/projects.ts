@@ -6,6 +6,7 @@ import {
   blocks,
   profiles,
   projectMembers,
+  projectFollows,
   projectRoles,
   projectTechnologies,
   projects,
@@ -34,11 +35,11 @@ export type ProjectFilters = {
   search?: string;
 };
 
-async function attachRelations(projectRows: (typeof projects.$inferSelect)[]) {
+async function attachRelations(projectRows: (typeof projects.$inferSelect)[], viewerId?: string) {
   const ids = projectRows.map((p) => p.id);
   if (ids.length === 0) return [];
 
-  const [techRows, roleRows, memberRows, ownerRows] = await Promise.all([
+  const [techRows, roleRows, memberRows, ownerRows, followRows] = await Promise.all([
     db.select().from(projectTechnologies).where(inArray(projectTechnologies.projectId, ids)),
     db.select().from(projectRoles).where(inArray(projectRoles.projectId, ids)),
     db.select().from(projectMembers).where(inArray(projectMembers.projectId, ids)),
@@ -46,9 +47,16 @@ async function attachRelations(projectRows: (typeof projects.$inferSelect)[]) {
       .select({ userId: profiles.userId, username: profiles.username, avatarEmoji: profiles.avatarEmoji, email: users.email, isSuspended: users.isSuspended, lastActiveAt: users.lastActiveAt, lastLoginAt: users.lastLoginAt })
       .from(profiles)
       .innerJoin(users, eq(users.id, profiles.userId)),
+    db.select({ projectId: projectFollows.projectId, userId: projectFollows.userId }).from(projectFollows).where(inArray(projectFollows.projectId, ids)),
   ]);
 
   const ownerMap = new Map(ownerRows.map((o) => [o.userId, { ...o, isDemo: o.email.toLowerCase().endsWith(".invalid"), lastActiveAt: o.lastActiveAt ?? o.lastLoginAt }]));
+  const followerCount = new Map<string, number>();
+  const viewerFollowing = new Set<string>();
+  for (const follow of followRows) {
+    followerCount.set(follow.projectId, (followerCount.get(follow.projectId) ?? 0) + 1);
+    if (viewerId && follow.userId === viewerId) viewerFollowing.add(follow.projectId);
+  }
 
   return projectRows.map((project) => {
     const technologies = techRows.filter((t) => t.projectId === project.id).map((t) => t.name);
@@ -70,6 +78,9 @@ async function attachRelations(projectRows: (typeof projects.$inferSelect)[]) {
       openRoles: rolesWithAvailability.filter((r) => r.open > 0),
       members: members.map((m) => ({ ...m, profile: ownerMap.get(m.userId) ?? null })),
       owner: ownerMap.get(project.ownerId) ?? null,
+      followerCount: followerCount.get(project.id) ?? 0,
+      viewerFollowing: viewerFollowing.has(project.id),
+      viewerCanFollow: Boolean(viewerId && viewerId !== project.ownerId),
     };
   });
 }
@@ -95,7 +106,7 @@ export async function listProjects(filters: ProjectFilters = {}, viewerId?: stri
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(desc(projects.updatedAt));
 
-  let withRelations = (await attachRelations(rows)).filter((p) => !p.owner?.isSuspended);
+  let withRelations = (await attachRelations(rows, viewerId)).filter((p) => !p.owner?.isSuspended);
 
   if (viewerId) {
     const blockRows = await db.select({ blockerId: blocks.blockerId, blockedId: blocks.blockedId }).from(blocks)

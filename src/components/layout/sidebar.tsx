@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CircleHelp, FolderKanban, LayoutDashboard, LogOut, MessageCircle, Network, ShieldCheck, Users } from "lucide-react";
+import { CircleHelp, FolderKanban, LayoutDashboard, LogOut, MessageCircle, Network, Newspaper, ShieldCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
     { href: "/dashboard", label: copy("Start", "Home"), icon: LayoutDashboard },
     { href: "/builders", label: copy("Ludzie", "People"), icon: Users },
     { href: "/projects", label: copy("Projekty", "Projects"), icon: FolderKanban },
+    { href: "/feed", label: copy("Aktualności", "Feed"), icon: Newspaper },
     { href: "/network", label: copy("Sieć", "Network"), icon: Network },
     { href: "/messages", label: copy("Wiadomości", "Messages"), icon: MessageCircle },
   ] as const;

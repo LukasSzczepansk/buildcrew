@@ -150,7 +150,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
           </section>
 
           <section>
-            <h2 className="text-[14px] font-semibold">{en ? "Your network activity" : "Aktywność Twojej sieci"}</h2>
+            <div className="flex items-center justify-between gap-3"><h2 className="text-[14px] font-semibold">{en ? "Your network activity" : "Aktywność Twojej sieci"}</h2><Link href="/feed?filter=following" className="text-[11px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">{en ? "All updates" : "Wszystkie aktualności"}</Link></div>
             <div className="mt-3 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
               {activity.map((item) => (
                 <Link key={item.id} href={`/projects/${item.id}`} className="block py-3 hover:bg-[var(--bc-surface-subtle)]">

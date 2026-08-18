@@ -6,6 +6,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { ProjectTeamManager } from "@/components/projects/project-team-manager";
 import { ProjectLifecycleControls } from "@/components/projects/project-completion-dialog";
 import { ProjectInternationalSettings } from "@/components/projects/project-international-settings";
+import { ExternalTeammateInvite } from "@/components/projects/external-teammate-invite";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { labelsFor } from "@/lib/constants-i18n";
@@ -69,6 +70,7 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
               profile: member.profile ? { username: member.profile.username, role: member.profile.role } : null,
             }))}
           />
+          <div className="mt-6"><ExternalTeammateInvite projectId={id} roles={project.openRoles.map((role) => ({ id: role.id, roleType: role.roleType }))} /></div>
         </main>
 
         <aside className="space-y-6">

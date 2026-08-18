@@ -8,6 +8,7 @@ import { countryLabel } from "@/lib/countries";
 import type { AppLocale } from "@/lib/site-config";
 import type { Character, Commitment, ProjectLanguage, ProjectMarketScope, ProjectNeed, ProjectType, RoleType, Stage } from "@/db/schema";
 import { ShareProjectButton } from "@/components/projects/share-project-button";
+import { ProjectFollowButton } from "@/components/projects/project-follow-button";
 import { activityLabel, getActivityState } from "@/lib/activity";
 import { getProjectFreshness } from "@/lib/project-freshness";
 import {
@@ -33,6 +34,9 @@ export type ProjectCardData = {
   openRoles: { id: string; roleType: RoleType; open?: number }[];
   members: { userId: string; profile: { avatarEmoji: string; username?: string } | null }[];
   owner: { avatarEmoji: string; username: string; isDemo?: boolean; lastActiveAt?: Date | string | null } | null;
+  viewerFollowing?: boolean;
+  viewerCanFollow?: boolean;
+  followerCount?: number;
 };
 
 export function ProjectCard({
@@ -195,6 +199,7 @@ export function ProjectCard({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {project.viewerCanFollow ? <ProjectFollowButton projectId={project.id} initialFollowing={Boolean(project.viewerFollowing)} initialFollowers={project.followerCount ?? 0} compact /> : null}
               <ShareProjectButton
                 projectId={project.id}
                 projectName={project.name}

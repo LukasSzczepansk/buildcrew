@@ -39,8 +39,9 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
       title: `${profile.username} - ${role}`,
       description,
       siteName: "BuildCrew",
+      images: [`/api/profiles/${profile.userId}/share-card`],
     },
-    twitter: { card: "summary", title: `${profile.username} - ${role}`, description },
+    twitter: { card: "summary_large_image", title: `${profile.username} - ${role}`, description, images: [`/api/profiles/${profile.userId}/share-card`] },
   };
 }
 

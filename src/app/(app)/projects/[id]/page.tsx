@@ -12,6 +12,7 @@ import { ProjectIdentityMark } from "@/components/projects/project-identity-mark
 import { ShareProjectButton } from "@/components/projects/share-project-button";
 import { ProjectFollowButton } from "@/components/projects/project-follow-button";
 import { ProjectUpdateComposer } from "@/components/projects/project-update-composer";
+import { SocialFeedCard } from "@/components/feed/social-feed-card";
 import { LeaveProjectButton } from "@/components/projects/project-team-manager";
 import { CollaborationCheckin } from "@/components/projects/collaboration-checkin";
 import { ContentReportDialog } from "@/components/moderation/content-report-dialog";
@@ -24,6 +25,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getProjectFreshness } from "@/lib/project-freshness";
 import { getProjectById } from "@/server/data/projects";
 import { getProjectFollowState, listProjectCredits, listProjectUpdates, PROJECT_UPDATE_KIND_LABELS } from "@/server/data/social-projects";
+import { listSocialPostsForProject } from "@/server/data/social-posts";
 import { getProfileByUserId } from "@/server/data/profiles";
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import type { Level, RoleType } from "@/db/schema";
@@ -56,11 +58,12 @@ export default async function ProjectDetailPage({
   if (!project) notFound();
   if (project.ownerId !== user.id && (await isBlockedEitherWay(user.id, project.ownerId))) notFound();
 
-  const [myProfile, ownerProfile, followState, updates, credits] = await Promise.all([
+  const [myProfile, ownerProfile, followState, updates, feedPosts, credits] = await Promise.all([
     getProfileByUserId(user.id),
     project.owner ? getProfileByUserId(project.ownerId) : Promise.resolve(null),
     getProjectFollowState(project.id, user.id),
     listProjectUpdates(project.id, 8),
+    listSocialPostsForProject(project.id, user.id, 6),
     project.lifecycleStatus === "COMPLETED" ? listProjectCredits(project.id) : Promise.resolve([]),
   ]);
 
@@ -211,8 +214,9 @@ export default async function ProjectDetailPage({
 
           <ProjectSection title={en ? "Updates" : "Aktualizacje"}>
             {isOwner && project.lifecycleStatus !== "COMPLETED" ? <ProjectUpdateComposer projectId={project.id} /> : null}
+            {feedPosts.length ? <div className={`${isOwner && project.lifecycleStatus !== "COMPLETED" ? "mt-4" : ""} space-y-3`}>{feedPosts.map((post) => <SocialFeedCard key={post.id} item={post} locale={locale} viewerId={user.id} />)}</div> : null}
             {updates.length ? (
-              <div className={`${isOwner && project.lifecycleStatus !== "COMPLETED" ? "mt-4" : ""} border-y border-[var(--bc-line)]`}>
+              <div className={`${(isOwner && project.lifecycleStatus !== "COMPLETED") || feedPosts.length ? "mt-4" : ""} border-y border-[var(--bc-line)]`}>
                 {updates.map((update) => (
                   <article key={update.id} className="grid gap-2 border-b border-[var(--bc-line)] py-4 last:border-b-0 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-5">
                     <div>
@@ -226,7 +230,7 @@ export default async function ProjectDetailPage({
                   </article>
                 ))}
               </div>
-            ) : (
+            ) : feedPosts.length ? null : (
               <p className="text-sm leading-5 text-[var(--bc-muted)]">{en ? "No updates yet. As the project moves forward, a short progress history will appear here." : "Brak aktualizacji. Gdy projekt ruszy do przodu, tutaj pojawi się krótka historia postępu."}</p>
             )}
           </ProjectSection>

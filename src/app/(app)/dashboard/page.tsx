@@ -7,7 +7,7 @@ import { DashboardVisitMarker } from "@/components/dashboard/dashboard-visit-mar
 import { ProjectCard } from "@/components/projects/project-card";
 import { BuilderCard } from "@/components/builders/builder-card";
 import { Button } from "@/components/ui/button";
-import { FeedStoryCard } from "@/components/feed/feed-story-card";
+import { SocialFeedCard } from "@/components/feed/social-feed-card";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { getProfileCompletion } from "@/lib/profile-completion";
@@ -15,9 +15,9 @@ import { computeMatch } from "@/lib/matching";
 import { computeProjectMatch } from "@/lib/project-matching";
 import { getProfileByUserId, listBuilderProfiles } from "@/server/data/profiles";
 import { getDashboardSinceLastVisit } from "@/server/data/dashboard";
-import { listNetworkActivity } from "@/server/data/network";
-import { getDashboardAttention, listFollowedProjectUpdates, listRecentGlobalProjectUpdates } from "@/server/data/social-projects";
+import { getDashboardAttention } from "@/server/data/social-projects";
 import { listProjects } from "@/server/data/projects";
+import { listRecentSocialPosts } from "@/server/data/social-posts";
 import type { Commitment, Goal, Level, RoleType } from "@/db/schema";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,14 +33,12 @@ export default async function DashboardPage() {
   const profile = await getProfileByUserId(user.id);
   if (!profile) redirect("/onboarding");
 
-  const [allProjects, allBuilders, attention, followedUpdates, globalUpdates, networkActivity, sinceLastVisit] = await Promise.all([
+  const [allProjects, allBuilders, attention, sinceLastVisit, socialFeed] = await Promise.all([
     listProjects({}, user.id),
     listBuilderProfiles(user.id),
     getDashboardAttention(user.id),
-    listFollowedProjectUpdates(user.id, 5),
-    listRecentGlobalProjectUpdates(5),
-    listNetworkActivity(user.id, 5),
     getDashboardSinceLastVisit(user.id, 6),
+    listRecentSocialPosts(user.id, 3),
   ]);
   const rankedProjects = allProjects
     .filter((project) => project.ownerId !== user.id)
@@ -69,7 +67,6 @@ export default async function DashboardPage() {
     }))
     .sort((a, b) => b.match.score - a.match.score)
     .slice(0, 3);
-  const activityUpdates = followedUpdates.length > 0 ? followedUpdates : globalUpdates;
   const completion = getProfileCompletion(profile, locale);
 
   return (
@@ -154,13 +151,12 @@ export default async function DashboardPage() {
         </section>
       ) : null}
 
-      {(activityUpdates.length > 0 || networkActivity.length > 0) ? (
+      {socialFeed.length > 0 ? (
         <section className="mt-8">
-          <SectionHeading title={en ? "Activity" : "Aktywność"} href="/network" label={en ? "My network" : "Moja sieć"} />
-          <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{en ? "Project updates and activity from people you follow, presented as a lightweight builder feed." : "Aktualizacje projektów i aktywność osób, które obserwujesz, w lekkim feedzie builderów."}</p>
-          <div className="mt-4 grid gap-3 xl:grid-cols-2">
-            {activityUpdates.map((item) => <FeedStoryCard key={`update-${item.updateId}`} href={`/projects/${item.projectId}`} title={item.projectName} eyebrow={(en ? ({ PROGRESS: "Progress update", ROLE: "Team update", MILESTONE: "Milestone", LAUNCH: "Launch" } as const) : ({ PROGRESS: "Postęp", ROLE: "Aktualizacja zespołu", MILESTONE: "Kamień milowy", LAUNCH: "Premiera" } as const))[item.kind]} body={item.body} meta={`${item.authorUsername ?? (en ? "Team" : "Zespół")} · ${item.createdAt.toLocaleDateString(en ? "en-US" : "pl-PL", { day: "2-digit", month: "short" })}`} visualKind={item.kind === "LAUNCH" ? "launch" : item.kind === "ROLE" ? "people" : "project"} />)}
-            {networkActivity.map((item) => <FeedStoryCard key={`network-${item.id}`} href={`/projects/${item.id}`} title={item.name} eyebrow={en ? `${item.username} is building` : `${item.username} buduje`} body={item.tagline} meta={`${en ? "Updated" : "Aktualizacja"} ${item.updatedAt.toLocaleDateString(en ? "en-US" : "pl-PL", { day: "2-digit", month: "short" })}`} visualKind="project" />)}
+          <SectionHeading title={en ? "Latest from the community" : "Najnowsze w społeczności"} href="/feed" label={en ? "Open feed" : "Zobacz aktualności"} />
+          <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{en ? "A quick preview. The full builder feed lives in Feed." : "Krótki podgląd. Pełny feed builderów znajdziesz w Aktualnościach."}</p>
+          <div className="mt-4 space-y-3">
+            {socialFeed.map((item) => <SocialFeedCard key={`social-${item.id}`} item={item} locale={locale} viewerId={user.id} />)}
           </div>
         </section>
       ) : null}

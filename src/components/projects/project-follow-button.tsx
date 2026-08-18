@@ -17,7 +17,7 @@ export function ProjectFollowButton({ projectId, initialFollowing, initialFollow
   const [pending, startTransition] = React.useTransition();
 
   if (owner) {
-    return <span className="inline-flex h-9 items-center gap-1.5 text-[12px] text-[var(--bc-muted)]"><Eye className="h-3.5 w-3.5" />{followers} {en ? (followers === 1 ? "follower" : "followers") : (followers === 1 ? "follower" : "followers")}</span>;
+    return <span className="inline-flex h-9 items-center gap-1.5 text-[12px] text-[var(--bc-muted)]"><Eye className="h-3.5 w-3.5" />{followers} {en ? (followers === 1 ? "follower" : "followers") : (followers === 1 ? "obserwujący" : "obserwujących")}</span>;
   }
 
   function toggle() {

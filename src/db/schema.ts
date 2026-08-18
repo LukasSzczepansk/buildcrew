@@ -356,6 +356,53 @@ export const projectUpdates = pgTable("project_updates", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("project_updates_project_created_idx").on(t.projectId, t.createdAt)]);
 
+export const socialPostKindEnum = ["UPDATE", "LOOKING_FOR_PEOPLE", "LOOKING_FOR_PROJECT", "MILESTONE", "LAUNCH", "OPEN_TO_BUILDING"] as const;
+export type SocialPostKind = (typeof socialPostKindEnum)[number];
+
+export const socialPosts = pgTable("social_posts", {
+  id: uuidPk(),
+  authorId: uuid("author_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  kind: text("kind").$type<SocialPostKind>().notNull(),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("social_posts_created_idx").on(t.createdAt),
+  index("social_posts_author_created_idx").on(t.authorId, t.createdAt),
+  index("social_posts_project_idx").on(t.projectId, t.createdAt),
+]);
+
+export const socialPostLikes = pgTable("social_post_likes", {
+  postId: uuid("post_id").notNull().references(() => socialPosts.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.postId, t.userId] }),
+  index("social_post_likes_user_idx").on(t.userId, t.createdAt),
+]);
+
+export const socialPostSaves = pgTable("social_post_saves", {
+  postId: uuid("post_id").notNull().references(() => socialPosts.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.postId, t.userId] }),
+  index("social_post_saves_user_idx").on(t.userId, t.createdAt),
+]);
+
+export const socialPostComments = pgTable("social_post_comments", {
+  id: uuidPk(),
+  postId: uuid("post_id").notNull().references(() => socialPosts.id, { onDelete: "cascade" }),
+  authorId: uuid("author_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("social_post_comments_post_idx").on(t.postId, t.createdAt),
+  index("social_post_comments_author_idx").on(t.authorId, t.createdAt),
+]);
+
 export const projectCredits = pgTable("project_credits", {
   id: uuidPk(),
   projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
@@ -550,6 +597,51 @@ export const projectInvites = pgTable("project_invites", {
   status: text("status").$type<ApplicationStatus>().notNull().default("PENDING"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [uniqueIndex("project_invites_pending_unique_idx").on(t.projectId, t.inviteeId).where(sql`${t.status} = 'PENDING'`)]);
+
+export const externalProjectInviteStatusEnum = ["PENDING", "OPENED", "CLAIMED", "EXPIRED"] as const;
+export type ExternalProjectInviteStatus = (typeof externalProjectInviteStatusEnum)[number];
+
+export const externalProjectInvites = pgTable("external_project_invites", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  roleId: uuid("role_id").references(() => projectRoles.id, { onDelete: "set null" }),
+  inviterId: uuid("inviter_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  message: text("message"),
+  tokenHash: text("token_hash").notNull(),
+  status: text("status").$type<ExternalProjectInviteStatus>().notNull().default("PENDING"),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("external_project_invites_token_idx").on(t.tokenHash),
+  index("external_project_invites_project_idx").on(t.projectId, t.createdAt),
+  index("external_project_invites_email_idx").on(t.email, t.createdAt),
+]);
+
+export const jobEmploymentTypeEnum = ["FULL_TIME", "PART_TIME", "INTERNSHIP", "FREELANCE"] as const;
+export type JobEmploymentType = (typeof jobEmploymentTypeEnum)[number];
+export const jobStatusEnum = ["ACTIVE", "CLOSED"] as const;
+export type JobStatus = (typeof jobStatusEnum)[number];
+
+export const jobListings = pgTable("job_listings", {
+  id: uuidPk(),
+  ownerId: uuid("owner_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  companyName: text("company_name").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  location: text("location"),
+  remote: boolean("remote").notNull().default(true),
+  employmentType: text("employment_type").$type<JobEmploymentType>().notNull().default("FULL_TIME"),
+  skills: text("skills").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
+  applyUrl: text("apply_url"),
+  contactEmail: text("contact_email"),
+  status: text("status").$type<JobStatus>().notNull().default("ACTIVE"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("job_listings_status_created_idx").on(t.status, t.createdAt),
+  index("job_listings_owner_idx").on(t.ownerId, t.createdAt),
+]);
 
 // ---------------------------------------------------------------------------
 // Crews (Build Pool)
