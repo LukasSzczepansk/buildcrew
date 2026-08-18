@@ -33,7 +33,7 @@ export async function launchDefaultSprintFromForm(_formData: FormData) {
 
     await db.insert(buildChallenges).values({
       title: "BuildCrew Sprint #1",
-      prompt: "W 30 dni zbudujcie i wypuśćcie działające MVP",
+      prompt: "W 30 dni zbudujcie i wypuśćcie działający produkt",
       description: "30 dni. Jedna ekipa. Jeden działający projekt. BuildCrew dobiera ludzi według roli, stacku, dostępności i celu.",
       category: "BuildCrew Sprint",
       status: "OPEN",

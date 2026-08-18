@@ -173,14 +173,22 @@ export async function getBuilderBadges(userId: string) {
   return badges;
 }
 
+function normalizeSprintPrompt(prompt: string) {
+  return prompt
+    .replace(/działające MVP/gi, "działający produkt")
+    .replace(/working MVP/gi, "working product")
+    .replace(/\bMVP\b/g, "działający produkt");
+}
+
 export async function listChallenges() {
-  return db.select().from(buildChallenges).orderBy(desc(buildChallenges.startsAt));
+  const rows = await db.select().from(buildChallenges).orderBy(desc(buildChallenges.startsAt));
+  return rows.map((row) => ({ ...row, prompt: normalizeSprintPrompt(row.prompt) }));
 }
 
 export async function getChallenge(id: string) {
   if (!isUuid(id)) return null;
   const rows = await db.select().from(buildChallenges).where(eq(buildChallenges.id, id)).limit(1);
-  return rows[0] ?? null;
+  return rows[0] ? { ...rows[0], prompt: normalizeSprintPrompt(rows[0].prompt) } : null;
 }
 
 export async function getChallengeParticipation(challengeId: string, userId: string) {

@@ -88,7 +88,7 @@ export default async function SprintPage() {
             <Card className="overflow-hidden bg-white dark:bg-[#171715]">
               <div className="border-b border-[var(--bc-line)] p-5">
                 <div className="flex items-start justify-between gap-3"><div><p className="text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-400">{activeSprint?.status === "CLOSED" ? c("Ostatnia edycja", "Latest edition") : c("Aktualna edycja", "Current edition")}</p><h2 className="mt-2 text-xl font-semibold">{activeSprint?.title ?? "BuildCrew Sprint #1"}</h2></div><Sparkles className="h-5 w-5 text-[#8eb51f]" /></div>
-                <p className="mt-2 text-sm leading-6 text-neutral-500 dark:text-neutral-400">{activeSprint?.prompt ?? c("Zbierz ekipę i wypuść działające MVP w 30 dni.", "Build a crew and ship a working MVP in 30 days.")}</p>
+                <p className="mt-2 text-sm leading-6 text-neutral-500 dark:text-neutral-400">{activeSprint?.prompt ?? c("Zbierz ekipę i wypuść działający produkt w 30 dni.", "Build a crew and ship a working product in 30 days.")}</p>
               </div>
               <div className="grid grid-cols-2 gap-px bg-[var(--bc-line)]">
                 <Stat icon={CalendarDays} label={c("Start", "Start")} value={start ?? c("Wkrótce", "Soon")} />
