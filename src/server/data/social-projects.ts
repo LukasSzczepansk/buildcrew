@@ -20,10 +20,10 @@ import {
 import { isUuid } from "@/lib/security";
 
 export const PROJECT_UPDATE_KIND_LABELS: Record<ProjectUpdateKind, string> = {
-  PROGRESS: "Progress",
-  ROLE: "Team",
-  MILESTONE: "Milestone",
-  LAUNCH: "Launch",
+  PROGRESS: "Postęp",
+  ROLE: "Zespół",
+  MILESTONE: "Kamień milowy",
+  LAUNCH: "Premiera",
 };
 
 export async function getProjectFollowState(projectId: string, userId: string) {
@@ -81,7 +81,7 @@ export async function listFollowedProjectUpdates(userId: string, limit = 8) {
     .from(projectUpdates)
     .innerJoin(projects, eq(projects.id, projectUpdates.projectId))
     .leftJoin(profiles, eq(profiles.userId, projectUpdates.authorId))
-    .where(and(inArray(projectUpdates.projectId, projectIds), eq(projects.projectLanguage, "EN")))
+    .where(inArray(projectUpdates.projectId, projectIds))
     .orderBy(desc(projectUpdates.createdAt))
     .limit(Math.max(1, Math.min(limit, 20)));
 }
@@ -101,7 +101,7 @@ export async function listRecentGlobalProjectUpdates(limit = 8) {
     .innerJoin(projects, eq(projects.id, projectUpdates.projectId))
     .innerJoin(users, eq(users.id, projects.ownerId))
     .leftJoin(profiles, eq(profiles.userId, projectUpdates.authorId))
-    .where(and(eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE"), eq(projects.projectLanguage, "EN"), eq(users.isSuspended, false)))
+    .where(and(eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE"), eq(users.isSuspended, false)))
     .orderBy(desc(projectUpdates.createdAt))
     .limit(Math.max(1, Math.min(limit, 20)));
 }
@@ -128,7 +128,7 @@ export async function listCreditsForUser(userId: string, limit = 12) {
   })
     .from(projectCredits)
     .innerJoin(projects, eq(projects.id, projectCredits.projectId))
-    .where(and(eq(projectCredits.userId, userId), eq(projects.projectLanguage, "EN")))
+    .where(eq(projectCredits.userId, userId))
     .orderBy(desc(projects.completedAt), desc(projectCredits.creditedAt))
     .limit(Math.max(1, Math.min(limit, 30)));
 }

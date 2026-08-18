@@ -46,7 +46,7 @@ export function ApplyDialog({
       toast.error(appMessage(res.error, locale));
       return;
     }
-    toast.success(copy("Your request to join has been sent!", "Your request to join has been sent!"));
+    toast.success(copy("Twoja chęć dołączenia została wysłana!", "Your request to join has been sent!"));
     setOpen(false);
     setMessage("");
   }
@@ -54,25 +54,25 @@ export function ApplyDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">{copy("I want to join", "I want to join")}</Button>
+        <Button size="sm">{copy("Chcę dołączyć", "I want to join")}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{copy("Join as", "Join as")} {labels.roles[roleType]}</DialogTitle>
-          <DialogDescription>{copy("This is not a job application. The project owner will see your profile and a short note about what you want to contribute.", "This is not a job application. The project owner will see your profile and a short note about what you want to contribute.")}</DialogDescription>
+          <DialogTitle>{copy("Dołącz jako", "Join as")} {labels.roles[roleType]}</DialogTitle>
+          <DialogDescription>{copy("To nie rozmowa o pracę. Autor projektu zobaczy Twój profil i krótką wiadomość o tym, co chcesz wnieść do wspólnego projektu.", "This is not a job application. The project owner will see your profile and a short note about what you want to contribute.")}</DialogDescription>
         </DialogHeader>
 
         <div className="rounded-[6px] bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
-          <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{copy("Your profile", "Your profile")}</p>
+          <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{copy("Twój profil", "Your profile")}</p>
           <div className="flex flex-col gap-1.5">
             <p>
-              <span className="text-neutral-400">{copy("Role:", "Role:")}</span> {myProfile.role ? labels.roles[myProfile.role] : "-"}
+              <span className="text-neutral-400">{copy("Rola:", "Role:")}</span> {myProfile.role ? labels.roles[myProfile.role] : "-"}
             </p>
             <p>
-              <span className="text-neutral-400">{copy("Level:", "Level:")}</span> {myProfile.level ? labels.levels[myProfile.level] : "-"}
+              <span className="text-neutral-400">{copy("Poziom:", "Level:")}</span> {myProfile.level ? labels.levels[myProfile.level] : "-"}
             </p>
             <p>
-              <span className="text-neutral-400">{copy("Availability:", "Availability:")}</span> {myProfile.weeklyHours ? labels.commitments[myProfile.weeklyHours] : "-"}
+              <span className="text-neutral-400">{copy("Dostępność:", "Availability:")}</span> {myProfile.weeklyHours ? labels.commitments[myProfile.weeklyHours] : "-"}
             </p>
             <div className="flex flex-wrap gap-1.5 pt-1">
               {myProfile.skills.slice(0, 6).map((s) => (
@@ -85,14 +85,14 @@ export function ApplyDialog({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium">{copy("What would you like to contribute?", "What would you like to contribute?")}</label>
-          <Textarea placeholder={copy("For example: I can take care of the frontend and help ship the first MVP…", "For example: I can take care of the frontend and help ship the first MVP…")} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} />
+          <label className="text-sm font-medium">{copy("Co chciałbyś wnieść do projektu?", "What would you like to contribute?")}</label>
+          <Textarea placeholder={copy("Np. Mogę ogarnąć frontend i chciałbym razem dowieźć pierwsze MVP…", "For example: I can take care of the frontend and help ship the first MVP…")} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} />
           <p className="text-right text-[13px] text-neutral-400">{message.length}/500</p>
         </div>
 
         <DialogFooter>
           <Button onClick={handleSubmit} disabled={pending}>
-            {pending ? copy("Sending…", "Sending…") : copy("Send request", "Send request")}
+            {pending ? copy("Wysyłanie…", "Sending…") : copy("Wyślij chęć dołączenia", "Send request")}
           </Button>
         </DialogFooter>
       </DialogContent>

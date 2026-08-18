@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "BuildCrew - find people and build together";
+export const alt = "BuildCrew - znajdź ludzi do projektu i budujcie razem";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -27,15 +27,15 @@ export default function OpenGraphImage() {
 
         <div style={{ display: "flex", flexDirection: "column", maxWidth: "930px" }}>
           <div style={{ fontSize: "70px", lineHeight: 1.02, letterSpacing: "-3px", fontWeight: 700 }}>
-            Find people. Build together.
+            Znajdź ludzi. Budujcie razem.
           </div>
           <div style={{ marginTop: "26px", fontSize: "26px", lineHeight: 1.4, color: "#5F5F5A" }}>
-            Projects, side projects and people ready to build.
+            Projekty i ludzie otwarci na wspólne budowanie.
           </div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #CFCFC7", paddingTop: "22px", fontSize: "20px", color: "#6F6F69" }}>
-          <span>Engineering · Design · Product</span>
+          <span>Development · Design · Product</span>
           <span>buildcreww.com</span>
         </div>
       </div>

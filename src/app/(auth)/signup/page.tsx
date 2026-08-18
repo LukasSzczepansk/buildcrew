@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth/auth-form";
+import { AnalyticsEvent } from "@/components/analytics/analytics-event";
 import { getCurrentUser } from "@/lib/auth";
 import { safeInternalRedirect } from "@/lib/redirects";
 import { signupAction } from "@/server/actions/auth";
@@ -8,17 +9,17 @@ import { getRequestLocale } from "@/lib/site-server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Create account - BuildCrew" : "Create account - BuildCrew" };
+  return { title: locale === "en" ? "Create account - BuildCrew" : "Załóż konto - BuildCrew" };
 }
 
 const GOOGLE_ERRORS: Record<string, string> = {
-  "account-missing": "You do not have a BuildCrew account yet. You can create one with Google below.",
-  "access-denied": "Google sign-up was canceled.",
-  state: "The Google session expired. Try again.",
-  failed: "Could not create an account with Google. Try again.",
-  unverified: "Google did not verify the email address for this account.",
-  conflict: "Could not securely connect the Google account to BuildCrew.",
-  "not-configured": "Google sign-up is not configured yet.",
+  "account-missing": "Nie masz jeszcze konta BuildCrew. Możesz utworzyć je przez Google poniżej.",
+  "access-denied": "Rejestracja przez Google została anulowana.",
+  state: "Sesja Google wygasła. Spróbuj ponownie.",
+  failed: "Nie udało się utworzyć konta przez Google. Spróbuj ponownie.",
+  unverified: "Google nie potwierdził adresu e-mail tego konta.",
+  conflict: "Nie udało się bezpiecznie połączyć konta Google z BuildCrew.",
+  "not-configured": "Rejestracja przez Google nie jest jeszcze skonfigurowana.",
 };
 
 const GOOGLE_ERRORS_EN: Record<string, string> = {
@@ -31,6 +32,18 @@ const GOOGLE_ERRORS_EN: Record<string, string> = {
   suspended: "This account has been suspended.",
   "admin-email": "Admin login requires working email delivery.",
   "not-configured": "Google sign-in is not configured yet.",
+};
+
+const GITHUB_ERRORS_PL: Record<string, string> = {
+  "account-missing": "Nie masz jeszcze konta BuildCrew. Możesz utworzyć je przez GitHub poniżej.",
+  "access-denied": "Rejestracja przez GitHub została anulowana.",
+  state: "Sesja GitHub wygasła. Spróbuj ponownie.",
+  failed: "Nie udało się utworzyć konta przez GitHub. Spróbuj ponownie.",
+  email: "GitHub nie udostępnił zweryfikowanego adresu e-mail dla tego konta.",
+  conflict: "Nie udało się bezpiecznie połączyć konta GitHub z BuildCrew.",
+  suspended: "To konto zostało zawieszone.",
+  "admin-email": "Logowanie administratora wymaga działającej wysyłki e-mail.",
+  "not-configured": "Rejestracja przez GitHub nie jest jeszcze skonfigurowana.",
 };
 
 const GITHUB_ERRORS: Record<string, string> = {
@@ -68,14 +81,15 @@ export default async function SignupPage({
 
   return (
     <div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">{en ? "Join BuildCrew" : "Join BuildCrew"}</h1>
-      <p className="mb-6 text-sm text-neutral-500">{en ? "Find people and build something together from scratch." : "Find people and build something from scratch together."}</p>
+      <AnalyticsEvent name="signup_view" params={{ locale }} />
+      <h1 className="mb-1 text-2xl font-bold tracking-tight">{en ? "Join BuildCrew" : "Dołącz do BuildCrew"}</h1>
+      <p className="mb-6 text-sm text-neutral-500">{en ? "Find people and build something together from scratch." : "Znajdź ludzi i zbudujcie coś razem od zera."}</p>
       <AuthForm
         mode="signup"
         action={signupAction}
         googleEnabled={googleEnabled}
         githubEnabled={githubEnabled}
-        externalError={googleCode ? (en ? GOOGLE_ERRORS_EN[googleCode] : GOOGLE_ERRORS[googleCode]) : githubCode ? GITHUB_ERRORS[githubCode] : undefined}
+        externalError={googleCode ? (en ? GOOGLE_ERRORS_EN[googleCode] : GOOGLE_ERRORS[googleCode]) : githubCode ? (en ? GITHUB_ERRORS[githubCode] : GITHUB_ERRORS_PL[githubCode]) : undefined}
         nextPath={nextPath}
       />
     </div>

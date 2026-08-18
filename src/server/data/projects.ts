@@ -75,7 +75,7 @@ async function attachRelations(projectRows: (typeof projects.$inferSelect)[]) {
 }
 
 export async function listProjects(filters: ProjectFilters = {}, viewerId?: string) {
-  const conditions = [eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE"), eq(projects.projectLanguage, "EN")] as ReturnType<typeof eq>[];
+  const conditions = [eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE")] as ReturnType<typeof eq>[];
   if (filters.stage) conditions.push(eq(projects.stage, filters.stage));
   if (filters.commitment) conditions.push(eq(projects.commitment, filters.commitment));
   if (filters.projectLanguage) conditions.push(eq(projects.projectLanguage, filters.projectLanguage));
@@ -122,7 +122,7 @@ export async function listProjectsForSitemap() {
     .select({ id: projects.id, updatedAt: projects.updatedAt })
     .from(projects)
     .innerJoin(users, eq(users.id, projects.ownerId))
-    .where(and(eq(projects.entryType, "PROJECT"), eq(projects.projectLanguage, "EN"), eq(users.isSuspended, false)))
+    .where(and(eq(projects.entryType, "PROJECT"), eq(users.isSuspended, false)))
     .orderBy(desc(projects.updatedAt));
 }
 
@@ -130,7 +130,7 @@ export async function listPublicProjectsForLanding(limit = 3) {
   const rows = await db
     .select()
     .from(projects)
-    .where(and(eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE"), eq(projects.projectLanguage, "EN")))
+    .where(and(eq(projects.entryType, "PROJECT"), eq(projects.lifecycleStatus, "ACTIVE")))
     .orderBy(desc(projects.updatedAt))
     .limit(limit);
 

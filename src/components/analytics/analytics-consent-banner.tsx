@@ -62,15 +62,15 @@ export function AnalyticsConsentBanner() {
     <div className="fixed inset-x-3 bottom-3 z-[80] mx-auto max-w-[760px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] p-4 shadow-[0_10px_34px_rgba(0,0,0,0.12)] sm:bottom-5 sm:p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="max-w-[470px]">
-          <p className="text-sm font-semibold text-[var(--bc-ink)]">{copy("Optional analytics", "Optional analytics")}</p>
+          <p className="text-sm font-semibold text-[var(--bc-ink)]">{copy("Opcjonalna analityka", "Optional analytics")}</p>
           <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">
-            {copy("Google Analytics helps us understand which BuildCrew features are used. We do not enable ad personalization.", "Google Analytics helps us understand which BuildCrew features are used. We do not enable ad personalization.")} {" "}
-            <Link href={copy("/privacy", "/privacy")} className="font-medium text-[var(--bc-ink)] underline underline-offset-2">{copy("Privacy", "Privacy")}</Link>
+            {copy("Google Analytics pomaga nam sprawdzić, które funkcje BuildCrew są używane. Reklamowej personalizacji nie włączamy.", "Google Analytics helps us understand which BuildCrew features are used. We do not enable ad personalization.")} {" "}
+            <Link href={copy("/polityka-prywatnosci", "/privacy")} className="font-medium text-[var(--bc-ink)] underline underline-offset-2">{copy("Prywatność", "Privacy")}</Link>
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={() => choose("denied")}>{copy("Necessary only", "Necessary only")}</Button>
-          <Button type="button" size="sm" onClick={() => choose("granted")}>{copy("Allow analytics", "Allow analytics")}</Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => choose("denied")}>{copy("Tylko niezbędne", "Necessary only")}</Button>
+          <Button type="button" size="sm" onClick={() => choose("granted")}>{copy("Zgadzam się na analitykę", "Allow analytics")}</Button>
         </div>
       </div>
     </div>

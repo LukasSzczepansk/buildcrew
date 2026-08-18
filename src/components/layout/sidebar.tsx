@@ -7,18 +7,20 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { UserRoleBadge } from "@/components/ui/user-role-badge";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { useCopy } from "@/components/i18n/locale-provider";
 import { logoutAction } from "@/server/actions/auth";
-
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Home", icon: LayoutDashboard },
-  { href: "/builders", label: "People", icon: Users },
-  { href: "/projects", label: "Projects", icon: FolderKanban },
-  { href: "/network", label: "Network", icon: Network },
-  { href: "/messages", label: "Messages", icon: MessageCircle },
-] as const;
 
 export function Sidebar({ username, avatarEmoji, admin = false, founder = false, unreadMessages = 0 }: { username: string; avatarEmoji: string; admin?: boolean; founder?: boolean; unreadMessages?: number }) {
   const pathname = usePathname();
+  const copy = useCopy();
+  const navItems = [
+    { href: "/dashboard", label: copy("Start", "Home"), icon: LayoutDashboard },
+    { href: "/builders", label: copy("Ludzie", "People"), icon: Users },
+    { href: "/projects", label: copy("Projekty", "Projects"), icon: FolderKanban },
+    { href: "/network", label: copy("Sieć", "Network"), icon: Network },
+    { href: "/messages", label: copy("Wiadomości", "Messages"), icon: MessageCircle },
+  ] as const;
 
   return (
     <aside className="sticky top-0 hidden h-dvh w-[236px] shrink-0 overflow-hidden border-r border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-3.5 py-4 lg:flex lg:flex-col xl:w-[248px] [@media(max-height:720px)]:py-3">
@@ -27,9 +29,9 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
         <span className="truncate">BuildCrew</span>
       </Link>
 
-      <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--bc-faint)]">Discover</p>
+      <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--bc-faint)]">{copy("Odkrywaj", "Discover")}</p>
       <nav className="space-y-1">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + "/") || (item.href === "/projects" && pathname.startsWith("/my-projects"));
           const Icon = item.icon;
           return (
@@ -51,8 +53,12 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
       </nav>
 
       <div className="mt-4 border-t border-[var(--bc-line)] pt-3 [@media(max-height:720px)]:mt-3 [@media(max-height:720px)]:pt-2.5">
+        <div className="mb-2 flex items-center justify-between gap-2 px-2">
+          <span className="text-[11px] text-[var(--bc-faint)]">{copy("Język", "Language")}</span>
+          <LanguageSwitcher compact />
+        </div>
         <Link href="/help" className="flex min-h-9 items-center gap-2.5 rounded-[8px] px-3 text-[13px] text-[var(--bc-muted)] transition-colors hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)] [@media(max-height:720px)]:min-h-8">
-          <CircleHelp className="h-3.5 w-3.5" /> Help
+          <CircleHelp className="h-3.5 w-3.5" /> {copy("Pomoc", "Help")}
         </Link>
         {admin ? (
           <Link
@@ -63,7 +69,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
             )}
           >
             <ShieldCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
-            <span className="min-w-0 truncate">Admin panel</span>
+            <span className="min-w-0 truncate">{copy("Panel admina", "Admin panel")}</span>
           </Link>
         ) : null}
       </div>
@@ -78,12 +84,12 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
               <p className="truncate text-sm font-medium text-[var(--bc-ink)]">{username}</p>
               {founder ? <UserRoleBadge founder compact /> : admin ? <UserRoleBadge systemRole="ADMIN" compact /> : null}
             </div>
-            <p className="truncate text-[11px] text-[var(--bc-faint)]">Profile & settings</p>
+            <p className="truncate text-[11px] text-[var(--bc-faint)]">{copy("Profil i ustawienia", "Profile & settings")}</p>
           </div>
         </Link>
         <form action={logoutAction}>
           <Button type="submit" variant="ghost" size="sm" className="mt-0.5 h-8 w-full justify-start gap-2 px-2 text-[12px] text-[var(--bc-muted)] hover:text-[var(--bc-danger)]">
-            <LogOut className="h-3.5 w-3.5 shrink-0" /> Log out
+            <LogOut className="h-3.5 w-3.5 shrink-0" /> {copy("Wyloguj się", "Log out")}
           </Button>
         </form>
       </div>

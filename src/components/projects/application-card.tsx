@@ -37,7 +37,7 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
     setPending(false);
     if ("error" in res && res.error) { toast.error(appMessage(res.error, locale)); return; }
     setStatus(decision);
-    toast.success(decision === "ACCEPTED" ? copy("Application accepted", "Application accepted") : copy("Application declined", "Application declined"));
+    toast.success(decision === "ACCEPTED" ? copy("Zaakceptowano zgłoszenie", "Application accepted") : copy("Zgłoszenie odrzucone", "Application declined"));
   }
 
   return (
@@ -47,7 +47,7 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
         <div className="min-w-0">
           <div className="flex flex-wrap items-baseline gap-x-2"><Link href={`/builders/${application.applicant.userId}`} className="font-semibold hover:underline">{application.applicant.username}</Link><span className="text-[13px] text-[var(--bc-muted)]">{labels.roles[application.role.roleType]}</span></div>
           <div className="mt-2"><TechnologyStack items={application.applicant.skills} max={4} compact className="gap-1.5" /></div>
-          <p className="mt-2 truncate text-[12px] text-[var(--bc-muted)]">{application.reasons[0] || application.message || copy("Review the candidate profile.", "Review the candidate profile.")}</p>
+          <p className="mt-2 truncate text-[12px] text-[var(--bc-muted)]">{application.reasons[0] || application.message || copy("Sprawdź profil kandydata.", "Review the candidate profile.")}</p>
           <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{application.applicant.level ? labels.levels[application.applicant.level] : ""}{application.applicant.weeklyHours ? ` · ${labels.commitments[application.applicant.weeklyHours]}` : ""}</p>
         </div>
       </div>
@@ -55,7 +55,7 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
       <div><p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Match</p><p className="mt-1 text-[22px] font-semibold text-[#94bf28]">{application.matchScore}%</p></div>
 
       <div className="flex shrink-0 items-center gap-2">
-        {status === "PENDING" ? <><Button size="sm" className="gap-1" onClick={() => respond("ACCEPTED")} disabled={pending}><Check className="h-3.5 w-3.5" /> {copy("Accept", "Accept")}</Button><Button size="sm" variant="outline" onClick={() => respond("REJECTED")} disabled={pending} aria-label={copy("Decline", "Decline")}><X className="h-3.5 w-3.5" /></Button></> : <Badge variant={status === "ACCEPTED" ? "success" : "destructive"}>{status === "ACCEPTED" ? copy("Accepted", "Accepted") : copy("Declined", "Declined")}</Badge>}
+        {status === "PENDING" ? <><Button size="sm" className="gap-1" onClick={() => respond("ACCEPTED")} disabled={pending}><Check className="h-3.5 w-3.5" /> {copy("Akceptuj", "Accept")}</Button><Button size="sm" variant="outline" onClick={() => respond("REJECTED")} disabled={pending} aria-label={copy("Odrzuć", "Decline")}><X className="h-3.5 w-3.5" /></Button></> : <Badge variant={status === "ACCEPTED" ? "success" : "destructive"}>{status === "ACCEPTED" ? copy("Zaakceptowano", "Accepted") : copy("Odrzucono", "Declined")}</Badge>}
       </div>
     </article>
   );

@@ -7,7 +7,7 @@ import { getRequestLocale } from "@/lib/site-server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Confirm your email - BuildCrew" : "Verify email - BuildCrew" };
+  return { title: locale === "en" ? "Confirm your email - BuildCrew" : "Potwierdź e-mail - BuildCrew" };
 }
 
 export default async function VerifyEmailPage({
@@ -21,9 +21,9 @@ export default async function VerifyEmailPage({
   if (token) {
     return (
       <div>
-        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Account verification" : "Account verification"}</p>
-        <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{en ? "Confirming your email" : "Verifying your email"}</h1>
-        <p className="mt-3 mb-6 text-[14px] leading-6 text-[var(--bc-muted)]">{en ? "This will only take a moment." : "This will only take a moment."}</p>
+        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Account verification" : "Weryfikacja konta"}</p>
+        <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{en ? "Confirming your email" : "Potwierdzanie adresu e-mail"}</h1>
+        <p className="mt-3 mb-6 text-[14px] leading-6 text-[var(--bc-muted)]">{en ? "This will only take a moment." : "To potrwa tylko chwilę."}</p>
         <AutoVerifyEmail token={token} nextPath={next} />
       </div>
     );

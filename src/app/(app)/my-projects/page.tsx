@@ -16,7 +16,8 @@ import { refreshProjectRecruitmentAction } from "@/server/actions/projects";
 import type { AppLocale } from "@/lib/site-config";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: "My projects - BuildCrew" };
+  const locale = await getRequestLocale();
+  return { title: locale === "en" ? "My projects - BuildCrew" : "Moje projekty - BuildCrew" };
 }
 
 type View = "owned" | "joined";
@@ -26,6 +27,7 @@ export default async function MyProjectsPage({ searchParams }: { searchParams: P
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const locale = await getRequestLocale();
+  const en = locale === "en";
   const labels = labelsFor(locale);
 
   const params = await searchParams;
@@ -45,21 +47,21 @@ export default async function MyProjectsPage({ searchParams }: { searchParams: P
 
   return (
     <div>
-      <Topbar title="My projects" subtitle="Projects you lead and teams you belong to, all in one place." />
+      <Topbar title={en ? "My projects" : "Moje projekty"} subtitle={en ? "Projects you lead and teams you belong to, all in one place." : "Projekty, które prowadzisz, i zespoły, do których należysz - w jednym miejscu."} />
 
-      <nav aria-label="My projects view" className="mb-5 flex items-center gap-6 border-b border-[var(--bc-line)]">
-        <TabLink href="/my-projects?view=owned" active={view === "owned"} count={owned.length} ariaLabel={`${owned.length} projects`}>
-          Leading
+      <nav aria-label={en ? "My projects view" : "Widok moich projektów"} className="mb-5 flex items-center gap-6 border-b border-[var(--bc-line)]">
+        <TabLink href="/my-projects?view=owned" active={view === "owned"} count={owned.length} ariaLabel={en ? `${owned.length} projects` : `${owned.length} projektów`}>
+          {en ? "Leading" : "Prowadzę"}
         </TabLink>
-        <TabLink href="/my-projects?view=joined" active={view === "joined"} count={joined.length} ariaLabel={`${joined.length} projects`}>
-          Member
+        <TabLink href="/my-projects?view=joined" active={view === "joined"} count={joined.length} ariaLabel={en ? `${joined.length} projects` : `${joined.length} projektów`}>
+          {en ? "Member" : "Członek"}
         </TabLink>
       </nav>
 
       {view === "owned" ? (
         <OwnedProjects projects={owned} pendingByProject={pendingByProject} locale={locale} labels={labels} />
       ) : (
-        <JoinedProjects projects={joined} userId={user.id} labels={labels} />
+        <JoinedProjects projects={joined} userId={user.id} labels={labels} locale={locale} />
       )}
     </div>
   );
@@ -81,16 +83,17 @@ function OwnedProjects({ projects, pendingByProject, locale, labels }: {
   locale: AppLocale;
   labels: Labels;
 }) {
+  const en = locale === "en";
   if (!projects.length) {
-    return <EmptyState title="You are not leading a project yet." description="Create a project, describe who you need, and start meeting people who can help you build it." actionHref="/projects/new" actionLabel="Create project" />;
+    return <EmptyState title={en ? "You are not leading a project yet." : "Nie prowadzisz jeszcze żadnego projektu."} description={en ? "Create a project, describe who you need, and start meeting people who can help you build it." : "Dodaj projekt, opisz kogo potrzebujesz i zacznij poznawać osoby, które mogą pomóc Ci go zbudować."} actionHref="/projects/new" actionLabel={en ? "Create project" : "Dodaj projekt"} />;
   }
 
   return (
     <section aria-labelledby="owned-projects-heading">
       <div className="mb-3 flex items-baseline justify-between gap-4">
         <div>
-          <h2 id="owned-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">Projects you lead</h2>
-          <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Applications and recruiting activity that need your attention appear first.</p>
+          <h2 id="owned-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">{en ? "Projects you lead" : "Projekty, które prowadzisz"}</h2>
+          <p className="mt-1 text-[13px] text-[var(--bc-muted)]">{en ? "Applications and recruiting activity that need your attention appear first." : "Aplikacje i aktywność rekrutacyjna wymagające uwagi pojawiają się jako pierwsze."}</p>
         </div>
       </div>
 
@@ -116,35 +119,35 @@ function OwnedProjects({ projects, pendingByProject, locale, labels }: {
                   <p className="mt-1 line-clamp-1 max-w-[700px] text-[13px] leading-5 text-[var(--bc-muted)]">{project.tagline}</p>
                   <TechnologyStack items={project.technologies} max={3} compact className="mt-2.5 gap-1.5" />
                   <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--bc-faint)]">
-                    <span className="inline-flex items-center gap-1.5"><UsersRound className="h-3.5 w-3.5" strokeWidth={1.7} />{memberCount} {memberCount === 1 ? "person" : "people"}</span>
-                    {openRoleCount > 0 ? <span>Looking for: <span className="text-[var(--bc-muted)]">{openRoleNames}{openRoleCount > 2 ? ` +${openRoleCount - 2}` : ""}</span></span> : <span>Team complete</span>}
-                    {openSlots === 1 ? <span className="rounded-[5px] bg-[#C8F169] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-neutral-950">Last spot</span> : null}
+                    <span className="inline-flex items-center gap-1.5"><UsersRound className="h-3.5 w-3.5" strokeWidth={1.7} />{memberCount} {en ? (memberCount === 1 ? "person" : "people") : (memberCount === 1 ? "osoba" : "osoby")}</span>
+                    {openRoleCount > 0 ? <span>{en ? "Looking for:" : "Szukamy:"} <span className="text-[var(--bc-muted)]">{openRoleNames}{openRoleCount > 2 ? ` +${openRoleCount - 2}` : ""}</span></span> : <span>{en ? "Team complete" : "Zespół kompletny"}</span>}
+                    {openSlots === 1 ? <span className="rounded-[5px] bg-[#C8F169] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-neutral-950">{en ? "Last spot" : "Ostatnie miejsce"}</span> : null}
                     {openRoleCount > 0 ? <span className={staleRecruitment ? "font-medium text-amber-700 dark:text-amber-300" : ""}>{freshness.shortLabel}</span> : null}
                   </div>
                 </div>
               </div>
 
               <div className="lg:border-l lg:border-[var(--bc-line)] lg:pl-5">
-                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{pending > 0 ? "Needs review" : openRoleCount > 0 ? "Recruiting" : "Team"}</p>
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{pending > 0 ? (en ? "Needs review" : "Do sprawdzenia") : openRoleCount > 0 ? (en ? "Recruiting" : "Rekrutacja") : (en ? "Team" : "Zespół")}</p>
                 {pending > 0 ? (
                   <>
-                    <p className="mt-1.5 text-sm font-semibold text-[var(--bc-ink)]">{pending} {pending === 1 ? "new application" : "new applications"}</p>
-                    <Link href={`/projects/${project.id}/applications`} className="mt-1 inline-flex text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">Review applications</Link>
+                    <p className="mt-1.5 text-sm font-semibold text-[var(--bc-ink)]">{pending} {en ? (pending === 1 ? "new application" : "new applications") : (pending === 1 ? "nowa aplikacja" : "nowe aplikacje")}</p>
+                    <Link href={`/projects/${project.id}/applications`} className="mt-1 inline-flex text-[12px] font-medium text-[var(--bc-muted)] underline decoration-[var(--bc-line-strong)] underline-offset-4 hover:text-[var(--bc-ink)]">{en ? "Review applications" : "Sprawdź aplikacje"}</Link>
                   </>
                 ) : openRoleCount > 0 ? (
                   <>
-                    <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{staleRecruitment ? "Still looking for people?" : `${openRoleCount} ${openRoleCount === 1 ? "open role" : "open roles"}`}</p>
+                    <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{staleRecruitment ? (en ? "Still looking for people?" : "Nadal szukasz ludzi?") : en ? `${openRoleCount} ${openRoleCount === 1 ? "open role" : "open roles"}` : `${openRoleCount} ${openRoleCount === 1 ? "otwarta rola" : "otwarte role"}`}</p>
                     <p className={`mt-1 line-clamp-2 text-[12px] ${staleRecruitment ? "text-amber-700 dark:text-amber-300" : "text-[var(--bc-muted)]"}`}>{staleRecruitment ? freshness.label : openRoleNames}</p>
-                    {staleRecruitment ? <form action={refreshProjectRecruitmentAction} className="mt-2"><input type="hidden" name="projectId" value={project.id} /><Button type="submit" variant="outline" size="sm" className="h-8 gap-1.5 px-2.5 text-[12px]"><RefreshCw className="h-3.5 w-3.5" />Still recruiting</Button></form> : null}
+                    {staleRecruitment ? <form action={refreshProjectRecruitmentAction} className="mt-2"><input type="hidden" name="projectId" value={project.id} /><Button type="submit" variant="outline" size="sm" className="h-8 gap-1.5 px-2.5 text-[12px]"><RefreshCw className="h-3.5 w-3.5" />{en ? "Still recruiting" : "Nadal rekrutujemy"}</Button></form> : null}
                   </>
                 ) : (
-                  <><p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">Team complete</p><p className="mt-1 text-[12px] text-[var(--bc-muted)]">No open roles.</p></>
+                  <><p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{en ? "Team complete" : "Zespół kompletny"}</p><p className="mt-1 text-[12px] text-[var(--bc-muted)]">{en ? "No open roles." : "Brak otwartych ról."}</p></>
                 )}
               </div>
 
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                <Button asChild variant="outline" size="sm"><Link href={`/projects/${project.id}`}>View</Link></Button>
-                <Button asChild size="sm"><Link href={`/projects/${project.id}/manage`}>Manage <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
+                <Button asChild variant="outline" size="sm"><Link href={`/projects/${project.id}`}>{en ? "View" : "Zobacz"}</Link></Button>
+                <Button asChild size="sm"><Link href={`/projects/${project.id}/manage`}>{en ? "Manage" : "Zarządzaj"} <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
               </div>
             </article>
           );
@@ -154,26 +157,28 @@ function OwnedProjects({ projects, pendingByProject, locale, labels }: {
   );
 }
 
-function JoinedProjects({ projects, userId, labels }: {
+function JoinedProjects({ projects, userId, labels, locale }: {
   projects: Awaited<ReturnType<typeof listProjectsForMember>>;
   userId: string;
   labels: Labels;
+  locale: AppLocale;
 }) {
+  const en = locale === "en";
   if (!projects.length) {
-    return <EmptyState title="You are not a member of another project yet." description="Browse projects and find a team that needs your skills." actionHref="/projects" actionLabel="Browse projects" />;
+    return <EmptyState title={en ? "You are not a member of another project yet." : "Nie należysz jeszcze do innego projektu."} description={en ? "Browse projects and find a team that needs your skills." : "Przeglądaj projekty i znajdź zespół, który potrzebuje Twoich umiejętności."} actionHref="/projects" actionLabel={en ? "Browse projects" : "Przeglądaj projekty"} />;
   }
 
   return (
     <section aria-labelledby="joined-projects-heading">
       <div className="mb-3">
-        <h2 id="joined-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">Teams you belong to</h2>
-        <p className="mt-1 text-[13px] text-[var(--bc-muted)]">Projects where you are already building with other people.</p>
+        <h2 id="joined-projects-heading" className="text-[15px] font-semibold text-[var(--bc-ink)]">{en ? "Teams you belong to" : "Zespoły, do których należysz"}</h2>
+        <p className="mt-1 text-[13px] text-[var(--bc-muted)]">{en ? "Projects where you are already building with other people." : "Projekty, w których już budujesz razem z innymi."}</p>
       </div>
 
       <div className="border-y border-[var(--bc-line)]">
         {projects.map((project, index) => {
           const membership = project.members.find((member) => member.userId === userId);
-          const roleLabel = membership?.roleType ? labels.roles[membership.roleType] : "Team member";
+          const roleLabel = membership?.roleType ? labels.roles[membership.roleType] : (en ? "Team member" : "Członek zespołu");
           const memberCount = Math.max(project.members.length, 1);
 
           return (
@@ -188,13 +193,13 @@ function JoinedProjects({ projects, userId, labels }: {
               </div>
 
               <div className="lg:border-l lg:border-[var(--bc-line)] lg:pl-5">
-                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">Your role</p>
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Your role" : "Twoja rola"}</p>
                 <p className="mt-1.5 text-sm font-medium text-[var(--bc-ink)]">{roleLabel}</p>
-                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{memberCount} {memberCount === 1 ? "person" : "people"} on the team</p>
+                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{memberCount} {en ? (memberCount === 1 ? "person" : "people") : (memberCount === 1 ? "osoba" : "osoby")} {en ? "on the team" : "w zespole"}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                <Button asChild size="sm"><Link href={`/projects/${project.id}`}>Open project <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
+                <Button asChild size="sm"><Link href={`/projects/${project.id}`}>{en ? "Open project" : "Otwórz projekt"} <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
               </div>
             </article>
           );

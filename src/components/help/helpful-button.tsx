@@ -20,14 +20,14 @@ export function HelpfulButton({ answerId, questionId }: { answerId: string; ques
       disabled={pending}
       onClick={async () => {
         setPending(true);
-        const result = await markAnswerHelpful(answerId, questionId).catch(() => ({ error: copy("Could not mark the answer as helpful.", "Could not mark the answer as helpful.") }));
+        const result = await markAnswerHelpful(answerId, questionId).catch(() => ({ error: copy("Nie udało się oznaczyć odpowiedzi.", "Could not mark the answer as helpful.") }));
         setPending(false);
         if (result?.error) toast.error(appMessage(result.error, locale));
-        else toast.success(copy("Marked as helpful.", "Marked as helpful."));
+        else toast.success(copy("Oznaczono jako pomocne.", "Marked as helpful."));
       }}
       className="gap-1.5"
     >
-      <CheckCircle2 className="h-3.5 w-3.5" /> {copy("This helped me", "This helped me")}
+      <CheckCircle2 className="h-3.5 w-3.5" /> {copy("Pomogło mi", "This helped me")}
     </Button>
   );
 }

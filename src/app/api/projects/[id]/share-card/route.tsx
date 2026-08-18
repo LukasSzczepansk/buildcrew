@@ -7,10 +7,12 @@ export const runtime = "nodejs";
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const project = await getProjectById(id);
-  if (!project || project.projectLanguage !== "EN") return new Response("Not found", { status: 404 });
+  if (!project) return new Response("Not found", { status: 404 });
 
   const requestUrl = new URL(request.url);
-  const labels = labelsFor("en");
+  const locale = project.projectLanguage === "PL" ? "pl" : "en";
+  const en = locale === "en";
+  const labels = labelsFor(locale);
   const variant = requestUrl.searchParams.get("variant");
   const roleId = requestUrl.searchParams.get("role");
   const requestedRole = variant === "recruitment"
@@ -22,7 +24,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const crewSize = Math.max(project.members.length, project.owner ? 1 : 0);
   const totalSlots = project.roles.reduce((sum, role) => sum + role.slots, 0) + 1;
   const stage = stripStageEmoji(labels.stages[project.stage]);
-  const commitment = project.commitment ? labels.commitments[project.commitment] : "Flexible";
+  const commitment = project.commitment ? labels.commitments[project.commitment] : (en ? "Flexible" : "Elastycznie");
   const host = requestUrl.host.replace(/^www\./, "");
   const isRecruitment = Boolean(requestedRole);
   const projectNameSize = project.name.length > 42 ? 52 : project.name.length > 28 ? 58 : 66;
@@ -56,7 +58,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
               <div style={{ fontSize: "26px", fontWeight: 700, letterSpacing: "-0.6px" }}>BuildCrew</div>
             </div>
             <div style={{ fontSize: "15px", color: "#70706B", letterSpacing: "0.9px", textTransform: "uppercase" }}>
-              {isRecruitment ? "Open role" : "Project"}
+              {isRecruitment ? (en ? "Open role" : "Otwarta rola") : (en ? "Project" : "Projekt")}
             </div>
           </div>
 
@@ -65,7 +67,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
               <>
                 <div style={{ fontSize: "23px", color: "#70706B", marginBottom: "12px" }}>{project.name}</div>
                 <div style={{ fontSize: "65px", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-2.2px" }}>
-                  Looking for {labels.roles[requestedRole!.roleType]}
+                  {en ? "Looking for" : "Szukamy"} {labels.roles[requestedRole!.roleType]}
                 </div>
               </>
             ) : (
@@ -87,9 +89,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #DADAD3", paddingTop: "20px" }}>
             <div style={{ display: "flex", gap: "34px" }}>
-              <Metric label="Stage" value={stage} />
-              <Metric label="Time" value={commitment} />
-              <Metric label="Team" value={`${crewSize}/${Math.max(totalSlots, crewSize)}`} />
+              <Metric label={en ? "Stage" : "Etap"} value={stage} />
+              <Metric label={en ? "Time" : "Czas"} value={commitment} />
+              <Metric label={en ? "Team" : "Zespół"} value={`${crewSize}/${Math.max(totalSlots, crewSize)}`} />
             </div>
             <div style={{ fontSize: "16px", fontWeight: 600 }}>{host}</div>
           </div>
@@ -109,7 +111,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: "13px", color: "#A5A59F", letterSpacing: "1.2px", textTransform: "uppercase" }}>
-              {isRecruitment ? "Join the project" : "We are looking for"}
+              {isRecruitment ? (en ? "Join the project" : "Dołącz do projektu") : (en ? "We are looking for" : "Szukamy")}
             </div>
 
             <div style={{ marginTop: "22px", width: "42px", height: "5px", borderRadius: "2px", background: "#C8F169" }} />
@@ -124,7 +126,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                     </div>
                   ) : (
                     <div style={{ fontSize: "18px", lineHeight: 1.45, color: "#C8C8C2" }}>
-                      An open role on the team. Check the scope and contact the project owner.
+                      {en ? "An open role on the team. Check the scope and contact the project owner." : "Otwarta rola w zespole. Sprawdź zakres i skontaktuj się z właścicielem projektu."}
                     </div>
                   )}
                 </>
@@ -136,18 +138,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                   </div>
                 ))
               ) : (
-                <div style={{ fontSize: "25px", lineHeight: 1.3, fontWeight: 600 }}>The team is currently complete.</div>
+                <div style={{ fontSize: "25px", lineHeight: 1.3, fontWeight: 600 }}>{en ? "The team is currently complete." : "Zespół jest obecnie kompletny."}</div>
               )}
             </div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             <div style={{ fontSize: "18px", lineHeight: 1.45, color: "#C8C8C2" }}>
-              {isRecruitment ? "See the project, team and role details." : "See the project and meet the people building it."}
+              {isRecruitment ? (en ? "See the project, team and role details." : "Zobacz projekt, zespół i szczegóły roli.") : (en ? "See the project and meet the people building it." : "Zobacz projekt i poznaj osoby, które go budują.")}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "19px", fontWeight: 600 }}>
               <div style={{ width: "16px", height: "4px", borderRadius: "2px", background: "#C8F169" }} />
-              Open on BuildCrew
+              {en ? "Open on BuildCrew" : "Otwórz na BuildCrew"}
             </div>
           </div>
         </div>

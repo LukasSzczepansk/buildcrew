@@ -64,7 +64,7 @@ export function BuilderProfileActions({
       toast.error(appMessage(res.error, locale));
       return;
     }
-    toast.success(copy("Invitation sent!", "Invitation sent!"));
+    toast.success(copy("Zaproszenie wysłane!", "Invitation sent!"));
     setInviteOpen(false);
     setMessage("");
   }
@@ -72,7 +72,7 @@ export function BuilderProfileActions({
   async function handleBlock() {
     const res = await blockUser(targetUserId);
     if (res?.error) toast.error(appMessage(res.error, locale));
-    else toast.success(copy("User blocked.", "User blocked."));
+    else toast.success(copy("Użytkownik zablokowany.", "User blocked."));
   }
 
   return (
@@ -84,18 +84,18 @@ export function BuilderProfileActions({
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
-              <UserPlus className="h-4 w-4" /> {copy("Invite to project", "Invite to project")}
+              <UserPlus className="h-4 w-4" /> {copy("Zaproś do projektu", "Invite to project")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{copy("Invite to project", "Invite to project")}</DialogTitle>
-              <DialogDescription>{copy("Choose a project and add a short message.", "Choose a project and add a short message.")}</DialogDescription>
+              <DialogTitle>{copy("Zaproś do projektu", "Invite to project")}</DialogTitle>
+              <DialogDescription>{copy("Wybierz projekt i dodaj krótką wiadomość.", "Choose a project and add a short message.")}</DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-4">
               <Select value={projectId} onValueChange={setProjectId}>
                 <SelectTrigger>
-                  <SelectValue placeholder={copy("Choose a project", "Choose a project")} />
+                  <SelectValue placeholder={copy("Wybierz projekt", "Choose a project")} />
                 </SelectTrigger>
                 <SelectContent>
                   {myProjects.map((p) => (
@@ -106,7 +106,7 @@ export function BuilderProfileActions({
                 </SelectContent>
               </Select>
               <Textarea
-                placeholder={copy("Hi! We are looking for someone with your profile...", "Hi! We are looking for someone with your profile...")}
+                placeholder={copy("Cześć! Szukamy kogoś takiego jak Ty...", "Hi! We are looking for someone with your profile...")}
                 maxLength={300}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -114,7 +114,7 @@ export function BuilderProfileActions({
             </div>
             <DialogFooter>
               <Button onClick={handleInvite} disabled={pending || !projectId}>
-                {pending ? copy("Sending...", "Sending...") : copy("Send invitation", "Send invitation")}
+                {pending ? copy("Wysyłanie...", "Sending...") : copy("Wyślij zaproszenie", "Send invitation")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -124,13 +124,13 @@ export function BuilderProfileActions({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="gap-2">
-            <MoreHorizontal className="h-4 w-4" /> {copy("More options", "More options")}
+            <MoreHorizontal className="h-4 w-4" /> {copy("Więcej opcji", "More options")}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => setReportOpen(true)}>{copy("Report user", "Report user")}</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setReportOpen(true)}>{copy("Zgłoś użytkownika", "Report user")}</DropdownMenuItem>
           <DropdownMenuItem onClick={handleBlock} className="text-red-600">
-            {copy("Block user", "Block user")}
+            {copy("Zablokuj użytkownika", "Block user")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

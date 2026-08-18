@@ -26,7 +26,7 @@ export async function followUser(targetUserId: string) {
 
   await db.insert(follows).values({ followerId: user.id, followingId: targetUserId }).onConflictDoNothing();
   const actor = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(targetUserId, "FOLLOW_STARTED", `${actor[0]?.username ?? "Someone"} followed your profile`, "They will be notified when you publish a new project.", `/builders/${user.id}`, { actorId: user.id, entityType: "profile", entityId: user.id, titleEn: `${actor[0]?.username ?? "Someone"} is following your profile`, bodyEn: "They will be notified when you publish a new project." });
+  await createNotification(targetUserId, "FOLLOW_STARTED", `${actor[0]?.username ?? "Ktoś"} obserwuje Twój profil`, "Ta osoba zobaczy informacje o nowych projektach, które opublikujesz.", `/builders/${user.id}`, { actorId: user.id, entityType: "profile", entityId: user.id, titleEn: `${actor[0]?.username ?? "Someone"} is following your profile`, bodyEn: "They will be notified when you publish a new project." });
   await logEvent("network_follow", user.id, { targetUserId });
   revalidatePath("/network");
   revalidatePath(`/builders/${targetUserId}`);
@@ -85,7 +85,7 @@ export async function endorseCollaborator(input: unknown) {
   });
 
   const actor = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(parsed.data.targetUserId, "COLLABORATION_ENDORSEMENT", `${actor[0]?.username ?? "A collaborator"} endorsed working with you`, `Based on ${project[0].name}.`, `/builders/${parsed.data.targetUserId}`, { actorId: user.id, entityType: "project", entityId: parsed.data.projectId, titleEn: `${actor[0]?.username ?? "A collaborator"} endorsed working with you`, bodyEn: `Based on ${project[0].name}.` });
+  await createNotification(parsed.data.targetUserId, "COLLABORATION_ENDORSEMENT", `${actor[0]?.username ?? "Współpracownik"} poleca współpracę z Tobą`, `Na podstawie projektu ${project[0].name}.`, `/builders/${parsed.data.targetUserId}`, { actorId: user.id, entityType: "project", entityId: parsed.data.projectId, titleEn: `${actor[0]?.username ?? "A collaborator"} endorsed working with you`, bodyEn: `Based on ${project[0].name}.` });
   await logEvent("collaboration_endorsed", user.id, { projectId: parsed.data.projectId, targetUserId: parsed.data.targetUserId, strengths: parsed.data.strengths });
   revalidatePath("/network");
   revalidatePath(`/builders/${parsed.data.targetUserId}`);

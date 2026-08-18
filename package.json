@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "node scripts/check-punctuation.mjs && node scripts/check-english-only.mjs && tsc --noEmit",
+    "typecheck": "node scripts/check-punctuation.mjs && node scripts/check-bilingual-ui.mjs && tsc --noEmit",
     "db:push": "drizzle-kit push --config=drizzle.config.ts",
     "db:seed": "node scripts/seed-demo.mjs",
     "db:studio": "drizzle-kit studio --config=drizzle.config.ts",
@@ -20,9 +20,10 @@
     "content:translate-en": "node scripts/translate-existing-content-to-english.mjs --apply",
     "content:restore": "node scripts/restore-content-backup.mjs",
     "check:english-only": "node scripts/check-english-only.mjs",
-    "launch:seed-samples": "node scripts/seed-launch-samples.mjs",
     "launch:remove-samples": "node scripts/remove-launch-samples.mjs",
-    "collaboration:prepare": "node scripts/prepare-collaboration-confirmations.mjs"
+    "collaboration:prepare": "node scripts/prepare-collaboration-confirmations.mjs",
+    "check:bilingual": "node scripts/check-bilingual-ui.mjs",
+    "launch:check": "node scripts/prelaunch-check.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

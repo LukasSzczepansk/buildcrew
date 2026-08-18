@@ -45,54 +45,57 @@ function intentCompatibility(a: LookingFor[] = [], b: LookingFor[] = []) {
 
 export type MatchResult = { score: number; reasons: string[] };
 
-export function computeMatch(me: MatchableProfile, other: MatchableProfile, locale: AppLocale = "en"): MatchResult {
+export function computeMatch(me: MatchableProfile, other: MatchableProfile, locale: AppLocale = "pl"): MatchResult {
   const labels = labelsFor(locale);
+  const en = locale === "en";
   let score = 0;
   const reasons: string[] = [];
 
   if (rolesComplementary(me.role, other.role)) {
     score += 22;
-    reasons.push(`${other.role ? labels.roles[other.role] : "Their role"} complements your ${me.role ? labels.roles[me.role] : "profile"}`);
+    reasons.push(en
+      ? `${other.role ? labels.roles[other.role] : "Their role"} complements your ${me.role ? labels.roles[me.role] : "profile"}`
+      : `${other.role ? labels.roles[other.role] : "Ta rola"} uzupełnia Twój profil${me.role ? ` (${labels.roles[me.role]})` : ""}`);
   } else if (me.role && other.role && me.role === other.role) {
     score += 8;
-    reasons.push(`You both work as ${labels.roles[me.role]}`);
+    reasons.push(en ? `You both work as ${labels.roles[me.role]}` : `Oboje działacie jako ${labels.roles[me.role]}`);
   }
 
   const sharedSkills = (me.skills ?? []).filter((skill) => (other.skills ?? []).includes(skill));
   if (sharedSkills.length) {
     score += Math.min(18, sharedSkills.length * 6);
-    reasons.push(`${sharedSkills.slice(0, 3).join(", ")} in common`);
+    reasons.push(en ? `${sharedSkills.slice(0, 3).join(", ")} in common` : `Wspólne umiejętności: ${sharedSkills.slice(0, 3).join(", ")}`);
   }
 
   const sharedInterests = me.interests.filter((interest) => other.interests.includes(interest));
   if (sharedInterests.length) {
     score += Math.min(14, sharedInterests.length * 7);
-    reasons.push(`Shared interest: ${sharedInterests.slice(0, 2).join(" / ")}`);
+    reasons.push(en ? `Shared interest: ${sharedInterests.slice(0, 2).join(" / ")}` : `Wspólny obszar: ${sharedInterests.slice(0, 2).join(" / ")}`);
   }
 
   if (me.weeklyHours && other.weeklyHours && me.weeklyHours === other.weeklyHours) {
     score += 10;
-    reasons.push(`Same availability: ${labels.commitments[other.weeklyHours]}`);
+    reasons.push(en ? `Same availability: ${labels.commitments[other.weeklyHours]}` : `Podobna dostępność: ${labels.commitments[other.weeklyHours]}`);
   }
 
   const sharedGoals = me.goals.filter((goal) => other.goals.includes(goal));
   if (sharedGoals.length) {
     score += 8;
-    reasons.push(`Similar goal: ${labels.goals[sharedGoals[0]].toLowerCase()}`);
+    reasons.push(en ? `Similar goal: ${labels.goals[sharedGoals[0]].toLowerCase()}` : `Podobny cel: ${labels.goals[sharedGoals[0]].toLowerCase()}`);
   }
 
   if (me.level && other.level) {
     const diff = Math.abs(LEVEL_ORDER[me.level] - LEVEL_ORDER[other.level]);
     if (diff <= 1) {
       score += 7;
-      reasons.push("Compatible experience level");
+      reasons.push(en ? "Compatible experience level" : "Zbliżony poziom doświadczenia");
     }
   }
 
   const sharedLanguages = (me.languages ?? []).filter((language) => (other.languages ?? []).includes(language));
   if (sharedLanguages.length) {
     score += 10;
-    reasons.push(`You can work in ${sharedLanguages.slice(0, 2).join(" / ")}`);
+    reasons.push(en ? `You can work in ${sharedLanguages.slice(0, 2).join(" / ")}` : `Możecie pracować w języku: ${sharedLanguages.slice(0, 2).join(" / ")}`);
   } else if ((me.languages?.length ?? 0) > 0 && (other.languages?.length ?? 0) > 0) {
     score = Math.max(0, score - 12);
   }
@@ -101,26 +104,32 @@ export function computeMatch(me: MatchableProfile, other: MatchableProfile, loca
     const compatible = me.workModePreference === "FLEXIBLE" || other.workModePreference === "FLEXIBLE" || me.workModePreference === other.workModePreference;
     if (compatible) {
       score += 5;
-      reasons.push("Compatible work setup");
+      reasons.push(en ? "Compatible work setup" : "Pasujący tryb współpracy");
     }
   }
 
   if (me.country && other.country && me.country === other.country) {
     score += 3;
-    reasons.push(`Same country: ${me.country}`);
+    reasons.push(en ? `Same country: ${me.country}` : `Ten sam kraj: ${me.country}`);
   }
 
   const intent = intentCompatibility(me.lookingFor, other.lookingFor);
   if (intent) {
     score += intent === "project" ? 12 : 7;
-    reasons.push(intent === "project" ? "One of you has a project and the other is open to joining" : intent === "cofounder" ? "You are both open to a co-founder conversation" : intent === "network" ? "You are both open to professional networking" : "You are both open to building something new");
+    reasons.push(intent === "project"
+      ? (en ? "One of you has a project and the other is open to joining" : "Jedna osoba ma projekt, a druga jest otwarta na dołączenie")
+      : intent === "cofounder"
+        ? (en ? "You are both open to a co-founder conversation" : "Oboje jesteście otwarci na rozmowę o co-founderze")
+        : intent === "network"
+          ? (en ? "You are both open to professional networking" : "Oboje jesteście otwarci na networking")
+          : (en ? "You are both open to building something new" : "Oboje jesteście otwarci na zbudowanie czegoś nowego"));
   }
 
   if (other.lastActiveAt) {
     const timestamp = new Date(other.lastActiveAt).getTime();
     if (Number.isFinite(timestamp) && Date.now() - timestamp <= 7 * 24 * 60 * 60 * 1000) {
       score += 4;
-      reasons.push("Active this week");
+      reasons.push(en ? "Active this week" : "Aktywny w tym tygodniu");
     }
   }
 

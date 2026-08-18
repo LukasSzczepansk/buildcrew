@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { labelsFor } from "@/lib/constants-i18n";
 import { getRequestLocale } from "@/lib/site-server";
+import { getProfileCompletion } from "@/lib/profile-completion";
 import { countHelpfulAnswersForUser } from "@/server/data/help";
 import { getPrivateContact, getProfileByUserId } from "@/server/data/profiles";
 import { getProfileAvatarState } from "@/server/data/profile-avatars";
@@ -25,7 +26,7 @@ import { logoutAction } from "@/server/actions/auth";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: `${locale === "en" ? "Profile" : "Profile"} - BuildCrew` };
+  return { title: `${locale === "en" ? "Profile" : "Profil"} - BuildCrew` };
 }
 
 export default async function ProfilePage() {
@@ -47,24 +48,14 @@ export default async function ProfilePage() {
 
   if (!profile || !profile.role || !profile.level || !profile.weeklyHours) redirect("/onboarding");
   const activeProjects = projects.filter((project) => project.lifecycleStatus !== "COMPLETED");
-
-  const matchingGaps = [
-    !profile.bio?.trim() ? (en ? "a short bio" : "short bio") : null,
-    !profile.headline?.trim() ? (en ? "a headline" : "headline") : null,
-    profile.languages.length === 0 ? (en ? "collaboration languages" : "collaboration languages") : null,
-    !profile.country ? (en ? "country" : "kraj") : null,
-    profile.skills.length < 3 ? (en ? "at least 3 skills" : "at least 3 skills") : null,
-    profile.interests.length < 2 ? (en ? "areas you want to build in" : "areas you want to build in") : null,
-    profile.lookingFor.length === 0 ? "what opportunities you are open to" : null,
-    !profile.githubUrl && !profile.portfolioUrl ? (en ? "GitHub or portfolio" : "GitHub or portfolio") : null,
-  ].filter((value): value is string => Boolean(value));
+  const completion = getProfileCompletion(profile, locale);
 
   return (
     <div>
-      <Topbar title={en ? "Your profile" : "Your profile"} subtitle={en ? "This is what other builders see and what matching uses." : "This is what other builders see and what matching uses."} />
+      <Topbar title={en ? "Your profile" : "Twój profil"} subtitle={en ? "This is what other builders see and what matching uses." : "To te informacje widzą inni builderzy i wykorzystuje matching."} />
 
       <div className="mb-6 flex justify-end lg:hidden">
-        <form action={logoutAction}><Button type="submit" variant="outline" size="sm" className="gap-2"><LogOut className="h-4 w-4" /> Log out</Button></form>
+        <form action={logoutAction}><Button type="submit" variant="outline" size="sm" className="gap-2"><LogOut className="h-4 w-4" /> {en ? "Log out" : "Wyloguj się"}</Button></form>
       </div>
 
       <section className="mb-7 grid gap-5 border-b border-[var(--bc-line)] pb-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
@@ -77,24 +68,34 @@ export default async function ProfilePage() {
             </div>
             {profile.bio ? <p className="bc-truncate-2 mt-1.5 max-w-[680px] text-[13px] leading-5 text-[var(--bc-muted)]">{profile.bio}</p> : null}
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--bc-faint)]">
-              <span>{activeProjects.length} active · {completedCredits.length} completed</span>
-              <span>{helpfulCount} helpful answers</span>
+              <span>{activeProjects.length} {en ? "active" : "aktywnych"} · {completedCredits.length} {en ? "completed" : "ukończonych"}</span>
+              <span>{helpfulCount} {en ? "helpful answers" : "pomocnych odpowiedzi"}</span>
               {badges.slice(0, 2).map((badge) => <span key={badge.key}>{badge.label}</span>)}
             </div>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm"><Link href={`/builders/${user.id}`}>{en ? "Preview in BuildCrew" : "Preview on BuildCrew"}</Link></Button>
-          {profile.publicProfile ? <Button asChild variant="outline" size="sm"><Link href={`/u/${profile.username}`}>{en ? "Public profile" : "Public profile"} <ExternalLink className="h-3.5 w-3.5" /></Link></Button> : null}
+          <Button asChild variant="outline" size="sm"><Link href={`/builders/${user.id}`}>{en ? "Preview in BuildCrew" : "Podgląd w BuildCrew"}</Link></Button>
+          {profile.publicProfile ? <Button asChild variant="outline" size="sm"><Link href={`/u/${profile.username}`}>{en ? "Public profile" : "Publiczny profil"} <ExternalLink className="h-3.5 w-3.5" /></Link></Button> : null}
         </div>
       </section>
 
-      {matchingGaps.length ? (
-        <section className="mb-6 border-l-[3px] border-[var(--bc-accent)] bg-[var(--bc-surface-subtle)] px-4 py-3">
-          <p className="text-[12px] font-semibold">{en ? "Better matches without a fake profile score" : "Better matches without an artificial profile score"}</p>
-          <p className="mt-1 text-[11px] leading-5 text-[var(--bc-muted)]">{en ? "Add:" : "Complete:"} <span className="font-medium text-[var(--bc-ink)]">{matchingGaps.join(" · ")}</span>. {en ? "BuildCrew uses these signals to recommend people and projects." : "BuildCrew uses this data to recommend people and projects."}</p>
-        </section>
-      ) : null}
+      <section className="mb-6 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-4 py-4 sm:px-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-[12px] font-semibold">{en ? "Profile completeness" : "Kompletność profilu"}</p>
+            <p className="mt-1 text-[11px] leading-5 text-[var(--bc-muted)]">
+              {completion.complete
+                ? (en ? "Your profile gives matching enough signal to recommend people and projects." : "Twój profil ma komplet najważniejszych danych do dobrych rekomendacji.")
+                : (en ? `Add: ${completion.missing.slice(0, 4).join(" · ")}.` : `Uzupełnij: ${completion.missing.slice(0, 4).join(" · ")}.`)}
+            </p>
+          </div>
+          <strong className="text-[24px] font-semibold tabular-nums tracking-[-0.03em]">{completion.score}%</strong>
+        </div>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--bc-surface-2)]" aria-label={en ? `Profile completeness ${completion.score}%` : `Kompletność profilu ${completion.score}%`}>
+          <div className="h-full rounded-full bg-[var(--bc-accent-strong)] transition-[width]" style={{ width: `${completion.score}%` }} />
+        </div>
+      </section>
 
       <AvatarPhotoSettings username={profile.username} initialState={avatarState} />
 
@@ -124,9 +125,9 @@ export default async function ProfilePage() {
 
       {completedCredits.length ? (
         <section className="mt-7 border-t border-[var(--bc-line)] pt-5">
-          <div className="flex items-center justify-between gap-4"><h2 className="text-[16px] font-semibold">Built</h2><span className="text-[12px] text-[var(--bc-faint)]">Projects that are part of your BuildCrew track record.</span></div>
+          <div className="flex items-center justify-between gap-4"><h2 className="text-[16px] font-semibold">{en ? "Built" : "Zbudowane"}</h2><span className="text-[12px] text-[var(--bc-faint)]">{en ? "Projects that are part of your BuildCrew track record." : "Projekty, które tworzą Twoją historię na BuildCrew."}</span></div>
           <div className="mt-2 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-            {completedCredits.map((credit) => <Link key={credit.creditId} href={`/projects/${credit.projectId}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{credit.projectName}</p><p className="mt-0.5 bc-truncate-2 text-[12px] leading-4 text-[var(--bc-muted)]">{credit.outcome || credit.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{credit.isOwner ? "Owner" : credit.roleType ? labels.roles[credit.roleType] : "Collaborator"}</span></Link>)}
+            {completedCredits.map((credit) => <Link key={credit.creditId} href={`/projects/${credit.projectId}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{credit.projectName}</p><p className="mt-0.5 bc-truncate-2 text-[12px] leading-4 text-[var(--bc-muted)]">{credit.outcome || credit.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{credit.isOwner ? (en ? "Owner" : "Właściciel") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Collaborator" : "Współtwórca")}</span></Link>)}
           </div>
         </section>
       ) : null}

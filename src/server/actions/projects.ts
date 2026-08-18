@@ -89,7 +89,7 @@ export async function createProject(input: z.infer<typeof projectCreateSchema>) 
       projectType: data.projectType,
       existingAssets: data.existingAssets,
       collaborationMode: data.collaborationMode,
-      projectLanguage: "EN",
+      projectLanguage: data.projectLanguage,
       country: data.country || null,
       marketScope: data.marketScope,
       needs: data.needs,
@@ -177,7 +177,7 @@ export async function applyToProject(projectId: string, input: z.infer<typeof ap
   if (rateError) return { error: rateError };
 
   const parsed = applicationSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data." };
+  if (!parsed.success) return { error: appMessage(parsed.error.issues[0]?.message, locale, "Invalid data.") };
 
   const projectRows = await db.select().from(projects).where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT"))).limit(1);
   const project = projectRows[0];
@@ -199,7 +199,7 @@ export async function applyToProject(projectId: string, input: z.infer<typeof ap
   }
 
   const profileRows = await db.select({ username: profiles.username }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);
-  await createNotification(project.ownerId, "PROJECT_APPLICATION", `${profileRows[0]?.username ?? "Someone"} wants to join ${project.name}`, `Role: ${ROLE_LABELS[role.roleType]}${parsed.data.message ? ` · ${parsed.data.message.slice(0, 120)}` : ""}`, `/projects/${projectId}/applications`, { actorId: user.id, entityType: "project", entityId: projectId, emailPreference: "emailProjectApplications", emailCtaLabel: "View application", emailCtaLabelEn: "View application", titleEn: `${profileRows[0]?.username ?? "Someone"} wants to join ${project.name}`, bodyEn: `Role: ${ROLE_LABELS[role.roleType]}${parsed.data.message ? ` · ${parsed.data.message.slice(0, 120)}` : ""}` });
+  await createNotification(project.ownerId, "PROJECT_APPLICATION", `${profileRows[0]?.username ?? "Ktoś"} chce dołączyć do ${project.name}`, `Rola: ${ROLE_LABELS[role.roleType]}${parsed.data.message ? ` · ${parsed.data.message.slice(0, 120)}` : ""}`, `/projects/${projectId}/applications`, { actorId: user.id, entityType: "project", entityId: projectId, emailPreference: "emailProjectApplications", emailCtaLabel: "Zobacz zgłoszenie", emailCtaLabelEn: "View application", titleEn: `${profileRows[0]?.username ?? "Someone"} wants to join ${project.name}`, bodyEn: `Role: ${ROLE_LABELS[role.roleType]}${parsed.data.message ? ` · ${parsed.data.message.slice(0, 120)}` : ""}` });
   await logEvent("project_application_sent", user.id, { projectId, roleId: role.id });
   revalidatePath(`/projects/${projectId}`);
   return { success: true };
@@ -239,7 +239,7 @@ export async function respondToApplication(applicationId: string, decision: "ACC
     await logEvent("project_application_accepted", user.id, { projectId: row.project.id, applicantId: row.application.applicantId });
     await logEvent("contact_revealed", user.id, { withUserId: row.application.applicantId });
   }
-  await createNotification(row.application.applicantId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `You are joining the ${row.project.name} team` : `Your application to ${row.project.name} was not accepted.`, decision === "ACCEPTED" ? "You can now connect and start building together." : undefined, `/projects/${row.project.id}`, { actorId: user.id, entityType: "project", entityId: row.project.id, emailPreference: "emailProjectAccepted", emailCtaLabel: "View project", emailCtaLabelEn: "View project", titleEn: decision === "ACCEPTED" ? `You are joining ${row.project.name}` : `Your application to ${row.project.name} was not accepted.`, bodyEn: decision === "ACCEPTED" ? "You can now exchange contact details and start building together." : null });
+  await createNotification(row.application.applicantId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Dołączasz do zespołu ${row.project.name}` : `Twoje zgłoszenie do ${row.project.name} nie zostało zaakceptowane.`, decision === "ACCEPTED" ? "Możecie teraz nawiązać kontakt i zacząć wspólnie budować." : undefined, `/projects/${row.project.id}`, { actorId: user.id, entityType: "project", entityId: row.project.id, emailPreference: "emailProjectAccepted", emailCtaLabel: "Zobacz projekt", emailCtaLabelEn: "View project", titleEn: decision === "ACCEPTED" ? `You are joining ${row.project.name}` : `Your application to ${row.project.name} was not accepted.`, bodyEn: decision === "ACCEPTED" ? "You can now exchange contact details and start building together." : null });
   revalidatePath(`/projects/${row.project.id}`);
   revalidatePath(`/projects/${row.project.id}/applications`);
   return { success: true };
@@ -281,7 +281,7 @@ export async function inviteToProject(projectId: string, inviteeId: string, role
     if (isUniqueViolation(error)) return { error: appMessage("This person already has a pending invitation to this project.", locale) };
     throw error;
   }
-  await createNotification(validatedInviteeId, "PROJECT_INVITE", `Invitation to ${project.name}`, validatedMessage || undefined, "/invitations", { actorId: user.id, entityType: "project", entityId: project.id, emailPreference: "emailProjectApplications", emailCtaLabel: "View invitation", emailCtaLabelEn: "View invitation", titleEn: `Invitation to ${project.name}` });
+  await createNotification(validatedInviteeId, "PROJECT_INVITE", `Zaproszenie do ${project.name}`, validatedMessage || undefined, "/invitations", { actorId: user.id, entityType: "project", entityId: project.id, emailPreference: "emailProjectApplications", emailCtaLabel: "Zobacz zaproszenie", emailCtaLabelEn: "View invitation", titleEn: `Invitation to ${project.name}` });
   await logEvent("builder_invite_sent", user.id, { projectId: validatedProjectId, inviteeId: validatedInviteeId });
   revalidatePath(`/projects/${validatedProjectId}`);
   return { success: true };
@@ -325,7 +325,7 @@ export async function respondToProjectInvite(inviteId: string, decision: "ACCEPT
   if ("error" in outcome) return outcome;
   const row = outcome.row;
   if (decision === "ACCEPTED") await logEvent("contact_revealed", user.id, { withUserId: row.project.ownerId });
-  await createNotification(row.project.ownerId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Invitation to ${row.project.name} was accepted!` : `Invitation to ${row.project.name} was declined.`, undefined, `/projects/${row.project.id}`, { titleEn: decision === "ACCEPTED" ? `Invitation to ${row.project.name} was accepted!` : `Invitation to ${row.project.name} was declined.` });
+  await createNotification(row.project.ownerId, decision === "ACCEPTED" ? "APPLICATION_ACCEPTED" : "APPLICATION_REJECTED", decision === "ACCEPTED" ? `Zaproszenie do ${row.project.name} zostało zaakceptowane!` : `Zaproszenie do ${row.project.name} zostało odrzucone.`, undefined, `/projects/${row.project.id}`, { titleEn: decision === "ACCEPTED" ? `Invitation to ${row.project.name} was accepted!` : `Invitation to ${row.project.name} was declined.` });
   revalidatePath(`/projects/${row.project.id}`);
   return { success: true };
 }
@@ -445,12 +445,12 @@ export async function updateProjectEnglishContent(projectId: string, input: z.in
   if (!user) return { error: appMessage("You must be logged in.", locale) };
 
   const parsed = projectContentUpdateSchema.safeParse(input);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the fields and try again." };
+  if (!parsed.success) return { error: appMessage(parsed.error.issues[0]?.message, locale, "Check the fields and try again.") };
 
   const row = await db.select({ ownerId: projects.ownerId }).from(projects)
     .where(and(eq(projects.id, projectId), eq(projects.entryType, "PROJECT"))).limit(1);
-  if (!row[0]) return { error: "Project not found." };
-  if (row[0].ownerId !== user.id) return { error: "You do not have permission to edit this project." };
+  if (!row[0]) return { error: appMessage("Project not found.", locale) };
+  if (row[0].ownerId !== user.id) return { error: appMessage("You do not have permission to do this.", locale) };
 
   const data = parsed.data;
   await db.transaction(async (tx) => {
@@ -462,7 +462,6 @@ export async function updateProjectEnglishContent(projectId: string, input: z.in
       ownerContribution: data.ownerContribution || null,
       outcome: data.outcome || null,
       fundingUse: data.fundingUse || null,
-      projectLanguage: "EN",
       updatedAt: new Date(),
     }).where(eq(projects.id, projectId));
 
@@ -552,9 +551,10 @@ export async function refreshProjectRecruitmentAction(formData: FormData) {
 }
 
 export async function respondToCollaborationCheck(projectId: string, memberId: string, answer: "STARTED" | "NOT_STARTED" | "ENDED") {
-  if (!uuidSchema.safeParse(projectId).success || !uuidSchema.safeParse(memberId).success) return { error: "Invalid collaboration." };
+  const locale = await getRequestLocale();
+  if (!uuidSchema.safeParse(projectId).success || !uuidSchema.safeParse(memberId).success) return { error: appMessage("Invalid collaboration.", locale) };
   const user = await getVerifiedCurrentUser();
-  if (!user) return { error: "You must be logged in." };
+  if (!user) return { error: appMessage("You must be logged in.", locale) };
   const rateError = await enforceUserRateLimit("action:collaboration:check", user.id, 30, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
@@ -566,16 +566,16 @@ export async function respondToCollaborationCheck(projectId: string, memberId: s
       .where(and(eq(projectMembers.projectId, projectId), eq(projectMembers.userId, memberId)))
       .limit(1);
     const row = rows[0];
-    if (!row || row.member.isOwner) return { error: "Collaboration not found." } as const;
+    if (!row || row.member.isOwner) return { error: appMessage("Collaboration not found.", locale) } as const;
 
     const isOwner = row.project.ownerId === user.id;
     const isMember = row.member.userId === user.id;
-    if (!isOwner && !isMember) return { error: "You cannot update this collaboration." } as const;
+    if (!isOwner && !isMember) return { error: appMessage("You cannot update this collaboration.", locale) } as const;
 
     const now = new Date();
     const checkOpensAt = row.member.joinedAt.getTime() + 7 * 24 * 60 * 60 * 1000;
     if (row.member.collaborationStatus === "PENDING" && now.getTime() < checkOpensAt) {
-      return { error: "Collaboration confirmation opens 7 days after the person joins the project." } as const;
+      return { error: appMessage("Collaboration confirmation opens 7 days after the person joins the project.", locale) } as const;
     }
     if (answer === "NOT_STARTED") {
       await tx.update(projectMembers).set({ collaborationStatus: "NOT_STARTED", collaborationEndedAt: now, collaborationCheckRequestedAt: now })
@@ -607,9 +607,9 @@ export async function respondToCollaborationCheck(projectId: string, memberId: s
 
   if (outcome.confirmed) {
     await logEvent("collaboration_confirmed", user.id, { projectId, memberId });
-    await createNotification(otherUserId, "COLLABORATION_CONFIRMED", `Collaboration confirmed on ${outcome.row.project.name}`, "This collaboration now counts toward your BuildCrew track record and collaboration reputation.", `/projects/${projectId}`, { actorId: user.id, entityType: "project", entityId: projectId });
+    await createNotification(otherUserId, "COLLABORATION_CONFIRMED", `Potwierdzono współpracę przy ${outcome.row.project.name}`, "Ta współpraca jest teraz widoczna w Twojej historii i reputacji w BuildCrew.", `/projects/${projectId}`, { actorId: user.id, entityType: "project", entityId: projectId });
   } else if (answer === "STARTED") {
-    await createNotification(otherUserId, "COLLABORATION_CHECK", `Confirm your collaboration on ${outcome.row.project.name}`, "The other side confirmed that you started working together. Confirm it to add this collaboration to both profiles.", `/projects/${projectId}`, { actorId: user.id, entityType: "project", entityId: projectId });
+    await createNotification(otherUserId, "COLLABORATION_CHECK", `Potwierdź współpracę przy ${outcome.row.project.name}`, "Druga strona potwierdziła rozpoczęcie współpracy. Potwierdź ją, aby pojawiła się na obu profilach.", `/projects/${projectId}`, { actorId: user.id, entityType: "project", entityId: projectId });
   }
 
   revalidatePath(`/projects/${projectId}`);

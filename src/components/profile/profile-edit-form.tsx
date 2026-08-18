@@ -67,48 +67,48 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
 
   async function save() {
     setPending(true);
-    const result = await updateProfile(form).catch(() => ({ error: copy("We couldn't save your profile.", "We couldn't save your profile.") }));
+    const result = await updateProfile(form).catch(() => ({ error: copy("Nie udało się zapisać profilu.", "We couldn't save your profile.") }));
     setPending(false);
     if (result?.error) { toast.error(appMessage(result.error, locale)); return; }
-    toast.success(copy("Profile saved.", "Profile saved."));
+    toast.success(copy("Profil zapisany.", "Profile saved."));
   }
 
   return (
     <div className="flex flex-col">
-      <FormSection title="Basics" hint="BuildCrew is an English-language network. Write your public headline and bio in English so people from any country can understand your profile.">
+      <FormSection title={copy("Podstawowe informacje", "Basics")} hint={copy("Uzupełnij profil w języku, w którym chcesz prezentować się innym osobom.", "Write your profile in the language you want to use when presenting yourself to other builders.")}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={copy("Username", "Username")}><Input value={form.username} onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))} maxLength={24} /></Field>
-          <Field label={copy("Primary role", "Primary role")}>
+          <Field label={copy("Nick", "Username")}><Input value={form.username} onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))} maxLength={24} /></Field>
+          <Field label={copy("Główna rola", "Primary role")}>
             <div className="grid grid-cols-2 gap-2">{ROLE_OPTIONS.map((role) => <ChoiceButton key={role} active={form.role === role} onClick={() => setForm((f) => ({ ...f, role }))}>{labels.roles[role]}</ChoiceButton>)}</div>
           </Field>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <Field label={copy("Headline", "Headline")}><Input value={form.headline} onChange={(e) => setForm((f) => ({ ...f, headline: e.target.value }))} placeholder={copy("e.g. Full-stack developer building SaaS products", "e.g. Full-stack developer building SaaS products")} maxLength={100} /></Field>
-          <Field label={copy("About you", "About you")}><Textarea className="min-h-[90px]" value={form.bio} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} placeholder={copy("What do you build and who do you want to work with?", "What do you build and who do you want to work with?")} maxLength={280} /></Field>
+          <Field label={copy("Nagłówek", "Headline")}><Input value={form.headline} onChange={(e) => setForm((f) => ({ ...f, headline: e.target.value }))} placeholder={copy("np. Full-stack developer budujący SaaS-y", "e.g. Full-stack developer building SaaS products")} maxLength={100} /></Field>
+          <Field label={copy("Krótko o Tobie", "About you")}><Textarea className="min-h-[90px]" value={form.bio} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} placeholder={copy("Co budujesz i z kim chcesz współpracować?", "What do you build and who do you want to work with?")} maxLength={280} /></Field>
         </div>
       </FormSection>
 
-      <FormSection title={copy("Location and language", "Location and language")} hint={copy("These details help match you with people you can realistically collaborate with.", "These details help match you with people you can realistically collaborate with.")}>
+      <FormSection title={copy("Lokalizacja i język", "Location and language")} hint={copy("Te dane pomagają dopasować osoby, z którymi realnie możesz współpracować.", "These details help match you with people you can realistically collaborate with.")}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={copy("Country", "Country")}>
+          <Field label={copy("Kraj", "Country")}>
             <select value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} className="h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm">
-              <option value="">{copy("Select country", "Select country")}</option>
+              <option value="">{copy("Wybierz kraj", "Select country")}</option>
               {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{countryLabel(country)}</option>)}
             </select>
           </Field>
-          <Field label={copy("City", "City")}><Input value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} placeholder={copy("e.g. Amsterdam", "e.g. Amsterdam")} /></Field>
+          <Field label={copy("Miasto", "City")}><Input value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} placeholder={copy("np. Warszawa", "e.g. Amsterdam")} /></Field>
         </div>
         <div className="mt-5">
-          <p className="mb-2 text-sm font-medium">{copy("Collaboration languages", "Collaboration languages")}</p>
+          <p className="mb-2 text-sm font-medium">{copy("Języki współpracy", "Collaboration languages")}</p>
           <div className="flex flex-wrap gap-1.5">{LANGUAGE_OPTIONS.map((language) => <TagButton key={language} active={form.languages.includes(language)} onClick={() => setForm((f) => ({ ...f, languages: toggleValue(f.languages, language) }))}>{language}</TagButton>)}</div>
         </div>
         <div className="mt-5">
-          <p className="mb-2 text-sm font-medium">{copy("Preferred work mode", "Preferred work mode")}</p>
+          <p className="mb-2 text-sm font-medium">{copy("Preferowany tryb pracy", "Preferred work mode")}</p>
           <div className="flex flex-wrap gap-1.5">{WORK_MODE_OPTIONS.map((mode) => <TagButton key={mode} active={form.workModePreference === mode} onClick={() => setForm((f) => ({ ...f, workModePreference: mode }))}>{intl.workMode[mode]}</TagButton>)}</div>
         </div>
       </FormSection>
 
-      <FormSection title={copy("Skills", "Skills")}>
+      <FormSection title={copy("Umiejętności", "Skills")}>
         <div className="flex max-h-[28rem] flex-col gap-4 overflow-y-auto pr-1">
           {Object.entries(SKILL_GROUPS).map(([group, skills]) => (
             <div key={group}>
@@ -119,9 +119,9 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
         </div>
       </FormSection>
 
-      <FormSection title="Opportunities" hint="Tell people what kinds of conversations and opportunities are relevant to you right now.">
+      <FormSection title={copy("Możliwości", "Opportunities")} hint={copy("Pokaż innym, na jakie projekty, współprace i możliwości jesteś teraz otwarty.", "Tell people what kinds of conversations and opportunities are relevant to you right now.")}>
         <div>
-          <p className="mb-2 text-sm font-medium">{copy("Level", "Level")}</p>
+          <p className="mb-2 text-sm font-medium">{copy("Poziom", "Level")}</p>
           <div className="grid gap-2 sm:grid-cols-3">
             {LEVEL_OPTIONS.map((level) => (
               <button key={level} type="button" onClick={() => setForm((f) => ({ ...f, level }))} className={cn("rounded-[7px] border p-3 text-left transition-colors", form.level === level ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)]" : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)]")}>
@@ -132,36 +132,36 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
           </div>
         </div>
 
-        <div className="mt-5"><p className="mb-2 text-sm font-medium">{copy("Weekly availability", "Weekly availability")}</p><div className="flex flex-wrap gap-1.5">{COMMITMENT_OPTIONS.map((commitment) => <TagButton key={commitment} active={form.weeklyHours === commitment} onClick={() => setForm((f) => ({ ...f, weeklyHours: commitment }))}>{labels.commitments[commitment]}</TagButton>)}</div></div>
-        <div className="mt-5"><p className="mb-2 text-sm font-medium">{copy("Interests", "Interests")}</p><div className="flex flex-wrap gap-1.5">{INTEREST_OPTIONS.map((interest) => <TagButton key={interest} active={form.interests.includes(interest)} onClick={() => setForm((f) => ({ ...f, interests: toggleValue(f.interests, interest) }))}>{interest}</TagButton>)}</div></div>
+        <div className="mt-5"><p className="mb-2 text-sm font-medium">{copy("Czas w tygodniu", "Weekly availability")}</p><div className="flex flex-wrap gap-1.5">{COMMITMENT_OPTIONS.map((commitment) => <TagButton key={commitment} active={form.weeklyHours === commitment} onClick={() => setForm((f) => ({ ...f, weeklyHours: commitment }))}>{labels.commitments[commitment]}</TagButton>)}</div></div>
+        <div className="mt-5"><p className="mb-2 text-sm font-medium">{copy("Zainteresowania", "Interests")}</p><div className="flex flex-wrap gap-1.5">{INTEREST_OPTIONS.map((interest) => <TagButton key={interest} active={form.interests.includes(interest)} onClick={() => setForm((f) => ({ ...f, interests: toggleValue(f.interests, interest) }))}>{interest}</TagButton>)}</div></div>
 
         <div className="mt-5 grid gap-5 md:grid-cols-2">
-          <div><p className="mb-2 text-sm font-medium">{copy("Goals", "Goals")}</p><div className="space-y-2">{GOAL_OPTIONS.map((goal) => <CheckRow key={goal} checked={form.goals.includes(goal)} label={labels.goals[goal]} onChange={() => setForm((f) => ({ ...f, goals: toggleValue(f.goals, goal) }))} />)}</div></div>
-          <div><p className="mb-2 text-sm font-medium">Open to</p><div className="space-y-2">{LOOKING_FOR_OPTIONS.map((value) => <CheckRow key={value} checked={form.lookingFor.includes(value)} label={labels.lookingFor[value]} onChange={() => setForm((f) => ({ ...f, lookingFor: toggleValue(f.lookingFor, value) }))} />)}</div></div>
+          <div><p className="mb-2 text-sm font-medium">{copy("Cel", "Goals")}</p><div className="space-y-2">{GOAL_OPTIONS.map((goal) => <CheckRow key={goal} checked={form.goals.includes(goal)} label={labels.goals[goal]} onChange={() => setForm((f) => ({ ...f, goals: toggleValue(f.goals, goal) }))} />)}</div></div>
+          <div><p className="mb-2 text-sm font-medium">{copy("Otwartość", "Open to")}</p><div className="space-y-2">{LOOKING_FOR_OPTIONS.map((value) => <CheckRow key={value} checked={form.lookingFor.includes(value)} label={labels.lookingFor[value]} onChange={() => setForm((f) => ({ ...f, lookingFor: toggleValue(f.lookingFor, value) }))} />)}</div></div>
         </div>
       </FormSection>
 
-      <FormSection title={copy("Profile visibility", "Profile visibility")} hint={copy("Your public profile is optional and can be disabled at any time.", "Your public profile is optional and can be disabled at any time.")}>
+      <FormSection title={copy("Widoczność profilu", "Profile visibility")} hint={copy("Publiczny profil jest opcjonalny i możesz go wyłączyć w dowolnym momencie.", "Your public profile is optional and can be disabled at any time.")}>
         <label className="flex cursor-pointer items-start justify-between gap-5 border-y border-[var(--bc-line)] py-3.5">
           <span className="min-w-0">
-            <span className="block text-sm font-medium text-[var(--bc-ink)]">{copy("Public professional profile", "Public professional profile")}</span>
-            <span className="mt-0.5 block max-w-[680px] text-[12px] leading-4 text-[var(--bc-faint)]">{copy("Lets you share your profile outside BuildCrew, get discovered for projects and professional opportunities, and build a public track record. Discord and private contact details remain private.", "Lets you share your profile outside BuildCrew, get discovered for projects and professional opportunities, and build a public track record. Discord and private contact details remain private.")}</span>
+            <span className="block text-sm font-medium text-[var(--bc-ink)]">{copy("Publiczny profil zawodowy", "Public professional profile")}</span>
+            <span className="mt-0.5 block max-w-[680px] text-[12px] leading-4 text-[var(--bc-faint)]">{copy("Pozwala udostępniać profil poza BuildCrew, być znajdowanym do projektów i możliwości zawodowych oraz budować publiczną historię współpracy. Discord i prywatne dane kontaktowe pozostają prywatne.", "Lets you share your profile outside BuildCrew, get discovered for projects and professional opportunities, and build a public track record. Discord and private contact details remain private.")}</span>
           </span>
           <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#a8d72f]" checked={form.publicProfile} onChange={(event) => setForm((f) => ({ ...f, publicProfile: event.target.checked }))} />
         </label>
       </FormSection>
 
-      <FormSection title={copy("Links and contact", "Links and contact")} hint={copy("Discord stays private until the appropriate contact flow.", "Discord stays private until the appropriate contact flow.")}>
+      <FormSection title={copy("Linki i kontakt", "Links and contact")} hint={copy("Discord jest prywatny do czasu zaakceptowanego połączenia.", "Discord stays private until the appropriate contact flow.")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="GitHub"><Input value={form.githubUrl} onChange={(e) => setForm((f) => ({ ...f, githubUrl: e.target.value }))} placeholder="https://github.com/..." /></Field>
           <Field label="Portfolio"><Input value={form.portfolioUrl} onChange={(e) => setForm((f) => ({ ...f, portfolioUrl: e.target.value }))} placeholder="https://..." /></Field>
           <Field label="LinkedIn"><Input value={form.linkedinUrl} onChange={(e) => setForm((f) => ({ ...f, linkedinUrl: e.target.value }))} placeholder="https://linkedin.com/in/..." /></Field>
-          <Field label="Discord"><Input value={form.discordUsername} onChange={(e) => setForm((f) => ({ ...f, discordUsername: e.target.value }))} placeholder={copy("e.g. codepanda", "e.g. codepanda")} /></Field>
+          <Field label="Discord"><Input value={form.discordUsername} onChange={(e) => setForm((f) => ({ ...f, discordUsername: e.target.value }))} placeholder={copy("np. codepanda", "e.g. codepanda")} /></Field>
         </div>
       </FormSection>
 
       <div className="sticky bottom-0 mt-2 flex justify-end border-t border-[var(--bc-line)] bg-[var(--bc-canvas)]/95 py-4 backdrop-blur-sm">
-        <Button onClick={save} disabled={pending || form.skills.length === 0 || form.lookingFor.length === 0 || form.languages.length === 0} className="gap-2"><Save className="h-4 w-4" /> {pending ? copy("Saving…", "Saving…") : copy("Save profile", "Save profile")}</Button>
+        <Button onClick={save} disabled={pending || form.skills.length === 0 || form.lookingFor.length === 0 || form.languages.length === 0} className="gap-2"><Save className="h-4 w-4" /> {pending ? copy("Zapisywanie…", "Saving…") : copy("Zapisz profil", "Save profile")}</Button>
       </div>
     </div>
   );

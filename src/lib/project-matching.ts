@@ -37,30 +37,30 @@ export function computeProjectMatch(builder: MatchableBuilderForProject, project
   const roleMatches = builder.role ? project.openRoles.filter((role) => role.roleType === builder.role) : [];
   if (roleMatches.length) {
     score += 30;
-    reasons.push(`They are looking for ${labels.roles[builder.role!]}`);
+    reasons.push(en ? `They are looking for ${labels.roles[builder.role!]}` : `Szukają osoby w roli: ${labels.roles[builder.role!]}`);
   }
 
   const roleSkillSet = new Set(project.openRoles.flatMap((role) => role.skills));
   const sharedSkills = builder.skills.filter((skill) => project.technologies.includes(skill) || roleSkillSet.has(skill));
   if (sharedSkills.length) {
     score += Math.min(25, sharedSkills.length * 7);
-    reasons.push(`${sharedSkills.slice(0, 3).join(", ")} matches the project stack`);
+    reasons.push(en ? `${sharedSkills.slice(0, 3).join(", ")} matches the project stack` : `Pasujące umiejętności: ${sharedSkills.slice(0, 3).join(", ")}`);
   }
 
   const sharedInterests = builder.interests.filter((interest) => project.interests.includes(interest));
   if (sharedInterests.length) {
     score += Math.min(12, sharedInterests.length * 6);
-    reasons.push(`Shared area: ${sharedInterests[0]}`);
+    reasons.push(en ? `Shared area: ${sharedInterests[0]}` : `Wspólny obszar: ${sharedInterests[0]}`);
   }
 
   if (builder.weeklyHours && project.commitment && builder.weeklyHours === project.commitment) {
     score += 12;
-    reasons.push(`Same weekly commitment: ${labels.commitments[project.commitment]}`);
+    reasons.push(en ? `Same weekly commitment: ${labels.commitments[project.commitment]}` : `Pasująca dostępność: ${labels.commitments[project.commitment]}`);
   }
 
   if (builder.level && project.openRoles.some((role) => !role.preferredLevel || role.preferredLevel === builder.level)) {
     score += 8;
-    reasons.push(en ? "Your experience level fits an open role" : "Your experience level matches an open role");
+    reasons.push(en ? "Your experience level fits an open role" : "Twój poziom doświadczenia pasuje do otwartej roli");
   }
 
   const builderLanguages = new Set(builder.languages ?? []);
@@ -69,7 +69,7 @@ export function computeProjectMatch(builder: MatchableBuilderForProject, project
     || (project.projectLanguage === "PL" && builderLanguages.has("Polish"));
   if (languageFits) {
     score += 10;
-    reasons.push(en ? `You can work in the project language` : "You can work in the project language");
+    reasons.push(en ? "You can work in the project language" : "Znasz język używany w projekcie");
   } else if (builderLanguages.size > 0) {
     score = Math.max(0, score - 15);
   }
@@ -77,7 +77,7 @@ export function computeProjectMatch(builder: MatchableBuilderForProject, project
   const remoteFriendly = project.collaborationMode === "REMOTE" || project.marketScope === "WORLDWIDE";
   if (builder.workModePreference === "REMOTE" && remoteFriendly) {
     score += 5;
-    reasons.push(en ? "Remote-friendly collaboration" : "The project supports remote collaboration");
+    reasons.push(en ? "Remote-friendly collaboration" : "Projekt wspiera pracę zdalną");
   } else if (builder.country && project.country && builder.country === project.country) {
     score += 4;
     reasons.push(en ? `Same country: ${builder.country}` : `Ten sam kraj: ${builder.country}`);

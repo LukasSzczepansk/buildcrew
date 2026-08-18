@@ -79,15 +79,15 @@ export function AuthForm({
           </div>
           {mode === "signup" ? (
             <p className="-mt-2 text-center text-[13px] leading-5 text-neutral-500">
-              By continuing with a provider, you accept the {" "}
-              <Link href="/terms" className="text-lime-600 hover:underline dark:text-lime-400">Terms</Link>{" "}
-              and acknowledge the {" "}
-              <Link href="/privacy" className="text-lime-600 hover:underline dark:text-lime-400">Privacy Policy</Link>.
+              {copy("Kontynuując przez Google lub GitHub, akceptujesz", "By continuing with a provider, you accept the")} {" "}
+              <Link href="/terms" className="text-lime-600 hover:underline dark:text-lime-400">{copy("Regulamin", "Terms")}</Link>{" "}
+              {copy("i potwierdzasz zapoznanie się z", "and acknowledge the")} {" "}
+              <Link href="/privacy" className="text-lime-600 hover:underline dark:text-lime-400">{copy("Polityką prywatności", "Privacy Policy")}</Link>.
             </p>
           ) : null}
           <div className="flex items-center gap-3 text-[13px] text-neutral-400">
             <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
-            or email and password
+            {copy("lub e-mail i hasło", "or email and password")}
             <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
           </div>
         </>
@@ -97,10 +97,10 @@ export function AuthForm({
         {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" name="email" type="email" placeholder={copy("you@example.com", "you@example.com")} required autoComplete="email" />
+          <Input id="email" name="email" type="email" placeholder={copy("ty@przyklad.pl", "you@example.com")} required autoComplete="email" />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">{copy("Password", "Password")}</Label>
+          <Label htmlFor="password">{copy("Hasło", "Password")}</Label>
           <Input
             id="password"
             name="password"
@@ -110,7 +110,7 @@ export function AuthForm({
             minLength={mode === "signup" ? 12 : undefined}
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
           />
-          {mode === "signup" && <p className="text-[13px] text-neutral-400">{copy("At least 12 characters.", "At least 12 characters.")}</p>}
+          {mode === "signup" && <p className="text-[13px] text-neutral-400">{copy("Minimum 12 znaków.", "At least 12 characters.")}</p>}
         </div>
 
         {mode === "signup" && (
@@ -122,10 +122,10 @@ export function AuthForm({
               className="mt-1 h-4 w-4 rounded border-neutral-300 accent-lime-600"
             />
             <span>
-              {copy("I accept the", "I accept the")} {" "}
-              <Link href={copy("/terms", "/terms")} className="font-medium text-lime-600 hover:underline dark:text-lime-400">{copy("Terms", "Terms")}</Link>
-              {" "}{copy("and acknowledge the", "and acknowledge the")} {" "}
-              <Link href={copy("/privacy", "/privacy")} className="font-medium text-lime-600 hover:underline dark:text-lime-400">{copy("Privacy Policy", "Privacy Policy")}</Link>.
+              {copy("Akceptuję", "I accept the")} {" "}
+              <Link href={copy("/regulamin", "/terms")} className="font-medium text-lime-600 hover:underline dark:text-lime-400">{copy("Regulamin", "Terms")}</Link>
+              {" "}{copy("i potwierdzam zapoznanie się z", "and acknowledge the")} {" "}
+              <Link href={copy("/polityka-prywatnosci", "/privacy")} className="font-medium text-lime-600 hover:underline dark:text-lime-400">{copy("Polityką prywatności", "Privacy Policy")}</Link>.
             </span>
           </label>
         )}
@@ -137,25 +137,25 @@ export function AuthForm({
         )}
 
         <Button type="submit" disabled={pending} className="w-full" size="lg">
-          {pending ? copy("Please wait…", "Please wait…") : mode === "signup" ? copy("Create account", "Create account") : copy("Log in", "Log in")}
+          {pending ? copy("Chwileczkę…", "Please wait…") : mode === "signup" ? copy("Utwórz konto", "Create account") : copy("Zaloguj się", "Log in")}
         </Button>
 
         {mode === "login" && (
           <p className="-mt-2 text-right text-[13px]">
-            <Link href="/forgot-password" className="text-lime-600 hover:underline dark:text-lime-400">{copy("Forgot password?", "Forgot password?")}</Link>
+            <Link href="/forgot-password" className="text-lime-600 hover:underline dark:text-lime-400">{copy("Nie pamiętam hasła", "Forgot password?")}</Link>
           </p>
         )}
 
         <p className="text-center text-sm text-neutral-500">
           {mode === "signup" ? (
             <>
-              {copy("Already have an account?", "Already have an account?")} {" "}
-              <Link href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login"} className="font-medium text-lime-600 hover:underline dark:text-lime-400">{copy("Log in", "Log in")}</Link>
+              {copy("Masz już konto?", "Already have an account?")} {" "}
+              <Link href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login"} className="font-medium text-lime-600 hover:underline dark:text-lime-400">{copy("Zaloguj się", "Log in")}</Link>
             </>
           ) : (
             <>
-              {copy("Don’t have an account?", "Don’t have an account?")} {" "}
-              <Link href={nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"} className="font-medium text-lime-600 hover:underline dark:text-lime-400">{copy("Sign up", "Sign up")}</Link>
+              {copy("Nie masz konta?", "Don’t have an account?")} {" "}
+              <Link href={nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"} className="font-medium text-lime-600 hover:underline dark:text-lime-400">{copy("Zarejestruj się", "Sign up")}</Link>
             </>
           )}
         </p>

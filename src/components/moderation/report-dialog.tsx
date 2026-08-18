@@ -32,7 +32,7 @@ export function ReportDialog({ open, onOpenChange, reportedId }: { open: boolean
     const res = await reportUser({ reportedId, reason, description });
     setPending(false);
     if (res?.error) { toast.error(appMessage(res.error, locale)); return; }
-    toast.success(copy("Thanks for the report.", "Thanks for the report."));
+    toast.success(copy("Dziękujemy za zgłoszenie.", "Thanks for the report."));
     onOpenChange(false);
     setDescription("");
   }
@@ -40,12 +40,12 @@ export function ReportDialog({ open, onOpenChange, reportedId }: { open: boolean
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader><DialogTitle>{copy("Report user", "Report user")}</DialogTitle><DialogDescription>{copy("Help us keep BuildCrew safe for everyone.", "Help us keep BuildCrew safe for everyone.")}</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle>{copy("Zgłoś użytkownika", "Report user")}</DialogTitle><DialogDescription>{copy("Pomóż nam utrzymać BuildCrew bezpieczne dla wszystkich.", "Help us keep BuildCrew safe for everyone.")}</DialogDescription></DialogHeader>
         <div className="flex flex-col gap-4">
           <Select value={reason} onValueChange={(v) => setReason(v as ReportReason)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{Object.entries(REPORT_REASON_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{locale === "en" ? EN_REASONS[value as ReportReason] : label}</SelectItem>)}</SelectContent></Select>
-          <Textarea placeholder={copy("Describe what happened (optional)", "Describe what happened (optional)")} maxLength={500} value={description} onChange={(e) => setDescription(e.target.value)} />
+          <Textarea placeholder={copy("Opisz sytuację (opcjonalnie)", "Describe what happened (optional)")} maxLength={500} value={description} onChange={(e) => setDescription(e.target.value)} />
         </div>
-        <DialogFooter><Button onClick={handleSubmit} disabled={pending} variant="destructive">{pending ? copy("Sending…", "Sending…") : copy("Submit report", "Submit report")}</Button></DialogFooter>
+        <DialogFooter><Button onClick={handleSubmit} disabled={pending} variant="destructive">{pending ? copy("Wysyłanie…", "Sending…") : copy("Wyślij zgłoszenie", "Submit report")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

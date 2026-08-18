@@ -18,7 +18,7 @@ import type { Commitment, Level, ProjectMarketScope, ProjectNeed, RoleType, Stag
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  return { title: locale === "en" ? "Projects - BuildCrew" : "Projects - BuildCrew" };
+  return { title: locale === "en" ? "Projects - BuildCrew" : "Projekty - BuildCrew" };
 }
 
 export default async function ProjectsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -73,19 +73,19 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
     .sort((a, b) => b.score - a.score || new Date(b.project.updatedAt).getTime() - new Date(a.project.updatedAt).getTime());
 
   const stageLinks: Array<{ label: string; stage?: Stage }> = [
-    { label: "For you" },
-    { label: "Ideas", stage: "IDEA" },
-    { label: "Planning", stage: "DESIGN" },
-    { label: "Building", stage: "BUILDING" },
-    { label: "Testing", stage: "TESTING" },
-    { label: "Launched", stage: "LAUNCHED" },
+    { label: en ? "For you" : "Dla Ciebie" },
+    { label: en ? "Ideas" : "Pomysły", stage: "IDEA" },
+    { label: en ? "Planning" : "Planowanie", stage: "DESIGN" },
+    { label: en ? "Building" : "Budowanie", stage: "BUILDING" },
+    { label: en ? "Testing" : "Testowanie", stage: "TESTING" },
+    { label: en ? "Launched" : "Uruchomione", stage: "LAUNCHED" },
   ];
 
   return (
     <div>
       <Topbar
-        title="Projects"
-        subtitle="Discover projects, ideas and teams looking for people with your skills."
+        title={en ? "Projects" : "Projekty"}
+        subtitle={en ? "Discover projects, ideas and teams looking for people with your skills." : "Odkrywaj projekty, pomysły i zespoły szukające osób z Twoimi umiejętnościami."}
       />
 
       <div className="flex flex-col gap-3 border-b border-[var(--bc-line)] pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -97,22 +97,22 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
           })}
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm"><Link href="/my-projects">My projects</Link></Button>
-          <Button asChild size="sm"><Link href="/projects/new">Create project</Link></Button>
+          <Button asChild variant="outline" size="sm"><Link href="/my-projects">{en ? "My projects" : "Moje projekty"}</Link></Button>
+          <Button asChild size="sm"><Link href="/projects/new">{en ? "Create project" : "Dodaj projekt"}</Link></Button>
         </div>
       </div>
 
       <div className="mt-5">
         <FilterBar
           showSearch
-          searchPlaceholder={en ? "Search projects, roles or technologies" : "Search projects, roles, or technologies"}
+          searchPlaceholder={en ? "Search projects, roles or technologies" : "Szukaj projektów, ról lub technologii"}
           filters={[
-            { key: "role", label: en ? "Roles" : "Roles", options: Object.entries(labels.roles).map(([value, label]) => ({ value, label })) },
-            { key: "technology", label: en ? "Technology" : "Technology", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
-            { key: "market", label: en ? "Reach" : "Scope", options: PROJECT_MARKET_SCOPE_OPTIONS.map((value) => ({ value, label: intl.marketScope[value] })) },
-            { key: "need", label: en ? "Needs" : "Needs", options: PROJECT_NEED_OPTIONS.map((value) => ({ value, label: intl.needs[value] })) },
+            { key: "role", label: en ? "Roles" : "Role", options: Object.entries(labels.roles).map(([value, label]) => ({ value, label })) },
+            { key: "technology", label: en ? "Technology" : "Technologia", options: ALL_SKILLS.map((s) => ({ value: s, label: s })) },
+            { key: "market", label: en ? "Reach" : "Zasięg", options: PROJECT_MARKET_SCOPE_OPTIONS.map((value) => ({ value, label: intl.marketScope[value] })) },
+            { key: "need", label: en ? "Needs" : "Potrzebuje", options: PROJECT_NEED_OPTIONS.map((value) => ({ value, label: intl.needs[value] })) },
             { key: "country", label: en ? "Country" : "Kraj", options: COUNTRY_OPTIONS.map((country) => ({ value: country, label: countryLabel(country) })) },
-            { key: "level", label: en ? "Level" : "Level", options: Object.entries(labels.levels).map(([value, label]) => ({ value, label })) },
+            { key: "level", label: en ? "Level" : "Poziom", options: Object.entries(labels.levels).map(([value, label]) => ({ value, label })) },
             { key: "interest", label: en ? "Area" : "Obszar", options: INTEREST_OPTIONS.map((i) => ({ value: i, label: i })) },
             { key: "commitment", label: en ? "Time" : "Czas", options: Object.entries(labels.commitments).map(([value, label]) => ({ value, label })) },
           ]}
@@ -121,24 +121,24 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
       {ranked.length === 0 ? (
         <div className="mt-6 border-y border-[var(--bc-line)] py-7">
-          <h2 className="text-[16px] font-semibold">{en ? "No project matches these filters yet" : "No projects match these filters yet"}</h2>
+          <h2 className="text-[16px] font-semibold">{en ? "No project matches these filters yet" : "Żaden projekt nie pasuje jeszcze do tych filtrów"}</h2>
           <p className="mt-1 max-w-[620px] text-sm leading-5 text-[var(--bc-muted)]">
-            {en ? "Try broader filters or meet people who are open to building something new." : "Broaden the filters or meet people who are open to building something new."}
+            {en ? "Try broader filters or meet people who are open to building something new." : "Poszerz filtry albo poznaj osoby otwarte na zbudowanie czegoś nowego."}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/builders" className="inline-flex h-9 items-center rounded-[6px] bg-[var(--bc-accent)] px-3.5 text-sm font-medium text-[#111]">{en ? "Find people" : "Find people"}</Link>
-            <Link href="/projects/new" className="inline-flex h-9 items-center rounded-[6px] border border-[var(--bc-line-strong)] px-3.5 text-sm font-medium">{en ? "Start a project" : "Create project"}</Link>
+            <Link href="/builders" className="inline-flex h-9 items-center rounded-[6px] bg-[var(--bc-accent)] px-3.5 text-sm font-medium text-[#111]">{en ? "Find people" : "Znajdź ludzi"}</Link>
+            <Link href="/projects/new" className="inline-flex h-9 items-center rounded-[6px] border border-[var(--bc-line-strong)] px-3.5 text-sm font-medium">{en ? "Start a project" : "Dodaj projekt"}</Link>
           </div>
         </div>
       ) : (
         <section className="mt-7">
           <div className="mb-3 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{params.stage ? (en ? "Matching projects" : "Matching projects") : (en ? "Recommended for you" : "Recommended for you")}</h2>
-              <p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{en ? "Best matches appear first." : "Best matches appear first."}</p>
+              <h2 className="text-[18px] font-semibold tracking-[-0.015em]">{params.stage ? (en ? "Matching projects" : "Pasujące projekty") : (en ? "Recommended for you" : "Polecane dla Ciebie")}</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{en ? "Best matches appear first." : "Najlepsze dopasowania są wyżej."}</p>
             </div>
             <span className="text-[13px] tabular-nums text-[var(--bc-faint)]">
-              {ranked.length} {en ? (ranked.length === 1 ? "project" : "projects") : (ranked.length === 1 ? "project" : "projects")}
+              {ranked.length} {en ? (ranked.length === 1 ? "project" : "projects") : (ranked.length === 1 ? "projekt" : "projekty")}
             </span>
           </div>
           <div className="space-y-2.5">{ranked.map(({ project, score, reasons }) => <ProjectCard key={project.id} project={project} locale={locale} matchScore={score} matchReasons={reasons} />)}</div>

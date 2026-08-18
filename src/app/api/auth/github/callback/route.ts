@@ -7,6 +7,7 @@ import { absoluteUrl, buildCrewEmail, sendTransactionalEmail } from "@/lib/email
 import { consumeGitHubOAuthContext, exchangeGitHubCode, fetchGitHubUserInfo } from "@/lib/github-oauth";
 import { randomSixDigitCode } from "@/lib/security";
 import { withNext } from "@/lib/redirects";
+import { getRequestLocale } from "@/lib/site-server";
 
 const ADMIN_MFA_TTL_MS = 10 * 60 * 1000;
 
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
   const state = request.nextUrl.searchParams.get("state");
   const context = await consumeGitHubOAuthContext(state);
   const fallback = context?.intent === "signup" ? "/signup" : "/login";
+  const locale = await getRequestLocale();
 
   if (oauthError) return authRedirect(withNext(`${fallback}?github=access-denied`, context?.nextPath), request.nextUrl.origin);
   if (!context || !code) return authRedirect(`${fallback}?github=state`, request.nextUrl.origin);
@@ -51,12 +53,13 @@ export async function GET(request: NextRequest) {
           emailVerifiedAt: now,
           termsAcceptedAt: now,
           privacyAcceptedAt: now,
+          preferredLocale: locale,
         }).returning({ id: users.id });
         userId = created?.id ?? null;
       } else if (context.intent === "signup") {
-        await db.update(users).set({ emailVerifiedAt: new Date(), termsAcceptedAt: new Date(), privacyAcceptedAt: new Date() }).where(eq(users.id, userId));
+        await db.update(users).set({ emailVerifiedAt: new Date(), termsAcceptedAt: new Date(), privacyAcceptedAt: new Date(), preferredLocale: locale }).where(eq(users.id, userId));
       } else {
-        await db.update(users).set({ emailVerifiedAt: new Date() }).where(eq(users.id, userId));
+        await db.update(users).set({ emailVerifiedAt: new Date(), preferredLocale: locale }).where(eq(users.id, userId));
       }
 
       if (!userId) return authRedirect(withNext(`${fallback}?github=failed`, context.nextPath), request.nextUrl.origin);
@@ -99,15 +102,17 @@ export async function GET(request: NextRequest) {
 
       const sent = await sendTransactionalEmail({
         to: user.email,
-        subject: "BuildCrew administrator sign-in code",
+        subject: locale === "en" ? "BuildCrew administrator sign-in code" : "Kod logowania administratora BuildCrew",
         html: buildCrewEmail({
-          eyebrow: "Account security",
-          title: "Sign-in code",
-          intro: "Use the code below to finish signing in to the administrator panel.",
+          locale,
+          baseUrl: request.nextUrl.origin,
+          eyebrow: locale === "en" ? "Account security" : "Bezpieczeństwo konta",
+          title: locale === "en" ? "Sign-in code" : "Kod logowania",
+          intro: locale === "en" ? "Use the code below to finish signing in to the administrator panel." : "Użyj poniższego kodu, aby dokończyć logowanie do panelu administratora.",
           content: `<div style="padding:18px 0;border-top:1px solid #E5E5DF;border-bottom:1px solid #E5E5DF;font-size:30px;line-height:38px;font-weight:700;letter-spacing:6px;color:#111111;">${codeValue}</div>`,
-          footer: "The code expires after 10 minutes. If you did not try to sign in, change your password and review your active sessions.",
+          footer: locale === "en" ? "The code expires after 10 minutes. If you did not try to sign in, change your password and review your active sessions." : "Kod wygasa po 10 minutach. Jeśli nie próbowałeś się logować, zmień hasło i sprawdź aktywne sesje.",
         }),
-        devPreview: `Administrator code: ${codeValue}`,
+        devPreview: `${locale === "en" ? "Administrator code" : "Kod administratora"}: ${codeValue}`,
       });
       if (!sent.ok && process.env.NODE_ENV === "production") {
         await db.delete(adminLoginChallenges).where(eq(adminLoginChallenges.id, challenge.id));
@@ -117,7 +122,7 @@ export async function GET(request: NextRequest) {
     }
 
     const loginAt = new Date();
-    await db.update(users).set({ lastLoginAt: loginAt, lastActiveAt: loginAt }).where(eq(users.id, user.id));
+    await db.update(users).set({ lastLoginAt: loginAt, lastActiveAt: loginAt, preferredLocale: locale }).where(eq(users.id, user.id));
     await createSessionForUser(user.id);
 
     const profileRows = await db.select({ onboardingCompleted: profiles.onboardingCompleted }).from(profiles).where(eq(profiles.userId, user.id)).limit(1);

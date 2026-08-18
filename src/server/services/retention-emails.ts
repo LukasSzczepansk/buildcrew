@@ -33,7 +33,7 @@ function projectMatch(profile: Builder, project: Project, locale: AppLocale) {
 
   if (profile.role && project.openRoles.some((role) => role.roleType === profile.role)) {
     score += 45;
-    reasons.push(en ? "The project is looking for your role" : "The project is looking for your role");
+    reasons.push(en ? "The project is looking for your role" : "Projekt szuka osoby w Twojej roli");
   }
 
   const matchingRole = profile.role ? project.openRoles.find((role) => role.roleType === profile.role) : undefined;
@@ -41,7 +41,7 @@ function projectMatch(profile: Builder, project: Project, locale: AppLocale) {
   const sharedTech = targetSkills.filter((technology) => profile.skills.includes(technology));
   if (sharedTech.length > 0) {
     score += Math.min(25, sharedTech.length * 10);
-    reasons.push(`${en ? (matchingRole?.skills.length ? "Required skills" : "Shared stack") : (matchingRole?.skills.length ? "Required skills" : "Shared stack")}: ${sharedTech.slice(0, 2).join(", ")}`);
+    reasons.push(`${en ? (matchingRole?.skills.length ? "Required skills" : "Shared stack") : (matchingRole?.skills.length ? "Wymagane umiejętności" : "Wspólny stack")}: ${sharedTech.slice(0, 2).join(", ")}`);
   }
 
   const sharedInterests = project.interests.filter((interest) => profile.interests.includes(interest));
@@ -52,19 +52,19 @@ function projectMatch(profile: Builder, project: Project, locale: AppLocale) {
 
   if (profile.weeklyHours && project.commitment && profile.weeklyHours === project.commitment) {
     score += 15;
-    reasons.push(en ? "Matching availability" : "Matching availability");
+    reasons.push(en ? "Matching availability" : "Pasująca dostępność");
   }
 
   if (profile.level && project.openRoles.some((role) => role.preferredLevel === profile.level)) {
     score += 10;
-    reasons.push(en ? "Matching experience level" : "Matching experience level");
+    reasons.push(en ? "Matching experience level" : "Pasujący poziom doświadczenia");
   }
 
   if (profile.languages?.length && project.projectLanguage) {
     const languageFits = project.projectLanguage === "MULTI" || profile.languages.includes(project.projectLanguage === "EN" ? "English" : "Polish");
     if (languageFits) {
       score += 10;
-      reasons.push(en ? "You share a project language" : "Project language matches");
+      reasons.push(en ? "You share a project language" : "Znasz język używany w projekcie");
     }
   }
 
@@ -119,10 +119,10 @@ function matchRows(
       <div style="padding:14px 0;border-top:1px solid #e4e4dd">
         <div style="display:flex;justify-content:space-between;gap:16px;align-items:baseline">
           <div style="font-size:14px;font-weight:650">${escapeEmailHtml(item.builder.username)}</div>
-          <div style="font-size:14px;font-weight:700;color:#86ad22">${item.score}% match</div>
+          <div style="font-size:14px;font-weight:700;color:#86ad22">${item.score}% ${en ? "match" : "dopasowania"}</div>
         </div>
-        <div style="margin-top:4px;font-size:12px;line-height:1.55;color:#777770">${escapeEmailHtml(item.reasons.slice(0, 2).join(" · ") || (en ? "Open the profile to see what you have in common." : "Review the profile and shared points."))}</div>
-        <div style="margin-top:8px;font-size:12px">${smallLink(en ? "View profile" : "View profile", `/builders/${item.builder.userId}`, baseUrl)}</div>
+        <div style="margin-top:4px;font-size:12px;line-height:1.55;color:#777770">${escapeEmailHtml(item.reasons.slice(0, 2).join(" · ") || (en ? "Open the profile to see what you have in common." : "Otwórz profil i sprawdź, co Was łączy."))}</div>
+        <div style="margin-top:8px;font-size:12px">${smallLink(en ? "View profile" : "Zobacz profil", `/builders/${item.builder.userId}`, baseUrl)}</div>
       </div>`);
   }
 
@@ -131,10 +131,10 @@ function matchRows(
       <div style="padding:14px 0;border-top:1px solid #e4e4dd">
         <div style="display:flex;justify-content:space-between;gap:16px;align-items:baseline">
           <div style="font-size:14px;font-weight:650">${escapeEmailHtml(item.project.name)}</div>
-          <div style="font-size:14px;font-weight:700;color:#86ad22">${item.score}% match</div>
+          <div style="font-size:14px;font-weight:700;color:#86ad22">${item.score}% ${en ? "match" : "dopasowania"}</div>
         </div>
         <div style="margin-top:4px;font-size:12px;line-height:1.55;color:#777770">${escapeEmailHtml(item.reasons.slice(0, 2).join(" · ") || item.project.tagline)}</div>
-        <div style="margin-top:8px;font-size:12px">${smallLink(en ? "View project" : "View project", `/projects/${item.project.id}`, baseUrl)}</div>
+        <div style="margin-top:8px;font-size:12px">${smallLink(en ? "View project" : "Zobacz projekt", `/projects/${item.project.id}`, baseUrl)}</div>
       </div>`);
   }
 
@@ -186,7 +186,7 @@ export async function sendStrongMatchEmails() {
       continue;
     }
 
-    const locale: AppLocale = "en";
+    const locale: AppLocale = recipient.preferredLocale === "en" ? "en" : "pl";
     const en = locale === "en";
     const builderMatches = builders
       .filter((builder) => builder.userId !== profile.userId)
@@ -210,10 +210,10 @@ export async function sendStrongMatchEmails() {
 
     const subject = en
       ? (total === 1 ? "You have a new BuildCrew match" : `${total} BuildCrew matches worth checking`)
-      : (total === 1 ? "You have a new match on BuildCrew" : `${total} dopasowania worth checking`);
+      : (total === 1 ? "Masz nowe dopasowanie w BuildCrew" : `Masz ${total} dopasowania warte sprawdzenia`);
     const title = en
       ? (total === 1 ? "A new match just appeared" : `You have ${total} matches worth checking`)
-      : (total === 1 ? "A new match appeared" : `You have ${total} dopasowania worth checking`);
+      : (total === 1 ? "Pojawiło się nowe dopasowanie" : `Masz ${total} dopasowania warte sprawdzenia`);
 
     const result = await sendTransactionalEmail({
       to: recipient.email,
@@ -221,14 +221,14 @@ export async function sendStrongMatchEmails() {
       html: buildCrewEmail({
         locale,
         baseUrl: siteUrlForLocale(locale),
-        eyebrow: en ? "Matches" : "Matches",
+        eyebrow: en ? "Matches" : "Dopasowania",
         title,
-        intro: en ? "We only send stronger matches, and no more than once every few days." : "We only send stronger matches and no more than once every few days.",
+        intro: en ? "We only send stronger matches, and no more than once every few days." : "Wysyłamy tylko mocniejsze dopasowania i nie częściej niż raz na kilka dni.",
         content: matchRows(builderMatches, projectMatches, locale),
-        ctaLabel: en ? "View matches" : "View matches",
+        ctaLabel: en ? "View matches" : "Zobacz dopasowania",
         ctaHref: "/dashboard",
       }),
-      devPreview: en ? `${total} new matches for ${profile.username}` : `${total} new matches for ${profile.username}`,
+      devPreview: en ? `${total} new matches for ${profile.username}` : `${total} nowe dopasowania dla ${profile.username}`,
     });
 
     if (result.ok) {
@@ -259,7 +259,7 @@ export async function sendWeeklyDigests() {
       continue;
     }
 
-    const locale: AppLocale = "en";
+    const locale: AppLocale = recipient.preferredLocale === "en" ? "en" : "pl";
     const en = locale === "en";
     const builderMatches = builders
       .filter((builder) => builder.userId !== profile.userId)
@@ -282,28 +282,28 @@ export async function sendWeeklyDigests() {
     }
 
     const summary = [
-      builderMatches.length ? (en ? `${builderMatches.length} ${builderMatches.length === 1 ? "person" : "people"}` : `${builderMatches.length} ${builderMatches.length === 1 ? "person" : "people"}`) : null,
-      projectMatches.length ? (en ? `${projectMatches.length} ${projectMatches.length === 1 ? "project" : "projects"}` : `${projectMatches.length} ${projectMatches.length === 1 ? "project" : "projects"}`) : null,
-      unread ? (en ? `${unread} unread ${unread === 1 ? "message" : "messages"}` : `${unread} ${unread === 1 ? "unread message" : "unread messages"}`) : null,
+      builderMatches.length ? (en ? `${builderMatches.length} ${builderMatches.length === 1 ? "person" : "people"}` : `${builderMatches.length} ${builderMatches.length === 1 ? "osoba" : "osoby"}`) : null,
+      projectMatches.length ? (en ? `${projectMatches.length} ${projectMatches.length === 1 ? "project" : "projects"}` : `${projectMatches.length} ${projectMatches.length === 1 ? "projekt" : "projekty"}`) : null,
+      unread ? (en ? `${unread} unread ${unread === 1 ? "message" : "messages"}` : `${unread} ${unread === 1 ? "nieprzeczytana wiadomość" : "nieprzeczytane wiadomości"}`) : null,
     ].filter(Boolean).join(" · ");
 
     const baseUrl = siteUrlForLocale(locale);
     const unreadBlock = unread > 0 ? `
       <div style="margin:0 0 18px;padding:12px 14px;background:#f3f8df;border-left:3px solid #c8f169;font-size:13px;line-height:1.55">
-        ${en ? `You have <strong>${unread}</strong> unread ${unread === 1 ? "message" : "messages"}.` : `You have <strong>${unread}</strong> ${unread === 1 ? "unread message" : "unread messages"}.`} ${smallLink(en ? "Open messages" : "Open messages", "/messages", baseUrl)}
+        ${en ? `You have <strong>${unread}</strong> unread ${unread === 1 ? "message" : "messages"}.` : `Masz <strong>${unread}</strong> ${unread === 1 ? "nieprzeczytaną wiadomość" : "nieprzeczytane wiadomości"}.`} ${smallLink(en ? "Open messages" : "Otwórz wiadomości", "/messages", baseUrl)}
       </div>` : "";
 
     const result = await sendTransactionalEmail({
       to: recipient.email,
-      subject: en ? `Your week on BuildCrew: ${summary}` : `Your week on BuildCrew: ${summary}`,
+      subject: en ? `Your week on BuildCrew: ${summary}` : `Twój tydzień w BuildCrew: ${summary}`,
       html: buildCrewEmail({
         locale,
         baseUrl,
-        eyebrow: en ? "Weekly digest" : "Weekly digest",
-        title: en ? `What to check this week, ${profile.username}` : `Worth checking, ${profile.username}`,
-        intro: en ? "A short list of things that could lead to a conversation or a project." : "A short list of things that could lead to a conversation or project.",
+        eyebrow: en ? "Weekly digest" : "Podsumowanie tygodnia",
+        title: en ? `What to check this week, ${profile.username}` : `Co warto sprawdzić w tym tygodniu, ${profile.username}`,
+        intro: en ? "A short list of things that could lead to a conversation or a project." : "Krótka lista rzeczy, które mogą prowadzić do rozmowy albo nowego projektu.",
         content: `${unreadBlock}${matchRows(builderMatches, projectMatches, locale)}`,
-        ctaLabel: en ? "Open BuildCrew" : "Open BuildCrew",
+        ctaLabel: en ? "Open BuildCrew" : "Otwórz BuildCrew",
         ctaHref: "/dashboard",
       }),
       devPreview: summary,

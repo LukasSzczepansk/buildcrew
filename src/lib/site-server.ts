@@ -1,18 +1,19 @@
 import "server-only";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { AppLocale } from "@/lib/site-config";
-import { SITE_URL } from "@/lib/site-config";
+import { DEFAULT_LOCALE, SITE_URL } from "@/lib/site-config";
 
-/** BuildCrew is now an English-only product. */
+const LOCALE_COOKIE = "buildcrew-locale";
+
 export async function getRequestLocale(): Promise<AppLocale> {
-  return "en";
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get(LOCALE_COOKIE)?.value;
+  if (cookieLocale === "en" || cookieLocale === "pl") return cookieLocale;
+  return DEFAULT_LOCALE;
 }
 
-/**
- * Keep the real request origin for localhost, OAuth callbacks and preview
- * deployments. Public links use SITE_URL through siteUrlForLocale().
- */
+/** Keep the real request origin for localhost, OAuth callbacks and preview deployments. */
 export async function getRequestOrigin() {
   const headerStore = await headers();
   const forwardedHost = headerStore.get("x-forwarded-host")?.split(",")[0]?.trim();

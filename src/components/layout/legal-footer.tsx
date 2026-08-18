@@ -16,12 +16,12 @@ export async function LegalFooter({ className }: { className?: string }) {
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span>© BuildCrew</span>
         <span aria-hidden="true">·</span>
-        <Link href={en ? "/terms" : "/terms"} className="transition-colors hover:text-[var(--bc-ink)]">
-          {en ? "Terms" : "Terms"}
+        <Link href={en ? "/terms" : "/regulamin"} className="transition-colors hover:text-[var(--bc-ink)]">
+          {en ? "Terms" : "Regulamin"}
         </Link>
         <span aria-hidden="true">·</span>
-        <Link href={en ? "/privacy" : "/privacy"} className="transition-colors hover:text-[var(--bc-ink)]">
-          {en ? "Privacy" : "Privacy"}
+        <Link href={en ? "/privacy" : "/polityka-prywatnosci"} className="transition-colors hover:text-[var(--bc-ink)]">
+          {en ? "Privacy" : "Prywatność"}
         </Link>
       </div>
     </footer>

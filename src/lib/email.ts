@@ -34,7 +34,7 @@ export function buildCrewEmail(input: {
     input.footer ??
       (locale === "en"
         ? "This message was sent by BuildCrew. You can change notification settings in your profile."
-        : "This message was sent by BuildCrew. You can change notification settings in your profile."),
+        : "Ta wiadomość została wysłana przez BuildCrew. Ustawienia powiadomień możesz zmienić w swoim profilu."),
   );
 
   return `<!doctype html>
@@ -75,9 +75,9 @@ export function buildCrewEmail(input: {
                 <div style="margin-top:12px;">
                   <a href="${absoluteUrl("/", input.baseUrl)}" style="color:#70706B;text-decoration:none;">BuildCrew</a>
                   <span style="color:#B0B0AA;"> · </span>
-                  <a href="${absoluteUrl(locale === "en" ? "/privacy" : "/privacy", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Privacy" : "Privacy"}</a>
+                  <a href="${absoluteUrl(locale === "en" ? "/privacy" : "/privacy", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Privacy" : "Prywatność"}</a>
                   <span style="color:#B0B0AA;"> · </span>
-                  <a href="${absoluteUrl(locale === "en" ? "/terms" : "/terms", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Terms" : "Terms"}</a>
+                  <a href="${absoluteUrl(locale === "en" ? "/terms" : "/terms", input.baseUrl)}" style="color:#70706B;text-decoration:none;">${locale === "en" ? "Terms" : "Regulamin"}</a>
                 </div>
               </td>
             </tr>
@@ -89,24 +89,55 @@ export function buildCrewEmail(input: {
 </html>`;
 }
 
+
+function decodeBasicEntities(value: string) {
+  return value
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+export function emailHtmlToText(html: string) {
+  return decodeBasicEntities(
+    html
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<\/h[1-6]>/gi, "\n\n")
+      .replace(/<a[^>]+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi, "$2 ($1)")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/[ \t]+/g, " ")
+      .replace(/ *\n */g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim(),
+  );
+}
+
 export async function sendTransactionalEmail(input: {
   to: string;
   subject: string;
   html: string;
+  text?: string;
   devPreview?: string;
   scheduledAt?: string;
   idempotencyKey?: string;
 }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM || "BuildCrew <onboarding@resend.dev>";
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const configuredFrom = process.env.EMAIL_FROM?.trim();
+  const from = configuredFrom || (process.env.NODE_ENV === "production" ? "" : "BuildCrew <onboarding@resend.dev>");
 
-  if (!apiKey) {
+  if (!apiKey || !from) {
     if (process.env.NODE_ENV !== "production") {
       const schedule = input.scheduledAt ? `\nScheduled: ${input.scheduledAt}` : "";
       console.log(`\n📨 [DEV EMAIL] To: ${input.to}\nSubject: ${input.subject}${schedule}\n${input.devPreview ?? ""}\n`);
       return { ok: true, dev: true, id: null, scheduled: Boolean(input.scheduledAt) } as const;
     }
-    console.error("RESEND_API_KEY is missing in production; email was not sent.");
+    console.error("RESEND_API_KEY or EMAIL_FROM is missing in production; email was not sent.");
     return { ok: false, error: "EMAIL_NOT_CONFIGURED" } as const;
   }
 
@@ -125,6 +156,7 @@ export async function sendTransactionalEmail(input: {
         to: [input.to],
         subject: input.subject,
         html: input.html,
+        text: input.text?.trim() || emailHtmlToText(input.html),
         ...(input.scheduledAt ? { scheduled_at: input.scheduledAt } : {}),
       }),
       cache: "no-store",

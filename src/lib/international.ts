@@ -66,32 +66,32 @@ export const COUNTRY_OPTIONS = [
 
 const PL = {
   workMode: {
-    REMOTE: "Remote",
-    HYBRID: "Hybrid",
-    ON_SITE: "On-site",
+    REMOTE: "Zdalnie",
+    HYBRID: "Hybrydowo",
+    ON_SITE: "Stacjonarnie",
     FLEXIBLE: "Elastycznie",
   } satisfies Record<WorkModePreference, string>,
   projectLanguage: {
-    PL: "Polish",
-    EN: "English",
-    MULTI: "Multilingual",
+    PL: "Polski",
+    EN: "Angielski",
+    MULTI: "Wielojęzyczny",
   } satisfies Record<ProjectLanguage, string>,
   marketScope: {
-    LOCAL: "Local",
+    LOCAL: "Lokalnie",
     EUROPE: "Europa",
     WORLDWIDE: "Globalnie",
   } satisfies Record<ProjectMarketScope, string>,
   needs: {
-    TEAMMATES: "Collaborators",
+    TEAMMATES: "Współtwórców",
     FEEDBACK: "Feedbacku",
-    BETA_TESTERS: "Beta testers",
+    BETA_TESTERS: "Beta testerów",
     MENTOR: "Mentora",
     BUSINESS_PARTNER: "Partnera biznesowego",
-    FUNDING: "Funding",
+    FUNDING: "Finansowania",
   } satisfies Record<ProjectNeed, string>,
   fundingStage: {
     GRANT: "Grant",
-    ANGEL: "Angel investor",
+    ANGEL: "Inwestor anielski",
     PRE_SEED: "Pre-seed",
     SEED: "Seed",
     OTHER: "Inne",
@@ -132,12 +132,12 @@ const EN = {
   } satisfies Record<FundingStage, string>,
 };
 
-export function internationalLabels(_locale?: AppLocale) {
-  return EN;
+export function internationalLabels(locale: AppLocale = "pl") {
+  return locale === "en" ? EN : PL;
 }
 
 export const WORK_MODE_OPTIONS: readonly WorkModePreference[] = ["REMOTE", "HYBRID", "ON_SITE", "FLEXIBLE"];
-export const PROJECT_LANGUAGE_OPTIONS: readonly ProjectLanguage[] = ["EN"];
+export const PROJECT_LANGUAGE_OPTIONS: readonly ProjectLanguage[] = ["PL", "EN", "MULTI"];
 export const PROJECT_MARKET_SCOPE_OPTIONS: readonly ProjectMarketScope[] = ["LOCAL", "EUROPE", "WORLDWIDE"];
 export const PROJECT_NEED_OPTIONS: readonly ProjectNeed[] = ["TEAMMATES", "FEEDBACK", "BETA_TESTERS", "MENTOR", "BUSINESS_PARTNER", "FUNDING"];
 export const FUNDING_STAGE_OPTIONS: readonly FundingStage[] = ["GRANT", "ANGEL", "PRE_SEED", "SEED", "OTHER"];

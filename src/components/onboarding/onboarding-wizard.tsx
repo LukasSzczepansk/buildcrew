@@ -214,7 +214,7 @@ export function OnboardingWizard() {
         throw err;
       }
       setPending(false);
-      toast.error(copy("We couldn’t save your profile. Please try again.", "We couldn’t save your profile. Please try again."));
+      toast.error(copy("Nie udało się zapisać profilu. Spróbuj ponownie.", "We couldn’t save your profile. Please try again."));
     }
   }
 
@@ -249,34 +249,34 @@ export function OnboardingWizard() {
               onClick={exitOnboarding}
               className="font-medium text-[var(--bc-muted)] underline-offset-4 transition-colors hover:text-[var(--bc-ink)] hover:underline"
             >
-              {copy("Finish later", "Finish later")}
+              {copy("Dokończ później", "Finish later")}
             </button>
           </div>
         </div>
         <Progress value={(step / TOTAL_STEPS) * 100} />
         <p className="mt-2 text-[12px] leading-4 text-[var(--bc-faint)]">
-          {copy("Your progress is saved automatically on this device. You can leave, refresh the page and return to the same step.", "Your progress is saved automatically on this device. You can leave, refresh the page and return to the same step.")}
+          {copy("Postęp zapisuje się automatycznie na tym urządzeniu. Możesz wyjść, odświeżyć stronę i wrócić do tego samego kroku.", "Your progress is saved automatically on this device. You can leave, refresh the page and return to the same step.")}
         </p>
       </div>
 
       <div className="rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 sm:p-7">
         {step === 1 ? (
-          <StepShell title={copy("Basics", "Basics")} subtitle={copy("A username and primary role are enough to start building your first matches.", "A username and primary role are enough to start building your first matches.")}>
+          <StepShell title={copy("Podstawy", "Basics")} subtitle={copy("Nick i główna rola wystarczą, żeby zacząć budować pierwsze dopasowania.", "A username and primary role are enough to start building your first matches.")}>
             <div className="grid gap-6 md:grid-cols-[minmax(0,260px)_1fr] md:items-start">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="username">{copy("Username", "Username")}</Label>
+                <Label htmlFor="username">{copy("Nick", "Username")}</Label>
                 <Input
                   id="username"
-                  placeholder={copy("e.g. CodePanda", "e.g. CodePanda")}
+                  placeholder={copy("np. CodePanda", "e.g. CodePanda")}
                   value={form.username}
                   onChange={(event) => setForm((current) => ({ ...current, username: event.target.value }))}
                   autoFocus
                 />
-                <p className="text-[12px] leading-4 text-[var(--bc-faint)]">{copy("Letters, numbers and underscores. Your username will be public.", "Letters, numbers and underscores. Your username will be public.")}</p>
+                <p className="text-[12px] leading-4 text-[var(--bc-faint)]">{copy("Litery, cyfry i podkreślenia. Nick będzie publiczny.", "Letters, numbers and underscores. Your username will be public.")}</p>
               </div>
 
               <div>
-                <Label>{copy("Primary role", "Primary role")}</Label>
+                <Label>{copy("Główna rola", "Primary role")}</Label>
                 <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {ROLE_OPTIONS.map((role) => (
                     <SelectableTile key={role} active={form.role === role} label={labels.roles[role]} onClick={() => setForm((current) => ({ ...current, role }))} />
@@ -288,7 +288,7 @@ export function OnboardingWizard() {
         ) : null}
 
         {step === 2 ? (
-          <StepShell title={copy("Skills", "Skills")} subtitle={copy("Choose the technologies you actually want to work with and set your experience level.", "Choose the technologies you actually want to work with and set your experience level.")}>
+          <StepShell title={copy("Umiejętności", "Skills")} subtitle={copy("Wybierz technologie, z którymi rzeczywiście chcesz pracować, i określ swój poziom.", "Choose the technologies you actually want to work with and set your experience level.")}>
             <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_250px]">
               <div className="max-h-[430px] space-y-4 overflow-y-auto pr-1">
                 {Object.entries(SKILL_GROUPS).map(([group, list]) => (
@@ -304,7 +304,7 @@ export function OnboardingWizard() {
               </div>
 
               <div className="border-t border-[var(--bc-line)] pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-                <Label>{copy("Level", "Level")}</Label>
+                <Label>{copy("Poziom", "Level")}</Label>
                 <div className="mt-2 space-y-2">
                   {LEVEL_OPTIONS.map((level) => (
                     <button
@@ -332,7 +332,7 @@ export function OnboardingWizard() {
           <StepShell title="Availability and opportunities" subtitle="Tell BuildCrew how much time you have and what kinds of people, projects or work opportunities you want to discover.">
             <div className="grid gap-7 md:grid-cols-2">
               <div>
-                <Label>{copy("How much time do you have each week?", "How much time do you have each week?")}</Label>
+                <Label>{copy("Ile czasu masz tygodniowo?", "How much time do you have each week?")}</Label>
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   {COMMITMENT_OPTIONS.map((commitment) => (
                     <SelectableTile
@@ -369,20 +369,20 @@ export function OnboardingWizard() {
         ) : null}
 
         {step === 4 ? (
-          <StepShell title={copy("How do you want to collaborate?", "How do you want to collaborate?")} subtitle={copy("Language, location and work mode help avoid matches that were never going to work.", "Language, location and work mode help avoid matches that were never going to work.")}>
+          <StepShell title={copy("Jak chcesz współpracować", "How do you want to collaborate?")} subtitle={copy("Język, lokalizacja i tryb pracy pomagają uniknąć dopasowań, które od początku nie mają szans zadziałać.", "Language, location and work mode help avoid matches that were never going to work.")}>
             <div className="space-y-7">
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <Label>{copy("Collaboration languages", "Collaboration languages")}</Label>
+                  <Label>{copy("Języki współpracy", "Collaboration languages")}</Label>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {LANGUAGE_OPTIONS.map((language) => (
                       <TagToggle key={language} active={form.languages.includes(language)} label={language} onClick={() => setForm((current) => ({ ...current, languages: toggleValue(current.languages, language) }))} />
                     ))}
                   </div>
-                  <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{copy("Choose at least one language you can use with a team.", "Choose at least one language you can use with a team.")}</p>
+                  <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{copy("Wybierz co najmniej jeden język, w którym możesz pracować z zespołem.", "Choose at least one language you can use with a team.")}</p>
                 </div>
                 <div>
-                  <Label>{copy("Preferred work mode", "Preferred work mode")}</Label>
+                  <Label>{copy("Preferowany tryb pracy", "Preferred work mode")}</Label>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {WORK_MODE_OPTIONS.map((mode) => (
                       <SelectableTile key={mode} active={form.workModePreference === mode} label={intl.workMode[mode]} onClick={() => setForm((current) => ({ ...current, workModePreference: mode }))} />
@@ -393,24 +393,24 @@ export function OnboardingWizard() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <Label>{copy("Country", "Country")}</Label>
+                  <Label>{copy("Kraj", "Country")}</Label>
                   <select value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} className="mt-2 h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm outline-none focus:border-[var(--bc-line-strong)]">
-                    <option value="">{copy("Select country", "Select country")}</option>
+                    <option value="">{copy("Wybierz kraj", "Select country")}</option>
                     {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{countryLabel(country)}</option>)}
                   </select>
                 </div>
                 <div>
-                  <Label>{copy("City (optional)", "City (optional)")}</Label>
-                  <Input className="mt-2" value={form.city} onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))} placeholder={copy("e.g. Amsterdam", "e.g. Amsterdam")} />
+                  <Label>{copy("Miasto (opcjonalnie)", "City (optional)")}</Label>
+                  <Input className="mt-2" value={form.city} onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))} placeholder={copy("np. Warszawa", "e.g. Amsterdam")} />
                 </div>
               </div>
 
               <div>
-                <Label>{copy("Headline (optional)", "Headline (optional)")}</Label>
-                <Input className="mt-2" value={form.headline} onChange={(event) => setForm((current) => ({ ...current, headline: event.target.value }))} maxLength={100} placeholder={copy("e.g. Full-stack developer building SaaS products", "e.g. Full-stack developer building SaaS products")} />
+                <Label>{copy("Headline (opcjonalnie)", "Headline (optional)")}</Label>
+                <Input className="mt-2" value={form.headline} onChange={(event) => setForm((current) => ({ ...current, headline: event.target.value }))} maxLength={100} placeholder={copy("np. Full-stack developer budujący SaaS-y", "e.g. Full-stack developer building SaaS products")} />
               </div>
               <div>
-                <Label>{copy("Interests", "Interests")}</Label>
+                <Label>{copy("Zainteresowania", "Interests")}</Label>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {INTEREST_OPTIONS.map((interest) => (
                     <TagToggle key={interest} active={form.interests.includes(interest)} label={interest} onClick={() => setForm((current) => ({ ...current, interests: toggleValue(current.interests, interest) }))} />
@@ -419,7 +419,7 @@ export function OnboardingWizard() {
               </div>
 
               <div className="border-t border-[var(--bc-line)] pt-5">
-                <Label>{copy("Why do you want to build?", "Why do you want to build?")}</Label>
+                <Label>{copy("Po co chcesz budować?", "Why do you want to build?")}</Label>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {GOAL_OPTIONS.map((goal) => (
                     <TagToggle key={goal} active={form.goals.includes(goal)} label={labels.goals[goal]} onClick={() => setForm((current) => ({ ...current, goals: toggleValue(current.goals, goal) }))} />
@@ -431,23 +431,23 @@ export function OnboardingWizard() {
         ) : null}
 
         {step === 5 ? (
-          <StepShell title={copy("Links and preview", "Links and preview")} subtitle={copy("Links are optional. You can add them later in your profile.", "Links are optional. You can add them later in your profile.")}>
+          <StepShell title={copy("Kontakt i podgląd", "Links and preview")} subtitle={copy("Linki są opcjonalne. Możesz uzupełnić je później w profilu.", "Links are optional. You can add them later in your profile.")}>
             <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_280px]">
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field id="github" label="GitHub" placeholder="https://github.com/yourname" value={form.githubUrl} onChange={(value) => setForm((current) => ({ ...current, githubUrl: value }))} />
                 <Field id="portfolio" label="Portfolio" placeholder="https://yourportfolio.com" value={form.portfolioUrl} onChange={(value) => setForm((current) => ({ ...current, portfolioUrl: value }))} />
                 <Field id="linkedin" label="LinkedIn" placeholder="https://linkedin.com/in/yourname" value={form.linkedinUrl} onChange={(value) => setForm((current) => ({ ...current, linkedinUrl: value }))} />
-                <Field id="discord" label="Discord" placeholder={copy("e.g. codepanda123", "e.g. codepanda123")} value={form.discordUsername} onChange={(value) => setForm((current) => ({ ...current, discordUsername: value }))} hint={copy("Private. We only share it in the appropriate contact flow.", "Private. We only share it in the appropriate contact flow.")} />
+                <Field id="discord" label="Discord" placeholder={copy("np. codepanda123", "e.g. codepanda123")} value={form.discordUsername} onChange={(value) => setForm((current) => ({ ...current, discordUsername: value }))} hint={copy("Prywatny. Udostępniamy go tylko w odpowiednim flow kontaktu.", "Private. We only share it in the appropriate contact flow.")} />
               </div>
 
               <div className="border-t border-[var(--bc-line)] pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Your profile", "Your profile")}</p>
-                <p className="mt-2 text-[18px] font-semibold tracking-[-0.02em]">{form.username || copy("Your username", "Your username")}</p>
-                <p className="mt-1 text-sm text-[var(--bc-muted)]">{form.role ? labels.roles[form.role] : copy("Choose a role", "Choose a role")}{form.level ? ` · ${labels.levels[form.level]}` : ""}</p>
+                <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Twój profil", "Your profile")}</p>
+                <p className="mt-2 text-[18px] font-semibold tracking-[-0.02em]">{form.username || copy("Twój nick", "Your username")}</p>
+                <p className="mt-1 text-sm text-[var(--bc-muted)]">{form.role ? labels.roles[form.role] : copy("Wybierz rolę", "Choose a role")}{form.level ? ` · ${labels.levels[form.level]}` : ""}</p>
                 <div className="mt-4 space-y-2 text-[13px] leading-5 text-[var(--bc-muted)]">
-                  <p><span className="font-medium text-[var(--bc-ink)]">{copy("Skills:", "Skills:")}</span> {form.skills.slice(0, 6).join(" · ") || copy("none", "none")}</p>
-                  <p><span className="font-medium text-[var(--bc-ink)]">{copy("Time:", "Time:")}</span> {form.weeklyHours ? labels.commitments[form.weeklyHours] : copy("none", "none")}</p>
-                  <p><span className="font-medium text-[var(--bc-ink)]">Open to:</span> {form.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || copy("none", "none")}</p>
+                  <p><span className="font-medium text-[var(--bc-ink)]">{copy("Umiejętności:", "Skills:")}</span> {form.skills.slice(0, 6).join(" · ") || copy("brak", "none")}</p>
+                  <p><span className="font-medium text-[var(--bc-ink)]">{copy("Czas:", "Time:")}</span> {form.weeklyHours ? labels.commitments[form.weeklyHours] : copy("brak", "none")}</p>
+                  <p><span className="font-medium text-[var(--bc-ink)]">Open to:</span> {form.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || copy("brak", "none")}</p>
                 </div>
               </div>
             </div>
@@ -456,11 +456,11 @@ export function OnboardingWizard() {
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <Button variant="ghost" onClick={back} disabled={step === 1 || pending}>{copy("Back", "Back")}</Button>
+        <Button variant="ghost" onClick={back} disabled={step === 1 || pending}>{copy("Wstecz", "Back")}</Button>
         <div className="flex items-center gap-3">
-          <span className="hidden text-[12px] text-[var(--bc-faint)] sm:inline">{savedAt ? copy("Draft saved.", "Draft saved.") : copy("Draft saves automatically.", "Draft saves automatically.")}</span>
+          <span className="hidden text-[12px] text-[var(--bc-faint)] sm:inline">{savedAt ? copy("Szkic zapisany.", "Draft saved.") : copy("Szkic zapisuje się automatycznie.", "Draft saves automatically.")}</span>
           <Button onClick={next} disabled={!canProceed || pending}>
-            {pending ? copy("Finding matches…", "Finding matches…") : step === TOTAL_STEPS ? copy("Save and show matches", "Save and show matches") : copy("Next", "Next")}
+            {pending ? copy("Szukamy dopasowań…", "Finding matches…") : step === TOTAL_STEPS ? copy("Zapisz i pokaż dopasowania", "Save and show matches") : copy("Dalej", "Next")}
           </Button>
         </div>
       </div>

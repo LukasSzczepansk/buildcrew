@@ -20,13 +20,13 @@ export function FollowButton({ targetUserId, initialFollowing, compact = false }
     setPending(false);
     if (result?.error) return toast.error(appMessage(result.error, locale));
     setFollowing(!following);
-    toast.success(following ? copy("You stopped following this person.", "You stopped following this person.") : copy("You are now following this person.", "You are now following this person."));
+    toast.success(following ? copy("Przestajesz obserwować tę osobę.", "You stopped following this person.") : copy("Obserwujesz tę osobę.", "You are now following this person."));
   }
 
   return (
     <Button type="button" size={compact ? "sm" : "default"} variant={following ? "outline" : "secondary"} className={compact ? "shrink-0 gap-1.5 px-3" : "gap-2"} disabled={pending} onClick={toggle}>
       {following ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-      {following ? copy("Following", "Following") : copy("Follow", "Follow")}
+      {following ? copy("Obserwujesz", "Following") : copy("Obserwuj", "Follow")}
     </Button>
   );
 }

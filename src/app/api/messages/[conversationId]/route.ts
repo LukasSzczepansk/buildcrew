@@ -80,7 +80,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
     await createNotification(
       access.otherUserId,
       "MESSAGE_RECEIVED",
-      `${senderName} sent you a message`,
+      `${senderName} wysłał Ci wiadomość`,
       preview,
       `/messages/${conversationId}`,
       {
@@ -88,14 +88,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
         entityType: "conversation",
         entityId: conversationId,
         emailPreference: "emailMessages",
-        emailCtaLabel: "Open conversation",
+        emailCtaLabel: "Otwórz rozmowę",
         emailCtaLabelEn: "Open conversation",
         emailDelayMinutes: 15,
         titleEn: `${senderName} sent you a message`,
         bodyEn: preview,
-        emailTitle: `You have new messages from ${senderName}`,
+        emailTitle: `Masz nowe wiadomości od ${senderName}`,
         emailTitleEn: `You have new messages from ${senderName}`,
-        emailIntro: "Your messages are still unread. Open the conversation in BuildCrew to reply.",
+        emailIntro: "Masz nieprzeczytane wiadomości. Otwórz rozmowę w BuildCrew, aby odpowiedzieć.",
         emailIntroEn: "Your messages are still unread. Open the conversation in BuildCrew to reply.",
       },
     );

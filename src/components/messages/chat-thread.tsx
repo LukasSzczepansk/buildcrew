@@ -77,13 +77,13 @@ export function ChatThread({
       });
       const payload = await response.json() as { message?: ChatMessage; error?: string };
       if (!response.ok || !payload.message) {
-        toast.error(payload.error ? appMessage(payload.error, locale, "Could not send the message.") : copy("Could not send the message.", "Could not send the message."));
+        toast.error(payload.error ? appMessage(payload.error, locale, "Could not send the message.") : copy("Nie udało się wysłać wiadomości.", "Could not send the message."));
         return;
       }
       setMessages((current) => current.some((item) => item.id === payload.message!.id) ? current : [...current, payload.message!]);
       setBody("");
     } catch {
-      toast.error(copy("Could not send the message.", "Could not send the message."));
+      toast.error(copy("Nie udało się wysłać wiadomości.", "Could not send the message."));
     } finally {
       setSending(false);
     }
@@ -97,13 +97,13 @@ export function ChatThread({
             <Avatar username={otherUser.username} size="sm" />
             <div>
               <p className="font-semibold">{otherUser.username}</p>
-              <p className="text-[13px] text-neutral-400">Messages refresh every few seconds</p>
+              <p className="text-[13px] text-neutral-400">{copy("Wiadomości odświeżają się co kilka sekund", "Messages refresh every few seconds")}</p>
             </div>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Conversation options"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={copy("Opcje rozmowy", "Conversation options")}><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem className="text-red-600" onClick={async () => { const result = await blockUser(otherUser.userId); if (result && "error" in result && result.error) return toast.error(result.error); toast.success("User blocked."); router.push("/messages"); router.refresh(); }}><UserX className="mr-2 h-4 w-4" />Block user</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600" onClick={async () => { const result = await blockUser(otherUser.userId); if (result && "error" in result && result.error) { toast.error(result.error); return; } toast.success(copy("Użytkownik zablokowany.", "User blocked.")); router.push("/messages"); router.refresh(); }}><UserX className="mr-2 h-4 w-4" />{copy("Zablokuj użytkownika", "Block user")}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -112,7 +112,7 @@ export function ChatThread({
       <div className="h-[55vh] min-h-[360px] overflow-y-auto bg-neutral-50/60 p-4 dark:bg-neutral-950/40">
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-center text-sm text-neutral-400">
-            <p>{copy(`Send the first message to ${otherUser.username}.`, `Send the first message to ${otherUser.username}.`)}</p>
+            <p>{copy(`Wyślij pierwszą wiadomość do ${otherUser.username}.`, `Send the first message to ${otherUser.username}.`)}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -129,10 +129,10 @@ export function ChatThread({
                     <p className="whitespace-pre-wrap break-words">{message.body}</p>
                     <div className="mt-1 flex items-center justify-between gap-3">
                       <p className={cn("text-[11px]", mine ? "text-lime-100" : "text-neutral-400")}>
-                        {new Date(message.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                        {mine ? ` · ${message.readAt ? "Read" : "Sent"}` : ""}
+                        {new Date(message.createdAt).toLocaleTimeString(locale === "en" ? "en-US" : "pl-PL", { hour: "2-digit", minute: "2-digit" })}
+                        {mine ? ` · ${message.readAt ? copy("Przeczytano", "Read") : copy("Wysłano", "Sent")}` : ""}
                       </p>
-                      {!mine ? <ContentReportDialog targetType="MESSAGE" targetId={message.id} compact label="Report" /> : null}
+                      {!mine ? <ContentReportDialog targetType="MESSAGE" targetId={message.id} compact label={copy("Zgłoś", "Report")} /> : null}
                     </div>
                   </div>
                 </div>
@@ -148,10 +148,10 @@ export function ChatThread({
           value={body}
           onChange={(event) => setBody(event.target.value)}
           maxLength={800}
-          placeholder={copy("Write a message...", "Write a message...")}
+          placeholder={copy("Napisz wiadomość...", "Write a message...")}
           autoComplete="off"
         />
-        <Button type="submit" size="icon" disabled={sending || !body.trim()} aria-label={copy("Send message", "Send message")}>
+        <Button type="submit" size="icon" disabled={sending || !body.trim()} aria-label={copy("Wyślij wiadomość", "Send message")}>
           <Send className="h-4 w-4" />
         </Button>
       </form>

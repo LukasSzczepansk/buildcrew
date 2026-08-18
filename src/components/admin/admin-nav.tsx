@@ -4,21 +4,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Activity, CalendarRange, Flag, FolderKanban, Image as ImageIcon, LayoutDashboard, MessageSquareText, Trophy, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCopy } from "@/components/i18n/locale-provider";
 
-const items = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/avatars", label: "Photos", icon: ImageIcon },
-  { href: "/admin/projects", label: "Projects", icon: FolderKanban },
-  { href: "/admin/hackathons", label: "Hackathons", icon: CalendarRange },
-  { href: "/admin/challenges", label: "Challenges", icon: Trophy },
-  { href: "/admin/reports", label: "Applications", icon: Flag },
-  { href: "/admin/content", label: "Content", icon: MessageSquareText },
-  { href: "/admin/activity", label: "Activity", icon: Activity },
-];
 
 export function AdminNav() {
   const pathname = usePathname();
+  const copy = useCopy();
+  const items = [
+    { href: "/admin", label: copy("Podsumowanie", "Overview"), icon: LayoutDashboard, exact: true },
+    { href: "/admin/users", label: copy("Użytkownicy", "Users"), icon: Users },
+    { href: "/admin/avatars", label: copy("Zdjęcia", "Photos"), icon: ImageIcon },
+    { href: "/admin/projects", label: copy("Projekty", "Projects"), icon: FolderKanban },
+    { href: "/admin/hackathons", label: copy("Hackathony", "Hackathons"), icon: CalendarRange },
+    { href: "/admin/challenges", label: copy("Wyzwania", "Challenges"), icon: Trophy },
+    { href: "/admin/reports", label: copy("Zgłoszenia", "Reports"), icon: Flag },
+    { href: "/admin/content", label: copy("Treści", "Content"), icon: MessageSquareText },
+    { href: "/admin/activity", label: copy("Aktywność", "Activity"), icon: Activity },
+  ] as const;
   return (
     <div className="mb-7 overflow-x-auto rounded-lg border border-neutral-300 bg-white p-1.5 dark:border-neutral-800 dark:bg-neutral-900">
       <nav className="flex min-w-max gap-1">

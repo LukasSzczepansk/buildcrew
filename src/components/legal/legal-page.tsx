@@ -1,18 +1,24 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Hammer } from "lucide-react";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { getRequestLocale } from "@/lib/site-server";
 
-export function LegalPage({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+export async function LegalPage({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+  const locale = await getRequestLocale();
+  const en = locale === "en";
   return (
     <div className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-50">
       <header className="border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-5 sm:px-8">
           <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-600 text-white">🛠️</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-300 text-neutral-950"><Hammer className="h-4 w-4" strokeWidth={2.4} /></span>
             BuildCrew
           </Link>
           <div className="flex items-center gap-4 text-sm text-neutral-500">
-            <Link href="/terms" className="hover:text-neutral-900 dark:hover:text-white">Terms</Link>
-            <Link href="/privacy" className="hover:text-neutral-900 dark:hover:text-white">Privacy</Link>
+            <LanguageSwitcher compact />
+            <Link href="/terms" className="hover:text-neutral-900 dark:hover:text-white">{en ? "Terms" : "Regulamin"}</Link>
+            <Link href="/privacy" className="hover:text-neutral-900 dark:hover:text-white">{en ? "Privacy" : "Prywatność"}</Link>
           </div>
         </div>
       </header>

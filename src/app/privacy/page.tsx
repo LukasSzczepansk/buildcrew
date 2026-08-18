@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/legal/legal-page";
+import { getRequestLocale } from "@/lib/site-server";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy - BuildCrew",
-  description: "How BuildCrew processes personal data.",
-  alternates: { canonical: "/privacy" },
-};
-
-const EFFECTIVE_DATE = "August 15, 2026";
+const EFFECTIVE_DATE_EN = "August 15, 2026";
+const EFFECTIVE_DATE_PL = "15 sierpnia 2026";
 
 function getOperator() {
   return {
@@ -18,78 +14,57 @@ function getOperator() {
   };
 }
 
-export default function PrivacyPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return {
+    title: locale === "en" ? "Privacy Policy - BuildCrew" : "Polityka prywatności - BuildCrew",
+    description: locale === "en" ? "How BuildCrew processes personal data." : "Informacje o przetwarzaniu danych osobowych przez BuildCrew.",
+    alternates: { canonical: "/privacy" },
+  };
+}
+
+export default async function PrivacyPage() {
+  const locale = await getRequestLocale();
+  const en = locale === "en";
   const operator = getOperator();
+
+  if (!en) {
+    return (
+      <LegalPage title="Polityka prywatności BuildCrew" subtitle={`Obowiązuje od ${EFFECTIVE_DATE_PL}. Ten dokument wyjaśnia, jakie dane osobowe przetwarza BuildCrew i w jakim celu.`}>
+        <LegalSection title="1. Administrator danych"><p>Administratorem danych osobowych przetwarzanych za pośrednictwem BuildCrew jest <strong>{operator.name}</strong>, adres: <strong>{operator.address}</strong>, e-mail: <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>.</p></LegalSection>
+        <LegalSection title="2. Jakie dane możemy przetwarzać"><p>W zależności od używanych funkcji BuildCrew może przetwarzać:</p><ul className="list-disc space-y-1 pl-5"><li>dane konta, takie jak adres e-mail, identyfikatory konta, status weryfikacji oraz informacje związane z uwierzytelnianiem i sesją;</li><li>dane profilu, takie jak nazwa użytkownika, nagłówek, bio, rola, doświadczenie, umiejętności, zainteresowania, dostępność, języki, lokalizacja, preferencje współpracy i podane linki;</li><li>dane projektów i współpracy, takie jak opisy projektów, role, członkostwo w zespołach, aplikacje, zaproszenia, aktualizacje, zadania, wiadomości workspace, linki, kamienie milowe, credits i rekomendacje;</li><li>wiadomości, zgłoszenia, pytania do pomocy, feedback, reakcje i inne przesłane treści;</li><li>dane techniczne i bezpieczeństwa, takie jak adres IP, informacje o urządzeniu i przeglądarce, znaczniki czasu, logi, zdarzenia limitów i sygnały bezpieczeństwa;</li><li>metadane dostarczania e-maili i powiadomień;</li><li>dane analityczne, jeśli udzielono wymaganej zgody.</li></ul></LegalSection>
+        <LegalSection title="3. Logowanie przez usługi zewnętrzne"><p>Jeśli wybierzesz logowanie przez Google lub GitHub, BuildCrew może otrzymać identyfikator konta, adres e-mail oraz ograniczone publiczne informacje profilowe potrzebne do utworzenia, rozpoznania lub uzupełnienia konta BuildCrew. BuildCrew nie otrzymuje hasła do zewnętrznego konta. Logowanie przez GitHub może również przekazać login GitHub i publiczny adres profilu.</p></LegalSection>
+        <LegalSection title="4. Cele przetwarzania"><p>Dane mogą być przetwarzane w celu świadczenia i zabezpieczenia usługi, obsługi profili i projektów, tworzenia zespołów i komunikacji, generowania rekomendacji i dopasowań, obsługi sieci zawodowej i historii współpracy, dostarczania powiadomień, moderacji, zapobiegania nadużyciom, utrzymywania historii współpracy oraz realizacji obowiązków prawnych.</p><p>W zależności od konkretnej operacji podstawą prawną może być wykonanie umowy o świadczenie usługi, obowiązek prawny, uzasadniony interes, np. bezpieczeństwo i rozwój usługi, albo zgoda, jeżeli jest wymagana, np. dla wybranej analityki.</p></LegalSection>
+        <LegalSection title="5. Informacje publiczne"><p>Niektóre dane są celowo widoczne dla innych użytkowników, a wybrane publiczne profile lub projekty mogą być dostępne bez logowania. Publiczne treści mogą być indeksowane lub cache'owane przez wyszukiwarki i zewnętrzne platformy. Przed publikacją zastanów się, czy chcesz, aby dana informacja była publiczna.</p><p>Prywatne dane kontaktowe i prywatne wiadomości nie są przeznaczone do publicznego wyświetlania, chyba że sam zdecydujesz się je udostępnić.</p></LegalSection>
+        <LegalSection title="6. Dopasowania i rekomendacje"><p>BuildCrew może wykorzystywać informacje takie jak role, umiejętności, zainteresowania, języki, lokalizacja, dostępność, etap projektu i preferencje współpracy do sortowania lub rekomendowania osób i projektów. Są to funkcje wspomagające korzystanie z produktu i nie stanowią zautomatyzowanych decyzji wywołujących wobec Ciebie istotne skutki prawne.</p></LegalSection>
+        <LegalSection title="7. Dostawcy usług i transfery międzynarodowe"><p>BuildCrew może korzystać z dostawców infrastruktury i usług potrzebnych do działania platformy, w tym hostingu i baz danych, dostarczania e-maili, analityki za zgodą oraz dostawców uwierzytelniania. W zależności od dostawcy dane mogą być przetwarzane poza Polską lub Europejskim Obszarem Gospodarczym przy wykorzystaniu odpowiednich mechanizmów prawnych transferu.</p></LegalSection>
+        <LegalSection title="8. E-maile i powiadomienia"><p>BuildCrew może wysyłać e-maile transakcyjne dotyczące bezpieczeństwa, weryfikacji, resetu hasła, wiadomości, aplikacji, zaproszeń, aktywności projektów, dopasowań i innych zdarzeń konta. Wybranymi kategoriami można zarządzać w ustawieniach powiadomień, jeśli dana opcja jest dostępna.</p></LegalSection>
+        <LegalSection title="9. Cookies i analityka"><p>BuildCrew może korzystać z cookies, local storage i podobnych mechanizmów wymaganych do sesji, bezpieczeństwa, zapamiętywania preferencji i podstawowego działania. Google Analytics 4 jest używany tylko po udzieleniu odpowiedniej zgody analitycznej. Wybór zgody może być obsługiwany przez Google Consent Mode lub równoważne mechanizmy.</p></LegalSection>
+        <LegalSection title="10. Okres przechowywania"><p>Dane są przechowywane tak długo, jak jest to potrzebne do świadczenia usługi, utrzymania bezpieczeństwa i integralności historii współpracy, wykonania obowiązków prawnych lub ustalenia i obrony roszczeń. Okresy mogą różnić się zależnie od kategorii danych. Usunięte lub zmienione treści mogą przez pewien czas pozostawać w kopiach zapasowych, logach lub cache usług zewnętrznych.</p></LegalSection>
+        <LegalSection title="11. Usunięcie konta"><p>Możesz zażądać usunięcia konta lub wykonać je przez dostępne ustawienia. Usunięcie powoduje usunięcie lub anonimizację danych zgodnie z technicznym działaniem produktu i obowiązującym prawem. Niektóre rekordy mogą zostać zachowane, jeśli jest to konieczne dla bezpieczeństwa, roszczeń, zgodności z prawem lub integralności wspólnej historii projektu.</p></LegalSection>
+        <LegalSection title="12. Twoje prawa"><p>Zgodnie z obowiązującym prawem możesz mieć prawo dostępu do danych, ich sprostowania, usunięcia lub ograniczenia przetwarzania, sprzeciwu wobec wybranych operacji, przenoszenia danych oraz wycofania zgody, gdy przetwarzanie opiera się na zgodzie. Możesz także złożyć skargę do właściwego organu ochrony danych.</p><p>Wnioski można wysyłać na adres <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>. Jeśli będzie to konieczne do potwierdzenia tożsamości, możemy poprosić o dodatkowe informacje.</p></LegalSection>
+        <LegalSection title="13. Bezpieczeństwo, zgłoszenia i blokowanie"><p>BuildCrew stosuje techniczne i organizacyjne zabezpieczenia odpowiednie do charakteru usługi, w tym kontrolę uwierzytelniania i dostępu, limity, walidację oraz logowanie zdarzeń bezpieczeństwa. Zgłoszenia profili, projektów lub wiadomości mogą być przechowywane wraz z informacjami moderacyjnymi. Zablokowanie użytkownika usuwa lub ogranicza odpowiednie relacje sieciowe i wiadomości. Żadna usługa internetowa nie może zagwarantować absolutnego bezpieczeństwa.</p></LegalSection>
+        <LegalSection title="14. Zmiany i kontakt"><p>Polityka prywatności może być aktualizowana wraz ze zmianami funkcji BuildCrew, dostawców lub wymogów prawnych. Aktualna wersja będzie publikowana na platformie. O istotnych zmianach możemy poinformować, gdy będzie to odpowiednie.</p><p>Pytania dotyczące prywatności można wysyłać na adres <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>. Zobacz także <Link href="/terms" className="text-lime-600 hover:underline dark:text-lime-400">Regulamin</Link>.</p></LegalSection>
+      </LegalPage>
+    );
+  }
+
   return (
-    <LegalPage title="BuildCrew Privacy Policy" subtitle={`Effective ${EFFECTIVE_DATE}. This document explains what personal data BuildCrew processes and why.`}>
-      <LegalSection title="1. Data controller">
-        <p>The controller of personal data processed through BuildCrew is <strong>{operator.name}</strong>, address: <strong>{operator.address}</strong>, email: <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>.</p>
-      </LegalSection>
-
-      <LegalSection title="2. Data we may process">
-        <p>Depending on the features you use, BuildCrew may process:</p>
-        <ul className="list-disc space-y-1 pl-5">
-          <li>account data such as email address, account identifiers, verification status and authentication/session information;</li>
-          <li>profile data such as username, headline, bio, role, experience, skills, interests, availability, languages, location, collaboration preferences and links you provide;</li>
-          <li>project and collaboration data such as project descriptions, roles, team membership, applications, invitations, updates, tasks, workspace messages, links, milestones, credits and endorsements;</li>
-          <li>messages, reports, help questions, feedback, reactions and other content you submit;</li>
-          <li>technical and security data such as IP address, device/browser information, timestamps, logs, rate-limit events and security signals;</li>
-          <li>email-delivery and notification metadata;</li>
-          <li>analytics data where you have given the required consent.</li>
-        </ul>
-      </LegalSection>
-
-      <LegalSection title="3. Third-party sign-in">
-        <p>If you choose Google or GitHub sign-in, BuildCrew may receive the account identifier, email address and limited public profile information needed to create, recognize or enrich your BuildCrew account. BuildCrew does not receive your provider password. GitHub sign-in may also provide your GitHub login and public profile URL so you can connect your builder profile.</p>
-      </LegalSection>
-
-      <LegalSection title="4. Why we process data">
-        <p>Data may be processed to provide and secure your account, operate profiles and projects, enable team formation and communication, generate recommendations and matching, support professional-network and collaboration-history features, deliver notifications, moderate content, prevent abuse, maintain records of collaboration and comply with legal obligations.</p>
-        <p>Depending on the specific processing activity, the legal basis may include performance of the service agreement, compliance with legal obligations, legitimate interests such as security and service improvement, or consent where required (for example selected analytics).</p>
-      </LegalSection>
-
-      <LegalSection title="5. Public information">
-        <p>Some data is intentionally visible to other users, and selected public profile or project pages may be available without login. Public content can be indexed or cached by search engines and external platforms. Think carefully before publishing information you do not want to make public.</p>
-        <p>Private contact details and private messages are not intended to be public unless you choose to share them yourself.</p>
-      </LegalSection>
-
-      <LegalSection title="6. Matching and recommendations">
-        <p>BuildCrew may use information such as roles, skills, interests, languages, location, availability, project stage and collaboration preferences to rank or recommend people and projects. These recommendations are product-assistance features and do not make legally significant automated decisions about you.</p>
-      </LegalSection>
-
-      <LegalSection title="7. Service providers and international transfers">
-        <p>BuildCrew may use infrastructure and service providers needed to operate the platform, including hosting/database providers, email delivery services, analytics providers (where consented) and authentication providers. Depending on the provider, data may be processed outside Poland or the European Economic Area using applicable legal transfer mechanisms.</p>
-      </LegalSection>
-
-      <LegalSection title="8. Emails and notifications">
-        <p>BuildCrew may send transactional emails related to security, verification, password reset, messages, applications, invitations, project activity, matching and other account events. Selected categories can be controlled in notification settings where that option is available.</p>
-      </LegalSection>
-
-      <LegalSection title="9. Cookies and analytics">
-        <p>BuildCrew may use cookies, local storage and similar mechanisms required for sessions, security, preferences and core functionality. Google Analytics 4 is used only where the relevant analytics consent has been given. Consent choices may be handled through Google Consent Mode or equivalent mechanisms.</p>
-      </LegalSection>
-
-      <LegalSection title="10. Data retention">
-        <p>Data is kept for as long as needed to provide the service, maintain security and collaboration integrity, comply with legal requirements or establish and defend claims. Retention periods may differ by category. Deleted or changed content can remain temporarily in backups, logs or third-party caches.</p>
-      </LegalSection>
-
-      <LegalSection title="11. Account deletion">
-        <p>You can request or perform account deletion through available settings. Deletion removes or anonymizes data according to the product's technical design and applicable legal requirements. Certain records may need to be retained where required for security, legal claims, compliance or integrity of shared project history.</p>
-      </LegalSection>
-
-      <LegalSection title="12. Your rights">
-        <p>Subject to applicable law, you may have rights to access, rectify, erase or restrict your personal data, object to certain processing, receive portable data and withdraw consent where processing is based on consent. You may also lodge a complaint with the competent data-protection authority.</p>
-        <p>Requests can be sent to <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>. Additional information may be requested where necessary to verify identity.</p>
-      </LegalSection>
-
-      <LegalSection title="13. Safety, reports and security">
-        <p>BuildCrew uses technical and organizational safeguards appropriate to the service, including authentication controls, access restrictions, rate limits, validation and security logging. Reports about profiles, projects or messages may be stored with moderation notes and review metadata. Blocking removes or restricts relevant network and messaging relationships. No internet service can guarantee absolute security.</p>
-      </LegalSection>
-
-      <LegalSection title="14. Changes and contact">
-        <p>This Privacy Policy may be updated when BuildCrew features, providers or legal requirements change. The current version will be published on the platform. Material changes may be communicated where appropriate.</p>
-        <p>Questions about privacy can be sent to <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>. See also the <Link href="/terms" className="text-lime-600 hover:underline dark:text-lime-400">Terms of Service</Link>.</p>
-      </LegalSection>
+    <LegalPage title="BuildCrew Privacy Policy" subtitle={`Effective ${EFFECTIVE_DATE_EN}. This document explains what personal data BuildCrew processes and why.`}>
+      <LegalSection title="1. Data controller"><p>The controller of personal data processed through BuildCrew is <strong>{operator.name}</strong>, address: <strong>{operator.address}</strong>, email: <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>.</p></LegalSection>
+      <LegalSection title="2. Data we may process"><p>Depending on the features you use, BuildCrew may process:</p><ul className="list-disc space-y-1 pl-5"><li>account data such as email address, account identifiers, verification status and authentication/session information;</li><li>profile data such as username, headline, bio, role, experience, skills, interests, availability, languages, location, collaboration preferences and links you provide;</li><li>project and collaboration data such as project descriptions, roles, team membership, applications, invitations, updates, tasks, workspace messages, links, milestones, credits and endorsements;</li><li>messages, reports, help questions, feedback, reactions and other content you submit;</li><li>technical and security data such as IP address, device/browser information, timestamps, logs, rate-limit events and security signals;</li><li>email-delivery and notification metadata;</li><li>analytics data where you have given the required consent.</li></ul></LegalSection>
+      <LegalSection title="3. Third-party sign-in"><p>If you choose Google or GitHub sign-in, BuildCrew may receive the account identifier, email address and limited public profile information needed to create, recognize or enrich your BuildCrew account. BuildCrew does not receive your provider password. GitHub sign-in may also provide your GitHub login and public profile URL so you can connect your builder profile.</p></LegalSection>
+      <LegalSection title="4. Why we process data"><p>Data may be processed to provide and secure your account, operate profiles and projects, enable team formation and communication, generate recommendations and matching, support professional-network and collaboration-history features, deliver notifications, moderate content, prevent abuse, maintain records of collaboration and comply with legal obligations.</p><p>Depending on the specific processing activity, the legal basis may include performance of the service agreement, compliance with legal obligations, legitimate interests such as security and service improvement, or consent where required (for example selected analytics).</p></LegalSection>
+      <LegalSection title="5. Public information"><p>Some data is intentionally visible to other users, and selected public profile or project pages may be available without login. Public content can be indexed or cached by search engines and external platforms. Think carefully before publishing information you do not want to make public.</p><p>Private contact details and private messages are not intended to be public unless you choose to share them yourself.</p></LegalSection>
+      <LegalSection title="6. Matching and recommendations"><p>BuildCrew may use information such as roles, skills, interests, languages, location, availability, project stage and collaboration preferences to rank or recommend people and projects. These recommendations are product-assistance features and do not make legally significant automated decisions about you.</p></LegalSection>
+      <LegalSection title="7. Service providers and international transfers"><p>BuildCrew may use infrastructure and service providers needed to operate the platform, including hosting/database providers, email delivery services, analytics providers (where consented) and authentication providers. Depending on the provider, data may be processed outside Poland or the European Economic Area using applicable legal transfer mechanisms.</p></LegalSection>
+      <LegalSection title="8. Emails and notifications"><p>BuildCrew may send transactional emails related to security, verification, password reset, messages, applications, invitations, project activity, matching and other account events. Selected categories can be controlled in notification settings where that option is available.</p></LegalSection>
+      <LegalSection title="9. Cookies and analytics"><p>BuildCrew may use cookies, local storage and similar mechanisms required for sessions, security, preferences and core functionality. Google Analytics 4 is used only where the relevant analytics consent has been given. Consent choices may be handled through Google Consent Mode or equivalent mechanisms.</p></LegalSection>
+      <LegalSection title="10. Data retention"><p>Data is kept for as long as needed to provide the service, maintain security and collaboration integrity, comply with legal requirements or establish and defend claims. Retention periods may differ by category. Deleted or changed content can remain temporarily in backups, logs or third-party caches.</p></LegalSection>
+      <LegalSection title="11. Account deletion"><p>You can request or perform account deletion through available settings. Deletion removes or anonymizes data according to the product's technical design and applicable legal requirements. Certain records may need to be retained where required for security, legal claims, compliance or integrity of shared project history.</p></LegalSection>
+      <LegalSection title="12. Your rights"><p>Subject to applicable law, you may have rights to access, rectify, erase or restrict your personal data, object to certain processing, receive portable data and withdraw consent where processing is based on consent. You may also lodge a complaint with the competent data-protection authority.</p><p>Requests can be sent to <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>. Additional information may be requested where necessary to verify identity.</p></LegalSection>
+      <LegalSection title="13. Safety, reports and security"><p>BuildCrew uses technical and organizational safeguards appropriate to the service, including authentication controls, access restrictions, rate limits, validation and security logging. Reports about profiles, projects or messages may be stored with moderation notes and review metadata. Blocking removes or restricts relevant network and messaging relationships. No internet service can guarantee absolute security.</p></LegalSection>
+      <LegalSection title="14. Changes and contact"><p>This Privacy Policy may be updated when BuildCrew features, providers or legal requirements change. The current version will be published on the platform. Material changes may be communicated where appropriate.</p><p>Questions about privacy can be sent to <a className="text-lime-600 hover:underline dark:text-lime-400" href={`mailto:${operator.email}`}>{operator.email}</a>. See also the <Link href="/terms" className="text-lime-600 hover:underline dark:text-lime-400">Terms of Service</Link>.</p></LegalSection>
     </LegalPage>
   );
 }

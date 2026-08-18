@@ -3,25 +3,17 @@
 import * as React from "react";
 import type { AppLocale } from "@/lib/site-config";
 
-const ENGLISH_LOCALE: AppLocale = "en";
-const LocaleContext = React.createContext<AppLocale>(ENGLISH_LOCALE);
+const LocaleContext = React.createContext<AppLocale>("pl");
 
-/**
- * BuildCrew is an English-first product. Keep the provider API in place so
- * existing components do not need to be rewritten, but always expose English.
- */
-export function LocaleProvider({ children }: { locale?: AppLocale; children: React.ReactNode }) {
-  return <LocaleContext.Provider value={ENGLISH_LOCALE}>{children}</LocaleContext.Provider>;
+export function LocaleProvider({ locale, children }: { locale: AppLocale; children: React.ReactNode }) {
+  return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>;
 }
 
 export function useLocale() {
-  return ENGLISH_LOCALE;
+  return React.useContext(LocaleContext);
 }
 
-/**
- * Compatibility helper for the old bilingual copy(pl, en) calls.
- * English is now the only product language, so always return the EN branch.
- */
 export function useCopy() {
-  return React.useCallback(<T,>(_pl: T, en: T): T => en, []);
+  const locale = useLocale();
+  return React.useCallback(<T,>(pl: T, en: T): T => (locale === "en" ? en : pl), [locale]);
 }

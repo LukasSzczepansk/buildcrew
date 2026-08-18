@@ -28,19 +28,19 @@ export function CrewInviteDialog({ crewId, candidates }: { crewId: string; candi
     const res = await inviteToCrew(crewId, inviteeId, message);
     setPending(false);
     if (res?.error) { toast.error(appMessage(res.error, locale)); return; }
-    toast.success(copy("Invitation sent!", "Invitation sent!"));
+    toast.success(copy("Zaproszenie wysłane!", "Invitation sent!"));
     setOpen(false); setMessage("");
   }
 
-  if (candidates.length === 0) return <Button variant="outline" disabled className="gap-2"><UserPlus className="h-4 w-4" /> {copy("No available people", "No available people")}</Button>;
+  if (candidates.length === 0) return <Button variant="outline" disabled className="gap-2"><UserPlus className="h-4 w-4" /> {copy("Brak dostępnych osób", "No available people")}</Button>;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button variant="outline" className="gap-2"><UserPlus className="h-4 w-4" /> {copy("Invite another builder", "Invite another builder")}</Button></DialogTrigger>
+      <DialogTrigger asChild><Button variant="outline" className="gap-2"><UserPlus className="h-4 w-4" /> {copy("Zaproś kolejnego buildera", "Invite another builder")}</Button></DialogTrigger>
       <DialogContent>
-        <DialogHeader><DialogTitle>{copy("Invite to crew", "Invite to crew")}</DialogTitle><DialogDescription>{copy("Choose someone from Build Pool to invite.", "Choose someone from Build Pool to invite.")}</DialogDescription></DialogHeader>
-        <div className="flex flex-col gap-4"><Select value={inviteeId} onValueChange={setInviteeId}><SelectTrigger><SelectValue placeholder={copy("Choose a person", "Choose a person")} /></SelectTrigger><SelectContent>{candidates.map((c) => <SelectItem key={c.userId} value={c.userId}>{c.username} {c.role ? `- ${roleLabels[c.role]}` : ""}</SelectItem>)}</SelectContent></Select><Textarea placeholder={copy("Short message (optional)", "Short message (optional)")} maxLength={300} value={message} onChange={(e) => setMessage(e.target.value)} /></div>
-        <DialogFooter><Button onClick={handleSend} disabled={pending || !inviteeId}>{pending ? copy("Sending…", "Sending…") : copy("Send invitation", "Send invitation")}</Button></DialogFooter>
+        <DialogHeader><DialogTitle>{copy("Zaproś do ekipy", "Invite to crew")}</DialogTitle><DialogDescription>{copy("Wybierz osobę z Build Pool, którą chcesz zaprosić.", "Choose someone from Build Pool to invite.")}</DialogDescription></DialogHeader>
+        <div className="flex flex-col gap-4"><Select value={inviteeId} onValueChange={setInviteeId}><SelectTrigger><SelectValue placeholder={copy("Wybierz osobę", "Choose a person")} /></SelectTrigger><SelectContent>{candidates.map((c) => <SelectItem key={c.userId} value={c.userId}>{c.username} {c.role ? `- ${roleLabels[c.role]}` : ""}</SelectItem>)}</SelectContent></Select><Textarea placeholder={copy("Krótka wiadomość (opcjonalnie)", "Short message (optional)")} maxLength={300} value={message} onChange={(e) => setMessage(e.target.value)} /></div>
+        <DialogFooter><Button onClick={handleSend} disabled={pending || !inviteeId}>{pending ? copy("Wysyłanie…", "Sending…") : copy("Wyślij zaproszenie", "Send invitation")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

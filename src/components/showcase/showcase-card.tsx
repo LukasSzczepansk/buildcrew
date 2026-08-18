@@ -53,8 +53,8 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
   const [pending, setPending] = React.useState<ShowcaseReaction | null>(null);
 
   async function react(reaction: ShowcaseReaction) {
-    if (!currentUserId) { toast.error(copy("Log in to react.", "Log in to react.")); return; }
-    if (currentUserId === entry.creatorId) { toast.error(copy("You cannot react to your own project.", "You cannot react to your own project.")); return; }
+    if (!currentUserId) { toast.error(copy("Zaloguj się, żeby zareagować.", "Log in to react.")); return; }
+    if (currentUserId === entry.creatorId) { toast.error(copy("Nie możesz oceniać własnego projektu.", "You cannot react to your own project.")); return; }
     setPending(reaction);
     const result = await toggleShowcaseReaction(entry.id, reaction);
     setPending(null);
@@ -78,7 +78,7 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
           <Badge variant="outline">{labels.showcaseCategories[entry.category]}</Badge>
           <Badge variant="secondary">{labels.showcaseStatuses[entry.status]}</Badge>
           {entry.isDemo ? <Badge variant="outline">Demo</Badge> : null}
-          {entry.crewId ? <Badge variant="outline">{copy("BuildCrew team", "BuildCrew team")}</Badge> : null}
+          {entry.crewId ? <Badge variant="outline">{copy("Ekipa BuildCrew", "BuildCrew team")}</Badge> : null}
           {entry.challengeId ? <Badge variant="warning">Challenge</Badge> : null}
         </div>
         <Link href={`/showcase/${entry.id}`}><h3 className="mt-3 text-[17px] font-semibold tracking-[-0.015em] hover:underline">{entry.title}</h3></Link>
@@ -89,7 +89,7 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
           <div className="flex items-center gap-1.5 text-[12px] text-[var(--bc-faint)]"><Users className="h-3.5 w-3.5" /> {Math.max(1, entry.team.length)}</div>
         </div>
 
-        {entry.lookingForCollaborators ? <p className="mt-3 line-clamp-2 border-l-2 border-[var(--bc-accent)] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{copy("Looking for collaborators.", "Looking for collaborators.")}</span>{entry.lookingForText ? ` ${entry.lookingForText}` : ""}</p> : null}
+        {entry.lookingForCollaborators ? <p className="mt-3 line-clamp-2 border-l-2 border-[var(--bc-accent)] pl-3 text-[13px] leading-5 text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{copy("Szukają współtwórców.", "Looking for collaborators.")}</span>{entry.lookingForText ? ` ${entry.lookingForText}` : ""}</p> : null}
 
         <div className="mt-3 grid grid-cols-3 gap-1.5">
           {reactions.map(({ key, Icon, label }) => (
@@ -98,10 +98,10 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
         </div>
 
         <div className="mt-3 flex items-center justify-between text-[12px] text-[var(--bc-faint)]">
-          <span>{entry.feedbackCount} {copy(entry.feedbackCount === 1 ? "feedback" : "feedback items", entry.feedbackCount === 1 ? "feedback" : "feedback items")}{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% ${copy("would use", "would use")}` : ""}</span>
-          <div className="flex gap-2">{entry.githubUrl ? <a href={entry.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><ExternalLink className="h-3.5 w-3.5" /></a> : null}{entry.liveUrl ? <a href={entry.liveUrl} target="_blank" rel="noreferrer" aria-label={copy("Open project", "Open project")}><ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
+          <span>{entry.feedbackCount} {copy(entry.feedbackCount === 1 ? "feedback" : "feedback items", entry.feedbackCount === 1 ? "feedback" : "feedback items")}{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% ${copy("feedbacków\", entry.feedbackCount === 1 ? \"feedback\" : \"feedback items\")}{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% ${copy(\"zainteresowanych", "would use")}` : ""}</span>
+          <div className="flex gap-2">{entry.githubUrl ? <a href={entry.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><ExternalLink className="h-3.5 w-3.5" /></a> : null}{entry.liveUrl ? <a href={entry.liveUrl} target="_blank" rel="noreferrer" aria-label={copy("Otwórz projekt", "Open project")}><ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
         </div>
-        <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link href={`/showcase/${entry.id}`}>{copy("View project", "View project")}</Link></Button>
+        <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link href={`/showcase/${entry.id}`}>{copy("Zobacz projekt", "View project")}</Link></Button>
       </div>
     </Card>
   );

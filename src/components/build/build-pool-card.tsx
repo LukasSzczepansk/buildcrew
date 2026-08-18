@@ -48,7 +48,7 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
     const res = myCrewId ? await inviteToCrew(myCrewId, person.userId, message) : await sendBuildProposal(person.userId, message);
     setPending(false);
     if (res?.error) { toast.error(appMessage(res.error, locale)); return; }
-    toast.success(myCrewId ? copy("Invitation sent", "Invitation sent") : copy("Message sent", "Message sent"));
+    toast.success(myCrewId ? copy("Zaproszenie wysłane", "Invitation sent") : copy("Wiadomość wysłana", "Message sent"));
     setOpen(false);
     setMessage("");
   }
@@ -72,7 +72,7 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
 
         <div className="min-w-0 border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
           {person.technologies.length > 0 ? <TechnologyStack items={person.technologies} max={5} compact className="gap-1.5" /> : null}
-          <p className="mt-3 truncate text-[13px] text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{copy("Why you match: ", "Why you match: ")}</span>{insight}</p>
+          <p className="mt-3 truncate text-[13px] text-[var(--bc-muted)]"><span className="font-medium text-[var(--bc-ink)]">{copy("Wspólny punkt: ", "Why you match: ")}</span>{insight}</p>
         </div>
 
         <div className="border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
@@ -83,17 +83,17 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
 
         <div className="flex flex-wrap items-center gap-2 border-t border-[var(--bc-line)] pt-4 xl:justify-end xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button size="sm">{myCrewId ? copy("Invite", "Invite") : copy("Message", "Message")}</Button></DialogTrigger>
+            <DialogTrigger asChild><Button size="sm">{myCrewId ? copy("Zaproś", "Invite") : copy("Wiadomość", "Message")}</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{myCrewId ? copy(`Invite ${person.username}`, `Invite ${person.username}`) : copy(`Message ${person.username}`, `Message ${person.username}`)}</DialogTitle>
-                <DialogDescription>{myCrewId ? copy("Add a short note to the invitation.", "Add a short note to the invitation.") : copy("Be specific about what you could build together.", "Be specific about what you could build together.")}</DialogDescription>
+                <DialogDescription>{myCrewId ? copy("Dodaj krótką wiadomość do zaproszenia.", "Add a short note to the invitation.") : copy("Napisz konkretnie, co moglibyście zbudować.", "Be specific about what you could build together.")}</DialogDescription>
               </DialogHeader>
-              <Textarea placeholder={copy("Hi! It looks like we are interested in similar things…", "Hi! It looks like we are interested in similar things…")} maxLength={300} value={message} onChange={(event) => setMessage(event.target.value)} />
-              <DialogFooter><Button onClick={handleSend} disabled={pending}>{pending ? copy("Sending…", "Sending…") : copy("Send", "Send")}</Button></DialogFooter>
+              <Textarea placeholder={copy("Cześć! Mamy podobny kierunek…", "Hi! It looks like we are interested in similar things…")} maxLength={300} value={message} onChange={(event) => setMessage(event.target.value)} />
+              <DialogFooter><Button onClick={handleSend} disabled={pending}>{pending ? copy("Wysyłanie…", "Sending…") : copy("Wyślij", "Send")}</Button></DialogFooter>
             </DialogContent>
           </Dialog>
-          <Link href={`/builders/${person.userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">{copy("Profile", "Profile")} <ArrowRight className="h-3.5 w-3.5" /></Link>
+          <Link href={`/builders/${person.userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">{copy("Profil", "Profile")} <ArrowRight className="h-3.5 w-3.5" /></Link>
         </div>
       </div>
     </article>

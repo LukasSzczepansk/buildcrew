@@ -7,18 +7,22 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { appMessage } from "@/lib/server-copy";
 import { reportContent } from "@/server/actions/moderation";
 import type { ReportReason, ReportTargetType } from "@/db/schema";
 
-const REASONS: { value: ReportReason; label: string }[] = [
-  { value: "spam", label: "Spam" },
-  { value: "scam", label: "Scam or misleading content" },
-  { value: "harassment", label: "Harassment" },
-  { value: "inappropriate", label: "Inappropriate content" },
-  { value: "other", label: "Other" },
-];
 
 export function ContentReportDialog({ targetType, targetId, label = "Report", compact = false }: { targetType: Exclude<ReportTargetType, "USER">; targetId: string; label?: string; compact?: boolean }) {
+  const copy = useCopy();
+  const locale = useLocale();
+  const reasons: { value: ReportReason; label: string }[] = [
+    { value: "spam", label: "Spam" },
+    { value: "scam", label: copy("Oszustwo lub wprowadzająca w błąd treść", "Scam or misleading content") },
+    { value: "harassment", label: copy("Nękanie", "Harassment") },
+    { value: "inappropriate", label: copy("Nieodpowiednia treść", "Inappropriate content") },
+    { value: "other", label: copy("Inne", "Other") },
+  ];
   const [open, setOpen] = React.useState(false);
   const [reason, setReason] = React.useState<ReportReason>("spam");
   const [description, setDescription] = React.useState("");
@@ -28,10 +32,10 @@ export function ContentReportDialog({ targetType, targetId, label = "Report", co
     startTransition(async () => {
       const result = await reportContent({ targetType, targetId, reason, description });
       if (result && "error" in result && result.error) {
-        toast.error(result.error);
+        toast.error(appMessage(result.error, locale));
         return;
       }
-      toast.success("Report submitted. Thank you for helping keep BuildCrew useful and safe.");
+      toast.success(copy("Zgłoszenie wysłane. Dziękujemy za pomoc w dbaniu o bezpieczeństwo BuildCrew.", "Report submitted. Thank you for helping keep BuildCrew useful and safe."));
       setDescription("");
       setOpen(false);
     });
@@ -44,14 +48,14 @@ export function ContentReportDialog({ targetType, targetId, label = "Report", co
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Report {targetType === "PROJECT" ? "project" : "message"}</DialogTitle>
-          <DialogDescription>Reports are reviewed by BuildCrew. Do not use this for disagreements that can be resolved directly.</DialogDescription>
+          <DialogTitle>{targetType === "PROJECT" ? copy("Zgłoś projekt", "Report project") : copy("Zgłoś wiadomość", "Report message")}</DialogTitle>
+          <DialogDescription>{copy("Zgłoszenia są sprawdzane przez BuildCrew. Nie używaj tej funkcji do sporów, które można rozwiązać bezpośrednio.", "Reports are reviewed by BuildCrew. Do not use this for disagreements that can be resolved directly.")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <Select value={reason} onValueChange={(value) => setReason(value as ReportReason)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{REASONS.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}</SelectContent></Select>
-          <Textarea value={description} onChange={(event) => setDescription(event.target.value)} maxLength={800} placeholder="Optional context for the moderation team" />
+          <Select value={reason} onValueChange={(value) => setReason(value as ReportReason)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{reasons.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}</SelectContent></Select>
+          <Textarea value={description} onChange={(event) => setDescription(event.target.value)} maxLength={800} placeholder={copy("Opcjonalny kontekst dla zespołu moderacji", "Optional context for the moderation team")} />
         </div>
-        <DialogFooter><Button onClick={submit} disabled={pending}>{pending ? "Submitting…" : "Submit report"}</Button></DialogFooter>
+        <DialogFooter><Button onClick={submit} disabled={pending}>{pending ? copy("Wysyłanie...", "Submitting...") : copy("Wyślij zgłoszenie", "Submit report")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

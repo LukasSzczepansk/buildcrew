@@ -43,7 +43,7 @@ export async function createAnswer(input: z.infer<typeof answerSchema>) {
   if (question.authorId !== user.id && await isBlockedEitherWay(user.id, question.authorId)) return { error: "You cannot answer this question." };
 
   await db.insert(answers).values({ questionId: parsed.data.questionId, authorId: user.id, body: parsed.data.body });
-  if (question.authorId !== user.id) await createNotification(question.authorId, "QUESTION_ANSWERED", "Someone answered your question", question.title, `/help/${question.id}`, { titleEn: "Someone answered your question", bodyEn: question.title });
+  if (question.authorId !== user.id) await createNotification(question.authorId, "QUESTION_ANSWERED", "Ktoś odpowiedział na Twoje pytanie", question.title, `/help/${question.id}`, { titleEn: "Someone answered your question", bodyEn: question.title });
   revalidatePath(`/help/${parsed.data.questionId}`);
   return { success: true };
 }
@@ -67,7 +67,7 @@ export async function markAnswerHelpful(answerId: string, questionId: string) {
     await tx.update(answers).set({ isHelpful: true }).where(and(eq(answers.id, answerId), eq(answers.questionId, questionId)));
   });
 
-  if (answer.authorId !== user.id) await createNotification(answer.authorId, "ANSWER_MARKED_HELPFUL", "Your answer was marked as helpful!", question.title, `/help/${questionId}`, { titleEn: "Your answer was marked as helpful!", bodyEn: question.title });
+  if (answer.authorId !== user.id) await createNotification(answer.authorId, "ANSWER_MARKED_HELPFUL", "Twoja odpowiedź została oznaczona jako pomocna!", question.title, `/help/${questionId}`, { titleEn: "Your answer was marked as helpful!", bodyEn: question.title });
   await logEvent("answer_marked_helpful", user.id, { answerId, questionId });
   revalidatePath(`/help/${questionId}`);
   return { success: true };

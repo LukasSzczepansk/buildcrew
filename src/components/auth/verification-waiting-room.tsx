@@ -111,14 +111,14 @@ export function VerificationWaitingRoom({
   if (verified) {
     return (
       <div>
-        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Account verification", "Account verification")}</p>
-        <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{copy("Email verified", "Email verified")}</h1>
+        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Weryfikacja konta", "Account verification")}</p>
+        <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{copy("E-mail zweryfikowany", "Email verified")}</h1>
         <div className="mt-6 border-y border-[var(--bc-line)] py-5">
           <div className="flex items-center gap-2.5 text-[14px] font-medium text-[var(--bc-ink)]">
             <Check className="h-4 w-4 text-[#2F7D4A]" aria-hidden="true" />
-            {copy("Your email address has been confirmed.", "Your email address has been confirmed.")}
+            {copy("Adres został potwierdzony.", "Your email address has been confirmed.")}
           </div>
-          <p className="mt-2 text-sm leading-5 text-[var(--bc-muted)]">{copy("Taking you to profile setup…", "Taking you to profile setup…")}</p>
+          <p className="mt-2 text-sm leading-5 text-[var(--bc-muted)]">{copy("Przechodzimy do konfiguracji Twojego profilu…", "Taking you to profile setup…")}</p>
         </div>
       </div>
     );
@@ -126,20 +126,20 @@ export function VerificationWaitingRoom({
 
   return (
     <div>
-      <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Account verification", "Account verification")}</p>
-      <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{copy("Check your inbox", "Check your inbox")}</h1>
+      <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Weryfikacja konta", "Account verification")}</p>
+      <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]">{copy("Sprawdź swoją skrzynkę", "Check your inbox")}</h1>
       <p className="mt-3 text-[14px] leading-6 text-[var(--bc-muted)]">
-        {copy("We sent a confirmation link to", "We sent a confirmation link to")} <span className="font-medium text-[var(--bc-ink)]">{email}</span>.
+        {copy("Wysłaliśmy link potwierdzający na", "We sent a confirmation link to")} <span className="font-medium text-[var(--bc-ink)]">{email}</span>.
       </p>
 
       <div className="mt-6 border-y border-[var(--bc-line)] py-5">
         <div className="flex items-center gap-2.5 text-[14px] font-medium text-[var(--bc-ink)]">
           <span className="h-2 w-2 shrink-0 bg-[var(--bc-accent)]" aria-hidden="true" />
-          {copy("Waiting for confirmation", "Waiting for confirmation")}
+          {copy("Oczekujemy na potwierdzenie", "Waiting for confirmation")}
           {checking ? <LoaderCircle className="h-3.5 w-3.5 animate-spin text-[var(--bc-faint)]" aria-hidden="true" /> : null}
         </div>
         <p className="mt-2 max-w-[360px] text-sm leading-5 text-[var(--bc-muted)]">
-          {copy("You can keep this tab open. After you click the link in the email, BuildCrew will detect the verification and continue automatically.", "You can keep this tab open. After you click the link in the email, BuildCrew will detect the verification and continue automatically.")}
+          {copy("Możesz zostawić tę kartę otwartą. Po kliknięciu linku w e-mailu BuildCrew wykryje weryfikację i automatycznie przejdzie dalej.", "You can keep this tab open. After you click the link in the email, BuildCrew will detect the verification and continue automatically.")}
         </p>
       </div>
 
@@ -147,10 +147,10 @@ export function VerificationWaitingRoom({
         <form action={resendAction}>
           <Button type="submit" variant="outline" className="w-full" disabled={resendPending || cooldown > 0}>
             {resendPending
-              ? copy("Sending…", "Sending…")
+              ? copy("Wysyłanie…", "Sending…")
               : cooldown > 0
                 ? copy(`Send again in ${cooldown}s`, `Send again in ${cooldown}s`)
-                : copy("Send link again", "Send link again")}
+                : copy("Wyślij link ponownie", "Send link again")}
           </Button>
         </form>
 
@@ -158,12 +158,12 @@ export function VerificationWaitingRoom({
         {state.success ? <p className="text-[13px] leading-5 text-[#2F7D4A] dark:text-lime-300">{appMessage(state.success, locale, "Done.")}</p> : null}
 
         <p className="text-[13px] leading-5 text-[var(--bc-faint)]">
-          {copy("Can’t find the message? Check your Spam or Promotions folder.", "Can’t find the message? Check your Spam or Promotions folder.")}
+          {copy("Nie widzisz wiadomości? Sprawdź folder Spam lub Oferty.", "Can’t find the message? Check your Spam or Promotions folder.")}
         </p>
 
         <form action={logoutAction}>
           <button type="submit" className="text-[13px] font-medium text-[var(--bc-muted)] underline-offset-4 hover:text-[var(--bc-ink)] hover:underline">
-            {copy("Wrong email address? Back to login", "Wrong email address? Back to login")}
+            {copy("Zły adres e-mail? Wróć do logowania", "Wrong email address? Back to login")}
           </button>
         </form>
       </div>

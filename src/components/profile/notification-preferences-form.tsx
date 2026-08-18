@@ -40,14 +40,14 @@ export function NotificationPreferencesForm({ initial }: { initial: Prefs }) {
     const result = await saveNotificationPreferences(prefs);
     setPending(false);
     if (result?.error) toast.error(appMessage(result.error, locale));
-    else toast.success(copy("Notification preferences saved.", "Notification preferences saved."));
+    else toast.success(copy("Ustawienia powiadomień zapisane.", "Notification preferences saved."));
   }
 
   return (
     <section className="border-t border-[var(--bc-line)] pt-5">
       <div className="max-w-[720px]">
-        <h2 className="text-[16px] font-semibold">{copy("Email notifications", "Email notifications")}</h2>
-        <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("We only send emails tied to meaningful account activity. You can disable any category.", "We only send emails tied to meaningful account activity. You can disable any category.")}</p>
+        <h2 className="text-[16px] font-semibold">{copy("Powiadomienia e-mail", "Email notifications")}</h2>
+        <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("Wysyłamy tylko wiadomości związane z realną aktywnością na koncie. Możesz wyłączyć dowolną kategorię.", "We only send emails tied to meaningful account activity. You can disable any category.")}</p>
       </div>
 
       <div className="mt-4 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
@@ -62,7 +62,7 @@ export function NotificationPreferencesForm({ initial }: { initial: Prefs }) {
         ))}
       </div>
 
-      <Button size="sm" className="mt-4" onClick={save} disabled={pending}>{pending ? copy("Saving…", "Saving…") : copy("Save settings", "Save settings")}</Button>
+      <Button size="sm" className="mt-4" onClick={save} disabled={pending}>{pending ? copy("Zapisywanie…", "Saving…") : copy("Zapisz ustawienia", "Save settings")}</Button>
     </section>
   );
 }
