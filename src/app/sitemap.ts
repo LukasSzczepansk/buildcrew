@@ -16,6 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/explore/projects` },
     { url: `${SITE_URL}/explore/hackathons` },
     { url: `${SITE_URL}/sprint` },
+    { url: `${SITE_URL}/sprint/regulamin` },
     { url: `${SITE_URL}/terms` },
     { url: `${SITE_URL}/privacy` },
     ...hackathons.map((event) => ({ url: `${SITE_URL}/explore/hackathons/${event.slug}`, lastModified: event.updatedAt })),

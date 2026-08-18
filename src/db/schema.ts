@@ -1028,6 +1028,8 @@ export type SprintApplicationData = {
   paceStyle: number;
   projectStyle: number;
   commitmentAccepted: true;
+  sprintTermsVersion: string;
+  sprintTermsAcceptedAt: string;
   submittedAt: string;
 };
 

@@ -9,6 +9,7 @@ import { getVerifiedCurrentUser, isAdmin } from "@/lib/auth";
 import { challengeCreateSchema, challengeJoinSchema, sprintAnnouncementCreateSchema, sprintCheckInSchema, sprintCrewCreateSchema, sprintParticipantAdminStatusSchema, sprintSettingsUpdateSchema, uuidSchema } from "@/lib/validations";
 import { createNotification } from "@/server/services/notifications";
 import { listChallengeMatches } from "@/server/data/showcase";
+import { SPRINT_TERMS_VERSION } from "@/lib/sprint-terms";
 
 async function requireAdmin() {
   const user = await getVerifiedCurrentUser();
@@ -129,11 +130,15 @@ export async function joinChallenge(input: unknown) {
     crewId = candidateCrewId;
   }
 
+  const { sprintTermsAccepted: _sprintTermsAccepted, ...application } = parsed.data.application;
+  const acceptedAt = new Date().toISOString();
   const applicationData = {
     version: 1 as const,
-    ...parsed.data.application,
-    ideaDescription: parsed.data.application.ideaDescription?.trim() || undefined,
-    submittedAt: new Date().toISOString(),
+    ...application,
+    ideaDescription: application.ideaDescription?.trim() || undefined,
+    sprintTermsVersion: SPRINT_TERMS_VERSION,
+    sprintTermsAcceptedAt: acceptedAt,
+    submittedAt: acceptedAt,
   };
 
   await db.insert(challengeParticipants).values({

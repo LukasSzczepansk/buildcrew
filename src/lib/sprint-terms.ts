@@ -1,0 +1,3 @@
+export const SPRINT_TERMS_VERSION = "2026-08-18";
+export const SPRINT_TERMS_EFFECTIVE_DATE_PL = "18 sierpnia 2026";
+export const SPRINT_TERMS_EFFECTIVE_DATE_EN = "August 18, 2026";

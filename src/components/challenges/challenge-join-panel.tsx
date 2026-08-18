@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, ChevronRight, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ import { ALL_SKILLS, COMMITMENT_LABELS, COMMITMENT_OPTIONS, ROLE_LABELS, ROLE_OP
 import { labelsFor } from "@/lib/constants-i18n";
 import { cn } from "@/lib/utils";
 import { appMessage } from "@/lib/server-copy";
+import { SPRINT_TERMS_VERSION } from "@/lib/sprint-terms";
 import type { Commitment, Level, RoleType, SprintApplicationData } from "@/db/schema";
 import { joinChallenge, leaveChallenge } from "@/server/actions/challenges";
 
@@ -28,8 +30,9 @@ type ProfileDefaults = {
   skills: string[];
 } | null;
 
-type FormState = Omit<SprintApplicationData, "version" | "submittedAt" | "commitmentAccepted"> & {
+type FormState = Omit<SprintApplicationData, "version" | "submittedAt" | "commitmentAccepted" | "sprintTermsVersion" | "sprintTermsAcceptedAt"> & {
   commitmentAccepted: boolean;
+  sprintTermsAccepted: boolean;
   mode: "HAS_CREW" | "FIND_CREW";
   crewId: string;
 };
@@ -65,6 +68,7 @@ function initialForm(participation: Participation, defaults: ProfileDefaults, cr
     paceStyle: existing?.paceStyle ?? 3,
     projectStyle: existing?.projectStyle ?? 3,
     commitmentAccepted: existing?.commitmentAccepted ?? false,
+    sprintTermsAccepted: existing?.sprintTermsVersion === SPRINT_TERMS_VERSION,
     mode: participation?.mode ?? "FIND_CREW",
     crewId: participation?.crewId ?? crews[0]?.id ?? "",
   };
@@ -112,6 +116,7 @@ export function ChallengeJoinPanel({
     return Boolean(
       form.sprintGoals.length >= 1
       && form.commitmentAccepted
+      && form.sprintTermsAccepted
       && (form.mode === "FIND_CREW" || Boolean(form.crewId)),
     );
   }, [form, step]);
@@ -139,6 +144,7 @@ export function ChallengeJoinPanel({
         paceStyle: form.paceStyle,
         projectStyle: form.projectStyle,
         commitmentAccepted: true,
+        sprintTermsAccepted: true,
       },
     });
     setPending(false);
@@ -318,6 +324,17 @@ export function ChallengeJoinPanel({
               <input type="checkbox" checked={form.commitmentAccepted} onChange={(event) => setForm({ ...form, commitmentAccepted: event.target.checked })} className="mt-1 h-4 w-4 accent-lime-500" />
               <span>{copy("Rozumiem, że Sprint wymaga aktywnego udziału przez cały okres programu i deklaruję realną dostępność podaną wyżej.", "I understand the Sprint requires active participation throughout the program and the availability above is realistic.")}</span>
             </label>
+
+            <div className={cn("flex items-start gap-3 rounded-[8px] border p-4 text-sm leading-6", form.sprintTermsAccepted ? "border-lime-500/60 bg-lime-300/15 dark:border-lime-400/30 dark:bg-lime-400/5" : "border-neutral-200 dark:border-neutral-700")}>
+              <input id="sprint-terms-accepted" type="checkbox" checked={form.sprintTermsAccepted} onChange={(event) => setForm({ ...form, sprintTermsAccepted: event.target.checked })} className="mt-1 h-4 w-4 shrink-0 accent-lime-500" />
+              <p>
+                <label htmlFor="sprint-terms-accepted" className="cursor-pointer">{copy("Akceptuję ", "I accept ")}</label>
+                <Link href="/sprint/regulamin" target="_blank" rel="noreferrer" className="font-semibold text-[#66820f] underline underline-offset-4 dark:text-lime-300">{copy("Regulamin BuildCrew Sprint", "BuildCrew Sprint Terms")}</Link>
+                {copy(" i potwierdzam zapoznanie się z ", " and confirm that I have read the ")}
+                <Link href="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-[#66820f] underline underline-offset-4 dark:text-lime-300">{copy("Polityką prywatności", "Privacy Policy")}</Link>.
+                <span className="mt-1 block text-xs leading-5 text-neutral-500">{copy("Rozumiem, że zgłoszenie nie gwarantuje przyjęcia do Sprintu ani znalezienia Crew.", "I understand that applying does not guarantee admission to the Sprint or a Crew match.")}</span>
+              </p>
+            </div>
           </div>
         ) : null}
       </div>

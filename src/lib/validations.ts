@@ -419,6 +419,7 @@ export const challengeJoinSchema = z.object({
     paceStyle: z.coerce.number().int().min(1).max(5),
     projectStyle: z.coerce.number().int().min(1).max(5),
     commitmentAccepted: z.literal(true),
+    sprintTermsAccepted: z.literal(true),
   }).superRefine((data, ctx) => {
     if (data.ideaStatus === "HAS_IDEA" && (data.ideaDescription?.trim().length ?? 0) < 10) {
       ctx.addIssue({ code: "custom", path: ["ideaDescription"], message: "Opisz pomysł w co najmniej 10 znakach." });
