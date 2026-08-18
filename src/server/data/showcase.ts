@@ -225,13 +225,14 @@ export async function listChallengeMatches(challengeId: string, userId: string, 
   const participantRows = await db.select({
     userId: challengeParticipants.userId,
     crewId: challengeParticipants.crewId,
+    participantStatus: challengeParticipants.participantStatus,
     applicationData: challengeParticipants.applicationData,
   }).from(challengeParticipants)
     .where(and(eq(challengeParticipants.challengeId, challengeId), eq(challengeParticipants.mode, "FIND_CREW")));
 
   const myParticipant = participantRows.find((row) => row.userId === userId);
   const myApplication = myParticipant?.applicationData ?? null;
-  const candidates = participantRows.filter((row) => row.userId !== userId && !row.crewId && row.applicationData).slice(0, 50);
+  const candidates = participantRows.filter((row) => row.userId !== userId && !row.crewId && row.applicationData && !["REJECTED", "DROPPED"].includes(row.participantStatus)).slice(0, 50);
   const profilePairs = await Promise.all(candidates.map(async (row) => ({ row, profile: await getProfileByUserId(row.userId) })));
 
   return profilePairs.filter((item): item is { row: typeof candidates[number]; profile: NonNullable<Awaited<ReturnType<typeof getProfileByUserId>>> } => Boolean(item.profile)).map(({ row, profile }) => {

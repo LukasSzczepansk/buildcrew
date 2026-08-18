@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, LockKeyhole, Rocket, Sparkles, UserRoundCheck } from "lucide-react";
 import { ChallengeJoinPanel } from "@/components/challenges/challenge-join-panel";
 import { ChallengeMatchCard } from "@/components/challenges/challenge-match-card";
+import { SprintCheckIn } from "@/components/challenges/sprint-check-in";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { getRequestLocale } from "@/lib/site-server";
 import { getCrewById, getMembershipCrewForUser } from "@/server/data/crews";
 import { getProfileByUserId } from "@/server/data/profiles";
 import { getChallengeParticipation, listChallengeMatches, listChallenges } from "@/server/data/showcase";
+import { getLatestSprintCheckIn, listSprintAnnouncementsForParticipant } from "@/server/data/sprints";
 import { launchDefaultSprintFromForm } from "@/server/actions/challenges";
 
 export const metadata: Metadata = {
@@ -31,6 +33,8 @@ export default async function SprintApplyPage() {
   let profileDefaults: Awaited<ReturnType<typeof getProfileByUserId>> = null;
   let crews: { id: string; label: string }[] = [];
   let matches: Awaited<ReturnType<typeof listChallengeMatches>> = [];
+  let latestCheckIn: Awaited<ReturnType<typeof getLatestSprintCheckIn>> = null;
+  let announcements: Awaited<ReturnType<typeof listSprintAnnouncementsForParticipant>> = [];
 
   if (activeSprint && user?.emailVerified && user.onboardingCompleted) {
     [participation, profileDefaults] = await Promise.all([
@@ -43,6 +47,12 @@ export default async function SprintApplyPage() {
       if (crew) crews = [{ id: crew.id, label: `Crew ${crew.id.slice(0, 8)}` }];
     }
     if (participation?.mode === "FIND_CREW") matches = await listChallengeMatches(activeSprint.id, user.id, locale);
+    if (participation) {
+      [latestCheckIn, announcements] = await Promise.all([
+        getLatestSprintCheckIn(activeSprint.id, user.id),
+        listSprintAnnouncementsForParticipant(activeSprint.id, participation.participantStatus, participation.crewId),
+      ]);
+    }
   }
 
   return (
@@ -93,6 +103,24 @@ export default async function SprintApplyPage() {
                 profileDefaults={profileDefaults ? { role: profileDefaults.role, level: profileDefaults.level, weeklyHours: profileDefaults.weeklyHours, skills: profileDefaults.skills } : null}
               />
 
+              {participation ? (
+                <Card className="mt-5 p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400">Status zgłoszenia</p><h2 className="mt-2 text-lg font-semibold">{participantStatusLabel(participation.participantStatus)}</h2>{participation.adminNote ? <p className="mt-2 text-sm leading-6 text-neutral-500">{participation.adminNote}</p> : null}</div>
+                    <span className="rounded-full bg-[#eef6d6] px-3 py-1 text-xs font-semibold text-[#66820f] dark:bg-lime-400/10 dark:text-lime-300">{participation.participantStatus}</span>
+                  </div>
+                </Card>
+              ) : null}
+
+              {participation && ["MATCHED", "BUILDING"].includes(participation.participantStatus) ? <div className="mt-5"><SprintCheckIn challengeId={activeSprint.id} latest={latestCheckIn ? { health: latestCheckIn.health, note: latestCheckIn.note, weekKey: latestCheckIn.weekKey } : null} /></div> : null}
+
+              {announcements.length ? (
+                <Card className="mt-5 p-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400">Ogłoszenia Sprintu</p>
+                  <div className="mt-3 divide-y divide-[var(--bc-line)]">{announcements.slice(0, 4).map((announcement) => <div key={announcement.id} className="py-3 first:pt-0 last:pb-0"><p className="text-sm font-semibold">{announcement.title}</p><p className="mt-1 text-sm leading-6 text-neutral-500">{announcement.body}</p></div>)}</div>
+                </Card>
+              ) : null}
+
               {participation?.mode === "FIND_CREW" && participation.applicationData ? (
                 <div className="mt-8">
                   <div className="mb-4"><p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-neutral-400">Crew matching</p><h2 className="mt-1 text-[24px] font-semibold tracking-[-0.02em]">{c("Najlepsze dopasowania", "Best matches")}</h2></div>
@@ -125,4 +153,9 @@ function GateCard({ icon: Icon, title, text, href, action, secondaryHref, second
 
 function MiniStep({ number, text }: { number: string; text: string }) {
   return <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-950 text-[11px] font-semibold text-white dark:bg-[#c8f169] dark:text-neutral-950">{number}</span><span className="pt-0.5 leading-5 text-neutral-600 dark:text-neutral-300">{text}</span></li>;
+}
+
+function participantStatusLabel(status: string) {
+  const labels: Record<string, string> = { APPLIED: "Zgłoszenie oczekuje na decyzję", ACCEPTED: "Zgłoszenie zaakceptowane", WAITLIST: "Lista rezerwowa", REJECTED: "Zgłoszenie niezakwalifikowane", MATCHED: "Crew została dobrana", BUILDING: "Budujecie produkt", COMPLETED: "Sprint ukończony", DROPPED: "Udział zakończony" };
+  return labels[status] ?? status;
 }

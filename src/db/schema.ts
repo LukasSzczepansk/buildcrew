@@ -975,6 +975,16 @@ export const hackathonTeamRequests = pgTable("hackathon_team_requests", {
 export const challengeStatusEnum = ["OPEN", "BUILDING", "VOTING", "CLOSED"] as const;
 export type ChallengeStatus = (typeof challengeStatusEnum)[number];
 
+export type SprintChallengeSettings = {
+  capacity?: number;
+  applicationsCloseAt?: string;
+  teamRevealAt?: string;
+  demoDayAt?: string;
+  minWeeklyHours?: Commitment;
+  allowedRoles?: RoleType[];
+  maxCrewSize?: number;
+};
+
 export const buildChallenges = pgTable("build_challenges", {
   id: uuidPk(),
   title: text("title").notNull(),
@@ -984,12 +994,22 @@ export const buildChallenges = pgTable("build_challenges", {
   status: text("status").$type<ChallengeStatus>().notNull().default("OPEN"),
   startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
   endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+  settings: jsonb("settings").$type<SprintChallengeSettings>().notNull().default(sql`'{}'::jsonb`),
   createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("build_challenges_status_idx").on(t.status, t.endsAt)]);
 
 export const challengeParticipationModeEnum = ["HAS_CREW", "FIND_CREW"] as const;
 export type ChallengeParticipationMode = (typeof challengeParticipationModeEnum)[number];
+
+export const sprintParticipantStatusEnum = ["APPLIED", "ACCEPTED", "WAITLIST", "REJECTED", "MATCHED", "BUILDING", "COMPLETED", "DROPPED"] as const;
+export type SprintParticipantStatus = (typeof sprintParticipantStatusEnum)[number];
+
+export const sprintCheckInHealthEnum = ["GREEN", "YELLOW", "RED"] as const;
+export type SprintCheckInHealth = (typeof sprintCheckInHealthEnum)[number];
+
+export const sprintAnnouncementAudienceEnum = ["ALL", "ACCEPTED", "UNMATCHED"] as const;
+export type SprintAnnouncementAudience = (typeof sprintAnnouncementAudienceEnum)[number];
 
 export type SprintApplicationData = {
   version: 1;
@@ -1018,12 +1038,40 @@ export const challengeParticipants = pgTable("challenge_participants", {
   crewId: uuid("crew_id").references(() => crews.id, { onDelete: "set null" }),
   role: text("role").$type<RoleType>(),
   applicationData: jsonb("application_data").$type<SprintApplicationData>(),
+  participantStatus: text("participant_status").$type<SprintParticipantStatus>().notNull().default("APPLIED"),
+  adminNote: text("admin_note"),
+  decisionAt: timestamp("decision_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   primaryKey({ columns: [t.challengeId, t.userId] }),
   index("challenge_participants_challenge_idx").on(t.challengeId, t.mode),
+  index("challenge_participants_status_idx").on(t.challengeId, t.participantStatus),
 ]);
+
+export const sprintCheckIns = pgTable("sprint_check_ins", {
+  id: uuidPk(),
+  challengeId: uuid("challenge_id").notNull().references(() => buildChallenges.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  weekKey: text("week_key").notNull(),
+  health: text("health").$type<SprintCheckInHealth>().notNull(),
+  note: text("note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("sprint_check_ins_week_unique_idx").on(t.challengeId, t.userId, t.weekKey),
+  index("sprint_check_ins_challenge_idx").on(t.challengeId, t.updatedAt),
+]);
+
+export const sprintAnnouncements = pgTable("sprint_announcements", {
+  id: uuidPk(),
+  challengeId: uuid("challenge_id").notNull().references(() => buildChallenges.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  audience: text("audience").$type<SprintAnnouncementAudience>().notNull().default("ALL"),
+  createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("sprint_announcements_challenge_idx").on(t.challengeId, t.createdAt)]);
 
 export const showcaseCategoryEnum = ["AI", "WEB", "MOBILE", "GAMES", "EDUCATION", "SAAS", "DEVTOOLS", "OTHER"] as const;
 export type ShowcaseCategory = (typeof showcaseCategoryEnum)[number];

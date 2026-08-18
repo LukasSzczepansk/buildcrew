@@ -346,7 +346,52 @@ export const challengeCreateSchema = z.object({
   category: z.string().trim().max(60).optional().or(z.literal("")),
   startsAt: z.coerce.date(),
   endsAt: z.coerce.date(),
+  settings: z.object({
+    capacity: z.coerce.number().int().min(4).max(500).optional(),
+    applicationsCloseAt: z.string().datetime().optional(),
+    teamRevealAt: z.string().datetime().optional(),
+    demoDayAt: z.string().datetime().optional(),
+    minWeeklyHours: z.enum(commitmentEnum).optional(),
+    allowedRoles: z.array(z.enum(roleTypeEnum)).max(roleTypeEnum.length).optional(),
+    maxCrewSize: z.coerce.number().int().min(2).max(8).optional(),
+  }).optional(),
 }).refine((data) => data.endsAt > data.startsAt, { message: "End date must be later than the start date." });
+
+export const sprintSettingsUpdateSchema = z.object({
+  challengeId: z.string().uuid(),
+  capacity: z.coerce.number().int().min(4).max(500),
+  applicationsCloseAt: z.string().datetime().optional().or(z.literal("")),
+  teamRevealAt: z.string().datetime().optional().or(z.literal("")),
+  demoDayAt: z.string().datetime().optional().or(z.literal("")),
+  minWeeklyHours: z.enum(commitmentEnum).optional(),
+  allowedRoles: z.array(z.enum(roleTypeEnum)).max(roleTypeEnum.length).default([]),
+  maxCrewSize: z.coerce.number().int().min(2).max(8),
+});
+
+export const sprintParticipantAdminStatusSchema = z.object({
+  challengeId: z.string().uuid(),
+  userId: z.string().uuid(),
+  status: z.enum(["APPLIED", "ACCEPTED", "WAITLIST", "REJECTED", "MATCHED", "BUILDING", "COMPLETED", "DROPPED"]),
+  adminNote: z.string().trim().max(600).optional().or(z.literal("")),
+});
+
+export const sprintCrewCreateSchema = z.object({
+  challengeId: z.string().uuid(),
+  userIds: z.array(z.string().uuid()).min(2).max(8),
+});
+
+export const sprintAnnouncementCreateSchema = z.object({
+  challengeId: z.string().uuid(),
+  title: z.string().trim().min(3).max(120),
+  body: z.string().trim().min(3).max(1200),
+  audience: z.enum(["ALL", "ACCEPTED", "UNMATCHED"]),
+});
+
+export const sprintCheckInSchema = z.object({
+  challengeId: z.string().uuid(),
+  health: z.enum(["GREEN", "YELLOW", "RED"]),
+  note: z.string().trim().max(500).optional().or(z.literal("")),
+});
 
 const sprintWorkTimeEnum = ["WEEKDAY_MORNING", "WEEKDAY_EVENING", "WEEKENDS", "FLEXIBLE"] as const;
 const sprintSeriousnessEnum = ["LEARN", "PORTFOLIO", "SHIP"] as const;
