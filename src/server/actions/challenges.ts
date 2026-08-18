@@ -65,8 +65,31 @@ export async function joinChallenge(input: unknown) {
     crewId = candidateCrewId;
   }
 
-  await db.insert(challengeParticipants).values({ challengeId: parsed.data.challengeId, userId: user.id, mode: parsed.data.mode, crewId, role: profileRows[0].role })
-    .onConflictDoUpdate({ target: [challengeParticipants.challengeId, challengeParticipants.userId], set: { mode: parsed.data.mode, crewId, role: profileRows[0].role } });
+  const applicationData = {
+    version: 1 as const,
+    ...parsed.data.application,
+    ideaDescription: parsed.data.application.ideaDescription?.trim() || undefined,
+    submittedAt: new Date().toISOString(),
+  };
+
+  await db.insert(challengeParticipants).values({
+    challengeId: parsed.data.challengeId,
+    userId: user.id,
+    mode: parsed.data.mode,
+    crewId,
+    role: parsed.data.application.role,
+    applicationData,
+    updatedAt: new Date(),
+  }).onConflictDoUpdate({
+    target: [challengeParticipants.challengeId, challengeParticipants.userId],
+    set: {
+      mode: parsed.data.mode,
+      crewId,
+      role: parsed.data.application.role,
+      applicationData,
+      updatedAt: new Date(),
+    },
+  });
   revalidatePath("/sprint");
   return { success: true };
 }

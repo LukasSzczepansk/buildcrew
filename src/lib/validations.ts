@@ -348,10 +348,41 @@ export const challengeCreateSchema = z.object({
   endsAt: z.coerce.date(),
 }).refine((data) => data.endsAt > data.startsAt, { message: "End date must be later than the start date." });
 
+const sprintWorkTimeEnum = ["WEEKDAY_MORNING", "WEEKDAY_EVENING", "WEEKENDS", "FLEXIBLE"] as const;
+const sprintSeriousnessEnum = ["LEARN", "PORTFOLIO", "SHIP"] as const;
+const sprintProjectThemeEnum = ["SAAS", "AI", "MOBILE", "WEB", "DEVTOOLS", "GAMING", "SOCIAL", "EDUCATION", "FINTECH", "HEALTH", "ANY"] as const;
+const sprintIdeaStatusEnum = ["HAS_IDEA", "ROUGH_IDEAS", "JOIN_OTHER"] as const;
+const sprintGoalEnum = ["LEARN", "MEET_PEOPLE", "PORTFOLIO", "SHIP", "VALIDATE", "FUTURE_TEAM"] as const;
+
 export const challengeJoinSchema = z.object({
   challengeId: z.string().uuid(),
   mode: z.enum(["HAS_CREW", "FIND_CREW"]),
   crewId: z.string().uuid().optional().or(z.literal("")),
+  application: z.object({
+    role: z.enum(roleTypeEnum),
+    level: z.enum(levelEnum),
+    skills: z.array(z.string().trim().min(1).max(60)).min(1).max(5),
+    weeklyHours: z.enum(commitmentEnum),
+    workTimes: z.array(z.enum(sprintWorkTimeEnum)).min(1).max(4),
+    seriousness: z.enum(sprintSeriousnessEnum),
+    projectThemes: z.array(z.enum(sprintProjectThemeEnum)).min(1).max(3),
+    ideaStatus: z.enum(sprintIdeaStatusEnum),
+    ideaDescription: z.string().trim().max(600).optional().or(z.literal("")),
+    preferredRoles: z.array(z.enum(roleTypeEnum)).max(4),
+    sprintGoals: z.array(z.enum(sprintGoalEnum)).min(1).max(2),
+    planningStyle: z.coerce.number().int().min(1).max(5),
+    paceStyle: z.coerce.number().int().min(1).max(5),
+    projectStyle: z.coerce.number().int().min(1).max(5),
+    commitmentAccepted: z.literal(true),
+  }).superRefine((data, ctx) => {
+    if (data.ideaStatus === "HAS_IDEA" && (data.ideaDescription?.trim().length ?? 0) < 10) {
+      ctx.addIssue({ code: "custom", path: ["ideaDescription"], message: "Opisz pomysł w co najmniej 10 znakach." });
+    }
+  }),
+}).superRefine((data, ctx) => {
+  if (data.mode === "HAS_CREW" && !data.crewId) {
+    ctx.addIssue({ code: "custom", path: ["crewId"], message: "Wybierz Crew." });
+  }
 });
 
 export const hackathonAdminSchema = z.object({

@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { getCrewById, getMembershipCrewForUser } from "@/server/data/crews";
+import { getProfileByUserId } from "@/server/data/profiles";
 import { getChallengeParticipantCount, getChallengeParticipation, listChallengeMatches, listChallenges } from "@/server/data/showcase";
 
 export const metadata: Metadata = {
@@ -24,14 +25,18 @@ export default async function SprintPage() {
   const activeSprint = challenges.find((item) => item.status === "OPEN" || item.status === "BUILDING") ?? challenges[0] ?? null;
 
   let participantCount = 0;
-  let participation: { mode: "HAS_CREW" | "FIND_CREW"; crewId: string | null } | null = null;
+  let participation: Awaited<ReturnType<typeof getChallengeParticipation>> = null;
+  let profileDefaults: Awaited<ReturnType<typeof getProfileByUserId>> = null;
   let crews: { id: string; label: string }[] = [];
   let matches: Awaited<ReturnType<typeof listChallengeMatches>> = [];
 
   if (activeSprint) {
     participantCount = await getChallengeParticipantCount(activeSprint.id);
     if (user?.emailVerified && user.onboardingCompleted) {
-      participation = await getChallengeParticipation(activeSprint.id, user.id);
+      [participation, profileDefaults] = await Promise.all([
+        getChallengeParticipation(activeSprint.id, user.id),
+        getProfileByUserId(user.id),
+      ]);
       const crewId = await getMembershipCrewForUser(user.id);
       if (crewId) {
         const crew = await getCrewById(crewId);
@@ -91,7 +96,7 @@ export default async function SprintPage() {
               <div className="grid grid-cols-2 gap-px bg-[var(--bc-line)]">
                 <Stat icon={CalendarDays} label={c("Start", "Start")} value={start ?? c("Wkrótce", "Soon")} />
                 <Stat icon={Clock3} label={c("Koniec", "Finish")} value={end ?? c("30 dni później", "30 days later")} />
-                <Stat icon={Users} label={c("Uczestnicy", "Builders")} value={activeSprint ? String(participantCount) : "—"} />
+                <Stat icon={Users} label={c("Uczestnicy", "Builders")} value={activeSprint ? String(participantCount) : "-"} />
                 <Stat icon={Rocket} label={c("Format", "Format")} value={c("30 dni", "30 days")} />
               </div>
             </Card>
@@ -103,13 +108,18 @@ export default async function SprintPage() {
             <div className="grid gap-7 lg:grid-cols-[380px_minmax(0,1fr)]">
               <div>
                 <p className="text-[13px] font-medium text-neutral-500">{c("Twój Sprint", "Your Sprint")}</p>
-                <h2 className="mt-2 text-[30px] font-semibold tracking-[-0.025em]">{participation ? c("Jesteś na liście.", "You're in.") : c("Wybierz, jak chcesz wystartować.", "Choose how you want to start.")}</h2>
-                <p className="mt-3 text-sm leading-6 text-neutral-500 dark:text-neutral-400">{participation ? c("BuildCrew może teraz podpowiadać osoby, z którymi warto stworzyć ekipę.", "BuildCrew can now suggest people worth teaming up with.") : c("Możesz dołączyć z istniejącą Crew albo poprosić BuildCrew o znalezienie dopasowanych osób.", "Join with an existing Crew or ask BuildCrew to find matching people.")}</p>
+                <h2 className="mt-2 text-[30px] font-semibold tracking-[-0.025em]">{participation?.applicationData ? c("Zgłoszenie jest gotowe.", "Your application is ready.") : c("Wypełnij krótkie zgłoszenie.", "Complete a short application.")}</h2>
+                <p className="mt-3 text-sm leading-6 text-neutral-500 dark:text-neutral-400">{participation?.applicationData ? c("BuildCrew wykorzysta Twoje odpowiedzi do dokładniejszego matchingu Crew.", "BuildCrew will use your answers for more accurate Crew matching.") : c("4 krótkie kroki: rola i stack, dostępność, typ projektu oraz styl współpracy.", "4 short steps: role and stack, availability, project type and working style.")}</p>
               </div>
-              <ChallengeJoinPanel challengeId={activeSprint.id} participation={participation} crews={crews} />
+              <ChallengeJoinPanel
+                challengeId={activeSprint.id}
+                participation={participation}
+                crews={crews}
+                profileDefaults={profileDefaults ? { role: profileDefaults.role, level: profileDefaults.level, weeklyHours: profileDefaults.weeklyHours, skills: profileDefaults.skills } : null}
+              />
             </div>
 
-            {participation?.mode === "FIND_CREW" ? <div className="mt-10"><div className="mb-5 flex items-end justify-between gap-4"><div><p className="text-[13px] font-medium text-neutral-500">{c("Crew matching", "Crew matching")}</p><h2 className="mt-1 text-[24px] font-semibold tracking-[-0.02em]">{c("Osoby, z którymi warto pogadać", "People worth talking to")}</h2></div><Link href="/builders" className="text-sm font-medium hover:underline">{c("Zobacz wszystkich", "See everyone")} →</Link></div>{matches.length ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">{matches.map((item) => <ChallengeMatchCard key={item.profile.userId} challengeId={activeSprint.id} candidate={{ userId: item.profile.userId, username: item.profile.username, avatarEmoji: item.profile.avatarEmoji, role: item.profile.role, score: item.score, reasons: item.reasons }} />)}</div> : <Card className="p-5 text-sm leading-6 text-neutral-500">{c("Jeszcze nie ma wystarczająco wielu uczestników do sensownego matchingu. Gdy dołączą kolejne osoby, rekomendacje pojawią się tutaj automatycznie.", "There are not enough participants for useful matching yet. Recommendations will appear here automatically as more people join.")}</Card>}</div> : null}
+            {participation?.mode === "FIND_CREW" && participation.applicationData ? <div className="mt-10"><div className="mb-5 flex items-end justify-between gap-4"><div><p className="text-[13px] font-medium text-neutral-500">{c("Crew matching", "Crew matching")}</p><h2 className="mt-1 text-[24px] font-semibold tracking-[-0.02em]">{c("Osoby, z którymi warto pogadać", "People worth talking to")}</h2></div><Link href="/builders" className="text-sm font-medium hover:underline">{c("Zobacz wszystkich", "See everyone")} →</Link></div>{matches.length ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">{matches.map((item) => <ChallengeMatchCard key={item.profile.userId} challengeId={activeSprint.id} candidate={{ userId: item.profile.userId, username: item.profile.username, avatarEmoji: item.profile.avatarEmoji, role: item.profile.role, score: item.score, reasons: item.reasons }} />)}</div> : <Card className="p-5 text-sm leading-6 text-neutral-500">{c("Jeszcze nie ma wystarczająco wielu uczestników do sensownego matchingu. Gdy dołączą kolejne osoby, rekomendacje pojawią się tutaj automatycznie.", "There are not enough participants for useful matching yet. Recommendations will appear here automatically as more people join.")}</Card>}</div> : null}
           </section>
         ) : null}
 
@@ -118,7 +128,7 @@ export default async function SprintPage() {
             <div className="mb-8 max-w-2xl"><p className="text-[13px] font-medium text-neutral-500">{c("Program, nie kolejny feed", "A program, not another feed")}</p><h2 className="mt-2 text-[32px] font-semibold tracking-[-0.03em]">{c("Od zapisu do działającego projektu.", "From signup to something shipped.")}</h2></div>
             <div className="grid gap-px overflow-hidden rounded-[8px] border border-[#d8d8d0] bg-[#d8d8d0] md:grid-cols-2 lg:grid-cols-4 dark:border-neutral-700 dark:bg-neutral-700">
               <Step number="01" title={c("Zapisujesz się", "Apply")} text={c("Profil, stack, dostępność i to, czego chcesz się nauczyć albo zbudować.", "Your profile, stack, availability and what you want to learn or build.")} />
-              <Step number="02" title={c("Dobieramy Crew", "Match a Crew")} text={c("Dopasowanie po roli, zainteresowaniach, czasie i celu — nie po liczbie followersów.", "Matching by role, interests, time and goals — not follower count.")} />
+              <Step number="02" title={c("Dobieramy Crew", "Match a Crew")} text={c("Dopasowanie po roli, zainteresowaniach, czasie i celu - nie po liczbie followersów.", "Matching by role, interests, time and goals - not follower count.")} />
               <Step number="03" title={c("Budujecie 30 dni", "Build for 30 days")} text={c("Mały scope, regularny progres i jeden cel: dowieźć działającą wersję.", "Small scope, regular progress and one goal: ship a working version.")} />
               <Step number="04" title="Demo Day" text={c("Pokazujecie efekt, a projekt zostaje jako proof of work na profilach zespołu.", "Show the result and keep the project as proof of work on every teammate's profile.")} />
             </div>

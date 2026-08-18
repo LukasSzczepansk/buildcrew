@@ -991,13 +991,35 @@ export const buildChallenges = pgTable("build_challenges", {
 export const challengeParticipationModeEnum = ["HAS_CREW", "FIND_CREW"] as const;
 export type ChallengeParticipationMode = (typeof challengeParticipationModeEnum)[number];
 
+export type SprintApplicationData = {
+  version: 1;
+  role: RoleType;
+  level: Level;
+  skills: string[];
+  weeklyHours: Commitment;
+  workTimes: ("WEEKDAY_MORNING" | "WEEKDAY_EVENING" | "WEEKENDS" | "FLEXIBLE")[];
+  seriousness: "LEARN" | "PORTFOLIO" | "SHIP";
+  projectThemes: ("SAAS" | "AI" | "MOBILE" | "WEB" | "DEVTOOLS" | "GAMING" | "SOCIAL" | "EDUCATION" | "FINTECH" | "HEALTH" | "ANY")[];
+  ideaStatus: "HAS_IDEA" | "ROUGH_IDEAS" | "JOIN_OTHER";
+  ideaDescription?: string;
+  preferredRoles: RoleType[];
+  sprintGoals: ("LEARN" | "MEET_PEOPLE" | "PORTFOLIO" | "SHIP" | "VALIDATE" | "FUTURE_TEAM")[];
+  planningStyle: number;
+  paceStyle: number;
+  projectStyle: number;
+  commitmentAccepted: true;
+  submittedAt: string;
+};
+
 export const challengeParticipants = pgTable("challenge_participants", {
   challengeId: uuid("challenge_id").notNull().references(() => buildChallenges.id, { onDelete: "cascade" }),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   mode: text("mode").$type<ChallengeParticipationMode>().notNull(),
   crewId: uuid("crew_id").references(() => crews.id, { onDelete: "set null" }),
   role: text("role").$type<RoleType>(),
+  applicationData: jsonb("application_data").$type<SprintApplicationData>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   primaryKey({ columns: [t.challengeId, t.userId] }),
   index("challenge_participants_challenge_idx").on(t.challengeId, t.mode),

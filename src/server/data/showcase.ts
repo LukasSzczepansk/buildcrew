@@ -13,6 +13,7 @@ import {
   users,
   type ShowcaseCategory,
   type ShowcaseReaction,
+  type SprintApplicationData,
 } from "@/db/schema";
 import { isUuid, safeHttpUrl } from "@/lib/security";
 import { computeMatch } from "@/lib/matching";
@@ -193,16 +194,94 @@ export async function getChallengeParticipantCount(challengeId: string) {
   return rows[0]?.count ?? 0;
 }
 
+export async function listChallengeApplications(challengeId: string) {
+  if (!isUuid(challengeId)) return [];
+  return db.select({
+    userId: challengeParticipants.userId,
+    mode: challengeParticipants.mode,
+    crewId: challengeParticipants.crewId,
+    applicationData: challengeParticipants.applicationData,
+    createdAt: challengeParticipants.createdAt,
+    updatedAt: challengeParticipants.updatedAt,
+    username: profiles.username,
+    avatarEmoji: profiles.avatarEmoji,
+  }).from(challengeParticipants)
+    .innerJoin(profiles, eq(profiles.userId, challengeParticipants.userId))
+    .where(eq(challengeParticipants.challengeId, challengeId))
+    .orderBy(desc(challengeParticipants.updatedAt));
+}
+
 export async function listChallengeMatches(challengeId: string, userId: string, locale: AppLocale = "pl") {
   const me = await getProfileByUserId(userId);
   if (!me) return [];
-  const participantRows = await db.select({ userId: challengeParticipants.userId, crewId: challengeParticipants.crewId })
-    .from(challengeParticipants)
+  const participantRows = await db.select({
+    userId: challengeParticipants.userId,
+    crewId: challengeParticipants.crewId,
+    applicationData: challengeParticipants.applicationData,
+  }).from(challengeParticipants)
     .where(and(eq(challengeParticipants.challengeId, challengeId), eq(challengeParticipants.mode, "FIND_CREW")));
-  const candidates = participantRows.filter((row) => row.userId !== userId && !row.crewId).slice(0, 50);
-  const profilesList = (await Promise.all(candidates.map((row) => getProfileByUserId(row.userId)))).filter((profile): profile is NonNullable<typeof profile> => Boolean(profile));
-  return profilesList.map((profile) => ({
-    profile,
-    ...computeMatch({ userId: me.userId, username: me.username, role: me.role, level: me.level, weeklyHours: me.weeklyHours, interests: me.interests, goals: me.goals }, { userId: profile.userId, username: profile.username, role: profile.role, level: profile.level, weeklyHours: profile.weeklyHours, interests: profile.interests, goals: profile.goals }, locale),
-  })).sort((a, b) => b.score - a.score).slice(0, 8);
+
+  const myParticipant = participantRows.find((row) => row.userId === userId);
+  const myApplication = myParticipant?.applicationData ?? null;
+  const candidates = participantRows.filter((row) => row.userId !== userId && !row.crewId && row.applicationData).slice(0, 50);
+  const profilePairs = await Promise.all(candidates.map(async (row) => ({ row, profile: await getProfileByUserId(row.userId) })));
+
+  return profilePairs.filter((item): item is { row: typeof candidates[number]; profile: NonNullable<Awaited<ReturnType<typeof getProfileByUserId>>> } => Boolean(item.profile)).map(({ row, profile }) => {
+    const candidateApplication = row.applicationData;
+    const base = computeMatch(
+      {
+        userId: me.userId,
+        username: me.username,
+        role: myApplication?.role ?? me.role,
+        level: myApplication?.level ?? me.level,
+        weeklyHours: myApplication?.weeklyHours ?? me.weeklyHours,
+        interests: me.interests,
+        goals: me.goals,
+        skills: myApplication?.skills ?? me.skills,
+      },
+      {
+        userId: profile.userId,
+        username: profile.username,
+        role: candidateApplication?.role ?? profile.role,
+        level: candidateApplication?.level ?? profile.level,
+        weeklyHours: candidateApplication?.weeklyHours ?? profile.weeklyHours,
+        interests: profile.interests,
+        goals: profile.goals,
+        skills: candidateApplication?.skills ?? profile.skills,
+      },
+      locale,
+    );
+    const sprint = sprintApplicationMatch(myApplication, candidateApplication, locale);
+    return {
+      profile: { ...profile, role: candidateApplication?.role ?? profile.role, weeklyHours: candidateApplication?.weeklyHours ?? profile.weeklyHours },
+      score: Math.min(100, base.score + sprint.score),
+      reasons: [...sprint.reasons, ...base.reasons].slice(0, 5),
+    };
+  }).sort((a, b) => b.score - a.score).slice(0, 8);
+}
+
+function sprintApplicationMatch(me: SprintApplicationData | null, other: SprintApplicationData | null, locale: AppLocale) {
+  if (!me || !other) return { score: 0, reasons: [] as string[] };
+  const en = locale === "en";
+  let score = 0;
+  const reasons: string[] = [];
+
+  const sharedThemes = me.projectThemes.filter((theme) => theme === "ANY" || other.projectThemes.includes("ANY") || other.projectThemes.includes(theme));
+  if (sharedThemes.length) { score += 10; reasons.push(en ? "You want to build similar things" : "Chcecie budować podobne rzeczy"); }
+
+  const sharedTimes = me.workTimes.filter((time) => time === "FLEXIBLE" || other.workTimes.includes("FLEXIBLE") || other.workTimes.includes(time));
+  if (sharedTimes.length) { score += 7; reasons.push(en ? "Compatible working hours" : "Pasujące pory pracy"); }
+
+  if (me.seriousness === other.seriousness) { score += 7; reasons.push(en ? "Similar commitment to the Sprint" : "Podobne podejście do Sprintu"); }
+
+  const sharedGoals = me.sprintGoals.filter((goal) => other.sprintGoals.includes(goal));
+  if (sharedGoals.length) { score += 7; reasons.push(en ? "Shared Sprint goal" : "Wspólny cel Sprintu"); }
+
+  if (me.preferredRoles.includes(other.role) || other.preferredRoles.includes(me.role)) { score += 8; reasons.push(en ? "Your preferred roles complement each other" : "Szukacie ról, które do siebie pasują"); }
+
+  const styleDistance = Math.abs(me.planningStyle - other.planningStyle) + Math.abs(me.paceStyle - other.paceStyle) + Math.abs(me.projectStyle - other.projectStyle);
+  if (styleDistance <= 3) { score += 6; reasons.push(en ? "Similar working style" : "Podobny styl współpracy"); }
+  else if (styleDistance >= 8) score -= 4;
+
+  return { score: Math.max(-4, score), reasons };
 }
