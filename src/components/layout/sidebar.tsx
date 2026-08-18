@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CircleHelp, FolderKanban, LayoutDashboard, LogOut, MessageCircle, Network, Newspaper, ShieldCheck, Users } from "lucide-react";
+import { CircleHelp, FolderKanban, LayoutDashboard, LogOut, MessageCircle, Network, Newspaper, Rocket, ShieldCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
     { href: "/dashboard", label: copy("Start", "Home"), icon: LayoutDashboard },
     { href: "/builders", label: copy("Ludzie", "People"), icon: Users },
     { href: "/projects", label: copy("Projekty", "Projects"), icon: FolderKanban },
+    { href: "/sprint", label: "Sprint", icon: Rocket },
     { href: "/feed", label: copy("Aktualności", "Feed"), icon: Newspaper },
     { href: "/network", label: copy("Sieć", "Network"), icon: Network },
     { href: "/messages", label: copy("Wiadomości", "Messages"), icon: MessageCircle },
@@ -41,7 +42,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
               href={item.href}
               className={cn(
                 "group relative flex min-h-10 items-center gap-2.5 rounded-[8px] px-3 text-sm font-medium transition-colors [@media(max-height:720px)]:min-h-9",
-                active ? "bg-[var(--bc-surface)] text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)]",
+                active ? "bg-[var(--bc-surface)] text-[var(--bc-ink)]" : item.href === "/sprint" ? "text-[#66820f] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)] dark:text-[#c8f169]" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)]",
               )}
             >
               {active ? <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-full bg-[var(--bc-accent)]" /> : null}

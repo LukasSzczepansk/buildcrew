@@ -16,7 +16,7 @@ export function AdminNav() {
     { href: "/admin/avatars", label: copy("Zdjęcia", "Photos"), icon: ImageIcon, exact: false },
     { href: "/admin/projects", label: copy("Projekty", "Projects"), icon: FolderKanban, exact: false },
     { href: "/admin/hackathons", label: copy("Hackathony", "Hackathons"), icon: CalendarRange, exact: false },
-    { href: "/admin/challenges", label: copy("Wyzwania", "Challenges"), icon: Trophy, exact: false },
+    { href: "/admin/challenges", label: copy("Sprinty", "Sprints"), icon: Trophy, exact: false },
     { href: "/admin/reports", label: copy("Zgłoszenia", "Reports"), icon: Flag, exact: false },
     { href: "/admin/content", label: copy("Treści", "Content"), icon: MessageSquareText, exact: false },
     { href: "/admin/activity", label: copy("Aktywność", "Activity"), icon: Activity, exact: false },

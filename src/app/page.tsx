@@ -67,6 +67,7 @@ export default async function LandingPage() {
           <nav className="hidden items-center gap-6 text-sm text-neutral-600 md:flex dark:text-neutral-400">
             <a href="#people" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{c("Ludzie", "People")}</a>
             <Link href="/explore/projects" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{c("Projekty", "Projects")}</Link>
+            <Link href="/sprint" className="font-medium text-[#66820f] hover:underline dark:text-[#c8f169]">Sprint</Link>
             <a href="#how-it-works" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{c("Jak to działa", "How it works")}</a>
           </nav>
           <div className="flex items-center gap-1.5">
@@ -96,6 +97,17 @@ export default async function LandingPage() {
               const stack = project.technologies.slice(0, 3).join(" · ") || c("Projekt cyfrowy", "Digital project");
               return <PreviewRow key={project.id} href={`/p/${project.id}`} name={project.name} meta={`${labels.stages[project.stage]} · ${roles || c("zespół kompletny", "team complete")}`} stack={stack} />;
             }) : <div className="border-b border-[#d8d8d0] py-5 text-[13px] leading-5 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">{c("Publiczne projekty pojawią się tutaj, gdy tylko ktoś je opublikuje.", "Public projects will appear here as soon as builders publish them.")}</div>}
+          </div>
+        </section>
+
+        <section className="border-y border-[#aacd4c] bg-[#c8f169] text-neutral-950">
+          <div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-5 px-5 py-7 sm:px-8 md:flex-row md:items-center lg:px-10">
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-neutral-700">BuildCrew Sprint</p>
+              <h2 className="mt-1 text-[25px] font-semibold tracking-[-0.025em]">{c("30 dni. Jedna ekipa. Jeden działający projekt.", "30 days. One crew. One shipped project.")}</h2>
+              <p className="mt-1 text-sm text-neutral-700">{c("Nie masz zespołu? Dobierzemy Ci ludzi. Zakończ Sprint projektem, który naprawdę możesz pokazać.", "No team yet? We'll help you find people. Finish the Sprint with a project you can actually show.")}</p>
+            </div>
+            <Button asChild size="lg" className="shrink-0 border-neutral-950 bg-neutral-950 text-white hover:bg-neutral-800"><Link href="/sprint">{c("Zobacz Sprint", "See the Sprint")} <ArrowRight className="h-4 w-4" /></Link></Button>
           </div>
         </section>
 

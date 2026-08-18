@@ -26,7 +26,7 @@ export async function createChallenge(input: unknown) {
     createdBy: admin.id,
     status: "OPEN",
   }).returning({ id: buildChallenges.id });
-  revalidatePath("/showcase/challenges");
+  revalidatePath("/sprint");
   revalidatePath("/admin/challenges");
   return { success: true, id: challenge.id };
 }
@@ -38,9 +38,8 @@ export async function setChallengeStatus(challengeId: string, status: "OPEN" | "
   if (!rows[0]) return { error: "Challenge not found." };
 
   const participants = await db.select({ userId: challengeParticipants.userId }).from(challengeParticipants).where(eq(challengeParticipants.challengeId, challengeId));
-  await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status changed`, status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open.", `/showcase/challenges/${challengeId}`, { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge", titleEn: `${rows[0].title}: status changed`, bodyEn: status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open." })));
-  revalidatePath(`/showcase/challenges/${challengeId}`);
-  revalidatePath("/showcase/challenges");
+  await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status changed`, status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open.", "/sprint", { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge", titleEn: `${rows[0].title}: status changed`, bodyEn: status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open." })));
+  revalidatePath("/sprint");
   revalidatePath("/admin/challenges");
   return { success: true };
 }
@@ -68,8 +67,7 @@ export async function joinChallenge(input: unknown) {
 
   await db.insert(challengeParticipants).values({ challengeId: parsed.data.challengeId, userId: user.id, mode: parsed.data.mode, crewId, role: profileRows[0].role })
     .onConflictDoUpdate({ target: [challengeParticipants.challengeId, challengeParticipants.userId], set: { mode: parsed.data.mode, crewId, role: profileRows[0].role } });
-  revalidatePath(`/showcase/challenges/${parsed.data.challengeId}`);
-  revalidatePath("/showcase/challenges");
+  revalidatePath("/sprint");
   return { success: true };
 }
 
@@ -77,6 +75,6 @@ export async function leaveChallenge(challengeId: string) {
   const user = await getVerifiedCurrentUser();
   if (!user || !uuidSchema.safeParse(challengeId).success) return { error: "Invalid data." };
   await db.delete(challengeParticipants).where(and(eq(challengeParticipants.challengeId, challengeId), eq(challengeParticipants.userId, user.id)));
-  revalidatePath(`/showcase/challenges/${challengeId}`);
+  revalidatePath("/sprint");
   return { success: true };
 }
