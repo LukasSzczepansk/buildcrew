@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { buildChallenges, challengeParticipants, crewMembers, profiles } from "@/db/schema";
 import { getVerifiedCurrentUser, isAdmin } from "@/lib/auth";
@@ -12,6 +13,40 @@ async function requireAdmin() {
   const user = await getVerifiedCurrentUser();
   if (!user || !isAdmin(user.email, user.systemRole)) return null;
   return user;
+}
+
+
+export async function launchDefaultSprintFromForm(_formData: FormData) {
+  const admin = await requireAdmin();
+  if (!admin) redirect("/sprint/apply");
+
+  const existing = await db.select({ id: buildChallenges.id })
+    .from(buildChallenges)
+    .where(inArray(buildChallenges.status, ["OPEN", "BUILDING"]))
+    .limit(1);
+
+  if (!existing[0]) {
+    const startsAt = new Date();
+    startsAt.setDate(startsAt.getDate() + 7);
+    const endsAt = new Date(startsAt);
+    endsAt.setDate(endsAt.getDate() + 30);
+
+    await db.insert(buildChallenges).values({
+      title: "BuildCrew Sprint #1",
+      prompt: "W 30 dni zbudujcie i wypuśćcie działające MVP",
+      description: "30 dni. Jedna ekipa. Jeden działający projekt. BuildCrew dobiera ludzi według roli, stacku, dostępności i celu.",
+      category: "BuildCrew Sprint",
+      status: "OPEN",
+      startsAt,
+      endsAt,
+      createdBy: admin.id,
+    });
+  }
+
+  revalidatePath("/sprint");
+  revalidatePath("/sprint/apply");
+  revalidatePath("/admin/challenges");
+  redirect("/sprint/apply");
 }
 
 export async function createChallenge(input: unknown) {
@@ -27,6 +62,7 @@ export async function createChallenge(input: unknown) {
     status: "OPEN",
   }).returning({ id: buildChallenges.id });
   revalidatePath("/sprint");
+  revalidatePath("/sprint/apply");
   revalidatePath("/admin/challenges");
   return { success: true, id: challenge.id };
 }
@@ -40,6 +76,7 @@ export async function setChallengeStatus(challengeId: string, status: "OPEN" | "
   const participants = await db.select({ userId: challengeParticipants.userId }).from(challengeParticipants).where(eq(challengeParticipants.challengeId, challengeId));
   await Promise.all(participants.map((participant) => createNotification(participant.userId, "CHALLENGE_UPDATE", `${rows[0].title}: status changed`, status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open.", "/sprint", { entityType: "challenge", entityId: challengeId, emailPreference: "emailChallenge", titleEn: `${rows[0].title}: status changed`, bodyEn: status === "BUILDING" ? "Time to build. Good luck!" : status === "VOTING" ? "You can now publish projects and vote." : status === "CLOSED" ? "The challenge is over - see the results." : "Registration is open." })));
   revalidatePath("/sprint");
+  revalidatePath("/sprint/apply");
   revalidatePath("/admin/challenges");
   return { success: true };
 }
@@ -91,6 +128,7 @@ export async function joinChallenge(input: unknown) {
     },
   });
   revalidatePath("/sprint");
+  revalidatePath("/sprint/apply");
   return { success: true };
 }
 
@@ -99,5 +137,6 @@ export async function leaveChallenge(challengeId: string) {
   if (!user || !uuidSchema.safeParse(challengeId).success) return { error: "Invalid data." };
   await db.delete(challengeParticipants).where(and(eq(challengeParticipants.challengeId, challengeId), eq(challengeParticipants.userId, user.id)));
   revalidatePath("/sprint");
+  revalidatePath("/sprint/apply");
   return { success: true };
 }

@@ -2,16 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, CheckCircle2, Clock3, Rocket, Sparkles, Users, type LucideIcon } from "lucide-react";
 import { AnalyticsEvent } from "@/components/analytics/analytics-event";
-import { ChallengeJoinPanel } from "@/components/challenges/challenge-join-panel";
-import { ChallengeMatchCard } from "@/components/challenges/challenge-match-card";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
-import { getCrewById, getMembershipCrewForUser } from "@/server/data/crews";
-import { getProfileByUserId } from "@/server/data/profiles";
-import { getChallengeParticipantCount, getChallengeParticipation, listChallengeMatches, listChallenges } from "@/server/data/showcase";
+import { getChallengeParticipantCount, getChallengeParticipation, listChallenges } from "@/server/data/showcase";
 
 export const metadata: Metadata = {
   title: "BuildCrew Sprint - 30 dni, jedna ekipa, działający projekt",
@@ -26,23 +22,11 @@ export default async function SprintPage() {
 
   let participantCount = 0;
   let participation: Awaited<ReturnType<typeof getChallengeParticipation>> = null;
-  let profileDefaults: Awaited<ReturnType<typeof getProfileByUserId>> = null;
-  let crews: { id: string; label: string }[] = [];
-  let matches: Awaited<ReturnType<typeof listChallengeMatches>> = [];
 
   if (activeSprint) {
     participantCount = await getChallengeParticipantCount(activeSprint.id);
     if (user?.emailVerified && user.onboardingCompleted) {
-      [participation, profileDefaults] = await Promise.all([
-        getChallengeParticipation(activeSprint.id, user.id),
-        getProfileByUserId(user.id),
-      ]);
-      const crewId = await getMembershipCrewForUser(user.id);
-      if (crewId) {
-        const crew = await getCrewById(crewId);
-        if (crew) crews = [{ id: crew.id, label: `Crew ${crew.id.slice(0, 8)}` }];
-      }
-      if (participation?.mode === "FIND_CREW") matches = await listChallengeMatches(activeSprint.id, user.id, locale);
+      participation = await getChallengeParticipation(activeSprint.id, user.id);
     }
   }
 
@@ -58,8 +42,18 @@ export default async function SprintPage() {
           ? "Demo Day"
           : c("Edycja zakończona", "Edition completed");
 
-  const signupHref = `/signup?next=${encodeURIComponent("/sprint")}`;
-  const loginHref = `/login?next=${encodeURIComponent("/sprint")}`;
+  const signupHref = `/signup?next=${encodeURIComponent("/sprint/apply")}`;
+  const loginHref = `/login?next=${encodeURIComponent("/sprint/apply")}`;
+  const applicationHref = !user
+    ? signupHref
+    : !user.emailVerified
+      ? "/verify-email"
+      : !user.onboardingCompleted
+        ? "/onboarding"
+        : "/sprint/apply";
+  const applicationLabel = participation?.applicationData
+    ? c("Zobacz moje zgłoszenie", "View my application")
+    : c("Zgłoś się do Sprintu", "Apply to the Sprint");
 
   return (
     <div className="min-h-screen bg-[#f4f4ef] text-[#111111] dark:bg-[#11110f] dark:text-[#f4f4ef]">
@@ -83,9 +77,12 @@ export default async function SprintPage() {
               <h1 className="mt-3 max-w-[800px] text-[48px] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[62px]">{c("30 dni. Jedna ekipa. Jeden działający projekt.", "30 days. One crew. One shipped project.")}</h1>
               <p className="mt-6 max-w-2xl text-[16px] leading-7 text-neutral-600 dark:text-neutral-300">{c("Nie masz zespołu? Dobierzemy Ci ludzi. Nie masz pomysłu? Możesz wejść do istniejącego projektu. Sprint prowadzi od dopasowania ekipy do Demo Day i realnego proof of work na Twoim profilu.", "No team yet? We'll help you find people. No idea yet? Join an existing build. Sprint takes you from crew matching to Demo Day and real proof of work on your profile.")}</p>
               <div className="mt-7 flex flex-wrap gap-2">
-                {!user ? <Button asChild size="lg" variant="secondary"><Link href={signupHref}>{c("Dołącz do Sprintu", "Join the Sprint")} <ArrowRight className="h-4 w-4" /></Link></Button> : !user.emailVerified ? <Button asChild size="lg" variant="secondary"><Link href="/verify-email">{c("Zweryfikuj e-mail i dołącz", "Verify email to join")}</Link></Button> : !user.onboardingCompleted ? <Button asChild size="lg" variant="secondary"><Link href="/onboarding">{c("Dokończ profil i dołącz", "Finish your profile to join")}</Link></Button> : null}
+                <Button asChild size="lg" className="bg-[#c8f169] text-neutral-950 shadow-sm hover:bg-[#b8df5b] focus-visible:ring-[#91b72e]">
+                  <Link href={applicationHref}>{applicationLabel} <ArrowRight className="h-4 w-4" /></Link>
+                </Button>
                 <Button asChild size="lg" variant="outline"><a href="#how-it-works">{c("Jak to działa", "How it works")}</a></Button>
               </div>
+              <p className="mt-3 text-xs font-medium text-neutral-500 dark:text-neutral-400">{c("Kliknij zielony przycisk, aby przejść do formularza zgłoszeniowego. Formularz otwiera się na osobnej stronie.", "Click the green button to open the application form on a separate page.")}</p>
             </div>
 
             <Card className="overflow-hidden bg-white dark:bg-[#171715]">
@@ -103,25 +100,18 @@ export default async function SprintPage() {
           </div>
         </section>
 
-        {activeSprint && user?.emailVerified && user.onboardingCompleted && (activeSprint.status === "OPEN" || activeSprint.status === "BUILDING") ? (
-          <section className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 lg:px-10">
-            <div className="grid gap-7 lg:grid-cols-[380px_minmax(0,1fr)]">
+        <section className="mx-auto max-w-[1240px] px-5 py-10 sm:px-8 lg:px-10">
+            <Card className="flex flex-col justify-between gap-5 border-[#b9d56e] bg-[#f2f8df] p-5 sm:flex-row sm:items-center dark:border-lime-500/30 dark:bg-lime-400/5">
               <div>
-                <p className="text-[13px] font-medium text-neutral-500">{c("Twój Sprint", "Your Sprint")}</p>
-                <h2 className="mt-2 text-[30px] font-semibold tracking-[-0.025em]">{participation?.applicationData ? c("Zgłoszenie jest gotowe.", "Your application is ready.") : c("Wypełnij krótkie zgłoszenie.", "Complete a short application.")}</h2>
-                <p className="mt-3 text-sm leading-6 text-neutral-500 dark:text-neutral-400">{participation?.applicationData ? c("BuildCrew wykorzysta Twoje odpowiedzi do dokładniejszego matchingu Crew.", "BuildCrew will use your answers for more accurate Crew matching.") : c("4 krótkie kroki: rola i stack, dostępność, typ projektu oraz styl współpracy.", "4 short steps: role and stack, availability, project type and working style.")}</p>
+                <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#66820f] dark:text-lime-300">{c("Formularz zgłoszeniowy", "Sprint application")}</p>
+                <h2 className="mt-2 text-[24px] font-semibold tracking-[-0.02em]">{participation?.applicationData ? c("Twoje zgłoszenie jest już zapisane.", "Your application is already saved.") : c("Zgłoś się do BuildCrew Sprint", "Apply to BuildCrew Sprint")}</h2>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-neutral-600 dark:text-neutral-300">{participation?.applicationData ? c("Możesz przejść do osobnej strony zgłoszenia, poprawić odpowiedzi i zobaczyć dopasowania.", "Open the separate application page to edit your answers and see matches.") : c("Kliknij przycisk i wypełnij 4 krótkie kroki: rola i stack, dostępność, typ projektu oraz styl współpracy.", "Click the button and complete 4 short steps: role and stack, availability, project type and working style.")}</p>
               </div>
-              <ChallengeJoinPanel
-                challengeId={activeSprint.id}
-                participation={participation}
-                crews={crews}
-                profileDefaults={profileDefaults ? { role: profileDefaults.role, level: profileDefaults.level, weeklyHours: profileDefaults.weeklyHours, skills: profileDefaults.skills } : null}
-              />
-            </div>
-
-            {participation?.mode === "FIND_CREW" && participation.applicationData ? <div className="mt-10"><div className="mb-5 flex items-end justify-between gap-4"><div><p className="text-[13px] font-medium text-neutral-500">{c("Crew matching", "Crew matching")}</p><h2 className="mt-1 text-[24px] font-semibold tracking-[-0.02em]">{c("Osoby, z którymi warto pogadać", "People worth talking to")}</h2></div><Link href="/builders" className="text-sm font-medium hover:underline">{c("Zobacz wszystkich", "See everyone")} →</Link></div>{matches.length ? <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">{matches.map((item) => <ChallengeMatchCard key={item.profile.userId} challengeId={activeSprint.id} candidate={{ userId: item.profile.userId, username: item.profile.username, avatarEmoji: item.profile.avatarEmoji, role: item.profile.role, score: item.score, reasons: item.reasons }} />)}</div> : <Card className="p-5 text-sm leading-6 text-neutral-500">{c("Jeszcze nie ma wystarczająco wielu uczestników do sensownego matchingu. Gdy dołączą kolejne osoby, rekomendacje pojawią się tutaj automatycznie.", "There are not enough participants for useful matching yet. Recommendations will appear here automatically as more people join.")}</Card>}</div> : null}
+              <Button asChild size="lg" className="shrink-0 bg-[#c8f169] text-neutral-950 hover:bg-[#b8df5b] focus-visible:ring-[#91b72e]">
+                <Link href={applicationHref}>{applicationLabel} <ArrowRight className="h-4 w-4" /></Link>
+              </Button>
+            </Card>
           </section>
-        ) : null}
 
         <section id="how-it-works" className="border-y border-[#d8d8d0] bg-white dark:border-[#34342f] dark:bg-[#171715]">
           <div className="mx-auto max-w-[1240px] px-5 py-14 sm:px-8 lg:px-10">
@@ -142,8 +132,14 @@ export default async function SprintPage() {
           </div>
         </section>
 
-        <section className="border-y border-neutral-800 bg-[#151513] text-neutral-100"><div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-6 px-5 py-12 sm:px-8 lg:flex-row lg:items-end lg:px-10"><div><p className="text-[13px] text-neutral-400">BuildCrew Sprint</p><h2 className="mt-3 max-w-2xl text-[34px] font-semibold leading-[1.15] tracking-[-0.03em]">{c("Nie zapisuj kolejnego pomysłu w Notion. Zbuduj go z ludźmi.", "Don't save another idea in Notion. Build it with people.")}</h2></div>{!user ? <Button asChild variant="secondary" size="lg"><Link href={signupHref}>{c("Dołącz do Sprintu", "Join the Sprint")}</Link></Button> : <Button asChild variant="secondary" size="lg"><Link href={user.onboardingCompleted ? "/dashboard" : "/onboarding"}>{c("Przejdź do BuildCrew", "Open BuildCrew")}</Link></Button>}</div></section>
+        <section className="border-y border-neutral-800 bg-[#151513] text-neutral-100"><div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-6 px-5 py-12 sm:px-8 lg:flex-row lg:items-end lg:px-10"><div><p className="text-[13px] text-neutral-400">BuildCrew Sprint</p><h2 className="mt-3 max-w-2xl text-[34px] font-semibold leading-[1.15] tracking-[-0.03em]">{c("Nie zapisuj kolejnego pomysłu w Notion. Zbuduj go z ludźmi.", "Don't save another idea in Notion. Build it with people.")}</h2></div><Button asChild size="lg" className="bg-[#c8f169] text-neutral-950 hover:bg-[#b8df5b]"><Link href={applicationHref}>{applicationLabel} <ArrowRight className="h-4 w-4" /></Link></Button></div></section>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black/10 bg-[#f4f4ef]/95 p-3 backdrop-blur md:hidden dark:border-white/10 dark:bg-[#11110f]/95">
+        <Button asChild size="lg" className="w-full bg-[#c8f169] text-neutral-950 shadow-lg hover:bg-[#b8df5b] focus-visible:ring-[#91b72e]">
+          <Link href={applicationHref}>{applicationLabel} <ArrowRight className="h-4 w-4" /></Link>
+        </Button>
+      </div>
     </div>
   );
 }
