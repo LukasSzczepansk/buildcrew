@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -311,15 +312,21 @@ export function OnboardingWizard() {
                       key={level}
                       type="button"
                       onClick={() => setForm((current) => ({ ...current, level }))}
+                      aria-pressed={form.level === level}
                       className={cn(
-                        "w-full rounded-[6px] border px-3 py-3 text-left transition-colors",
+                        "relative w-full rounded-[6px] border px-3 py-3 pr-10 text-left transition-[background-color,border-color,color,box-shadow]",
                         form.level === level
-                          ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)]"
-                          : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)]",
+                          ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent)] text-neutral-950 ring-2 ring-[var(--bc-accent-strong)] ring-offset-1 ring-offset-[var(--bc-surface)]"
+                          : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]",
                       )}
                     >
+                      {form.level === level ? (
+                        <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-neutral-950 text-[var(--bc-accent)]" aria-hidden="true">
+                          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                        </span>
+                      ) : null}
                       <p className="text-sm font-medium">{labels.levels[level]}</p>
-                      <p className="mt-0.5 text-[12px] leading-4 text-[var(--bc-muted)]">{labels.levelDescriptions[level]}</p>
+                      <p className={cn("mt-0.5 text-[12px] leading-4", form.level === level ? "text-neutral-700" : "text-[var(--bc-muted)]")}>{labels.levelDescriptions[level]}</p>
                     </button>
                   ))}
                 </div>
@@ -354,8 +361,8 @@ export function OnboardingWizard() {
                       className={cn(
                         "flex min-h-11 cursor-pointer items-center gap-3 rounded-[6px] border px-3 py-2.5 transition-colors",
                         form.lookingFor.includes(option)
-                          ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)]"
-                          : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)]",
+                          ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] ring-2 ring-[var(--bc-accent-strong)] ring-offset-1 ring-offset-[var(--bc-surface)]"
+                          : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]",
                       )}
                     >
                       <Checkbox checked={form.lookingFor.includes(option)} onCheckedChange={() => setForm((current) => ({ ...current, lookingFor: toggleValue(current.lookingFor, option) }))} />
@@ -495,13 +502,19 @@ function SelectableTile({ active, label, onClick }: { active: boolean; label: st
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "min-h-11 rounded-[6px] border px-3 py-2.5 text-center text-sm font-medium transition-colors",
+        "relative min-h-11 rounded-[6px] border px-3 py-2.5 text-center text-sm font-medium transition-[background-color,border-color,color,box-shadow]",
         active
-          ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]"
-          : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)]",
+          ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent)] text-neutral-950 ring-2 ring-[var(--bc-accent-strong)] ring-offset-1 ring-offset-[var(--bc-surface)]"
+          : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]",
       )}
     >
+      {active ? (
+        <span className="absolute right-1.5 top-1.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-neutral-950 text-[var(--bc-accent)]" aria-hidden="true">
+          <Check className="h-3 w-3" strokeWidth={3} />
+        </span>
+      ) : null}
       {label}
     </button>
   );
@@ -512,11 +525,12 @@ function TagToggle({ active, label, onClick }: { active: boolean; label: string;
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "rounded-[6px] border px-2.5 py-1.5 text-[13px] font-medium transition-colors",
+        "rounded-[6px] border px-2.5 py-1.5 text-[13px] font-medium transition-[background-color,border-color,color,box-shadow]",
         active
-          ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]"
-          : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]",
+          ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent)] text-neutral-950 ring-1 ring-[var(--bc-accent-strong)]"
+          : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]",
       )}
     >
       {label}
