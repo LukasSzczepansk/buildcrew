@@ -28,6 +28,14 @@ const MAX_EDGE = 1800;
 const MIN_EDGE = 120;
 
 type LaunchImageInput = { dataUrl: string };
+type ValidatedLaunchImage = { base64: string; byteSize: number; width: number; height: number };
+type ImageValidationResult =
+  | { ok: true; image: ValidatedLaunchImage }
+  | { ok: false; error: string };
+type ImagesValidationResult =
+  | { ok: true; images: ValidatedLaunchImage[] }
+  | { ok: false; error: string };
+
 type LaunchActionInput = {
   projectId?: string;
   title: string;
@@ -55,18 +63,30 @@ function readWebpDimensions(buffer: Buffer) {
   return null;
 }
 
-function validateImage(input: LaunchImageInput) {
-  if (!input.dataUrl.startsWith(WEBP_PREFIX)) return { error: "Nieprawidłowy format obrazu." } as const;
+function validateImage(input: LaunchImageInput): ImageValidationResult {
+  if (!input.dataUrl.startsWith(WEBP_PREFIX)) return { ok: false, error: "Nieprawidłowy format obrazu." };
   const base64 = input.dataUrl.slice(WEBP_PREFIX.length);
-  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return { error: "Nieprawidłowe dane obrazu." } as const;
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return { ok: false, error: "Nieprawidłowe dane obrazu." };
   let bytes: Buffer;
-  try { bytes = Buffer.from(base64, "base64"); } catch { return { error: "Nie udało się odczytać obrazu." } as const; }
-  if (bytes.length < 256 || bytes.length > MAX_IMAGE_BYTES) return { error: "Obraz po kompresji jest zbyt duży lub nieprawidłowy." } as const;
+  try {
+    bytes = Buffer.from(base64, "base64");
+  } catch {
+    return { ok: false, error: "Nie udało się odczytać obrazu." };
+  }
+  if (bytes.length < 256 || bytes.length > MAX_IMAGE_BYTES) {
+    return { ok: false, error: "Obraz po kompresji jest zbyt duży lub nieprawidłowy." };
+  }
   const dimensions = readWebpDimensions(bytes);
-  if (!dimensions) return { error: "Nie udało się zweryfikować obrazu." } as const;
-  if (Math.min(dimensions.width, dimensions.height) < MIN_EDGE || Math.max(dimensions.width, dimensions.height) > MAX_EDGE) return { error: "Wymiary obrazu są poza dozwolonym zakresem." } as const;
-  return { base64, byteSize: bytes.length, ...dimensions } as const;
+  if (!dimensions) return { ok: false, error: "Nie udało się zweryfikować obrazu." };
+  if (Math.min(dimensions.width, dimensions.height) < MIN_EDGE || Math.max(dimensions.width, dimensions.height) > MAX_EDGE) {
+    return { ok: false, error: "Wymiary obrazu są poza dozwolonym zakresem." };
+  }
+  return {
+    ok: true,
+    image: { base64, byteSize: bytes.length, ...dimensions },
+  };
 }
+
 
 async function projectForLaunch(userId: string, projectId?: string) {
   if (!projectId) return null;
@@ -83,19 +103,22 @@ function cleanTechnologies(values: string[]) {
   return [...new Set(values.map((item) => item.trim()).filter(Boolean))].slice(0, 12).map((item) => item.slice(0, 40));
 }
 
-function validateImages(images: LaunchImageInput[]) {
-  if (images.length > MAX_IMAGES) return { error: `Możesz dodać maksymalnie ${MAX_IMAGES} screenshotów.` } as const;
-  const validated: { base64: string; byteSize: number; width: number; height: number }[] = [];
-  let total = 0;
-  for (const image of images) {
-    const parsed = validateImage(image);
-    if ("error" in parsed) return parsed;
-    total += parsed.byteSize;
-    validated.push(parsed);
+function validateImages(images: LaunchImageInput[]): ImagesValidationResult {
+  if (images.length > MAX_IMAGES) {
+    return { ok: false, error: `Możesz dodać maksymalnie ${MAX_IMAGES} screenshotów.` };
   }
-  if (total > MAX_TOTAL_BYTES) return { error: "Screenshoty są łącznie zbyt duże." } as const;
-  return { images: validated } as const;
+  const validated: ValidatedLaunchImage[] = [];
+  let total = 0;
+  for (const input of images) {
+    const parsed = validateImage(input);
+    if (!parsed.ok) return { ok: false, error: parsed.error };
+    total += parsed.image.byteSize;
+    validated.push(parsed.image);
+  }
+  if (total > MAX_TOTAL_BYTES) return { ok: false, error: "Screenshoty są łącznie zbyt duże." };
+  return { ok: true, images: validated };
 }
+
 
 async function revalidateLaunch(slug: string, creatorId?: string) {
   revalidatePath("/launches");
@@ -124,7 +147,7 @@ export async function createLaunch(input: LaunchActionInput) {
   if (parsed.data.projectId && !project) return { error: en ? "You can only use a project you belong to." : "Możesz wybrać tylko projekt, do którego należysz." };
 
   const checkedImages = validateImages(input.images ?? []);
-  if ("error" in checkedImages) return { error: checkedImages.error };
+  if (!checkedImages.ok) return { error: checkedImages.error };
 
   const id = crypto.randomUUID();
   const slug = makeLaunchSlug(parsed.data.title, id);
@@ -173,8 +196,10 @@ export async function updateLaunch(entryId: string, input: LaunchActionInput) {
   const project = await projectForLaunch(user.id, parsed.data.projectId || undefined);
   if (parsed.data.projectId && !project) return { error: en ? "You can only use a project you belong to." : "Możesz wybrać tylko projekt, do którego należysz." };
 
-  const checkedImages = input.replaceImages ? validateImages(input.images ?? []) : { images: [] as { base64: string; byteSize: number; width: number; height: number }[] };
-  if ("error" in checkedImages) return { error: checkedImages.error };
+  const checkedImages: ImagesValidationResult = input.replaceImages
+    ? validateImages(input.images ?? [])
+    : { ok: true, images: [] };
+  if (!checkedImages.ok) return { error: checkedImages.error };
   await db.transaction(async (tx) => {
     await tx.update(showcaseEntries).set({
       projectId: parsed.data.projectId || null,
