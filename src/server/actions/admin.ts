@@ -1,11 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   adminAuditLogs,
   answers,
+  notifications,
   projects,
   questions,
   reports,
@@ -125,4 +126,52 @@ export async function deleteAnswerAdminAction(formData: FormData) {
   await audit(admin.id, "ANSWER_DELETED", "answer", answerId, target[0]);
   revalidatePath("/admin/content");
   revalidatePath(`/help/${target[0].questionId}`);
+}
+
+
+const PREMIERY_ANNOUNCEMENT_ID = "premiery-launch-2026-08-22";
+
+export async function broadcastPremieryAnnouncementAction() {
+  const admin = await requireAdmin();
+
+  const [recipients, alreadySent] = await Promise.all([
+    db.select({ id: users.id })
+      .from(users)
+      .where(eq(users.isSuspended, false)),
+    db.select({ userId: notifications.userId })
+      .from(notifications)
+      .where(and(
+        eq(notifications.entityType, "system_announcement"),
+        eq(notifications.entityId, PREMIERY_ANNOUNCEMENT_ID),
+      )),
+  ]);
+
+  const sentUserIds = new Set(alreadySent.map((row) => row.userId));
+  const pending = recipients.filter((recipient) => !sentUserIds.has(recipient.id));
+
+  const values = pending.map((recipient) => ({
+    userId: recipient.id,
+    actorId: admin.id,
+    type: "SYSTEM_ANNOUNCEMENT" as const,
+    entityType: "system_announcement",
+    entityId: PREMIERY_ANNOUNCEMENT_ID,
+    title: "Nowość w BuildCrew - Premiery 🚀",
+    body: "Masz projekt, aplikację, stronę, grę, SaaS albo coś, nad czym dopiero pracujesz? Od teraz możesz pokazać to w Premierach, zebrać feedback, znaleźć testerów, pierwszych użytkowników albo osoby do dalszej współpracy. Projekt nie musi być skończony ani stworzony na BuildCrew. Pokaż swój projekt →",
+    link: "/launches/new",
+  }));
+
+  const BATCH_SIZE = 400;
+  for (let offset = 0; offset < values.length; offset += BATCH_SIZE) {
+    await db.insert(notifications).values(values.slice(offset, offset + BATCH_SIZE));
+  }
+
+  await audit(admin.id, "SYSTEM_ANNOUNCEMENT_SENT", "system_announcement", PREMIERY_ANNOUNCEMENT_ID, {
+    recipients: recipients.length,
+    newlySent: values.length,
+    skippedAsDuplicate: alreadySent.length,
+    link: "/launches/new",
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/notifications");
 }

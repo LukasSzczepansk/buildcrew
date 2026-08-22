@@ -20,6 +20,7 @@ import { getEndorsementSummary, getNetworkCounts, getPublicProfileByUsername } f
 import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
 import { listCreditsForUser } from "@/server/data/social-projects";
 import { listPortfolioForUser } from "@/server/data/portfolio";
+import { listLaunchesForUser } from "@/server/data/launches";
 import type { RoleType } from "@/db/schema";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
@@ -56,13 +57,14 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
   const intl = internationalLabels(locale);
   const profile = await getPublicProfileByUsername(decodeURIComponent(username));
   if (!profile) notFound();
-  const [ownedProjects, memberProjects, counts, endorsements, completedCredits, portfolio] = await Promise.all([
+  const [ownedProjects, memberProjects, counts, endorsements, completedCredits, portfolio, launches] = await Promise.all([
     listProjectsForOwner(profile.userId),
     listProjectsForMember(profile.userId),
     getNetworkCounts(profile.userId),
     getEndorsementSummary(profile.userId),
     listCreditsForUser(profile.userId),
     listPortfolioForUser(profile.userId),
+    listLaunchesForUser(profile.userId, 6),
   ]);
   const projects = [
     ...ownedProjects.filter((project) => project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: en ? "Owner" : "Autor" })),
@@ -128,6 +130,8 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
             </PublicSection>
 
             {portfolio.length ? <PublicSection title="Portfolio"><PortfolioGallery items={portfolio} locale={locale} /></PublicSection> : null}
+
+            {launches.length ? <PublicSection title={en ? "Launches" : "Premiery"}><div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{launches.map((launch) => <Link key={launch.id} href={`/launches/${launch.slug}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div className="min-w-0"><p className="truncate text-sm font-medium">{launch.title}</p><p className="mt-0.5 truncate text-[12px] text-[var(--bc-muted)]">{launch.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">▲ {launch.voteCount} · {launch.commentCount}</span></Link>)}</div></PublicSection> : null}
 
             <PublicSection title={en ? "Open to collaborate" : "Otwartość na współpracę"}>
               <p className="text-sm leading-6 text-[var(--bc-muted)]">{profile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || (en ? "No information" : "Brak informacji")}</p>

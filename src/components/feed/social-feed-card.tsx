@@ -23,6 +23,10 @@ export type SocialFeedItem = {
   country: string | null;
   city: string | null;
   projectId: string | null;
+  launchId: string | null;
+  launchSlug: string | null;
+  launchTitle: string | null;
+  launchTagline: string | null;
   projectName: string | null;
   projectTagline: string | null;
   likeCount: number;
@@ -33,13 +37,14 @@ export type SocialFeedItem = {
 
 export function SocialFeedCard({ item, locale, viewerId }: { item: SocialFeedItem; locale: AppLocale; viewerId?: string }) {
   const labels = labelsFor(locale);
-  const title = socialPostTitle(item, locale);
+  const launchPost = Boolean(item.kind === "LAUNCH" && item.launchId);
+  const title = launchPost && item.launchTitle ? item.launchTitle : socialPostTitle(item, locale);
   const eyebrow = socialPostKindLabel(item.kind, locale);
   const en = locale === "en";
   const role = item.role ? labels.roles[item.role] : item.headline;
   const location = locationLabel(item.city, item.country);
-  const projectPost = Boolean(item.projectId && ["UPDATE", "LOOKING_FOR_PEOPLE", "MILESTONE", "LAUNCH"].includes(item.kind));
-  const href = projectPost && item.projectId ? `/projects/${item.projectId}` : `/builders/${item.authorId}`;
+  const projectPost = Boolean(!launchPost && item.projectId && ["UPDATE", "LOOKING_FOR_PEOPLE", "MILESTONE", "LAUNCH"].includes(item.kind));
+  const href = launchPost && item.launchId ? `/launches/${item.launchSlug || item.launchId}` : projectPost && item.projectId ? `/projects/${item.projectId}` : `/builders/${item.authorId}`;
   const visual = item.kind === "MILESTONE" || item.kind === "LAUNCH";
   const badgeClass = badgeClasses(item.kind);
 
@@ -63,7 +68,13 @@ export function SocialFeedCard({ item, locale, viewerId }: { item: SocialFeedIte
           <p className="mt-2 whitespace-pre-wrap text-[13px] leading-[1.55] text-[var(--bc-muted)] sm:text-[14px] sm:leading-6">{item.body}</p>
         </div>
 
-        {projectPost && item.projectId && item.projectName ? (
+        {launchPost && item.launchId && item.launchTitle ? (
+          <Link href={href} className="group mt-4 flex items-center gap-3 rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-3 transition-colors hover:border-[var(--bc-line-strong)] sm:p-3.5">
+            <ActivityVisual compact title={item.launchTitle} label={eyebrow} kind="launch" />
+            <div className="min-w-0 flex-1"><p className="truncate text-[13px] font-semibold text-[var(--bc-ink)] sm:text-[14px]">{item.launchTitle}</p>{item.launchTagline ? <p className="mt-0.5 bc-truncate-2 text-[11px] leading-4 text-[var(--bc-faint)] sm:text-[12px]">{item.launchTagline}</p> : null}</div>
+            <span className="hidden shrink-0 text-[11px] font-semibold text-[var(--bc-accent-strong)] sm:inline">{en ? "View launch" : "Zobacz premierę"}</span>
+          </Link>
+        ) : projectPost && item.projectId && item.projectName ? (
           <Link href={`/projects/${item.projectId}`} className="group mt-4 flex items-center gap-3 rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-3 transition-colors hover:border-[var(--bc-line-strong)] sm:p-3.5">
             <ActivityVisual compact title={item.projectName} label={eyebrow} />
             <div className="min-w-0 flex-1">
@@ -76,7 +87,7 @@ export function SocialFeedCard({ item, locale, viewerId }: { item: SocialFeedIte
 
         {visual ? (
           <Link href={href} className="mt-4 block h-[170px] sm:h-[220px]">
-            <ActivityVisual title={item.projectName ?? item.username} label={eyebrow} kind={socialPostVisualKind(item.kind) === "launch" ? "launch" : "milestone"} className="h-full" />
+            <ActivityVisual title={item.launchTitle ?? item.projectName ?? item.username} label={eyebrow} kind={socialPostVisualKind(item.kind) === "launch" ? "launch" : "milestone"} className="h-full" />
           </Link>
         ) : null}
       </div>

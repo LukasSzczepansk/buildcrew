@@ -12,6 +12,7 @@ import {
   socialPostLikes,
   socialPostSaves,
   socialPosts,
+  showcaseEntries,
   users,
 } from "@/db/schema";
 import { isUuid } from "@/lib/security";
@@ -51,6 +52,10 @@ function postSelect() {
     kind: socialPosts.kind,
     body: socialPosts.body,
     projectId: socialPosts.projectId,
+    launchId: socialPosts.launchId,
+    launchSlug: showcaseEntries.slug,
+    launchTitle: showcaseEntries.title,
+    launchTagline: showcaseEntries.tagline,
     createdAt: socialPosts.createdAt,
     authorId: socialPosts.authorId,
     username: profiles.username,
@@ -72,6 +77,7 @@ export async function listRecentSocialPosts(viewerId?: string, limit = 12) {
     .innerJoin(users, eq(users.id, socialPosts.authorId))
     .innerJoin(profiles, eq(profiles.userId, socialPosts.authorId))
     .leftJoin(projects, eq(projects.id, socialPosts.projectId))
+    .leftJoin(showcaseEntries, eq(showcaseEntries.id, socialPosts.launchId))
     .where(activePostWhere())
     .orderBy(desc(socialPosts.createdAt))
     .limit(Math.max(1, Math.min(limit * 3, 80)));
@@ -101,6 +107,7 @@ export async function listFollowingSocialPosts(viewerId: string, limit = 20) {
     .innerJoin(users, eq(users.id, socialPosts.authorId))
     .innerJoin(profiles, eq(profiles.userId, socialPosts.authorId))
     .leftJoin(projects, eq(projects.id, socialPosts.projectId))
+    .leftJoin(showcaseEntries, eq(showcaseEntries.id, socialPosts.launchId))
     .where(and(activePostWhere(), audience))
     .orderBy(desc(socialPosts.createdAt))
     .limit(Math.max(1, Math.min(limit * 3, 80)));
@@ -118,6 +125,7 @@ export async function listSavedSocialPosts(viewerId: string, limit = 30) {
     .innerJoin(users, eq(users.id, socialPosts.authorId))
     .innerJoin(profiles, eq(profiles.userId, socialPosts.authorId))
     .leftJoin(projects, eq(projects.id, socialPosts.projectId))
+    .leftJoin(showcaseEntries, eq(showcaseEntries.id, socialPosts.launchId))
     .where(and(eq(socialPostSaves.userId, viewerId), activePostWhere()))
     .orderBy(desc(socialPostSaves.createdAt))
     .limit(Math.max(1, Math.min(limit, 60)));
@@ -131,6 +139,7 @@ export async function listSocialPostsForProject(projectId: string, viewerId?: st
     .innerJoin(users, eq(users.id, socialPosts.authorId))
     .innerJoin(profiles, eq(profiles.userId, socialPosts.authorId))
     .leftJoin(projects, eq(projects.id, socialPosts.projectId))
+    .leftJoin(showcaseEntries, eq(showcaseEntries.id, socialPosts.launchId))
     .where(and(activePostWhere(), eq(socialPosts.projectId, projectId)))
     .orderBy(desc(socialPosts.createdAt))
     .limit(Math.max(1, Math.min(limit, 30)));
@@ -144,6 +153,10 @@ export async function getSocialPostById(id: string) {
     kind: socialPosts.kind,
     body: socialPosts.body,
     projectId: socialPosts.projectId,
+    launchId: socialPosts.launchId,
+    launchSlug: showcaseEntries.slug,
+    launchTitle: showcaseEntries.title,
+    launchTagline: showcaseEntries.tagline,
     createdAt: socialPosts.createdAt,
     expiresAt: socialPosts.expiresAt,
     isActive: socialPosts.isActive,
@@ -164,6 +177,7 @@ export async function getSocialPostById(id: string) {
     .innerJoin(users, eq(users.id, socialPosts.authorId))
     .innerJoin(profiles, eq(profiles.userId, socialPosts.authorId))
     .leftJoin(projects, eq(projects.id, socialPosts.projectId))
+    .leftJoin(showcaseEntries, eq(showcaseEntries.id, socialPosts.launchId))
     .where(and(eq(socialPosts.id, id), eq(users.isSuspended, false)))
     .limit(1);
   return rows[0] ?? null;

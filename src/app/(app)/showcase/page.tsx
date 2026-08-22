@@ -1,2 +1,5 @@
 import { redirect } from "next/navigation";
-export default function ShowcaseRedirect() { redirect("/profile"); }
+
+export default function ShowcaseRedirect() {
+  redirect("/launches");
+}

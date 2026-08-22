@@ -1,4 +1,7 @@
 import { ImageResponse } from "next/og";
+import { SITE_URL } from "@/lib/site-config";
+
+const SITE_HOST = new URL(SITE_URL).hostname.replace(/^www\./, "");
 
 export const alt = "BuildCrew - znajdź ludzi do projektu i budujcie razem";
 export const size = { width: 1200, height: 630 };
@@ -36,7 +39,7 @@ export default function OpenGraphImage() {
 
         <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #CFCFC7", paddingTop: "22px", fontSize: "20px", color: "#6F6F69" }}>
           <span>Development · Design · Product</span>
-          <span>buildcreww.com</span>
+          <span>{SITE_HOST}</span>
         </div>
       </div>
     ),

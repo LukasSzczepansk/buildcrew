@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const isProd = process.env.NODE_ENV === "production";
 
+const canonicalOrigin = (process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL_EN || "https://buildcreww.pl").replace(/\/$/, "");
+const canonicalHost = new URL(canonicalOrigin).hostname.toLowerCase();
+const knownHosts = ["buildcreww.pl", "www.buildcreww.pl", "buildcreww.com", "www.buildcreww.com"];
+
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com${isProd ? "" : " 'unsafe-eval'"}`,
@@ -46,26 +50,16 @@ const nextConfig: NextConfig = {
       { source: "/ideas", destination: "/projects", permanent: true },
       { source: "/ideas/:path*", destination: "/projects", permanent: true },
 
-      // buildcreww.com is the only public product domain. Existing .pl links keep
-      // their path and query string, but land on the global English product.
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "buildcreww.pl" }],
-        destination: "https://buildcreww.com/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.buildcreww.pl" }],
-        destination: "https://buildcreww.com/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.buildcreww.com" }],
-        destination: "https://buildcreww.com/:path*",
-        permanent: true,
-      },
+      // Keep one canonical domain for crawlers and social previews. The value is
+      // controlled by NEXT_PUBLIC_APP_URL on Vercel; buildcreww.pl is the safe fallback.
+      ...knownHosts
+        .filter((host) => host !== canonicalHost)
+        .map((host) => ({
+          source: "/:path*",
+          has: [{ type: "host" as const, value: host }],
+          destination: `${canonicalOrigin}/:path*`,
+          permanent: true,
+        })),
     ];
   },
 };

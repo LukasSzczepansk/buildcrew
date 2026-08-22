@@ -10,7 +10,7 @@ function cleanUrl(value: string | undefined, fallback: string) {
 /** One canonical app/domain. Locale is a UI preference, not a separate site. */
 export const SITE_URL = cleanUrl(
   process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL_EN,
-  "https://buildcreww.com",
+  "https://buildcreww.pl",
 );
 
 export const SITE_URL_PL = SITE_URL;
@@ -31,7 +31,7 @@ function hostnameFromUrl(value: string) {
 export const SITE_HOST_PL = hostnameFromUrl(SITE_URL);
 export const SITE_HOST_EN = SITE_HOST_PL;
 
-/** Host no longer decides language. Both languages live on buildcreww.com. */
+/** Host no longer decides language. Both languages live on one canonical domain. */
 export function localeFromHost(_hostValue: string | null | undefined): AppLocale | null {
   return null;
 }

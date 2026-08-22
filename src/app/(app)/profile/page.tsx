@@ -14,6 +14,7 @@ import {
   LogOut,
   MapPin,
   Pencil,
+  Rocket,
   Settings2,
   Sparkles,
   UserRound,
@@ -42,6 +43,7 @@ import { getPrivateContact, getProfileByUserId } from "@/server/data/profiles";
 import { getProfileAvatarState } from "@/server/data/profile-avatars";
 import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
 import { listPortfolioForUser } from "@/server/data/portfolio";
+import { listLaunchesForUser } from "@/server/data/launches";
 import { getNotificationPreferences } from "@/server/data/notifications";
 import { getBuilderBadges } from "@/server/data/showcase";
 import { listCreditsForUser } from "@/server/data/social-projects";
@@ -60,7 +62,7 @@ export default async function ProfilePage() {
   const intl = internationalLabels(locale);
   if (!user) redirect("/login");
 
-  const [profile, privateContact, helpfulCount, projects, ownedProjects, notificationPrefs, badges, avatarState, completedCredits, portfolio] = await Promise.all([
+  const [profile, privateContact, helpfulCount, projects, ownedProjects, notificationPrefs, badges, avatarState, completedCredits, portfolio, launches] = await Promise.all([
     getProfileByUserId(user.id),
     getPrivateContact(user.id),
     countHelpfulAnswersForUser(user.id),
@@ -71,6 +73,7 @@ export default async function ProfilePage() {
     getProfileAvatarState(user.id),
     listCreditsForUser(user.id),
     listPortfolioForUser(user.id),
+    listLaunchesForUser(user.id, 6),
   ]);
 
   if (!profile || !profile.role || !profile.level || !profile.weeklyHours) redirect("/onboarding");
@@ -154,6 +157,7 @@ export default async function ProfilePage() {
       <nav className="sticky top-2 z-20 mt-3 flex gap-1 overflow-x-auto rounded-[10px] border border-[var(--bc-line)] bg-[color:var(--bc-surface)]/95 p-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur-sm" aria-label={en ? "Profile sections" : "Sekcje profilu"}>
         <ProfileNavLink href="#overview" icon={UserRound}>{en ? "Overview" : "Przegląd"}</ProfileNavLink>
         <ProfileNavLink href="#portfolio" icon={Images}>Portfolio</ProfileNavLink>
+        <ProfileNavLink href="#launches" icon={Rocket}>{en ? "Launches" : "Premiery"}</ProfileNavLink>
         <ProfileNavLink href="#edit-profile" icon={Pencil}>{en ? "Edit profile" : "Edytuj profil"}</ProfileNavLink>
         <ProfileNavLink href="#settings" icon={Settings2}>{en ? "Settings" : "Ustawienia"}</ProfileNavLink>
       </nav>
@@ -243,6 +247,13 @@ export default async function ProfilePage() {
               </div>
             </section>
           </aside>
+        </div>
+      </section>
+
+      <section id="launches" className="scroll-mt-24 pt-4">
+        <div className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)] sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-[17px] font-semibold tracking-[-0.015em]">{en ? "Launches" : "Premiery"}</h2><p className="mt-1 text-[12px] text-[var(--bc-muted)]">{en ? "Projects you publicly showed to the BuildCrew community." : "Projekty, które publicznie pokazałeś społeczności BuildCrew."}</p></div><Button asChild size="sm"><Link href="/launches/new">{en ? "Show project" : "Pokaż projekt"}</Link></Button></div>
+          {launches.length ? <div className="mt-4 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{launches.map((launch) => <Link key={launch.id} href={`/launches/${launch.slug}`} className="grid gap-2 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div className="min-w-0"><p className="truncate text-[13px] font-semibold">{launch.title}</p><p className="mt-0.5 truncate text-[11px] text-[var(--bc-faint)]">{launch.tagline}</p></div><span className="text-[10px] text-[var(--bc-faint)]">▲ {launch.voteCount} · {launch.commentCount} {en ? "comments" : "komentarzy"}</span></Link>)}</div> : <div className="mt-4 rounded-[9px] border border-dashed border-[var(--bc-line-strong)] bg-[var(--bc-surface-subtle)] px-5 py-7 text-center"><Rocket className="mx-auto h-5 w-5 text-[var(--bc-faint)]" /><p className="mt-2 text-[13px] font-medium">{en ? "You have not shown a project yet" : "Nie pokazałeś jeszcze żadnego projektu"}</p><p className="mx-auto mt-1 max-w-md text-[11px] leading-5 text-[var(--bc-faint)]">{en ? "Publish a launch to get feedback, testers or new collaborators." : "Opublikuj premierę, żeby zdobyć feedback, testerów albo nowych współtwórców."}</p></div>}
         </div>
       </section>
 

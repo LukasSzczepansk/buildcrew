@@ -404,6 +404,7 @@ export const socialPosts = pgTable("social_posts", {
   authorId: uuid("author_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   kind: text("kind").$type<SocialPostKind>().notNull(),
   projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
+  launchId: uuid("launch_id"),
   body: text("body").notNull(),
   isActive: boolean("is_active").notNull().default(true),
   expiresAt: timestamp("expires_at", { withTimezone: true }),
@@ -412,6 +413,7 @@ export const socialPosts = pgTable("social_posts", {
   index("social_posts_created_idx").on(t.createdAt),
   index("social_posts_author_created_idx").on(t.authorId, t.createdAt),
   index("social_posts_project_idx").on(t.projectId, t.createdAt),
+  index("social_posts_launch_idx").on(t.launchId, t.createdAt),
 ]);
 
 export const socialPostLikes = pgTable("social_post_likes", {
@@ -1119,6 +1121,8 @@ export const showcaseCategoryEnum = ["AI", "WEB", "MOBILE", "GAMES", "EDUCATION"
 export type ShowcaseCategory = (typeof showcaseCategoryEnum)[number];
 export const showcaseStatusEnum = ["MVP", "LIVE", "EXPERIMENT"] as const;
 export type ShowcaseStatus = (typeof showcaseStatusEnum)[number];
+export const launchNeedEnum = ["FEEDBACK", "TESTERS", "TEAM", "USERS"] as const;
+export type LaunchNeed = (typeof launchNeedEnum)[number];
 
 export const showcaseEntries = pgTable("showcase_entries", {
   id: uuidPk(),
@@ -1126,6 +1130,7 @@ export const showcaseEntries = pgTable("showcase_entries", {
   projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
   crewId: uuid("crew_id").references(() => crews.id, { onDelete: "set null" }),
   challengeId: uuid("challenge_id").references(() => buildChallenges.id, { onDelete: "set null" }),
+  slug: text("slug"),
   title: text("title").notNull(),
   tagline: text("tagline").notNull(),
   description: text("description").notNull(),
@@ -1134,12 +1139,15 @@ export const showcaseEntries = pgTable("showcase_entries", {
   githubUrl: text("github_url"),
   category: text("category").$type<ShowcaseCategory>().notNull().default("OTHER"),
   status: text("status").$type<ShowcaseStatus>().notNull().default("MVP"),
+  technologies: text("technologies").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
+  needs: text("needs").array().$type<LaunchNeed[]>().notNull().default(sql`'{}'::text[]`),
   lookingForCollaborators: boolean("looking_for_collaborators").notNull().default(false),
   lookingForText: text("looking_for_text"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
   index("showcase_entries_created_idx").on(t.createdAt),
+  uniqueIndex("showcase_entries_slug_idx").on(t.slug),
   index("showcase_entries_category_idx").on(t.category, t.createdAt),
   index("showcase_entries_challenge_idx").on(t.challengeId),
 ]);
@@ -1155,6 +1163,30 @@ export const showcaseReactions = pgTable("showcase_reactions", {
 }, (t) => [
   primaryKey({ columns: [t.entryId, t.userId, t.reaction] }),
   index("showcase_reactions_entry_idx").on(t.entryId, t.createdAt),
+]);
+
+export const showcaseImages = pgTable("showcase_images", {
+  id: uuidPk(),
+  entryId: uuid("entry_id").notNull().references(() => showcaseEntries.id, { onDelete: "cascade" }),
+  sortOrder: integer("sort_order").notNull().default(0),
+  mimeType: text("mime_type").notNull().default("image/webp"),
+  imageBase64: text("image_base64").notNull(),
+  byteSize: integer("byte_size").notNull(),
+  width: integer("width").notNull(),
+  height: integer("height").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("showcase_images_entry_order_idx").on(t.entryId, t.sortOrder)]);
+
+export const showcaseComments = pgTable("showcase_comments", {
+  id: uuidPk(),
+  entryId: uuid("entry_id").notNull().references(() => showcaseEntries.id, { onDelete: "cascade" }),
+  authorId: uuid("author_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  parentId: uuid("parent_id"),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("showcase_comments_entry_idx").on(t.entryId, t.createdAt),
+  index("showcase_comments_author_idx").on(t.authorId, t.createdAt),
 ]);
 
 export const showcaseWouldUseEnum = ["YES", "MAYBE", "NO"] as const;
@@ -1232,6 +1264,7 @@ export const notificationTypeEnum = [
   "HACKATHON_TEAM_INVITE",
   "HACKATHON_TEAM_REQUEST",
   "HACKATHON_TEAM_JOINED",
+  "SYSTEM_ANNOUNCEMENT",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
 

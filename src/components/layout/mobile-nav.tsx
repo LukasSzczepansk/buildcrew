@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FolderKanban, LayoutDashboard, MessageCircle, Newspaper, Users } from "lucide-react";
+import { FolderKanban, LayoutDashboard, MessageCircle, Newspaper, Rocket, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCopy } from "@/components/i18n/locale-provider";
 
@@ -13,17 +13,18 @@ export function MobileNav({ unreadMessages = 0 }: { unreadMessages?: number }) {
     { href: "/dashboard", label: copy("Start", "Home"), icon: LayoutDashboard },
     { href: "/builders", label: copy("Ludzie", "People"), icon: Users },
     { href: "/projects", label: copy("Projekty", "Projects"), icon: FolderKanban },
+    { href: "/launches", label: copy("Premiery", "Launches"), icon: Rocket },
     { href: "/feed", label: copy("Społeczność", "Community"), icon: Newspaper },
     { href: "/messages", label: copy("Wiadomości", "Messages"), icon: MessageCircle },
   ] as const;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[var(--bc-line)] bg-[var(--bc-surface)]/95 px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t border-[var(--bc-line)] bg-[var(--bc-surface)]/95 px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
       {navItems.map((item) => {
         const active = pathname === item.href || pathname.startsWith(item.href + "/") || (item.href === "/projects" && pathname.startsWith("/my-projects"));
         const Icon = item.icon;
         return (
-          <Link key={item.href} href={item.href} className={cn("relative flex min-w-0 flex-col items-center gap-1 overflow-hidden px-1 py-1 text-[10px] font-medium transition-colors sm:text-[11px]", active ? "text-[var(--bc-ink)]" : "text-[var(--bc-faint)]")}>
+          <Link key={item.href} href={item.href} className={cn("relative flex min-w-[68px] flex-1 flex-col items-center gap-1 overflow-hidden px-1 py-1 text-[10px] font-medium transition-colors sm:min-w-0 sm:text-[11px]", active ? "text-[var(--bc-ink)]" : "text-[var(--bc-faint)]")}>
             <span className={cn("h-[2px] w-4 rounded-full", active ? "bg-[var(--bc-accent)]" : "bg-transparent")} />
             <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2 : 1.7} />
             <span className="max-w-full truncate">{item.label}</span>

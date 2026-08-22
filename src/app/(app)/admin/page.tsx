@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, CheckCircle2, FileQuestion, Flag, FolderKanban, Image as ImageIcon, UserPlus, UserRoundCheck, Users, UsersRound, type LucideIcon } from "lucide-react";
+import { Activity, BellRing, CheckCircle2, FileQuestion, Flag, FolderKanban, Image as ImageIcon, Rocket, UserPlus, UserRoundCheck, Users, UsersRound, type LucideIcon } from "lucide-react";
+import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { AdminStatCard } from "@/components/admin/stat-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getRequestLocale } from "@/lib/site-server";
+import { broadcastPremieryAnnouncementAction } from "@/server/actions/admin";
 import { getAdminOverview } from "@/server/data/admin";
 
 export const metadata: Metadata = { title: "Admin - BuildCrew" };
@@ -29,6 +31,51 @@ export default async function AdminPage() {
         <AdminStatCard icon={FileQuestion} label={en ? "Questions" : "Pytania"} value={data.questions} helper={en ? `${data.answers} answers` : `${data.answers} odpowiedzi`} />
         <AdminStatCard icon={Activity} label={en ? "Product actions / 7 days" : "Akcje w produkcie / 7 dni"} value={data.events7d} helper={en ? "Events recorded in analytics_events" : "Zdarzenia zapisane w analytics_events"} />
       </div>
+
+      <Card className="overflow-hidden border-[var(--bc-line)]">
+        <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[var(--bc-accent-soft)] text-[#7ea819]">
+                <BellRing className="h-4.5 w-4.5" />
+              </span>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--bc-faint)]">{en ? "Community announcement" : "Komunikat do społeczności"}</p>
+                <h2 className="mt-0.5 text-[17px] font-semibold">{en ? "Tell everyone about Launches" : "Powiadom wszystkich o Premierach"}</h2>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-4">
+              <p className="font-semibold">Nowość w BuildCrew - Premiery 🚀</p>
+              <p className="mt-2 text-[13px] leading-5 text-[var(--bc-muted)]">
+                Masz projekt, aplikację, stronę, grę, SaaS albo coś, nad czym dopiero pracujesz?
+              </p>
+              <p className="mt-2 text-[13px] leading-5 text-[var(--bc-muted)]">
+                Od teraz możesz pokazać to w <strong className="font-semibold text-[var(--bc-ink)]">Premierach</strong>, zebrać feedback, znaleźć testerów, pierwszych użytkowników albo osoby do dalszej współpracy.
+              </p>
+              <p className="mt-2 text-[13px] leading-5 text-[var(--bc-muted)]">Projekt nie musi być skończony ani stworzony na BuildCrew.</p>
+              <p className="mt-3 text-[13px] font-semibold text-[var(--bc-ink)]">Pokaż swój projekt →</p>
+            </div>
+
+            <p className="mt-3 text-[12px] leading-5 text-[var(--bc-faint)]">
+              {en
+                ? "Creates one in-app notification for every active account. Repeated clicks do not create duplicates. No marketing email is sent."
+                : "Tworzy jedno powiadomienie w aplikacji dla każdego aktywnego konta. Ponowne kliknięcie nie tworzy duplikatów. Nie wysyła marketingowego e-maila."}
+            </p>
+          </div>
+
+          <form action={broadcastPremieryAnnouncementAction} className="shrink-0">
+            <ConfirmSubmit
+              type="submit"
+              className="gap-2"
+              message={en ? "Send the Launches announcement to all active BuildCrew users?" : "Wysłać informację o Premierach do wszystkich aktywnych użytkowników BuildCrew?"}
+            >
+              <Rocket className="h-4 w-4" />
+              {en ? "Send to everyone" : "Wyślij wszystkim"}
+            </ConfirmSubmit>
+          </form>
+        </div>
+      </Card>
 
       <section className="border-y border-[var(--bc-line)] py-5">
         <div className="mb-3 flex items-end justify-between gap-4">

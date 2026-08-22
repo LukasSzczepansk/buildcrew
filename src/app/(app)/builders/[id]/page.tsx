@@ -28,6 +28,7 @@ import { opportunityStatusLabel } from "@/lib/opportunities";
 import { locationLabel } from "@/lib/countries";
 import { listCreditsForUser } from "@/server/data/social-projects";
 import { listPortfolioForUser } from "@/server/data/portfolio";
+import { listLaunchesForUser } from "@/server/data/launches";
 import type { RoleType } from "@/db/schema";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -48,8 +49,8 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
   const profile = await getProfileByUserId(id);
   if (!profile) notFound();
 
-  const [ownedProjects, memberProjects, contact, badges, networkCounts, endorsementSummary, completedCredits, portfolio] = await Promise.all([
-    listProjectsForOwner(id), listProjectsForMember(id), user.id !== id ? getRevealedContact(user.id, id) : Promise.resolve(null), getBuilderBadges(id), getNetworkCounts(id), getEndorsementSummary(id), listCreditsForUser(id), listPortfolioForUser(id),
+  const [ownedProjects, memberProjects, contact, badges, networkCounts, endorsementSummary, completedCredits, portfolio, launches] = await Promise.all([
+    listProjectsForOwner(id), listProjectsForMember(id), user.id !== id ? getRevealedContact(user.id, id) : Promise.resolve(null), getBuilderBadges(id), getNetworkCounts(id), getEndorsementSummary(id), listCreditsForUser(id), listPortfolioForUser(id), listLaunchesForUser(id, 6),
   ]);
   const projects = [...ownedProjects.map((p) => ({ ...p, relation: en ? "Owner" : "Autor" })), ...memberProjects.filter((p) => p.ownerId !== id).map((p) => ({ ...p, relation: en ? "Team member" : "Członek zespołu" }))];
   const activityState = getActivityState(profile.lastActiveAt);
@@ -79,6 +80,7 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
           </section>
 
           {portfolio.length ? <ProfileSection title="Portfolio"><PortfolioGallery items={portfolio} locale={locale} /></ProfileSection> : null}
+          {launches.length ? <ProfileSection title={en ? "Launches" : "Premiery"}><SimpleList items={launches.map((launch) => ({ href: `/launches/${launch.slug}`, title: launch.title, meta: `▲ ${launch.voteCount} · ${launch.commentCount}` }))} /></ProfileSection> : null}
           <ProfileSection title={en ? "Skills" : "Umiejętności"}><TechnologyStack items={profile.skills} max={10} compact /></ProfileSection>
           <ProfileSection title={en ? "Availability and collaboration" : "Dostępność i współpraca"}>
             <div className="grid gap-4 text-sm sm:grid-cols-2">
