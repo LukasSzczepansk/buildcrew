@@ -1,0 +1,41 @@
+BuildCrew patch — changed/removed src entries
+
+Files /mnt/data/buildcrew_patch/src_before_patch/app/(app)/admin/activity/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/(app)/admin/activity/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/(app)/admin/avatars/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/(app)/admin/avatars/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/(app)/admin/content/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/(app)/admin/content/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/(app)/admin/hackathons/[id]/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/(app)/admin/hackathons/[id]/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/(app)/admin/hackathons/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/(app)/admin/hackathons/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/(app)/admin/layout.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/(app)/admin/layout.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/(app)/dashboard/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/(app)/dashboard/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/(app)/feed/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/(app)/feed/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/hackathony/[slug]/team/[teamId]/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/hackathony/[slug]/team/[teamId]/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/projekty/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/projekty/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/app/u/[username]/page.tsx and /mnt/data/buildcrew_patch/chatgpt/src/app/u/[username]/page.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/admin/challenge-manager.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/admin/challenge-manager.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/admin/hackathon-manager.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/admin/hackathon-manager.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/admin/sprint-admin-dashboard.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/admin/sprint-admin-dashboard.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/build/build-pool-card.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/build/build-pool-card.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/build/build-pool-listing-manager.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/build/build-pool-listing-manager.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/builders/builder-card.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/builders/builder-card.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/challenges/challenge-join-panel.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/challenges/challenge-join-panel.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/feed/social-feed-card.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/feed/social-feed-card.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/feed/social-post-composer.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/feed/social-post-composer.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/hackathons/create-hackathon-team-form.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/hackathons/create-hackathon-team-form.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/hackathons/hackathon-card.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/hackathons/hackathon-card.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/hackathons/hackathon-join-form.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/hackathons/hackathon-join-form.tsx differ
+Only in /mnt/data/buildcrew_patch/src_before_patch/components: ideas
+Files /mnt/data/buildcrew_patch/src_before_patch/components/layout/mobile-nav.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/layout/mobile-nav.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/layout/sidebar.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/layout/sidebar.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/onboarding/onboarding-wizard.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/onboarding/onboarding-wizard.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/profile/notification-preferences-form.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/profile/notification-preferences-form.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/projects/application-card.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/projects/application-card.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/projects/project-card.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/projects/project-card.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/projects/project-update-composer.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/projects/project-update-composer.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/projects/project-wizard.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/projects/project-wizard.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/components/showcase/showcase-card.tsx and /mnt/data/buildcrew_patch/chatgpt/src/components/showcase/showcase-card.tsx differ
+Files /mnt/data/buildcrew_patch/src_before_patch/db/schema.ts and /mnt/data/buildcrew_patch/chatgpt/src/db/schema.ts differ
+Files /mnt/data/buildcrew_patch/src_before_patch/lib/hackathon-matching.ts and /mnt/data/buildcrew_patch/chatgpt/src/lib/hackathon-matching.ts differ
+Files /mnt/data/buildcrew_patch/src_before_patch/lib/hackathons.ts and /mnt/data/buildcrew_patch/chatgpt/src/lib/hackathons.ts differ
+Files /mnt/data/buildcrew_patch/src_before_patch/lib/social-posts.ts and /mnt/data/buildcrew_patch/chatgpt/src/lib/social-posts.ts differ
+Files /mnt/data/buildcrew_patch/src_before_patch/server/actions/social-posts.ts and /mnt/data/buildcrew_patch/chatgpt/src/server/actions/social-posts.ts differ

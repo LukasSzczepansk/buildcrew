@@ -18,7 +18,7 @@ import { getVerifiedCurrentUser } from "@/lib/auth";
 import { enforceUserRateLimit, isUuid } from "@/lib/security";
 import { getRequestLocale } from "@/lib/site-server";
 
-const kindSchema = z.enum(["UPDATE", "LOOKING_FOR_PEOPLE", "LOOKING_FOR_PROJECT", "MILESTONE", "LAUNCH", "OPEN_TO_BUILDING"]);
+const kindSchema = z.enum(["UPDATE", "QUESTION", "KNOWLEDGE", "IDEA", "LOOKING_FOR_PEOPLE", "LOOKING_FOR_PROJECT", "MILESTONE", "LAUNCH", "OPEN_TO_BUILDING"]);
 const schema = z.object({
   kind: kindSchema,
   body: z.string().trim().min(20).max(800),

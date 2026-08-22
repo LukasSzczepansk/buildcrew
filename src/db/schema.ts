@@ -117,6 +117,17 @@ export const roleTypeEnum = [
 ] as const;
 export type RoleType = (typeof roleTypeEnum)[number];
 
+export const profileDisciplineEnum = [
+  "DEVELOPMENT",
+  "DESIGN",
+  "PRODUCT",
+  "FOUNDER_BUSINESS",
+  "MARKETING_GROWTH",
+  "DATA_AI",
+  "OTHER",
+] as const;
+export type ProfileDiscipline = (typeof profileDisciplineEnum)[number];
+
 export const levelEnum = ["LEARNING", "BUILDING", "EXPERIENCED"] as const;
 export type Level = (typeof levelEnum)[number];
 
@@ -143,6 +154,7 @@ export const profiles = pgTable("profiles", {
   userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
   username: text("username").notNull(),
   role: text("role").$type<RoleType>(),
+  disciplines: text("disciplines").array().$type<ProfileDiscipline[]>().notNull().default(sql`'{}'::text[]`),
   level: text("level").$type<Level>(),
   weeklyHours: text("weekly_hours").$type<Commitment>(),
   bio: text("bio"),
@@ -328,6 +340,34 @@ export const projects = pgTable("projects", {
   outcome: text("outcome"),
 }, (t) => [index("projects_owner_idx").on(t.ownerId), index("projects_lifecycle_idx").on(t.lifecycleStatus, t.updatedAt)]);
 
+// ---------------------------------------------------------------------------
+// Native profile portfolio
+// ---------------------------------------------------------------------------
+
+export const portfolioItems = pgTable("portfolio_items", {
+  id: uuidPk(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
+  title: text("title").notNull(),
+  description: text("description"),
+  role: text("role"),
+  tools: text("tools").array().$type<string[]>().notNull().default(sql`'{}'::text[]`),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("portfolio_items_user_updated_idx").on(t.userId, t.updatedAt)]);
+
+export const portfolioImages = pgTable("portfolio_images", {
+  id: uuidPk(),
+  itemId: uuid("item_id").notNull().references(() => portfolioItems.id, { onDelete: "cascade" }),
+  sortOrder: integer("sort_order").notNull().default(0),
+  mimeType: text("mime_type").notNull().default("image/webp"),
+  imageBase64: text("image_base64").notNull(),
+  byteSize: integer("byte_size").notNull(),
+  width: integer("width").notNull(),
+  height: integer("height").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("portfolio_images_item_order_idx").on(t.itemId, t.sortOrder)]);
+
 export const projectIdeaInterests = pgTable("project_idea_interests", {
   projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -356,7 +396,7 @@ export const projectUpdates = pgTable("project_updates", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("project_updates_project_created_idx").on(t.projectId, t.createdAt)]);
 
-export const socialPostKindEnum = ["UPDATE", "LOOKING_FOR_PEOPLE", "LOOKING_FOR_PROJECT", "MILESTONE", "LAUNCH", "OPEN_TO_BUILDING"] as const;
+export const socialPostKindEnum = ["UPDATE", "QUESTION", "KNOWLEDGE", "IDEA", "LOOKING_FOR_PEOPLE", "LOOKING_FOR_PROJECT", "MILESTONE", "LAUNCH", "OPEN_TO_BUILDING"] as const;
 export type SocialPostKind = (typeof socialPostKindEnum)[number];
 
 export const socialPosts = pgTable("social_posts", {
@@ -1296,6 +1336,8 @@ export const analyticsEventTypeEnum = [
   "public_profile_updated",
   "profile_avatar_uploaded",
   "profile_avatar_removed",
+  "portfolio_item_created",
+  "portfolio_item_removed",
   "project_follow",
   "project_unfollow",
   "project_update_published",

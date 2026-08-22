@@ -13,7 +13,6 @@ export function DiscoveryTabs({
   const copy = useCopy();
   const tabs = [
     { key: "projects", label: copy("Projekty", "Projects"), href: "/projects" },
-    { key: "hackathons", label: copy("Hackathony", "Hackathons"), href: "/hackathons" },
     { key: "people", label: copy("Ludzie chcący budować", "People ready to build"), href: "/build" },
   ] as const;
 

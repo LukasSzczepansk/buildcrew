@@ -40,6 +40,7 @@ export function BuilderCard({ builder, action, matchScore, matchReasons = [], lo
   const activityColor = activityState === "TODAY" ? "bg-[#9bc432]" : activityState === "THIS_WEEK" ? "bg-amber-400" : "bg-neutral-400 dark:bg-neutral-600";
   const score = typeof matchScore === "number" ? Math.min(100, Math.max(0, matchScore)) : null;
   const strongMatch = score !== null && score >= 70;
+  const matchLabel = score === null ? null : score >= 80 ? (en ? "Strong match" : "Bardzo dobre") : score >= 60 ? (en ? "Good match" : "Dobre") : (en ? "Possible match" : "Możliwe");
   const insights = matchReasons.length ? matchReasons.slice(0, 2) : (builder.lookingFor.length > 0 ? builder.lookingFor.map((item) => locale === "en" ? labels.lookingFor[item] : LOOKING_FOR_LABELS[item]).slice(0, 2) : [en ? "Check the profile and your shared signals." : "Sprawdź profil i zobacz, co Was łączy."]);
 
   return (
@@ -78,8 +79,8 @@ export function BuilderCard({ builder, action, matchScore, matchReasons = [], lo
         {score !== null ? (
           <div className="min-w-0 border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Match" : "Dopasowanie"}</p>
-            <p className={`mt-1.5 text-[26px] font-semibold leading-none tracking-[-0.03em] ${strongMatch ? "text-[#94bf28] dark:text-[var(--bc-accent)]" : "text-[var(--bc-ink)]"}`}>{score}%</p>
-            <div className="mt-2.5 h-[3px] w-full bg-black/8 dark:bg-white/10"><div className="h-[3px] bg-[var(--bc-accent-strong)]" style={{ width: `${score}%` }} /></div>
+            <p className={`mt-1.5 text-[15px] font-semibold leading-5 ${strongMatch ? "text-[#789f16] dark:text-[var(--bc-accent)]" : "text-[var(--bc-ink)]"}`}>{matchLabel}</p>
+            <p className="mt-1 text-[11px] tabular-nums text-[var(--bc-faint)]">{score}% · {en ? "based on profile signals" : "na podstawie profilu"}</p>
           </div>
         ) : <div className="hidden xl:block" />}
 

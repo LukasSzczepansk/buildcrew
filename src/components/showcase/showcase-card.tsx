@@ -79,7 +79,7 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
           <Badge variant="secondary">{labels.showcaseStatuses[entry.status]}</Badge>
           {entry.isDemo ? <Badge variant="outline">Demo</Badge> : null}
           {entry.crewId ? <Badge variant="outline">{copy("Ekipa BuildCrew", "BuildCrew team")}</Badge> : null}
-          {entry.challengeId ? <Badge variant="warning">Challenge</Badge> : null}
+          {entry.challengeId ? <Badge variant="warning">{copy("Wyzwanie", "Challenge")}</Badge> : null}
         </div>
         <Link href={`/showcase/${entry.id}`}><h3 className="mt-3 text-[17px] font-semibold tracking-[-0.015em] hover:underline">{entry.title}</h3></Link>
         <p className="mt-1 line-clamp-2 text-sm leading-5 text-[var(--bc-muted)]">{entry.tagline}</p>
@@ -98,7 +98,7 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
         </div>
 
         <div className="mt-3 flex items-center justify-between text-[12px] text-[var(--bc-faint)]">
-          <span>{entry.feedbackCount} {copy(entry.feedbackCount === 1 ? "feedback" : "feedback items", entry.feedbackCount === 1 ? "feedback" : "feedback items")}{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% ${copy("feedbacków\", entry.feedbackCount === 1 ? \"feedback\" : \"feedback items\")}{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% ${copy(\"zainteresowanych", "would use")}` : ""}</span>
+          <span>{entry.feedbackCount} {copy(entry.feedbackCount === 1 ? "opinia" : "opinii", entry.feedbackCount === 1 ? "feedback item" : "feedback items")}{entry.wouldUsePercent !== null ? ` · ${entry.wouldUsePercent}% ${copy("rozważyłoby użycie", "would use")}` : ""}</span>
           <div className="flex gap-2">{entry.githubUrl ? <a href={entry.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><ExternalLink className="h-3.5 w-3.5" /></a> : null}{entry.liveUrl ? <a href={entry.liveUrl} target="_blank" rel="noreferrer" aria-label={copy("Otwórz projekt", "Open project")}><ExternalLink className="h-3.5 w-3.5" /></a> : null}</div>
         </div>
         <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link href={`/showcase/${entry.id}`}>{copy("Zobacz projekt", "View project")}</Link></Button>

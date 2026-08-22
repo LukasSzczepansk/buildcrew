@@ -7,17 +7,20 @@ import { ProfileEditForm } from "@/components/profile/profile-edit-form";
 import { AccountSecurity } from "@/components/profile/account-security";
 import { NotificationPreferencesForm } from "@/components/profile/notification-preferences-form";
 import { AvatarPhotoSettings } from "@/components/profile/avatar-photo-settings";
+import { PortfolioManager } from "@/components/portfolio/portfolio-manager";
 import { ShareProfileButton } from "@/components/profile/share-profile-button";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { labelsFor } from "@/lib/constants-i18n";
+import { disciplineCopy } from "@/lib/profile-disciplines";
 import { getRequestLocale } from "@/lib/site-server";
 import { getProfileCompletion } from "@/lib/profile-completion";
 import { countHelpfulAnswersForUser } from "@/server/data/help";
 import { getPrivateContact, getProfileByUserId } from "@/server/data/profiles";
 import { getProfileAvatarState } from "@/server/data/profile-avatars";
-import { listProjectsForMember } from "@/server/data/projects";
+import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
+import { listPortfolioForUser } from "@/server/data/portfolio";
 import { getNotificationPreferences } from "@/server/data/notifications";
 import { getBuilderBadges } from "@/server/data/showcase";
 import { listCreditsForUser } from "@/server/data/social-projects";
@@ -34,17 +37,20 @@ export default async function ProfilePage() {
   const [user, locale] = await Promise.all([getCurrentUser(), getRequestLocale()]);
   const en = locale === "en";
   const labels = labelsFor(locale);
+  const disciplineLabels = disciplineCopy(locale);
   if (!user) redirect("/login");
 
-  const [profile, privateContact, helpfulCount, projects, notificationPrefs, badges, avatarState, completedCredits] = await Promise.all([
+  const [profile, privateContact, helpfulCount, projects, ownedProjects, notificationPrefs, badges, avatarState, completedCredits, portfolio] = await Promise.all([
     getProfileByUserId(user.id),
     getPrivateContact(user.id),
     countHelpfulAnswersForUser(user.id),
     listProjectsForMember(user.id),
+    listProjectsForOwner(user.id),
     getNotificationPreferences(user.id),
     getBuilderBadges(user.id),
     getProfileAvatarState(user.id),
     listCreditsForUser(user.id),
+    listPortfolioForUser(user.id),
   ]);
 
   if (!profile || !profile.role || !profile.level || !profile.weeklyHours) redirect("/onboarding");
@@ -68,6 +74,7 @@ export default async function ProfilePage() {
               <span className="text-[13px] text-[var(--bc-muted)]">{labels.roles[profile.role]} · {labels.levels[profile.level]}</span>
             </div>
             {profile.bio ? <p className="bc-truncate-2 mt-1.5 max-w-[680px] text-[13px] leading-5 text-[var(--bc-muted)]">{profile.bio}</p> : null}
+            {profile.disciplines.length ? <div className="mt-2 flex flex-wrap gap-1.5">{profile.disciplines.map((discipline) => <span key={discipline} className="border border-[var(--bc-line)] px-2 py-0.5 text-[10px] font-medium text-[var(--bc-muted)]">{disciplineLabels[discipline].label}</span>)}</div> : null}
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--bc-faint)]">
               <span>{activeProjects.length} {en ? "active" : "aktywnych"} · {completedCredits.length} {en ? "completed" : "ukończonych"}</span>
               <span>{helpfulCount} {en ? "helpful answers" : "pomocnych odpowiedzi"}</span>
@@ -100,10 +107,13 @@ export default async function ProfilePage() {
 
       <AvatarPhotoSettings username={profile.username} initialState={avatarState} />
 
+      <PortfolioManager items={portfolio} projects={[...ownedProjects, ...projects.filter((project) => !ownedProjects.some((owned) => owned.id === project.id))].map((project) => ({ id: project.id, name: project.name }))} />
+
       <ProfileEditForm
         initial={{
           username: profile.username,
           role: profile.role,
+          disciplines: profile.disciplines.length ? profile.disciplines : ["OTHER"],
           level: profile.level,
           weeklyHours: profile.weeklyHours,
           bio: profile.bio ?? "",

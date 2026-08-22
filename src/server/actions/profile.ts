@@ -69,6 +69,7 @@ export async function completeOnboarding(
         userId: user.id,
         username: data.username,
         role: data.role,
+        disciplines: data.disciplines,
         level: data.level,
         weeklyHours: data.weeklyHours,
         headline: data.headline || null,
@@ -90,6 +91,7 @@ export async function completeOnboarding(
         set: {
           username: data.username,
           role: data.role,
+          disciplines: data.disciplines,
           level: data.level,
           weeklyHours: data.weeklyHours,
           headline: data.headline || null,
@@ -117,7 +119,7 @@ export async function completeOnboarding(
       });
 
     await syncSkillsAndInterests(user.id, data.skills, data.interests);
-    await logEvent("profile_created", user.id, { username: data.username, role: data.role });
+    await logEvent("profile_created", user.id, { username: data.username, role: data.role, disciplines: data.disciplines });
   } catch (err) {
     console.error(err);
     return { error: appMessage("Something went wrong. Please try again.", locale) };
@@ -157,6 +159,7 @@ export async function updateProfile(input: z.infer<typeof profileEditSchema>): P
     .set({
       username: data.username,
       role: data.role,
+      disciplines: data.disciplines ?? ["OTHER"],
       level: data.level,
       weeklyHours: data.weeklyHours,
       headline: data.headline || null,

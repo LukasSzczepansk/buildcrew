@@ -25,7 +25,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #DADAD3", paddingTop: "20px", fontSize: "16px" }}><span>{role}</span><span style={{ fontWeight: 600 }}>{host}</span></div>
       </div>
-      <div style={{ width: "340px", background: "#111", color: "#F4F4EF", padding: "58px 42px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}><div><div style={{ fontSize: "13px", color: "#AAA", letterSpacing: "1.2px" }}>BUILDER PROFILE</div><div style={{ width: "44px", height: "6px", background: "#C8F169", marginTop: "22px", borderRadius: "3px" }} /><div style={{ marginTop: "32px", fontSize: "34px", lineHeight: 1.18, fontWeight: 650 }}>Zobacz, co buduję i na jakie współprace jestem otwarty.</div></div><div style={{ fontSize: "19px", color: "#C8C8C2", lineHeight: 1.45 }}>Ludzie · Projekty · Możliwości</div></div>
+      <div style={{ width: "340px", background: "#111", color: "#F4F4EF", padding: "58px 42px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}><div><div style={{ fontSize: "13px", color: "#AAA", letterSpacing: "1.2px" }}>BUILDER PROFILE</div><div style={{ width: "44px", height: "6px", background: "#C8F169", marginTop: "22px", borderRadius: "3px" }} /><div style={{ marginTop: "32px", fontSize: "34px", lineHeight: 1.18, fontWeight: 650 }}>Zobacz, co buduję i na jakie współprace jestem otwarty.</div></div><div style={{ fontSize: "19px", color: "#C8C8C2", lineHeight: 1.45 }}>Ludzie · Projekty · Współpraca</div></div>
     </div>,
     { width: 1200, height: 630, headers: { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600" } },
   );

@@ -31,6 +31,7 @@ import {
   projectMarketScopeEnum,
   projectNeedEnum,
   fundingStageEnum,
+  profileDisciplineEnum,
 } from "@/db/schema";
 
 const httpUrl = z.string().trim().refine((value) => {
@@ -102,6 +103,7 @@ export const onboardingSchema = z.object({
     .max(24, "Username can be at most 24 characters long.")
     .regex(/^[a-zA-Z0-9_]+$/, "Use letters, numbers and underscores only."),
   role: z.enum(roleTypeEnum),
+  disciplines: z.array(z.enum(profileDisciplineEnum)).min(1, "Choose at least one area.").max(2, "Choose up to two areas."),
   skills: z.array(z.string()).min(1, "Choose at least one skill."),
   level: z.enum(levelEnum),
   interests: z.array(z.string()).default([]),

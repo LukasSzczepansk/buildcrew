@@ -211,11 +211,14 @@ export const SKILL_GROUPS: Record<string, string[]> = {
     "pgvector",
     "Pinecone",
   ],
-  Design: ["Figma", "UI Design", "UX", "Design Systems", "Framer", "Webflow"],
+  Design: ["Figma", "FigJam", "UI Design", "UX", "UX Research", "User Research", "Wireframing", "Prototyping", "Design Systems", "Product Design", "Information Architecture", "Framer", "Webflow", "Branding", "Graphic Design", "Adobe Illustrator", "Photoshop"],
   DevOps: ["Docker", "Vercel", "Railway", "AWS", "Google Cloud", "Azure", "GitHub Actions", "CI/CD"],
   Data: ["Drizzle ORM", "Prisma", "MongoDB", "Neon", "PlanetScale", "Turso"],
   Integrations: ["Stripe", "Auth.js", "Clerk", "Resend", "REST API", "GraphQL", "WebSockets"],
-  Product: ["Product Discovery", "Analytics", "SEO", "Copywriting", "Growth", "User Research"],
+  Product: ["Product Discovery", "Product Strategy", "Roadmapping", "Analytics", "User Research", "UX Research", "Agile", "Scrum", "SEO", "Copywriting", "Growth"],
+  Marketing: ["Growth", "SEO", "Copywriting", "Content Marketing", "Performance Marketing", "Social Media", "Email Marketing", "Community", "Analytics", "Sales", "Branding"],
+  Business: ["Business Strategy", "Sales", "Fundraising", "Pitching", "Market Research", "Community"],
+  "Data & AI": ["Data Analysis", "Machine Learning", "Data Visualization", "Automation", "SQL"],
 };
 
 export const ALL_SKILLS = Object.values(SKILL_GROUPS).flat();

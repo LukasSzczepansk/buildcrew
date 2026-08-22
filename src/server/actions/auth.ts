@@ -61,7 +61,7 @@ async function issueVerificationEmail(userId: string, email: string, nextPath?: 
   await db.insert(emailVerificationTokens).values({ userId, tokenHash, expiresAt });
   const verifyPath = `/verify-email?token=${encodeURIComponent(token)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ""}`;
   const link = absoluteUrl(verifyPath, baseUrl);
-  return sendTransactionalEmail({
+  const sent = await sendTransactionalEmail({
     to: email,
     subject: locale === "en" ? "Confirm your BuildCrew email" : "Potwierdź adres e-mail w BuildCrew",
     html: buildCrewEmail({
@@ -78,6 +78,15 @@ async function issueVerificationEmail(userId: string, email: string, nextPath?: 
     }),
     devPreview: `Verification link: ${link}`,
   });
+
+  // Do not keep a usable verification token when the provider rejected the
+  // message. A resend will create a fresh token after the mail configuration
+  // has been corrected.
+  if (!sent.ok) {
+    await db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, userId));
+  }
+
+  return sent;
 }
 
 async function issuePasswordResetEmail(userId: string, email: string) {
@@ -145,9 +154,23 @@ export async function signupAction(_prev: AuthFormState, formData: FormData): Pr
   const user = inserted[0];
   if (!user) return { error: locale === "en" ? "We could not create your account." : "Nie udało się utworzyć konta." };
   await db.update(users).set({ lastActiveAt: new Date() }).where(eq(users.id, user.id));
+
+  const sent = await issueVerificationEmail(user.id, email, nextPath || undefined);
+  if (!sent.ok) {
+    // This user was created by this request and has no profile/content yet.
+    // Removing it avoids leaving a ghost account that would block retrying the
+    // same email after fixing the Resend configuration. Related auth rows are
+    // cascade-deleted by the database schema.
+    await db.delete(users).where(eq(users.id, user.id));
+    return {
+      error: locale === "en"
+        ? "We could not send the verification email. Please try again in a moment."
+        : "Nie udało się wysłać wiadomości weryfikacyjnej. Spróbuj ponownie za chwilę.",
+    };
+  }
+
   await createSessionForUser(user.id);
   if (nextPath) await setPostAuthRedirect(nextPath);
-  await issueVerificationEmail(user.id, email, nextPath || undefined);
   redirect("/verify-email?sent=1");
 }
 

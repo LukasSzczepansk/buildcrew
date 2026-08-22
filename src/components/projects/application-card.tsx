@@ -52,7 +52,7 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
         </div>
       </div>
 
-      <div><p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">Match</p><p className="mt-1 text-[22px] font-semibold text-[#94bf28]">{application.matchScore}%</p></div>
+      <div><p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Dopasowanie", "Match")}</p><p className="mt-1 text-[22px] font-semibold text-[#94bf28]">{application.matchScore}%</p></div>
 
       <div className="flex shrink-0 items-center gap-2">
         {status === "PENDING" ? <><Button size="sm" className="gap-1" onClick={() => respond("ACCEPTED")} disabled={pending}><Check className="h-3.5 w-3.5" /> {copy("Akceptuj", "Accept")}</Button><Button size="sm" variant="outline" onClick={() => respond("REJECTED")} disabled={pending} aria-label={copy("Odrzuć", "Decline")}><X className="h-3.5 w-3.5" /></Button></> : <Badge variant={status === "ACCEPTED" ? "success" : "destructive"}>{status === "ACCEPTED" ? copy("Zaakceptowano", "Accepted") : copy("Odrzucono", "Declined")}</Badge>}

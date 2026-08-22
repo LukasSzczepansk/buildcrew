@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { UserRoleBadge } from "@/components/ui/user-role-badge";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { PortfolioGallery } from "@/components/portfolio/portfolio-gallery";
 import { labelsFor } from "@/lib/constants-i18n";
+import { disciplineCopy } from "@/lib/profile-disciplines";
 import { internationalLabels } from "@/lib/international";
 import { opportunityStatusLabel } from "@/lib/opportunities";
 import { locationLabel } from "@/lib/countries";
@@ -17,6 +19,7 @@ import { getActivityState, activityLabel } from "@/lib/activity";
 import { getEndorsementSummary, getNetworkCounts, getPublicProfileByUsername } from "@/server/data/network";
 import { listProjectsForMember, listProjectsForOwner } from "@/server/data/projects";
 import { listCreditsForUser } from "@/server/data/social-projects";
+import { listPortfolioForUser } from "@/server/data/portfolio";
 import type { RoleType } from "@/db/schema";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
@@ -49,15 +52,17 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
   const [{ username }, locale] = await Promise.all([params, getRequestLocale()]);
   const en = locale === "en";
   const labels = labelsFor(locale);
+  const disciplineLabels = disciplineCopy(locale);
   const intl = internationalLabels(locale);
   const profile = await getPublicProfileByUsername(decodeURIComponent(username));
   if (!profile) notFound();
-  const [ownedProjects, memberProjects, counts, endorsements, completedCredits] = await Promise.all([
+  const [ownedProjects, memberProjects, counts, endorsements, completedCredits, portfolio] = await Promise.all([
     listProjectsForOwner(profile.userId),
     listProjectsForMember(profile.userId),
     getNetworkCounts(profile.userId),
     getEndorsementSummary(profile.userId),
     listCreditsForUser(profile.userId),
+    listPortfolioForUser(profile.userId),
   ]);
   const projects = [
     ...ownedProjects.filter((project) => project.lifecycleStatus !== "COMPLETED").map((project) => ({ id: project.id, name: project.name, tagline: project.tagline, relation: en ? "Owner" : "Autor" })),
@@ -93,6 +98,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
                 <div className="flex flex-wrap items-center gap-2"><h1 className="text-[30px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{profile.isDemo ? <span className="rounded-full border border-[var(--bc-line)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}{opportunityStatus ? <span className="inline-flex items-center gap-1.5 text-[12px] font-medium"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />{opportunityStatus}</span> : null}</div>
                 <p className="mt-1 text-sm text-[var(--bc-muted)]">{profile.headline || (profile.role ? labels.roles[profile.role as RoleType] : (en ? "Builder" : "Twórca"))} · {activityState === "TODAY" ? activityLabel(profile.lastActiveAt, locale) : (en ? "BuildCrew profile" : "profil BuildCrew")}</p>
                 {(profile.city || profile.country) ? <p className="mt-1 text-[13px] font-medium text-[var(--bc-ink)]">{locationLabel(profile.city, profile.country)}</p> : null}
+                {profile.disciplines.length ? <div className="mt-2 flex flex-wrap gap-1.5">{profile.disciplines.map((discipline) => <span key={discipline} className="border border-[var(--bc-line)] px-2 py-0.5 text-[10px] font-medium text-[var(--bc-muted)]">{disciplineLabels[discipline].label}</span>)}</div> : null}
               </div>
             </div>
             {profile.bio ? <p className="mt-5 max-w-[760px] text-[15px] leading-6 text-[var(--bc-muted)]">{profile.bio}</p> : null}
@@ -101,7 +107,7 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
           </div>
 
           <aside className="border-l-0 border-[var(--bc-line)] lg:border-l lg:pl-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Collaboration network" : "Sieć współpracy"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Proof of collaboration" : "Dorobek współpracy"}</p>
             <div className="mt-3 grid grid-cols-3 gap-4"><Metric value={counts.collaborators} label={en ? "collabs" : "współprace"} /><Metric value={counts.followers} label={en ? "followers" : "obserwujący"} /><Metric value={endorsements.total} label={en ? "endorsements" : "rekomendacje"} /></div>
             {endorsements.strengths.length ? <p className="mt-4 text-[12px] leading-5 text-[var(--bc-muted)]">{en ? "Endorsed for:" : "Polecany za:"} <span className="font-medium text-[var(--bc-ink)]">{endorsements.strengths.slice(0, 3).map((item) => item.label).join(" · ")}</span></p> : null}
           </aside>
@@ -109,7 +115,21 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
 
         <section className="grid gap-8 py-8 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="space-y-8">
-            <PublicSection title={en ? "Open to" : "Otwartość"}>
+            {completedCredits.length ? (
+              <PublicSection title={en ? "Built" : "Zbudował/a"}>
+                <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
+                  {completedCredits.map((credit) => <Link key={credit.creditId} href={`/p/${credit.projectId}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{credit.projectName}</p><p className="mt-0.5 bc-truncate-2 text-[12px] leading-4 text-[var(--bc-muted)]">{credit.outcome || credit.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Collaborator" : "Współtwórca")}</span></Link>)}
+                </div>
+              </PublicSection>
+            ) : null}
+
+            <PublicSection title={en ? "Building now" : "Buduje teraz"}>
+              {projects.length ? <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{projects.map((project) => <Link key={`${project.id}-${project.relation}`} href={`/p/${project.id}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{project.name}</p><p className="mt-0.5 text-[12px] text-[var(--bc-muted)]">{project.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{project.relation}</span></Link>)}</div> : <p className="text-[13px] text-[var(--bc-muted)]">{en ? "No active public projects right now." : "Brak aktywnych publicznych projektów w tej chwili."}</p>}
+            </PublicSection>
+
+            {portfolio.length ? <PublicSection title="Portfolio"><PortfolioGallery items={portfolio} locale={locale} /></PublicSection> : null}
+
+            <PublicSection title={en ? "Open to collaborate" : "Otwartość na współpracę"}>
               <p className="text-sm leading-6 text-[var(--bc-muted)]">{profile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") || (en ? "No information" : "Brak informacji")}</p>
               <p className="mt-2 text-[13px] text-[var(--bc-faint)]">{en ? "Availability:" : "Dostępność:"} {profile.weeklyHours ? labels.commitments[profile.weeklyHours] : "-"}</p>
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-[var(--bc-faint)]">
@@ -119,19 +139,8 @@ export default async function PublicBuilderProfilePage({ params }: { params: Pro
               </div>
             </PublicSection>
 
-            {completedCredits.length ? (
-              <PublicSection title={en ? "Built on BuildCrew" : "Zbudowane na BuildCrew"}>
-                <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">
-                  {completedCredits.map((credit) => <Link key={credit.creditId} href={`/p/${credit.projectId}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{credit.projectName}</p><p className="mt-0.5 bc-truncate-2 text-[12px] leading-4 text-[var(--bc-muted)]">{credit.outcome || credit.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Collaborator" : "Współtwórca")}</span></Link>)}
-                </div>
-              </PublicSection>
-            ) : null}
 
-            <PublicSection title={en ? "Projects and collaboration" : "Projekty i współpraca"}>
-              {projects.length ? <div className="divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{projects.map((project) => <Link key={`${project.id}-${project.relation}`} href={`/p/${project.id}`} className="grid gap-1 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{project.name}</p><p className="mt-0.5 text-[12px] text-[var(--bc-muted)]">{project.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{project.relation}</span></Link>)}</div> : <p className="text-[13px] text-[var(--bc-muted)]">{en ? "No public projects in this profile yet." : "Brak publicznych projektów w historii tego profilu."}</p>}
-            </PublicSection>
-
-            {endorsements.total ? <PublicSection title={en ? "Collaboration endorsements" : "Rekomendacje współpracy"}><p className="text-sm leading-6 text-[var(--bc-muted)]">{en ? `${endorsements.wouldAgain} of ${endorsements.total} people said they would gladly work with this builder again.` : `${endorsements.wouldAgain} z ${endorsements.total} osób zadeklarowało, że chętnie współpracowałoby z tą osobą ponownie.`}</p><div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[12px]">{endorsements.strengths.slice(0, 6).map((item) => <span key={item.key}><strong className="font-semibold text-[var(--bc-ink)]">{item.count}</strong> {item.label}</span>)}</div></PublicSection> : null}
+            {endorsements.total ? <PublicSection title={en ? "Confirmed collaboration" : "Potwierdzona współpraca"}><p className="text-sm leading-6 text-[var(--bc-muted)]">{en ? `${endorsements.wouldAgain} of ${endorsements.total} people said they would gladly work with this builder again.` : `${endorsements.wouldAgain} z ${endorsements.total} osób zadeklarowało, że chętnie współpracowałoby z tą osobą ponownie.`}</p><div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[12px]">{endorsements.strengths.slice(0, 6).map((item) => <span key={item.key}><strong className="font-semibold text-[var(--bc-ink)]">{item.count}</strong> {item.label}</span>)}</div></PublicSection> : null}
           </div>
 
           <aside>

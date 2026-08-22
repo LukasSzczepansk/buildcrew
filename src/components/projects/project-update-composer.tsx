@@ -12,7 +12,7 @@ import { appMessage } from "@/lib/server-copy";
 
 const LABELS_PL: Record<ProjectUpdateKind, string> = {
   PROGRESS: "Progress",
-  ROLE: "Team / recruiting",
+  ROLE: "Zespół / rekrutacja",
   MILESTONE: "Milestone",
   LAUNCH: "Launch / demo",
 };

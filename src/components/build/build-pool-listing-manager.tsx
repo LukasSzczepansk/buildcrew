@@ -133,7 +133,7 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
                   <Input id="pool-headline" value={headline} onChange={(e) => setHeadline(e.target.value)} maxLength={80} placeholder={copy("Frontend dev szuka ekipy do małego SaaS", "Frontend dev looking for a small SaaS team")} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{copy("Role", "Roles")}</Label>
+                  <Label>{copy("Rola", "Roles")}</Label>
                   <Select value={role} onValueChange={(value) => setRole(value as RoleType)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>{ROLE_OPTIONS.map((item) => <SelectItem key={item} value={item}>{labels.roles[item]}</SelectItem>)}</SelectContent>

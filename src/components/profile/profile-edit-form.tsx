@@ -28,12 +28,14 @@ import {
   internationalLabels,
 } from "@/lib/international";
 import { countryLabel } from "@/lib/countries";
-import type { Commitment, Goal, Level, LookingFor, RoleType, WorkModePreference } from "@/db/schema";
+import type { Commitment, Goal, Level, LookingFor, ProfileDiscipline, RoleType, WorkModePreference } from "@/db/schema";
+import { PROFILE_DISCIPLINES, disciplineCopy } from "@/lib/profile-disciplines";
 import { updateProfile } from "@/server/actions/profile";
 
 type EditableProfile = {
   username: string;
   role: RoleType;
+  disciplines: ProfileDiscipline[];
   level: Level;
   weeklyHours: Commitment;
   bio: string;
@@ -62,6 +64,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
   const copy = useCopy();
   const labels = labelsFor(locale);
   const intl = internationalLabels(locale);
+  const disciplineLabels = disciplineCopy(locale);
   const [form, setForm] = React.useState(initial);
   const [pending, setPending] = React.useState(false);
 
@@ -81,6 +84,10 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
           <Field label={copy("Główna rola", "Primary role")}>
             <div className="grid grid-cols-2 gap-2">{ROLE_OPTIONS.map((role) => <ChoiceButton key={role} active={form.role === role} onClick={() => setForm((f) => ({ ...f, role }))}>{labels.roles[role]}</ChoiceButton>)}</div>
           </Field>
+        </div>
+        <div className="mt-4">
+          <p className="mb-2 text-sm font-medium">{copy("Obszary", "Areas")} <span className="text-[11px] font-normal text-[var(--bc-faint)]">{copy("(maks. 2)", "(up to 2)")}</span></p>
+          <div className="flex flex-wrap gap-1.5">{PROFILE_DISCIPLINES.map((discipline) => <TagButton key={discipline} active={form.disciplines.includes(discipline)} onClick={() => setForm((f) => { if (f.disciplines.includes(discipline)) return { ...f, disciplines: f.disciplines.filter((item) => item !== discipline) }; if (f.disciplines.length >= 2) return f; return { ...f, disciplines: [...f.disciplines, discipline] }; })}>{disciplineLabels[discipline].label}</TagButton>)}</div>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Field label={copy("Nagłówek", "Headline")}><Input value={form.headline} onChange={(e) => setForm((f) => ({ ...f, headline: e.target.value }))} placeholder={copy("np. Full-stack developer budujący SaaS-y", "e.g. Full-stack developer building SaaS products")} maxLength={100} /></Field>
@@ -119,7 +126,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
         </div>
       </FormSection>
 
-      <FormSection title={copy("Możliwości", "Opportunities")} hint={copy("Pokaż innym, na jakie projekty, współprace i możliwości jesteś teraz otwarty.", "Tell people what kinds of conversations and opportunities are relevant to you right now.")}>
+      <FormSection title={copy("Współpraca", "Collaboration")} hint={copy("Pokaż innym, na jakie projekty, rozmowy i formy współpracy jesteś teraz otwarty.", "Tell people what kinds of projects, conversations and collaboration are relevant to you right now.")}>
         <div>
           <p className="mb-2 text-sm font-medium">{copy("Poziom", "Level")}</p>
           <div className="grid gap-2 sm:grid-cols-3">
@@ -161,7 +168,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
       </FormSection>
 
       <div className="sticky bottom-0 mt-2 flex justify-end border-t border-[var(--bc-line)] bg-[var(--bc-canvas)]/95 py-4 backdrop-blur-sm">
-        <Button onClick={save} disabled={pending || form.skills.length === 0 || form.lookingFor.length === 0 || form.languages.length === 0} className="gap-2"><Save className="h-4 w-4" /> {pending ? copy("Zapisywanie…", "Saving…") : copy("Zapisz profil", "Save profile")}</Button>
+        <Button onClick={save} disabled={pending || form.disciplines.length === 0 || form.skills.length === 0 || form.lookingFor.length === 0 || form.languages.length === 0} className="gap-2"><Save className="h-4 w-4" /> {pending ? copy("Zapisywanie…", "Saving…") : copy("Zapisz profil", "Save profile")}</Button>
       </div>
     </div>
   );

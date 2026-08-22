@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TechnologyStack } from "@/components/ui/technology-badge";
 import { UserRoleBadge } from "@/components/ui/user-role-badge";
+import { PortfolioGallery } from "@/components/portfolio/portfolio-gallery";
 import { labelsFor } from "@/lib/constants-i18n";
+import { disciplineCopy } from "@/lib/profile-disciplines";
 import { getRequestLocale } from "@/lib/site-server";
 import { getCurrentUser } from "@/lib/auth";
 import { getProfileByUserId } from "@/server/data/profiles";
@@ -25,6 +27,7 @@ import { activityLabel, getActivityState } from "@/lib/activity";
 import { opportunityStatusLabel } from "@/lib/opportunities";
 import { locationLabel } from "@/lib/countries";
 import { listCreditsForUser } from "@/server/data/social-projects";
+import { listPortfolioForUser } from "@/server/data/portfolio";
 import type { RoleType } from "@/db/schema";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -39,13 +42,14 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
   const locale = await getRequestLocale();
   const en = locale === "en";
   const labels = labelsFor(locale);
+  const disciplineLabels = disciplineCopy(locale);
   const { id } = await params;
   if (user.id !== id && await isBlockedEitherWay(user.id, id)) notFound();
   const profile = await getProfileByUserId(id);
   if (!profile) notFound();
 
-  const [ownedProjects, memberProjects, contact, badges, networkCounts, endorsementSummary, completedCredits] = await Promise.all([
-    listProjectsForOwner(id), listProjectsForMember(id), user.id !== id ? getRevealedContact(user.id, id) : Promise.resolve(null), getBuilderBadges(id), getNetworkCounts(id), getEndorsementSummary(id), listCreditsForUser(id),
+  const [ownedProjects, memberProjects, contact, badges, networkCounts, endorsementSummary, completedCredits, portfolio] = await Promise.all([
+    listProjectsForOwner(id), listProjectsForMember(id), user.id !== id ? getRevealedContact(user.id, id) : Promise.resolve(null), getBuilderBadges(id), getNetworkCounts(id), getEndorsementSummary(id), listCreditsForUser(id), listPortfolioForUser(id),
   ]);
   const projects = [...ownedProjects.map((p) => ({ ...p, relation: en ? "Owner" : "Autor" })), ...memberProjects.filter((p) => p.ownerId !== id).map((p) => ({ ...p, relation: en ? "Team member" : "Członek zespołu" }))];
   const activityState = getActivityState(profile.lastActiveAt);
@@ -65,6 +69,7 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2"><h1 className="text-[28px] font-semibold tracking-[-0.03em]">{profile.username}</h1><UserRoleBadge systemRole={profile.systemRole} founder={profile.isFounder} />{profile.isDemo ? <Badge variant="outline">BuildCrew Lab</Badge> : null}</div>
                 <p className="mt-1 text-sm font-medium text-[var(--bc-ink)]">{profile.headline || (profile.role ? labels.roles[profile.role as RoleType] : "Builder")}</p>{(profile.city || profile.country) ? <p className="mt-1 text-[13px] font-medium text-[var(--bc-ink)]">{locationLabel(profile.city, profile.country)}</p> : null}<div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--bc-muted)]"><span>{profile.role ? labels.roles[profile.role as RoleType] : "Builder"}</span><span>{profile.level ? labels.levels[profile.level] : ""}</span><span className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${activityState === "TODAY" ? "bg-[var(--bc-accent-strong)]" : "bg-[var(--bc-line-strong)]"}`} />{activityLabel(profile.lastActiveAt, locale)}</span></div>
+                {profile.disciplines.length ? <div className="mt-2 flex flex-wrap gap-1.5">{profile.disciplines.map((discipline) => <span key={discipline} className="border border-[var(--bc-line)] px-2 py-0.5 text-[10px] font-medium text-[var(--bc-muted)]">{disciplineLabels[discipline].label}</span>)}</div> : null}
                 {opportunityStatus ? <div className="mt-2 inline-flex items-center gap-2 text-[12px] font-medium text-[var(--bc-ink)]"><span className="h-2 w-2 rounded-full bg-[var(--bc-accent-strong)]" />{opportunityStatus}</div> : null}
                 {badges.length ? <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{badges.slice(0, 3).map((badge) => badge.label).join(" · ")}</p> : null}
               </div>
@@ -73,8 +78,9 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
             {profile.isFounder ? <div className="mt-4 max-w-[760px] rounded-[7px] border border-[#b6dc55] bg-[#C8F169]/25 px-3.5 py-3 text-[13px] leading-5 text-[var(--bc-ink)]"><strong className="font-semibold">{en ? "I’m building BuildCrew." : "Buduję BuildCrew."}</strong> {en ? "Have feedback, found a problem, or have an idea for the platform? Message me." : "Masz feedback, znalazłeś problem albo masz pomysł na platformę? Napisz do mnie."}</div> : null}
           </section>
 
+          {portfolio.length ? <ProfileSection title="Portfolio"><PortfolioGallery items={portfolio} locale={locale} /></ProfileSection> : null}
           <ProfileSection title={en ? "Skills" : "Umiejętności"}><TechnologyStack items={profile.skills} max={10} compact /></ProfileSection>
-          <ProfileSection title={en ? "Availability and opportunities" : "Dostępność i możliwości"}>
+          <ProfileSection title={en ? "Availability and collaboration" : "Dostępność i współpraca"}>
             <div className="grid gap-4 text-sm sm:grid-cols-2">
               <div><p className="text-[12px] text-[var(--bc-faint)]">{en ? "Time" : "Czas"}</p><p className="mt-1 font-medium">{profile.weeklyHours ? labels.commitments[profile.weeklyHours] : "-"}</p></div>
               <div><p className="text-[12px] text-[var(--bc-faint)]">{en ? "Open to" : "Otwartość"}</p><p className="mt-1 font-medium">{profile.lookingFor.length ? profile.lookingFor.map((item) => labels.lookingFor[item]).join(" · ") : "-"}</p></div>

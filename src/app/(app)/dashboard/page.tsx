@@ -153,8 +153,8 @@ export default async function DashboardPage() {
 
       {socialFeed.length > 0 ? (
         <section className="mt-8">
-          <SectionHeading title={en ? "Latest from the community" : "Najnowsze w społeczności"} href="/feed" label={en ? "Open feed" : "Zobacz aktualności"} />
-          <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{en ? "A quick preview. The full builder feed lives in Feed." : "Krótki podgląd. Pełny feed builderów znajdziesz w Aktualnościach."}</p>
+          <SectionHeading title={en ? "Latest from the community" : "Najnowsze w społeczności"} href="/feed" label={en ? "Open community" : "Zobacz społeczność"} />
+          <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{en ? "A quick preview of discussions, knowledge and build updates from the community." : "Krótki podgląd dyskusji, wiedzy i aktualizacji z budowania w społeczności."}</p>
           <div className="mt-4 space-y-3">
             {socialFeed.map((item) => <SocialFeedCard key={`social-${item.id}`} item={item} locale={locale} viewerId={user.id} />)}
           </div>

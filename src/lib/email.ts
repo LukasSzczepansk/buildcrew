@@ -130,6 +130,7 @@ export async function sendTransactionalEmail(input: {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const configuredFrom = process.env.EMAIL_FROM?.trim();
   const from = configuredFrom || (process.env.NODE_ENV === "production" ? "" : "BuildCrew <onboarding@resend.dev>");
+  const usesResendTestDomain = /@resend\.dev(?:>|$)/i.test(from);
 
   if (!apiKey || !from) {
     if (process.env.NODE_ENV !== "production") {
@@ -139,6 +140,16 @@ export async function sendTransactionalEmail(input: {
     }
     console.error("RESEND_API_KEY or EMAIL_FROM is missing in production; email was not sent.");
     return { ok: false, error: "EMAIL_NOT_CONFIGURED" } as const;
+  }
+
+  // onboarding@resend.dev is a Resend testing sender. It can only deliver to
+  // the email address that owns the Resend account, so using it for public
+  // registration would make verification silently fail for real users.
+  if (process.env.NODE_ENV === "production" && usesResendTestDomain) {
+    console.error(
+      "EMAIL_FROM uses the Resend testing domain. Verify your own domain in Resend and set EMAIL_FROM to that domain (for example BuildCrew <hello@buildcreww.pl>).",
+    );
+    return { ok: false, error: "RESEND_TEST_SENDER" } as const;
   }
 
   try {
@@ -163,8 +174,14 @@ export async function sendTransactionalEmail(input: {
     });
 
     if (!response.ok) {
-      console.error("Resend error", response.status, await response.text());
-      return { ok: false, error: "SEND_FAILED" } as const;
+      const responseBody = await response.text();
+      console.error("Resend error", response.status, responseBody);
+      return {
+        ok: false,
+        error: response.status === 403 && /testing emails|verify a domain|not verified/i.test(responseBody)
+          ? "RESEND_DOMAIN_NOT_VERIFIED"
+          : "SEND_FAILED",
+      } as const;
     }
 
     const data = await response.json().catch(() => null) as { id?: string } | null;

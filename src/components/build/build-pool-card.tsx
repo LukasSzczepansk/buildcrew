@@ -65,7 +65,7 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
             <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-[var(--bc-muted)]">
               <span>{labels.levels[person.level]}</span>
               <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{labels.commitments[person.weeklyHours]}</span>
-              <span className="inline-flex items-center gap-1"><UsersRound className="h-3 w-3" />{person.preferredCrewSize} {copy("people", "people")}</span>
+              <span className="inline-flex items-center gap-1"><UsersRound className="h-3 w-3" />{person.preferredCrewSize} {locale === "en" ? (person.preferredCrewSize === 1 ? "person" : "people") : (person.preferredCrewSize === 1 ? "osoba" : person.preferredCrewSize < 5 ? "osoby" : "osób")}</span>
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
         </div>
 
         <div className="border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">Match</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{copy("Dopasowanie", "Match")}</p>
           <p className={`mt-1.5 text-[26px] font-semibold leading-none tracking-[-0.03em] ${strongMatch ? "text-[#94bf28] dark:text-[var(--bc-accent)]" : "text-[var(--bc-ink)]"}`}>{score}%</p>
           <div className="mt-2.5 h-[3px] w-full bg-black/8 dark:bg-white/10"><div className="h-[3px] bg-[var(--bc-accent-strong)]" style={{ width: `${score}%` }} /></div>
         </div>
@@ -86,7 +86,7 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
             <DialogTrigger asChild><Button size="sm">{myCrewId ? copy("Zaproś", "Invite") : copy("Wiadomość", "Message")}</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{myCrewId ? copy(`Invite ${person.username}`, `Invite ${person.username}`) : copy(`Message ${person.username}`, `Message ${person.username}`)}</DialogTitle>
+                <DialogTitle>{myCrewId ? copy(`Zaproś ${person.username}`, `Invite ${person.username}`) : copy(`Wiadomość do ${person.username}`, `Message ${person.username}`)}</DialogTitle>
                 <DialogDescription>{myCrewId ? copy("Dodaj krótką wiadomość do zaproszenia.", "Add a short note to the invitation.") : copy("Napisz konkretnie, co moglibyście zbudować.", "Be specific about what you could build together.")}</DialogDescription>
               </DialogHeader>
               <Textarea placeholder={copy("Cześć! Mamy podobny kierunek…", "Hi! It looks like we are interested in similar things…")} maxLength={300} value={message} onChange={(event) => setMessage(event.target.value)} />

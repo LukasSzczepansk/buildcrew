@@ -373,7 +373,7 @@ export function ProjectWizard({
     <div className="mx-auto w-full max-w-[900px] pb-16">
       <div className="border-y border-[var(--bc-line)]">
         <div className="flex min-w-max overflow-x-auto">
-          {(locale === "en" ? ["Basics", "Project", "Team", "Collaboration", "Preview"] : ["Podstawy", "Project", "Team", "Collaboration", "Preview"]).map((label, index) => {
+          {(locale === "en" ? ["Basics", "Project", "Team", "Collaboration", "Preview"] : ["Podstawy", "Projekt", "Zespół", "Współpraca", "Podgląd"]).map((label, index) => {
             const currentStep = index + 1;
             const active = currentStep === step;
             const done = currentStep < step;
@@ -609,18 +609,18 @@ function CrewStep({
           <div key={index} className="py-6 first:pt-5 last:pb-5">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold">{copy(`Role ${index + 1}`, `Role ${index + 1}`)}</p>
+                <p className="text-sm font-semibold">{copy(`Rola ${index + 1}`, `Role ${index + 1}`)}</p>
                 <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{copy("Określ rolę, liczbę miejsc i konkretny zakres.", "Set the role, number of openings and a concrete scope.")}</p>
               </div>
               {form.roles.length > 1 ? (
-                <Button type="button" variant="ghost" size="sm" onClick={() => removeRole(index)} aria-label={copy(`Remove role ${index + 1}`, `Remove role ${index + 1}`)}>
+                <Button type="button" variant="ghost" size="sm" onClick={() => removeRole(index)} aria-label={copy(`Usuń rolę ${index + 1}`, `Remove role ${index + 1}`)}>
                   <Trash2 className="h-3.5 w-3.5" /> {copy("Usuń", "Remove")}
                 </Button>
               ) : null}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-[1fr_1fr_110px]">
-              <Field label={copy("Role", "Roles")} required compact>
+              <Field label={copy("Rola", "Roles")} required compact>
                 <Select value={role.roleType || undefined} onValueChange={(value) => updateRole(index, { roleType: value as RoleType })}>
                   <SelectTrigger><SelectValue placeholder={copy("Wybierz rolę", "Choose a role")} /></SelectTrigger>
                   <SelectContent>{ROLE_OPTIONS.map((option) => <SelectItem key={option} value={option}>{labels.roles[option]}</SelectItem>)}</SelectContent>
@@ -840,7 +840,7 @@ function PreviewStep({ form, qualityHints }: { form: FormState; qualityHints: st
           {form.roles.map((role, index) => (
             <div key={index} className="grid gap-3 py-4 sm:grid-cols-[180px_minmax(0,1fr)_90px] sm:items-start">
               <div>
-                <p className="text-sm font-semibold">{role.roleType ? labels.roles[role.roleType] : copy(`Role ${index + 1}`, `Role ${index + 1}`)}</p>
+                <p className="text-sm font-semibold">{role.roleType ? labels.roles[role.roleType] : copy(`Rola ${index + 1}`, `Role ${index + 1}`)}</p>
                 <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{role.preferredLevel ? labels.levels[role.preferredLevel] : copy("Dowolny poziom", "Any level")}</p>
               </div>
               <div>

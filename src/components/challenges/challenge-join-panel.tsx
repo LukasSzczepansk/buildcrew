@@ -193,7 +193,7 @@ export function ChallengeJoinPanel({
         </div>
         <div className="p-5">
           <p className="text-sm font-medium">{copy("Co dalej?", "What's next?")}</p>
-          <p className="mt-1 text-sm leading-6 text-neutral-500">{copy("Gdy pojawią się kolejne zgłoszenia, poniżej zobaczysz osoby z najwyższym dopasowaniem. Przed Team Reveal możesz w każdej chwili poprawić odpowiedzi.", "As more applications arrive, you'll see your best matches below. You can edit your answers any time before Team Reveal.")}</p>
+          <p className="mt-1 text-sm leading-6 text-neutral-500">{copy("Gdy pojawią się kolejne zgłoszenia, poniżej zobaczysz osoby z najwyższym dopasowaniem. Przed ogłoszeniem składów możesz w każdej chwili poprawić odpowiedzi.", "As more applications arrive, you'll see your best matches below. You can edit your answers any time before Team Reveal.")}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button onClick={() => setEditing(true)}>{copy("Edytuj zgłoszenie", "Edit application")}</Button>
             <Button variant="ghost" onClick={leave} disabled={pending}>{copy("Wycofaj zgłoszenie", "Withdraw")}</Button>

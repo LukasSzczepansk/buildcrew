@@ -82,15 +82,15 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
   return (
     <div>
       <Topbar
-        title={en ? "Feed" : "Aktualności"}
-        subtitle={en ? "See what people are building and find your next collaboration." : "Zobacz, co budują ludzie i znajdź kolejną współpracę."}
+        title={en ? "Community" : "Społeczność"}
+        subtitle={en ? "Ask questions, share what you learn, discuss ideas and follow what people are building." : "Pytaj, dziel się wiedzą i pomysłami oraz śledź, co buduje społeczność."}
       />
 
       <div className="mx-auto w-full max-w-[1140px]">
         <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,760px)_280px]">
           <main className="min-w-0">
             <div className="mb-4 flex items-end justify-between gap-3 border-b border-[var(--bc-line)]">
-              <nav className="flex min-w-0 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={en ? "Feed filters" : "Filtry aktualności"}>
+              <nav className="flex min-w-0 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={en ? "Community filters" : "Filtry społeczności"}>
                 <FeedTab active={filter === "for-you"} href="/feed">{en ? "For you" : "Dla Ciebie"}</FeedTab>
                 <FeedTab active={filter === "following"} href="/feed?filter=following">{en ? "Following" : "Obserwowani"}</FeedTab>
               </nav>
@@ -163,8 +163,8 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
                 </div>
               ) : (
                 <div className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-5 py-10 text-center">
-                  <p className="text-[15px] font-semibold">{savedOnly ? (en ? "You have no saved posts yet." : "Nie masz jeszcze zapisanych postów.") : followingOnly ? (en ? "Your following feed is quiet for now." : "Na razie jest tu spokojnie.") : (en ? "No activity yet." : "Brak nowych aktualności.")}</p>
-                  <p className="mx-auto mt-1 max-w-[520px] text-[12px] leading-5 text-[var(--bc-muted)]">{savedOnly ? (en ? "Save posts you want to return to." : "Zapisuj posty, do których chcesz wrócić.") : followingOnly ? (en ? "Follow builders and projects and their activity will appear here." : "Obserwuj ludzi i projekty, a ich aktywność pojawi się tutaj.") : (en ? "Explore people and projects to get your feed moving." : "Odkryj ludzi i projekty, żeby rozruszać swój feed.")}</p>
+                  <p className="text-[15px] font-semibold">{savedOnly ? (en ? "You have no saved posts yet." : "Nie masz jeszcze zapisanych postów.") : followingOnly ? (en ? "Your following feed is quiet for now." : "Na razie jest tu spokojnie.") : (en ? "Nothing new in the community yet." : "W społeczności nie ma jeszcze nowych wpisów.")}</p>
+                  <p className="mx-auto mt-1 max-w-[520px] text-[12px] leading-5 text-[var(--bc-muted)]">{savedOnly ? (en ? "Save posts you want to return to." : "Zapisuj posty, do których chcesz wrócić.") : followingOnly ? (en ? "Follow builders and projects and their activity will appear here." : "Obserwuj ludzi i projekty, a ich aktywność pojawi się tutaj.") : (en ? "Meet people, follow projects or start a useful discussion." : "Poznaj ludzi, obserwuj projekty albo rozpocznij wartościową dyskusję.")}</p>
                   <div className="mt-4 flex flex-wrap justify-center gap-2"><Button asChild variant="outline" size="sm"><Link href="/builders">{en ? "Find people" : "Znajdź ludzi"}</Link></Button><Button asChild size="sm"><Link href="/projects">{en ? "Explore projects" : "Odkryj projekty"}</Link></Button></div>
                 </div>
               )}

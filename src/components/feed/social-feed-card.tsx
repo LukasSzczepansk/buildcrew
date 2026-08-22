@@ -97,6 +97,9 @@ export function SocialFeedCard({ item, locale, viewerId }: { item: SocialFeedIte
 
 function badgeClasses(kind: SocialPostKind) {
   switch (kind) {
+    case "QUESTION": return "bg-sky-500/12 text-sky-700 dark:text-sky-300";
+    case "KNOWLEDGE": return "bg-indigo-500/12 text-indigo-700 dark:text-indigo-300";
+    case "IDEA": return "bg-amber-500/14 text-amber-800 dark:text-amber-300";
     case "LOOKING_FOR_PEOPLE": return "bg-blue-500/12 text-blue-600 dark:text-blue-300";
     case "LOOKING_FOR_PROJECT": return "bg-orange-500/12 text-orange-700 dark:text-orange-300";
     case "MILESTONE": return "bg-violet-500/12 text-violet-700 dark:text-violet-300";

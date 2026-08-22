@@ -1,5 +1,4 @@
 import type { HackathonLocationType } from "@/db/schema";
-import { HACKATHON_LOCATION_LABELS } from "@/lib/constants";
 import type { AppLocale } from "@/lib/site-config";
 
 export type HackathonPhase = "TEAM_FORMING" | "REGISTRATION_CLOSED" | "ONGOING" | "ENDED" | "CANCELLED";
@@ -18,26 +17,37 @@ export function getHackathonPhase(hackathon: {
   return "TEAM_FORMING";
 }
 
-export const HACKATHON_PHASE_LABELS_EN: Record<HackathonPhase, string> = {
-  TEAM_FORMING: "Team forming",
-  REGISTRATION_CLOSED: "Team formation closed",
-  ONGOING: "Ongoing",
-  ENDED: "Ended",
-  CANCELLED: "Cancelled",
+const HACKATHON_PHASE_LABELS: Record<AppLocale, Record<HackathonPhase, string>> = {
+  pl: {
+    TEAM_FORMING: "Tworzenie zespołów",
+    REGISTRATION_CLOSED: "Tworzenie zespołów zakończone",
+    ONGOING: "W trakcie",
+    ENDED: "Zakończony",
+    CANCELLED: "Odwołany",
+  },
+  en: {
+    TEAM_FORMING: "Team forming",
+    REGISTRATION_CLOSED: "Team formation closed",
+    ONGOING: "Ongoing",
+    ENDED: "Ended",
+    CANCELLED: "Cancelled",
+  },
 };
 
-export function hackathonPhaseLabel(phase: HackathonPhase, _locale: AppLocale = "en") {
-  return HACKATHON_PHASE_LABELS_EN[phase];
+export function hackathonPhaseLabel(phase: HackathonPhase, locale: AppLocale = "pl") {
+  return HACKATHON_PHASE_LABELS[locale][phase];
 }
 
-export function hackathonLocationLabel(locationType: HackathonLocationType, city?: string | null, _locale: AppLocale = "en") {
-  if (locationType === "ONLINE") return "Online";
-  const prefix = locationType === "HYBRID" ? "Hybrid" : "On-site";
+export function hackathonLocationLabel(locationType: HackathonLocationType, city?: string | null, locale: AppLocale = "pl") {
+  if (locationType === "ONLINE") return locale === "en" ? "Online" : "Online";
+  const prefix = locationType === "HYBRID"
+    ? (locale === "en" ? "Hybrid" : "Hybrydowo")
+    : (locale === "en" ? "On-site" : "Stacjonarnie");
   return city ? `${prefix} · ${city}` : prefix;
 }
 
-export function hackathonDateLabel(startsAt: Date, endsAt: Date, _locale: AppLocale = "en") {
-  const localeCode = "en-US";
+export function hackathonDateLabel(startsAt: Date, endsAt: Date, locale: AppLocale = "pl") {
+  const localeCode = locale === "en" ? "en-US" : "pl-PL";
   const sameDay = startsAt.toDateString() === endsAt.toDateString();
   if (sameDay) {
     return startsAt.toLocaleDateString(localeCode, { day: "numeric", month: "long", year: "numeric" });
@@ -45,7 +55,7 @@ export function hackathonDateLabel(startsAt: Date, endsAt: Date, _locale: AppLoc
   const sameYear = startsAt.getFullYear() === endsAt.getFullYear();
   const start = startsAt.toLocaleDateString(localeCode, { day: "numeric", month: "short", year: sameYear ? undefined : "numeric" });
   const end = endsAt.toLocaleDateString(localeCode, { day: "numeric", month: "short", year: "numeric" });
-  return `${start} – ${end}`;
+  return `${start} - ${end}`;
 }
 
 export function slugifyHackathonName(value: string) {

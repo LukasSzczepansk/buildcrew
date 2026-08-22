@@ -39,6 +39,14 @@ export type ProjectCardData = {
   followerCount?: number;
 };
 
+function polishCountLabel(value: number, one: string, few: string, many: string) {
+  if (value === 1) return one;
+  const mod10 = value % 10;
+  const mod100 = value % 100;
+  if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return few;
+  return many;
+}
+
 export function ProjectCard({
   project,
   locale = "pl",
@@ -67,6 +75,7 @@ export function ProjectCard({
   const freshness = getProjectFreshness(project.updatedAt, new Date(), locale);
   const score = typeof matchScore === "number" ? Math.min(100, Math.max(0, matchScore)) : null;
   const strongMatch = score !== null && score >= 70;
+  const matchLabel = score === null ? null : score >= 80 ? (en ? "Strong match" : "Bardzo dobre dopasowanie") : score >= 60 ? (en ? "Good match" : "Dobre dopasowanie") : (en ? "Possible match" : "Możliwe dopasowanie");
   const projectLanguage = project.projectLanguage ?? "EN";
   const marketScope = project.marketScope ?? "LOCAL";
   const needs = project.needs ?? ["TEAMMATES"];
@@ -98,7 +107,7 @@ export function ProjectCard({
                 </span>
                 {score !== null ? (
                   <span className={`inline-flex h-6 items-center gap-1 rounded-[6px] border px-2 text-[11px] font-semibold ${strongMatch ? "border-[#b8db5a] bg-[#f1f8db] text-[#66890e] dark:border-[#759624] dark:bg-[#202810] dark:text-[#c8f169]" : "border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] text-[var(--bc-muted)]"}`}>
-                    <Sparkles className="h-3 w-3" /> {score}% {en ? "match" : "dopasowania"}
+                    <Sparkles className="h-3 w-3" /> {matchLabel}
                   </span>
                 ) : null}
               </div>
@@ -166,7 +175,7 @@ export function ProjectCard({
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
-                    {teamSize}
+                    {teamSize} {en ? (teamSize === 1 ? "person" : "people") : polishCountLabel(teamSize, "osoba", "osoby", "osób")} · {openSlots} {en ? (openSlots === 1 ? "open spot" : "open spots") : polishCountLabel(openSlots, "wolne miejsce", "wolne miejsca", "wolnych miejsc")}
                   </span>
                   {project.owner?.lastActiveAt && ownerActivity !== "INACTIVE" && ownerActivity !== "UNKNOWN" ? <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />{en ? "Owner" : "Autor"}: {activityLabel(project.owner.lastActiveAt, locale).toLowerCase()}</span> : null}
                   <span className={`inline-flex items-center gap-1.5 ${freshness.stale && openSlots > 0 ? "font-medium text-amber-700 dark:text-amber-300" : ""}`}>

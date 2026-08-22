@@ -9,36 +9,256 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { HACKATHON_LOCATION_LABELS } from "@/lib/constants";
+import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { labelsFor } from "@/lib/constants-i18n";
 import { createHackathon, updateHackathon } from "@/server/actions/hackathons";
 
 export type HackathonAdminItem = {
-  id: string; slug: string; name: string; summary: string; description: string | null; organizerName: string | null; organizerUrl: string | null; officialUrl: string; registrationUrl: string | null; locationType: HackathonLocationType; city: string | null; venue: string | null; startsAt: string; endsAt: string; registrationDeadline: string | null; minTeamSize: number; maxTeamSize: number; themes: string[]; coverImageUrl: string | null; mediaRightsConfirmed: boolean; isPartner: boolean; isCancelled: boolean; isPublished: boolean;
+  id: string;
+  slug: string;
+  name: string;
+  summary: string;
+  description: string | null;
+  organizerName: string | null;
+  organizerUrl: string | null;
+  officialUrl: string;
+  registrationUrl: string | null;
+  locationType: HackathonLocationType;
+  city: string | null;
+  venue: string | null;
+  startsAt: string;
+  endsAt: string;
+  registrationDeadline: string | null;
+  minTeamSize: number;
+  maxTeamSize: number;
+  themes: string[];
+  coverImageUrl: string | null;
+  mediaRightsConfirmed: boolean;
+  isPartner: boolean;
+  isCancelled: boolean;
+  isPublished: boolean;
 };
 
 type FormState = {
-  name: string; summary: string; description: string; organizerName: string; organizerUrl: string; officialUrl: string; registrationUrl: string; locationType: HackathonLocationType; city: string; venue: string; startsAt: string; endsAt: string; registrationDeadline: string; minTeamSize: number; maxTeamSize: number; themes: string; coverImageUrl: string; mediaRightsConfirmed: boolean; isPartner: boolean; isCancelled: boolean; isPublished: boolean;
+  name: string;
+  summary: string;
+  description: string;
+  organizerName: string;
+  organizerUrl: string;
+  officialUrl: string;
+  registrationUrl: string;
+  locationType: HackathonLocationType;
+  city: string;
+  venue: string;
+  startsAt: string;
+  endsAt: string;
+  registrationDeadline: string;
+  minTeamSize: number;
+  maxTeamSize: number;
+  themes: string;
+  coverImageUrl: string;
+  mediaRightsConfirmed: boolean;
+  isPartner: boolean;
+  isCancelled: boolean;
+  isPublished: boolean;
 };
 
-const empty: FormState = { name: "", summary: "", description: "", organizerName: "", organizerUrl: "", officialUrl: "", registrationUrl: "", locationType: "ONSITE", city: "", venue: "", startsAt: "", endsAt: "", registrationDeadline: "", minTeamSize: 2, maxTeamSize: 4, themes: "", coverImageUrl: "", mediaRightsConfirmed: false, isPartner: false, isCancelled: false, isPublished: true };
-function localDateTime(value: string | null) { if (!value) return ""; const d = new Date(value); const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return local.toISOString().slice(0, 16); }
-function toForm(item: HackathonAdminItem): FormState { return { name: item.name, summary: item.summary, description: item.description ?? "", organizerName: item.organizerName ?? "", organizerUrl: item.organizerUrl ?? "", officialUrl: item.officialUrl, registrationUrl: item.registrationUrl ?? "", locationType: item.locationType, city: item.city ?? "", venue: item.venue ?? "", startsAt: localDateTime(item.startsAt), endsAt: localDateTime(item.endsAt), registrationDeadline: localDateTime(item.registrationDeadline), minTeamSize: item.minTeamSize, maxTeamSize: item.maxTeamSize, themes: item.themes.join(", "), coverImageUrl: item.coverImageUrl ?? "", mediaRightsConfirmed: item.mediaRightsConfirmed, isPartner: item.isPartner, isCancelled: item.isCancelled, isPublished: item.isPublished }; }
-function themes(value: string) { return value.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 10); }
+const empty: FormState = {
+  name: "",
+  summary: "",
+  description: "",
+  organizerName: "",
+  organizerUrl: "",
+  officialUrl: "",
+  registrationUrl: "",
+  locationType: "ONSITE",
+  city: "",
+  venue: "",
+  startsAt: "",
+  endsAt: "",
+  registrationDeadline: "",
+  minTeamSize: 2,
+  maxTeamSize: 4,
+  themes: "",
+  coverImageUrl: "",
+  mediaRightsConfirmed: false,
+  isPartner: false,
+  isCancelled: false,
+  isPublished: true,
+};
+
+function localDateTime(value: string | null) {
+  if (!value) return "";
+  const d = new Date(value);
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+function toForm(item: HackathonAdminItem): FormState {
+  return {
+    name: item.name,
+    summary: item.summary,
+    description: item.description ?? "",
+    organizerName: item.organizerName ?? "",
+    organizerUrl: item.organizerUrl ?? "",
+    officialUrl: item.officialUrl,
+    registrationUrl: item.registrationUrl ?? "",
+    locationType: item.locationType,
+    city: item.city ?? "",
+    venue: item.venue ?? "",
+    startsAt: localDateTime(item.startsAt),
+    endsAt: localDateTime(item.endsAt),
+    registrationDeadline: localDateTime(item.registrationDeadline),
+    minTeamSize: item.minTeamSize,
+    maxTeamSize: item.maxTeamSize,
+    themes: item.themes.join(", "),
+    coverImageUrl: item.coverImageUrl ?? "",
+    mediaRightsConfirmed: item.mediaRightsConfirmed,
+    isPartner: item.isPartner,
+    isCancelled: item.isCancelled,
+    isPublished: item.isPublished,
+  };
+}
+
+function parseThemes(value: string) {
+  return value.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 10);
+}
 
 export function HackathonManager({ events }: { events: HackathonAdminItem[] }) {
+  const locale = useLocale();
+  const copy = useCopy();
+  const labels = labelsFor(locale);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [form, setForm] = React.useState<FormState>(empty);
   const [pending, setPending] = React.useState(false);
-  function edit(item: HackathonAdminItem) { setEditingId(item.id); setForm(toForm(item)); window.scrollTo({ top: 0, behavior: "smooth" }); }
-  function reset() { setEditingId(null); setForm(empty); }
+
+  function edit(item: HackathonAdminItem) {
+    setEditingId(item.id);
+    setForm(toForm(item));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function reset() {
+    setEditingId(null);
+    setForm(empty);
+  }
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    if (!form.startsAt || !form.endsAt || !form.officialUrl) { toast.error("Add the dates and official website."); return; }
+    if (!form.startsAt || !form.endsAt || !form.officialUrl) {
+      toast.error(copy("Dodaj daty oraz oficjalną stronę wydarzenia.", "Add the dates and official website."));
+      return;
+    }
+
     setPending(true);
-    const payload = { ...form, themes: themes(form.themes), startsAt: new Date(form.startsAt).toISOString(), endsAt: new Date(form.endsAt).toISOString(), registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : "" };
+    const payload = {
+      ...form,
+      themes: parseThemes(form.themes),
+      startsAt: new Date(form.startsAt).toISOString(),
+      endsAt: new Date(form.endsAt).toISOString(),
+      registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : "",
+    };
     const result = editingId ? await updateHackathon(editingId, payload) : await createHackathon(payload);
     setPending(false);
-    if (result?.error) toast.error(result.error); else { toast.success(editingId ? "Hackathon updated." : "Hackathon added."); reset(); }
+
+    if (result?.error) {
+      toast.error(result.error);
+    } else {
+      toast.success(copy(editingId ? "Hackathon zaktualizowany." : "Hackathon dodany.", editingId ? "Hackathon updated." : "Hackathon added."));
+      reset();
+    }
   }
-  return <div className="grid gap-6 xl:grid-cols-[460px_1fr]"><Card className="p-5"><div className="flex items-center justify-between"><div><p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{editingId ? "Edit" : "New event"}</p><h2 className="mt-1 text-[17px] font-semibold">{editingId ? "Update hackathon" : "Add hackathon"}</h2></div>{editingId ? <Button type="button" variant="ghost" size="sm" onClick={reset}>Cancel</Button> : null}</div><form onSubmit={submit} className="mt-5 space-y-4"><div><Label>Name</Label><Input className="mt-1.5" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div><div><Label>Short BuildCrew description</Label><Textarea className="mt-1.5 min-h-20" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} placeholder="Write your own neutral event description. Do not copy the organizer’s full text." /></div><div><Label>Longer description (optional)</Label><Textarea className="mt-1.5 min-h-28" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div><div className="grid grid-cols-2 gap-3"><div><Label>Start</Label><Input className="mt-1.5" type="datetime-local" value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} /></div><div><Label>End</Label><Input className="mt-1.5" type="datetime-local" value={form.endsAt} onChange={(e) => setForm({ ...form, endsAt: e.target.value })} /></div></div><div><Label>Registration / team matching deadline (optional)</Label><Input className="mt-1.5" type="datetime-local" value={form.registrationDeadline} onChange={(e) => setForm({ ...form, registrationDeadline: e.target.value })} /></div><div className="grid grid-cols-2 gap-3"><div><Label>Work mode</Label><select className="mt-1.5 h-10 w-full rounded-[6px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-3 text-sm" value={form.locationType} onChange={(e) => setForm({ ...form, locationType: e.target.value as HackathonLocationType })}>{(Object.keys(HACKATHON_LOCATION_LABELS) as HackathonLocationType[]).map((item) => <option key={item} value={item}>{HACKATHON_LOCATION_LABELS[item]}</option>)}</select></div><div><Label>City</Label><Input className="mt-1.5" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div></div><div><Label>Venue</Label><Input className="mt-1.5" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })} /></div><div><Label>Organizer</Label><Input className="mt-1.5" value={form.organizerName} onChange={(e) => setForm({ ...form, organizerName: e.target.value })} /></div><div><Label>Organizer website (optional)</Label><Input className="mt-1.5" type="url" value={form.organizerUrl} onChange={(e) => setForm({ ...form, organizerUrl: e.target.value })} /></div><div><Label>Official event website</Label><Input className="mt-1.5" type="url" value={form.officialUrl} onChange={(e) => setForm({ ...form, officialUrl: e.target.value })} /></div><div><Label>Official registration (optional)</Label><Input className="mt-1.5" type="url" value={form.registrationUrl} onChange={(e) => setForm({ ...form, registrationUrl: e.target.value })} /></div><div><Label>Themes</Label><Input className="mt-1.5" value={form.themes} onChange={(e) => setForm({ ...form, themes: e.target.value })} placeholder="AI, Fintech, DevTools, Open data" /></div><div className="grid grid-cols-2 gap-3"><div><Label>Min. team</Label><Input className="mt-1.5" type="number" min={2} max={8} value={form.minTeamSize} onChange={(e) => setForm({ ...form, minTeamSize: Number(e.target.value) })} /></div><div><Label>Max. team</Label><Input className="mt-1.5" type="number" min={2} max={8} value={form.maxTeamSize} onChange={(e) => setForm({ ...form, maxTeamSize: Number(e.target.value) })} /></div></div><div className="border-t border-[var(--bc-line)] pt-4"><Label>Image / banner (optional)</Label><Input className="mt-1.5" type="url" value={form.coverImageUrl} onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })} placeholder="https://..." /><label className="mt-2 flex items-start gap-2 text-[12px] leading-5 text-[var(--bc-muted)]"><input type="checkbox" className="mt-1" checked={form.mediaRightsConfirmed} onChange={(e) => setForm({ ...form, mediaRightsConfirmed: e.target.checked })} /><span>I confirm that BuildCrew has the right or permission to use this image. The image cannot be saved without this confirmation.</span></label></div><div className="space-y-2 border-t border-[var(--bc-line)] pt-4 text-[13px]"><label className="flex items-center gap-2"><input type="checkbox" checked={form.isPublished} onChange={(e) => setForm({ ...form, isPublished: e.target.checked })} />Publish in directory</label><label className="flex items-center gap-2"><input type="checkbox" checked={form.isPartner} onChange={(e) => setForm({ ...form, isPartner: e.target.checked })} />Official BuildCrew partner - select only after confirmation</label><label className="flex items-center gap-2"><input type="checkbox" checked={form.isCancelled} onChange={(e) => setForm({ ...form, isCancelled: e.target.checked })} />Event canceled</label></div><Button type="submit" className="w-full" disabled={pending}>{pending ? "Saving…" : editingId ? "Save changes" : "Add hackathon"}</Button></form></Card><div><div className="mb-3"><h2 className="text-[17px] font-semibold">Events · {events.length}</h2><p className="mt-1 text-[12px] text-[var(--bc-muted)]">Do not mark a partnership or image rights without actual confirmation.</p></div><div className="border-t border-[var(--bc-line-strong)]">{events.map((item) => <div key={item.id} className="grid gap-3 border-b border-[var(--bc-line)] py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><div className="flex flex-wrap items-center gap-2"><p className="text-sm font-semibold">{item.name}</p><span className="text-[11px] text-[var(--bc-faint)]">{item.isPublished ? "public" : "hidden"}{item.isPartner ? " · partner" : ""}{item.isCancelled ? " · canceled" : ""}</span></div><p className="mt-1 text-[12px] text-[var(--bc-muted)]">{new Date(item.startsAt).toLocaleString("en-US")} · /explore/hackathons/{item.slug}</p></div><div className="flex gap-2"><Button asChild size="sm" variant="ghost"><Link href={`/admin/hackathons/${item.id}`}>Team Finder</Link></Button><Button size="sm" variant="outline" onClick={() => edit(item)}>Edit</Button></div></div>)}</div></div></div>;
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[460px_1fr]">
+      <Card className="p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">
+              {editingId ? copy("Edycja", "Edit") : copy("Nowe wydarzenie", "New event")}
+            </p>
+            <h2 className="mt-1 text-[17px] font-semibold">
+              {editingId ? copy("Edytuj hackathon", "Update hackathon") : copy("Dodaj hackathon", "Add hackathon")}
+            </h2>
+          </div>
+          {editingId ? <Button type="button" variant="ghost" size="sm" onClick={reset}>{copy("Anuluj", "Cancel")}</Button> : null}
+        </div>
+
+        <form onSubmit={submit} className="mt-5 space-y-4">
+          <div><Label>{copy("Nazwa", "Name")}</Label><Input className="mt-1.5" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+          <div>
+            <Label>{copy("Krótki opis w BuildCrew", "Short BuildCrew description")}</Label>
+            <Textarea className="mt-1.5 min-h-20" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} placeholder={copy("Napisz własny, neutralny opis wydarzenia. Nie kopiuj pełnego tekstu organizatora.", "Write your own neutral event description. Do not copy the organizer's full text.")} />
+          </div>
+          <div><Label>{copy("Dłuższy opis (opcjonalnie)", "Longer description (optional)")}</Label><Textarea className="mt-1.5 min-h-28" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>{copy("Start", "Start")}</Label><Input className="mt-1.5" type="datetime-local" value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} /></div>
+            <div><Label>{copy("Koniec", "End")}</Label><Input className="mt-1.5" type="datetime-local" value={form.endsAt} onChange={(e) => setForm({ ...form, endsAt: e.target.value })} /></div>
+          </div>
+          <div><Label>{copy("Termin zapisów / dobierania zespołów (opcjonalnie)", "Registration / team matching deadline (optional)")}</Label><Input className="mt-1.5" type="datetime-local" value={form.registrationDeadline} onChange={(e) => setForm({ ...form, registrationDeadline: e.target.value })} /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>{copy("Tryb", "Work mode")}</Label>
+              <select className="mt-1.5 h-10 w-full rounded-[6px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-3 text-sm" value={form.locationType} onChange={(e) => setForm({ ...form, locationType: e.target.value as HackathonLocationType })}>
+                {(Object.keys(labels.hackathonLocations) as HackathonLocationType[]).map((item) => <option key={item} value={item}>{labels.hackathonLocations[item]}</option>)}
+              </select>
+            </div>
+            <div><Label>{copy("Miasto", "City")}</Label><Input className="mt-1.5" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
+          </div>
+          <div><Label>{copy("Miejsce", "Venue")}</Label><Input className="mt-1.5" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })} /></div>
+          <div><Label>{copy("Organizator", "Organizer")}</Label><Input className="mt-1.5" value={form.organizerName} onChange={(e) => setForm({ ...form, organizerName: e.target.value })} /></div>
+          <div><Label>{copy("Strona organizatora (opcjonalnie)", "Organizer website (optional)")}</Label><Input className="mt-1.5" type="url" value={form.organizerUrl} onChange={(e) => setForm({ ...form, organizerUrl: e.target.value })} /></div>
+          <div><Label>{copy("Oficjalna strona wydarzenia", "Official event website")}</Label><Input className="mt-1.5" type="url" value={form.officialUrl} onChange={(e) => setForm({ ...form, officialUrl: e.target.value })} /></div>
+          <div><Label>{copy("Oficjalne zapisy (opcjonalnie)", "Official registration (optional)")}</Label><Input className="mt-1.5" type="url" value={form.registrationUrl} onChange={(e) => setForm({ ...form, registrationUrl: e.target.value })} /></div>
+          <div><Label>{copy("Tematy", "Themes")}</Label><Input className="mt-1.5" value={form.themes} onChange={(e) => setForm({ ...form, themes: e.target.value })} placeholder="AI, Fintech, DevTools, Open data" /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>{copy("Min. osób", "Min. team")}</Label><Input className="mt-1.5" type="number" min={2} max={8} value={form.minTeamSize} onChange={(e) => setForm({ ...form, minTeamSize: Number(e.target.value) })} /></div>
+            <div><Label>{copy("Maks. osób", "Max. team")}</Label><Input className="mt-1.5" type="number" min={2} max={8} value={form.maxTeamSize} onChange={(e) => setForm({ ...form, maxTeamSize: Number(e.target.value) })} /></div>
+          </div>
+          <div className="border-t border-[var(--bc-line)] pt-4">
+            <Label>{copy("Obraz / banner (opcjonalnie)", "Image / banner (optional)")}</Label>
+            <Input className="mt-1.5" type="url" value={form.coverImageUrl} onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })} placeholder="https://..." />
+            <label className="mt-2 flex items-start gap-2 text-[12px] leading-5 text-[var(--bc-muted)]">
+              <input type="checkbox" className="mt-1" checked={form.mediaRightsConfirmed} onChange={(e) => setForm({ ...form, mediaRightsConfirmed: e.target.checked })} />
+              <span>{copy("Potwierdzam, że BuildCrew ma prawo lub zgodę na użycie tego obrazu. Bez tego potwierdzenia obraz nie może zostać zapisany.", "I confirm that BuildCrew has the right or permission to use this image. The image cannot be saved without this confirmation.")}</span>
+            </label>
+          </div>
+          <div className="space-y-2 border-t border-[var(--bc-line)] pt-4 text-[13px]">
+            <label className="flex items-center gap-2"><input type="checkbox" checked={form.isPublished} onChange={(e) => setForm({ ...form, isPublished: e.target.checked })} />{copy("Opublikuj w katalogu", "Publish in directory")}</label>
+            <label className="flex items-center gap-2"><input type="checkbox" checked={form.isPartner} onChange={(e) => setForm({ ...form, isPartner: e.target.checked })} />{copy("Oficjalny partner BuildCrew - zaznacz tylko po potwierdzeniu", "Official BuildCrew partner - select only after confirmation")}</label>
+            <label className="flex items-center gap-2"><input type="checkbox" checked={form.isCancelled} onChange={(e) => setForm({ ...form, isCancelled: e.target.checked })} />{copy("Wydarzenie odwołane", "Event canceled")}</label>
+          </div>
+          <Button type="submit" className="w-full" disabled={pending}>{pending ? copy("Zapisywanie…", "Saving…") : editingId ? copy("Zapisz zmiany", "Save changes") : copy("Dodaj hackathon", "Add hackathon")}</Button>
+        </form>
+      </Card>
+
+      <div>
+        <div className="mb-3">
+          <h2 className="text-[17px] font-semibold">{copy("Wydarzenia", "Events")} · {events.length}</h2>
+          <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{copy("Nie oznaczaj partnerstwa ani praw do obrazu bez faktycznego potwierdzenia.", "Do not mark a partnership or image rights without actual confirmation.")}</p>
+        </div>
+        <div className="border-t border-[var(--bc-line-strong)]">
+          {events.map((item) => (
+            <div key={item.id} className="grid gap-3 border-b border-[var(--bc-line)] py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-semibold">{item.name}</p>
+                  <span className="text-[11px] text-[var(--bc-faint)]">
+                    {item.isPublished ? copy("publiczny", "public") : copy("ukryty", "hidden")}
+                    {item.isPartner ? ` · ${copy("partner", "partner")}` : ""}
+                    {item.isCancelled ? ` · ${copy("odwołany", "canceled")}` : ""}
+                  </span>
+                </div>
+                <p className="mt-1 text-[12px] text-[var(--bc-muted)]">{new Date(item.startsAt).toLocaleString(locale === "pl" ? "pl-PL" : "en-US")} · /explore/hackathons/{item.slug}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button asChild size="sm" variant="ghost"><Link href={`/admin/hackathons/${item.id}`}>{copy("Dobieranie zespołu", "Team Finder")}</Link></Button>
+                <Button size="sm" variant="outline" onClick={() => edit(item)}>{copy("Edytuj", "Edit")}</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
