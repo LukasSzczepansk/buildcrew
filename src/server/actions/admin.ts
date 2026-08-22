@@ -1,11 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import {
   adminAuditLogs,
   answers,
+  notificationPreferences,
   notifications,
   projects,
   questions,
@@ -14,6 +15,8 @@ import {
   users,
 } from "@/db/schema";
 import { getVerifiedCurrentUser, isAdmin } from "@/lib/auth";
+import { sendTransactionalEmailBatch } from "@/lib/email";
+import { buildPremieryAnnouncementEmail } from "@/lib/premiery-announcement-email";
 import { uuidSchema } from "@/lib/validations";
 
 async function requireAdmin() {
@@ -130,45 +133,129 @@ export async function deleteAnswerAdminAction(formData: FormData) {
 
 
 const PREMIERY_ANNOUNCEMENT_ID = "premiery-launch-2026-08-22";
+const PREMIERY_EMAIL_BATCH_SIZE = 100;
 
 export async function broadcastPremieryAnnouncementAction() {
   const admin = await requireAdmin();
 
-  const [recipients, alreadySent] = await Promise.all([
-    db.select({ id: users.id })
-      .from(users)
-      .where(eq(users.isSuspended, false)),
-    db.select({ userId: notifications.userId })
+  const recipients = await db.select({
+    id: users.id,
+    email: users.email,
+    emailVerifiedAt: users.emailVerifiedAt,
+    preferredLocale: users.preferredLocale,
+  })
+    .from(users)
+    .where(eq(users.isSuspended, false));
+
+  const recipientIds = recipients.map((recipient) => recipient.id);
+  const [alreadySent, preferenceRows] = await Promise.all([
+    db.select({
+      id: notifications.id,
+      userId: notifications.userId,
+      emailSentAt: notifications.emailSentAt,
+    })
       .from(notifications)
       .where(and(
         eq(notifications.entityType, "system_announcement"),
         eq(notifications.entityId, PREMIERY_ANNOUNCEMENT_ID),
       )),
+    recipientIds.length
+      ? db.select({
+          userId: notificationPreferences.userId,
+          emailWeeklyDigest: notificationPreferences.emailWeeklyDigest,
+        })
+          .from(notificationPreferences)
+          .where(inArray(notificationPreferences.userId, recipientIds))
+      : Promise.resolve([]),
   ]);
 
-  const sentUserIds = new Set(alreadySent.map((row) => row.userId));
-  const pending = recipients.filter((recipient) => !sentUserIds.has(recipient.id));
+  const notificationByUser = new Map(alreadySent.map((row) => [row.userId, row]));
+  const pendingNotifications = recipients.filter((recipient) => !notificationByUser.has(recipient.id));
 
-  const values = pending.map((recipient) => ({
+  const notificationValues = pendingNotifications.map((recipient) => ({
     userId: recipient.id,
     actorId: admin.id,
     type: "SYSTEM_ANNOUNCEMENT" as const,
     entityType: "system_announcement",
     entityId: PREMIERY_ANNOUNCEMENT_ID,
-    title: "Nowość w BuildCrew - Premiery 🚀",
-    body: "Masz projekt, aplikację, stronę, grę, SaaS albo coś, nad czym dopiero pracujesz? Od teraz możesz pokazać to w Premierach, zebrać feedback, znaleźć testerów, pierwszych użytkowników albo osoby do dalszej współpracy. Projekt nie musi być skończony ani stworzony na BuildCrew. Pokaż swój projekt →",
+    title: recipient.preferredLocale === "en" ? "New in BuildCrew - Launches 🚀" : "Nowość w BuildCrew - Premiery 🚀",
+    body: recipient.preferredLocale === "en"
+      ? "Got a project, app, website, game, SaaS, or something you're still working on? You can now share it in Launches, collect feedback, find testers, first users, or people to keep building with. Your project does not have to be finished or created on BuildCrew. Show your project →"
+      : "Masz projekt, aplikację, stronę, grę, SaaS albo coś, nad czym dopiero pracujesz? Od teraz możesz pokazać to w Premierach, zebrać feedback, znaleźć testerów, pierwszych użytkowników albo osoby do dalszej współpracy. Projekt nie musi być skończony ani stworzony na BuildCrew. Pokaż swój projekt →",
     link: "/launches/new",
   }));
 
-  const BATCH_SIZE = 400;
-  for (let offset = 0; offset < values.length; offset += BATCH_SIZE) {
-    await db.insert(notifications).values(values.slice(offset, offset + BATCH_SIZE));
+  const NOTIFICATION_BATCH_SIZE = 400;
+  for (let offset = 0; offset < notificationValues.length; offset += NOTIFICATION_BATCH_SIZE) {
+    const created = await db.insert(notifications)
+      .values(notificationValues.slice(offset, offset + NOTIFICATION_BATCH_SIZE))
+      .returning({
+        id: notifications.id,
+        userId: notifications.userId,
+        emailSentAt: notifications.emailSentAt,
+      });
+    for (const row of created) notificationByUser.set(row.userId, row);
   }
+
+  const emailPreferenceByUser = new Map(preferenceRows.map((row) => [row.userId, row.emailWeeklyDigest]));
+  const emailRecipients = recipients.filter((recipient) => {
+    const announcement = notificationByUser.get(recipient.id);
+    if (!announcement || announcement.emailSentAt) return false;
+    if (!recipient.email || !recipient.emailVerifiedAt) return false;
+    return emailPreferenceByUser.get(recipient.id) !== false;
+  });
+
+  let emailsSent = 0;
+  let emailBatchFailures = 0;
+
+  for (let offset = 0; offset < emailRecipients.length; offset += PREMIERY_EMAIL_BATCH_SIZE) {
+    const batch = emailRecipients.slice(offset, offset + PREMIERY_EMAIL_BATCH_SIZE);
+    const emailPayload = batch.map((recipient) => {
+      const locale = recipient.preferredLocale === "en" ? "en" as const : "pl" as const;
+      const email = buildPremieryAnnouncementEmail(locale);
+      return {
+        to: recipient.email,
+        subject: email.subject,
+        html: email.html,
+        text: email.text,
+      };
+    });
+
+    const result = await sendTransactionalEmailBatch({
+      emails: emailPayload,
+      idempotencyKey: `${PREMIERY_ANNOUNCEMENT_ID}-${offset}-${batch.map((recipient) => recipient.id).sort().join("-")}`.slice(0, 250),
+    });
+
+    if (!result.ok) {
+      emailBatchFailures += 1;
+      continue;
+    }
+
+    if (!result.dev) {
+      const notificationIds = batch
+        .map((recipient) => notificationByUser.get(recipient.id)?.id)
+        .filter((id): id is string => Boolean(id));
+      if (notificationIds.length) {
+        await db.update(notifications)
+          .set({ emailSentAt: new Date() })
+          .where(inArray(notifications.id, notificationIds));
+      }
+      emailsSent += batch.length;
+    }
+  }
+
+  const verifiedEmailCount = recipients.filter((recipient) => Boolean(recipient.email && recipient.emailVerifiedAt)).length;
+  const optedOutCount = recipients.filter((recipient) => emailPreferenceByUser.get(recipient.id) === false).length;
 
   await audit(admin.id, "SYSTEM_ANNOUNCEMENT_SENT", "system_announcement", PREMIERY_ANNOUNCEMENT_ID, {
     recipients: recipients.length,
-    newlySent: values.length,
-    skippedAsDuplicate: alreadySent.length,
+    inAppNewlySent: notificationValues.length,
+    inAppSkippedAsDuplicate: alreadySent.length,
+    verifiedEmailRecipients: verifiedEmailCount,
+    emailEligible: emailRecipients.length,
+    emailsSent,
+    emailBatchFailures,
+    emailOptedOut: optedOutCount,
     link: "/launches/new",
   });
 

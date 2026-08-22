@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, BellRing, CheckCircle2, FileQuestion, Flag, FolderKanban, Image as ImageIcon, Rocket, UserPlus, UserRoundCheck, Users, UsersRound, type LucideIcon } from "lucide-react";
+import { Activity, BellRing, CheckCircle2, FileQuestion, Flag, FolderKanban, Image as ImageIcon, Mail, UserPlus, UserRoundCheck, Users, UsersRound, type LucideIcon } from "lucide-react";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { AdminStatCard } from "@/components/admin/stat-card";
 import { Avatar } from "@/components/ui/avatar";
@@ -59,8 +59,8 @@ export default async function AdminPage() {
 
             <p className="mt-3 text-[12px] leading-5 text-[var(--bc-faint)]">
               {en
-                ? "Creates one in-app notification for every active account. Repeated clicks do not create duplicates. No marketing email is sent."
-                : "Tworzy jedno powiadomienie w aplikacji dla każdego aktywnego konta. Ponowne kliknięcie nie tworzy duplikatów. Nie wysyła marketingowego e-maila."}
+                ? "Creates an in-app notification for every active account and sends a polished email to verified users with email digests enabled. Repeated clicks do not duplicate notifications or already-sent emails."
+                : "Tworzy powiadomienie w aplikacji dla każdego aktywnego konta i wysyła dopracowany e-mail do zweryfikowanych użytkowników z włączonymi podsumowaniami e-mail. Ponowne kliknięcie nie duplikuje powiadomień ani już wysłanych maili."}
             </p>
           </div>
 
@@ -68,10 +68,10 @@ export default async function AdminPage() {
             <ConfirmSubmit
               type="submit"
               className="gap-2"
-              message={en ? "Send the Launches announcement to all active BuildCrew users?" : "Wysłać informację o Premierach do wszystkich aktywnych użytkowników BuildCrew?"}
+              message={en ? "Send the Launches announcement in-app and by email to eligible BuildCrew users?" : "Wysłać informację o Premierach w aplikacji oraz e-mailem do uprawnionych użytkowników BuildCrew?"}
             >
-              <Rocket className="h-4 w-4" />
-              {en ? "Send to everyone" : "Wyślij wszystkim"}
+              <Mail className="h-4 w-4" />
+              {en ? "Notify + email" : "Powiadom + wyślij e-mail"}
             </ConfirmSubmit>
           </form>
         </div>
