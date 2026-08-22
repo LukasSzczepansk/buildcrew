@@ -5,11 +5,23 @@ const PRIVATE_PATHS = [
   "/api/",
   "/admin",
   "/admin-verify",
+  "/build",
+  "/builders",
   "/dashboard",
+  "/feed",
+  "/friends",
+  "/ideas",
+  "/invitations",
+  "/jobs",
   "/messages",
+  "/my-projects",
+  "/network",
   "/notifications",
   "/onboarding",
   "/profile",
+  "/projects",
+  "/showcase",
+  "/settings",
   "/login",
   "/signup",
   "/forgot-password",
@@ -17,21 +29,15 @@ const PRIVATE_PATHS = [
   "/verify-email",
 ];
 
+const publicRule = (userAgent: string) => ({ userAgent, allow: "/", disallow: PRIVATE_PATHS });
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      {
-        // OpenAI's search crawler. Explicitly allow public BuildCrew pages so
-        // they can be discovered, summarized and cited in ChatGPT Search.
-        userAgent: "OAI-SearchBot",
-        allow: "/",
-        disallow: PRIVATE_PATHS,
-      },
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: PRIVATE_PATHS,
-      },
+      publicRule("OAI-SearchBot"),
+      publicRule("Googlebot"),
+      publicRule("Bingbot"),
+      publicRule("*"),
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,

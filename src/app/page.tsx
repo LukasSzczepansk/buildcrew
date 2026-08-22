@@ -14,12 +14,11 @@ import { getRequestLocale } from "@/lib/site-server";
 import { localeCode, openGraphLocale, siteUrlForLocale } from "@/lib/site-config";
 import { listPublicProjectsForLanding } from "@/server/data/projects";
 import { listPublicBuildersForLanding } from "@/server/data/profiles";
-import { listHomepageLaunches } from "@/server/data/launches";
 
 const SEO = {
   pl: {
-    title: "BuildCrew - znajdź ludzi do wspólnego budowania",
-    description: "Poznawaj ludzi do wspólnego budowania, dziel się wiedzą i pomysłami, rozwijaj projekty i twórz portfolio oparte na realnej pracy.",
+    title: "BuildCrew — znajdź programistę, designera lub zespół do projektu",
+    description: "Znajdź programistów, designerów, marketerów i innych ludzi do wspólnego tworzenia projektów. Dodaj projekt lub dołącz do istniejącego zespołu.",
   },
   en: {
     title: "BuildCrew - professional network for people who build",
@@ -47,7 +46,7 @@ export default async function LandingPage() {
   const locale = await getRequestLocale();
   const en = locale === "en";
   const c = <T,>(pl: T, english: T): T => (en ? english : pl);
-  const [featuredProjects, featuredBuilders, recentLaunches] = await Promise.all([listPublicProjectsForLanding(4), listPublicBuildersForLanding(4), listHomepageLaunches(3)]);
+  const [featuredProjects, featuredBuilders] = await Promise.all([listPublicProjectsForLanding(4), listPublicBuildersForLanding(4)]);
   const labels = labelsFor(locale);
   const websiteJsonLd = {
     "@context": "https://schema.org",
@@ -76,7 +75,6 @@ export default async function LandingPage() {
           <nav className="hidden items-center gap-6 text-sm text-neutral-600 md:flex dark:text-neutral-400">
             <a href="#people" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{c("Ludzie", "People")}</a>
             <Link href="/explore/projects" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{c("Projekty", "Projects")}</Link>
-            <Link href="/launches" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{c("Premiery", "Launches")}</Link>
             <a href="#how-it-works" className="hover:text-neutral-950 hover:underline dark:hover:text-white">{c("Jak to działa", "How it works")}</a>
           </nav>
           <div className="flex items-center gap-1.5">
@@ -92,7 +90,7 @@ export default async function LandingPage() {
           <div>
             <p className="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">{c("Ludzie · projekty · wiedza · współpraca", "People · projects · knowledge · collaboration")}</p>
             <h1 className="mt-5 max-w-[820px] text-[48px] font-semibold leading-[1.02] tracking-[-0.04em] sm:text-[64px] lg:text-[72px]">{c("Znajdź ludzi, z którymi możesz coś zbudować.", "Build your network by building real things.")}</h1>
-            <p className="mt-6 max-w-2xl text-[16px] leading-7 text-neutral-600 dark:text-neutral-300">{c("Poznawaj ludzi, z którymi warto coś zbudować. Dziel się wiedzą, doświadczeniem i pomysłami, rozwijaj projekty razem z innymi i pokazuj realny dorobek zamiast samej listy umiejętności.", "Meet people worth building with. Share knowledge, experience and ideas, work on projects together and turn real work into a portfolio people can trust.")}</p>
+            <p className="mt-6 max-w-2xl text-[16px] leading-7 text-neutral-600 dark:text-neutral-300">{c("BuildCrew łączy osoby tworzące własne projekty z programistami, designerami, marketerami, founderami i innymi ludźmi, którzy chcą do nich dołączyć. Znajdź ludzi do projektu, dołącz do zespołu albo pokaż to, co już budujesz.", "Meet people worth building with. Share knowledge, experience and ideas, work on projects together and turn real work into a portfolio people can trust.")}</p>
             <div className="mt-7 flex flex-wrap gap-2">
               <Button asChild size="lg"><Link href="/signup">{c("Dołącz do BuildCrew", "Join BuildCrew")} <ArrowRight className="h-3.5 w-3.5" /></Link></Button>
               <Button asChild size="lg" variant="outline"><Link href="/explore/projects">{c("Zobacz projekty", "Explore projects")}</Link></Button>
@@ -106,13 +104,6 @@ export default async function LandingPage() {
               const stack = project.technologies.slice(0, 3).join(" · ") || c("Projekt cyfrowy", "Digital project");
               return <PreviewRow key={project.id} href={`/p/${project.id}`} name={project.name} meta={`${labels.stages[project.stage]} · ${roles || c("zespół kompletny", "team complete")}`} stack={stack} />;
             }) : <div className="border-b border-[#d8d8d0] py-5 text-[13px] leading-5 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">{c("Publiczne projekty pojawią się tutaj, gdy tylko ktoś je opublikuje.", "Public projects will appear here as soon as builders publish them.")}</div>}
-          </div>
-        </section>
-
-        <section className="border-t border-[#d8d8d0] bg-white dark:border-[#34342f] dark:bg-[#171715]">
-          <div className="mx-auto max-w-[1240px] px-5 py-10 sm:px-8 lg:px-10">
-            <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-[12px] font-medium text-neutral-500">{c("Premiery społeczności", "Community launches")}</p><h2 className="mt-1 text-[24px] font-semibold tracking-[-0.025em]">{c("Co ostatnio zbudowano", "What people built recently")}</h2></div><Link href="/launches" className="text-[13px] font-medium hover:underline">{c("Zobacz wszystkie premiery", "See all launches")} <ArrowRight className="inline h-3.5 w-3.5" /></Link></div>
-            {recentLaunches.length ? <div className="divide-y divide-[#d8d8d0] border-y border-[#d8d8d0] dark:divide-neutral-700 dark:border-neutral-700">{recentLaunches.map((launch) => <Link key={launch.id} href={`/launches/${launch.slug}`} className="grid gap-3 py-4 transition-colors hover:bg-black/[0.02] sm:grid-cols-[1fr_auto] sm:items-center dark:hover:bg-white/[0.02]"><div className="min-w-0"><p className="truncate text-[14px] font-semibold">{launch.title}</p><p className="mt-1 line-clamp-1 text-[12px] text-neutral-500 dark:text-neutral-400">{launch.tagline}</p></div><div className="flex items-center gap-4 text-[11px] text-neutral-500 dark:text-neutral-400"><span>▲ {launch.voteCount}</span><span>{launch.commentCount} {c("komentarzy", "comments")}</span></div></Link>)}</div> : <div className="border-y border-[#d8d8d0] py-6 text-[13px] text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">{c("Pierwsze premiery społeczności pojawią się tutaj.", "The first community launches will appear here.")}</div>}
           </div>
         </section>
 
@@ -174,7 +165,7 @@ export default async function LandingPage() {
         <section className="border-y border-neutral-800 bg-[#151513] text-neutral-100"><div className="mx-auto grid max-w-[1240px] gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:px-10"><div><p className="text-[13px] text-neutral-400">BuildCrew</p><h2 className="mt-3 max-w-3xl text-[34px] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[42px]">{c("Poznawaj ludzi. Dziel się wiedzą i pomysłami. Budujcie razem. Pokazuj, co naprawdę zrobiłeś.", "Meet people. Share knowledge and ideas. Build together. Show what you actually made.")}</h2></div><Button asChild variant="secondary" size="lg"><Link href="/signup">{c("Dołącz do BuildCrew", "Join BuildCrew")}</Link></Button></div></section>
       </main>
 
-      <footer className="border-t border-[#d8d8d0] dark:border-[#34342f]"><div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-4 px-5 py-7 text-[12px] text-neutral-500 sm:flex-row sm:items-center sm:px-8 lg:px-10"><p>© {new Date().getFullYear()} BuildCrew</p><div className="flex flex-wrap items-center gap-5"><LanguageSwitcher compact /><Link href="/explore/projects" className="hover:underline">{c("Projekty", "Projects")}</Link><Link href="/launches" className="hover:underline">{c("Premiery", "Launches")}</Link><Link href="/znajdz/ludzi-do-projektu" className="hover:underline">{c("Znajdź ludzi do projektu", "Find people for a project")}</Link><Link href="/terms" className="hover:underline">{c("Regulamin", "Terms")}</Link><Link href="/privacy" className="hover:underline">{c("Prywatność", "Privacy")}</Link><Link href="/login" className="hover:underline">{c("Zaloguj się", "Log in")}</Link></div></div></footer>
+      <footer className="border-t border-[#d8d8d0] dark:border-[#34342f]"><div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-4 px-5 py-7 text-[12px] text-neutral-500 sm:flex-row sm:items-center sm:px-8 lg:px-10"><p>© {new Date().getFullYear()} BuildCrew</p><div className="flex flex-wrap items-center gap-5"><LanguageSwitcher compact /><Link href="/explore/projects" className="hover:underline">{c("Projekty", "Projects")}</Link><Link href="/znajdz-zespol" className="hover:underline">{c("Znajdź ludzi do projektu", "Find people for a project")}</Link><Link href="/znajdz-programiste" className="hover:underline">{c("Znajdź programistę", "Find a developer")}</Link><Link href="/o-nas" className="hover:underline">{c("O BuildCrew", "About")}</Link><Link href="/terms" className="hover:underline">{c("Regulamin", "Terms")}</Link><Link href="/privacy" className="hover:underline">{c("Prywatność", "Privacy")}</Link><Link href="/login" className="hover:underline">{c("Zaloguj się", "Log in")}</Link></div></div></footer>
     </div>
   );
 }
