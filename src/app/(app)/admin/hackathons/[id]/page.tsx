@@ -5,7 +5,7 @@ import { ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { labelsFor } from "@/lib/constants-i18n";
-import { getHackathonPhase, HACKATHON_PHASE_LABELS, HACKATHON_PHASE_LABELS_EN, hackathonDateLabel, hackathonLocationLabel } from "@/lib/hackathons";
+import { getHackathonPhase, hackathonDateLabel, hackathonLocationLabel, hackathonPhaseLabel } from "@/lib/hackathons";
 import { getRequestLocale } from "@/lib/site-server";
 import { getHackathonOrganizerSnapshot } from "@/server/data/hackathons";
 
@@ -28,7 +28,7 @@ export default async function HackathonOrganizerSnapshotPage({ params }: { param
           <Link href="/admin/hackathons" className="text-[12px] font-medium text-[var(--bc-muted)] hover:underline">← {en ? "Hackathons" : "Hackathony"}</Link>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <h2 className="text-[24px] font-semibold tracking-[-0.025em]">{event.name}</h2>
-            <Badge variant={phase === "TEAM_FORMING" ? "default" : "secondary"}>{en ? HACKATHON_PHASE_LABELS_EN[phase] : HACKATHON_PHASE_LABELS[phase]}</Badge>
+            <Badge variant={phase === "TEAM_FORMING" ? "default" : "secondary"}>{hackathonPhaseLabel(phase, locale)}</Badge>
           </div>
           <p className="mt-1 text-[13px] text-[var(--bc-muted)]">{en ? "A team-matching overview you can show to an organizer without exposing private messages." : "Podgląd dobierania zespołów, który możesz pokazać organizatorowi bez ujawniania prywatnych wiadomości."}</p>
         </div>
