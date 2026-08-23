@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, BellRing, CheckCircle2, FileQuestion, Flag, FolderKanban, Image as ImageIcon, Mail, UserPlus, UserRoundCheck, Users, UsersRound, type LucideIcon } from "lucide-react";
+import { Activity, BellRing, CheckCircle2, Clock3, ExternalLink, FileQuestion, Flag, FolderKanban, Image as ImageIcon, Mail, UserPlus, UserRoundCheck, Users, UsersRound, XCircle, type LucideIcon } from "lucide-react";
 import { ConfirmSubmit } from "@/components/admin/confirm-submit";
 import { AdminStatCard } from "@/components/admin/stat-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getRequestLocale } from "@/lib/site-server";
-import { broadcastPremieryAnnouncementAction } from "@/server/actions/admin";
+import { broadcastPremieryAnnouncementAction, moderateLaunchAction } from "@/server/actions/admin";
 import { getAdminOverview } from "@/server/data/admin";
+import { listPendingLaunchesForAdmin } from "@/server/data/launches";
 
 export const metadata: Metadata = { title: "Admin - BuildCrew" };
 
@@ -19,7 +20,10 @@ function formatDate(value: Date, en: boolean) {
 export default async function AdminPage() {
   const locale = await getRequestLocale();
   const en = locale === "en";
-  const data = await getAdminOverview();
+  const [data, pendingLaunches] = await Promise.all([
+    getAdminOverview(),
+    listPendingLaunchesForAdmin(30),
+  ]);
   return (
     <div className="space-y-7">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -28,9 +32,121 @@ export default async function AdminPage() {
         <AdminStatCard icon={UsersRound} label={en ? "Crews" : "Zespoły"} value={data.crews} helper={en ? "Legacy Build Pool crews" : "Zespoły ze starszego Build Pool"} />
         <AdminStatCard icon={Flag} label={en ? "Open reports" : "Otwarte zgłoszenia"} value={data.openReports} helper={en ? "Need review" : "Wymagają sprawdzenia"} />
         <AdminStatCard icon={ImageIcon} label={en ? "Photos to moderate" : "Zdjęcia do moderacji"} value={data.pendingAvatars} helper={en ? "Not public yet" : "Jeszcze niepubliczne"} />
+        <AdminStatCard icon={Clock3} label={en ? "Launches to review" : "Premiery do zatwierdzenia"} value={pendingLaunches.length} helper={en ? "Waiting for moderation" : "Czekają na moderację"} />
         <AdminStatCard icon={FileQuestion} label={en ? "Questions" : "Pytania"} value={data.questions} helper={en ? `${data.answers} answers` : `${data.answers} odpowiedzi`} />
         <AdminStatCard icon={Activity} label={en ? "Product actions / 7 days" : "Akcje w produkcie / 7 dni"} value={data.events7d} helper={en ? "Events recorded in analytics_events" : "Zdarzenia zapisane w analytics_events"} />
       </div>
+
+      <Card className="overflow-hidden border-[var(--bc-line)]">
+        <div className="flex items-center justify-between gap-4 border-b border-[var(--bc-line)] px-5 py-4 sm:px-6">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--bc-faint)]">{en ? "Launch moderation" : "Moderacja Premier"}</p>
+            <h2 className="mt-1 text-[17px] font-semibold">{en ? "Projects waiting for approval" : "Projekty czekające na zatwierdzenie"}</h2>
+            <p className="mt-1 text-[12px] text-[var(--bc-muted)]">
+              {en ? "New launches stay private until an administrator approves them." : "Nowe Premiery nie są publiczne, dopóki administrator ich nie zatwierdzi."}
+            </p>
+          </div>
+          <Badge variant={pendingLaunches.length ? "secondary" : "success"}>
+            {pendingLaunches.length} {en ? "pending" : "oczekujących"}
+          </Badge>
+        </div>
+
+        {pendingLaunches.length ? (
+          <div className="divide-y divide-[var(--bc-line)]">
+            {pendingLaunches.map((launch) => (
+              <div key={launch.id} className="p-5 sm:p-6">
+                <div className="grid gap-4 lg:grid-cols-[112px_minmax(0,1fr)_auto] lg:items-start">
+                  <div className="overflow-hidden rounded-[9px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)]">
+                    {launch.coverImageId ? (
+                      <img src={`/api/launches/images/${launch.coverImageId}`} alt="" className="aspect-[4/3] w-full object-cover object-top" />
+                    ) : (
+                      <div className="grid aspect-[4/3] place-items-center text-[18px] font-semibold text-[var(--bc-faint)]">
+                        {launch.title.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-[16px] font-semibold tracking-[-0.02em]">{launch.title}</h3>
+                      <Badge variant="secondary">{en ? "Waiting" : "Oczekuje"}</Badge>
+                    </div>
+                    <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{launch.tagline}</p>
+                    <p className="mt-2 line-clamp-3 text-[12px] leading-5 text-[var(--bc-faint)]">{launch.description}</p>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-[var(--bc-faint)]">
+                      <Avatar username={launch.username} seed={launch.avatarEmoji || launch.creatorId} size="sm" className="h-6 w-6 text-[9px]" />
+                      <span className="font-medium text-[var(--bc-ink)]">{launch.username}</span>
+                      <span>·</span>
+                      <span>{formatDate(launch.createdAt, en)}</span>
+                    </div>
+
+                    {launch.technologies.length ? (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {launch.technologies.slice(0, 6).map((tech) => (
+                          <span key={tech} className="rounded-full border border-[var(--bc-line)] px-2 py-0.5 text-[10px] text-[var(--bc-muted)]">{tech}</span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <Link
+                    href={`/launches/${launch.slug}`}
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"
+                  >
+                    {en ? "Preview" : "Podgląd"}
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+
+                <form action={moderateLaunchAction} className="mt-4 flex flex-col gap-3 border-t border-[var(--bc-line)] pt-4 sm:flex-row sm:items-end">
+                  <input type="hidden" name="launchId" value={launch.id} />
+                  <label className="min-w-0 flex-1">
+                    <span className="mb-1.5 block text-[11px] font-medium text-[var(--bc-muted)]">
+                      {en ? "Note for creator (optional)" : "Wiadomość dla twórcy (opcjonalnie)"}
+                    </span>
+                    <input
+                      name="note"
+                      maxLength={600}
+                      placeholder={en ? "Useful especially when rejecting..." : "Przydatne szczególnie przy odrzuceniu..."}
+                      className="h-9 w-full rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-[12px] outline-none focus:border-[var(--bc-line-strong)]"
+                    />
+                  </label>
+                  <div className="flex shrink-0 gap-2">
+                    <ConfirmSubmit
+                      type="submit"
+                      name="decision"
+                      value="reject"
+                      variant="outline"
+                      className="gap-1.5"
+                      message={en ? `Reject "${launch.title}"?` : `Odrzucić „${launch.title}”?`}
+                    >
+                      <XCircle className="h-4 w-4" />
+                      {en ? "Reject" : "Odrzuć"}
+                    </ConfirmSubmit>
+                    <ConfirmSubmit
+                      type="submit"
+                      name="decision"
+                      value="approve"
+                      className="gap-1.5"
+                      message={en ? `Approve and publish "${launch.title}"?` : `Zatwierdzić i opublikować „${launch.title}”?`}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      {en ? "Approve" : "Zatwierdź"}
+                    </ConfirmSubmit>
+                  </div>
+                </form>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="px-5 py-9 text-center sm:px-6">
+            <CheckCircle2 className="mx-auto h-5 w-5 text-[#7ea819]" />
+            <p className="mt-2 text-[13px] font-medium">{en ? "Nothing waiting for review" : "Brak Premier do sprawdzenia"}</p>
+            <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{en ? "New submissions will appear here." : "Nowe zgłoszenia pojawią się tutaj."}</p>
+          </div>
+        )}
+      </Card>
 
       <Card className="overflow-hidden border-[var(--bc-line)]">
         <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">

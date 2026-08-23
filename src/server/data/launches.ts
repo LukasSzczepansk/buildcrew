@@ -58,6 +58,9 @@ function launchSelect() {
     technologies: showcaseEntries.technologies,
     needs: showcaseEntries.needs,
     lookingForCollaborators: showcaseEntries.lookingForCollaborators,
+    reviewStatus: showcaseEntries.reviewStatus,
+    reviewedAt: showcaseEntries.reviewedAt,
+    reviewNote: showcaseEntries.reviewNote,
     projectId: showcaseEntries.projectId,
     createdAt: showcaseEntries.createdAt,
     updatedAt: showcaseEntries.updatedAt,
@@ -75,7 +78,7 @@ function launchSelect() {
 export async function listLaunches(input: { tab: LaunchTab; viewerId?: string; page?: number; category?: ShowcaseCategory }) {
   const page = Math.max(1, Math.min(input.page ?? 1, 200));
   const start = periodStart(input.tab);
-  const conditions = [eq(users.isSuspended, false)];
+  const conditions = [eq(users.isSuspended, false), eq(showcaseEntries.reviewStatus, "APPROVED")];
   if (start) conditions.push(gte(showcaseEntries.createdAt, start));
   if (input.category) conditions.push(eq(showcaseEntries.category, input.category));
 
@@ -133,14 +136,19 @@ export async function listLaunches(input: { tab: LaunchTab; viewerId?: string; p
   };
 }
 
-export async function getLaunchBySlug(slugOrId: string, viewerId?: string) {
+export async function getLaunchBySlug(slugOrId: string, viewerId?: string, allowUnapproved = false) {
   const where = isUuid(slugOrId) ? eq(showcaseEntries.id, slugOrId) : eq(showcaseEntries.slug, slugOrId);
+  const visibility = allowUnapproved
+    ? undefined
+    : viewerId && isUuid(viewerId)
+      ? or(eq(showcaseEntries.reviewStatus, "APPROVED"), eq(showcaseEntries.creatorId, viewerId))
+      : eq(showcaseEntries.reviewStatus, "APPROVED");
   const rows = await db.select(launchSelect())
     .from(showcaseEntries)
     .innerJoin(users, eq(users.id, showcaseEntries.creatorId))
     .innerJoin(profiles, eq(profiles.userId, showcaseEntries.creatorId))
     .leftJoin(projects, eq(projects.id, showcaseEntries.projectId))
-    .where(and(where, eq(users.isSuspended, false))).limit(1);
+    .where(and(where, eq(users.isSuspended, false), visibility)).limit(1);
   const row = rows[0];
   if (!row) return null;
 
@@ -188,10 +196,23 @@ export async function getLaunchBySlug(slugOrId: string, viewerId?: string) {
   };
 }
 
-export async function getLaunchImage(imageId: string) {
+export async function getLaunchImage(imageId: string, viewerId?: string, allowUnapproved = false) {
   if (!isUuid(imageId)) return null;
-  const rows = await db.select({ id: showcaseImages.id, mimeType: showcaseImages.mimeType, imageBase64: showcaseImages.imageBase64 })
-    .from(showcaseImages).where(eq(showcaseImages.id, imageId)).limit(1);
+  const visibility = allowUnapproved
+    ? undefined
+    : viewerId && isUuid(viewerId)
+      ? or(eq(showcaseEntries.reviewStatus, "APPROVED"), eq(showcaseEntries.creatorId, viewerId))
+      : eq(showcaseEntries.reviewStatus, "APPROVED");
+  const rows = await db.select({
+    id: showcaseImages.id,
+    mimeType: showcaseImages.mimeType,
+    imageBase64: showcaseImages.imageBase64,
+    reviewStatus: showcaseEntries.reviewStatus,
+  })
+    .from(showcaseImages)
+    .innerJoin(showcaseEntries, eq(showcaseEntries.id, showcaseImages.entryId))
+    .where(and(eq(showcaseImages.id, imageId), visibility))
+    .limit(1);
   return rows[0] ?? null;
 }
 
@@ -223,7 +244,7 @@ export async function listLaunchesForUser(userId: string, limit = 6) {
     createdAt: showcaseEntries.createdAt,
     voteCount: voteCountSql,
     commentCount: commentCountSql,
-  }).from(showcaseEntries).where(eq(showcaseEntries.creatorId, userId)).orderBy(desc(showcaseEntries.createdAt)).limit(Math.max(1, Math.min(limit, 20)));
+  }).from(showcaseEntries).where(and(eq(showcaseEntries.creatorId, userId), eq(showcaseEntries.reviewStatus, "APPROVED"))).orderBy(desc(showcaseEntries.createdAt)).limit(Math.max(1, Math.min(limit, 20)));
   if (!rows.length) return [];
   const images = await db.select({ id: showcaseImages.id, entryId: showcaseImages.entryId, sortOrder: showcaseImages.sortOrder })
     .from(showcaseImages).where(inArray(showcaseImages.entryId, rows.map((row) => row.id))).orderBy(asc(showcaseImages.sortOrder));
@@ -239,7 +260,50 @@ export async function listHomepageLaunches(limit = 3) {
   return fallback.items.slice(0, limit);
 }
 
+
+
+export async function listPendingLaunchesForAdmin(limit = 30) {
+  const safeLimit = Math.max(1, Math.min(limit, 100));
+  const rows = await db.select({
+    id: showcaseEntries.id,
+    slug: showcaseEntries.slug,
+    title: showcaseEntries.title,
+    tagline: showcaseEntries.tagline,
+    description: showcaseEntries.description,
+    category: showcaseEntries.category,
+    status: showcaseEntries.status,
+    technologies: showcaseEntries.technologies,
+    needs: showcaseEntries.needs,
+    liveUrl: showcaseEntries.liveUrl,
+    githubUrl: showcaseEntries.githubUrl,
+    createdAt: showcaseEntries.createdAt,
+    creatorId: showcaseEntries.creatorId,
+    username: profiles.username,
+    avatarEmoji: profiles.avatarEmoji,
+    coverImageId: sql<string | null>`(
+      select si.id::text
+      from showcase_images si
+      where si.entry_id = ${showcaseEntries.id}
+      order by si.sort_order asc
+      limit 1
+    )`,
+  })
+    .from(showcaseEntries)
+    .innerJoin(users, eq(users.id, showcaseEntries.creatorId))
+    .innerJoin(profiles, eq(profiles.userId, showcaseEntries.creatorId))
+    .where(and(eq(showcaseEntries.reviewStatus, "PENDING"), eq(users.isSuspended, false)))
+    .orderBy(asc(showcaseEntries.createdAt))
+    .limit(safeLimit);
+
+  return rows.map((row) => ({
+    ...row,
+    slug: row.slug || row.id,
+    liveUrl: safeHttpUrl(row.liveUrl),
+    githubUrl: safeHttpUrl(row.githubUrl),
+  }));
+}
+
 export async function listLaunchesForSitemap(limit = 500) {
   return db.select({ id: showcaseEntries.id, slug: showcaseEntries.slug, updatedAt: showcaseEntries.updatedAt })
-    .from(showcaseEntries).orderBy(desc(showcaseEntries.updatedAt)).limit(Math.max(1, Math.min(limit, 1000)));
+    .from(showcaseEntries).where(eq(showcaseEntries.reviewStatus, "APPROVED")).orderBy(desc(showcaseEntries.updatedAt)).limit(Math.max(1, Math.min(limit, 1000)));
 }

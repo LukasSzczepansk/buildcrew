@@ -12,6 +12,8 @@ import {
   questions,
   reports,
   sessions,
+  showcaseEntries,
+  socialPosts,
   users,
 } from "@/db/schema";
 import { getVerifiedCurrentUser, isAdmin } from "@/lib/auth";
@@ -261,4 +263,91 @@ export async function broadcastPremieryAnnouncementAction() {
 
   revalidatePath("/admin");
   revalidatePath("/notifications");
+}
+
+
+export async function moderateLaunchAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const launchId = String(formData.get("launchId") ?? "");
+  const decision = String(formData.get("decision") ?? "");
+  const note = String(formData.get("note") ?? "").trim().slice(0, 600);
+
+  if (!uuidSchema.safeParse(launchId).success || !["approve", "reject"].includes(decision)) return;
+
+  const target = await db.select({
+    id: showcaseEntries.id,
+    creatorId: showcaseEntries.creatorId,
+    projectId: showcaseEntries.projectId,
+    slug: showcaseEntries.slug,
+    title: showcaseEntries.title,
+    tagline: showcaseEntries.tagline,
+    reviewStatus: showcaseEntries.reviewStatus,
+  }).from(showcaseEntries).where(eq(showcaseEntries.id, launchId)).limit(1);
+
+  if (!target[0]) return;
+
+  const launch = target[0];
+  const approved = decision === "approve";
+  const nextStatus = approved ? "APPROVED" as const : "REJECTED" as const;
+  const now = new Date();
+  const slug = launch.slug || launch.id;
+
+  await db.transaction(async (tx) => {
+    await tx.update(showcaseEntries).set({
+      reviewStatus: nextStatus,
+      reviewedAt: now,
+      reviewedBy: admin.id,
+      reviewNote: note || null,
+      updatedAt: now,
+    }).where(eq(showcaseEntries.id, launchId));
+
+    if (approved) {
+      const existingPost = await tx.select({ id: socialPosts.id })
+        .from(socialPosts)
+        .where(eq(socialPosts.launchId, launchId))
+        .limit(1);
+
+      if (!existingPost[0]) {
+        await tx.insert(socialPosts).values({
+          authorId: launch.creatorId,
+          kind: "LAUNCH",
+          projectId: launch.projectId,
+          launchId,
+          body: `${launch.title} - ${launch.tagline}`.slice(0, 800),
+          createdAt: now,
+        });
+      }
+    } else {
+      await tx.delete(socialPosts).where(eq(socialPosts.launchId, launchId));
+    }
+
+    await tx.insert(notifications).values({
+      userId: launch.creatorId,
+      actorId: admin.id,
+      type: "SYSTEM_ANNOUNCEMENT",
+      entityType: "launch_moderation",
+      entityId: launchId,
+      title: approved ? "Premiera została zatwierdzona 🚀" : "Premiera wymaga zmian",
+      body: approved
+        ? `${launch.title} jest już widoczne w Premierach.`
+        : (note || `${launch.title} nie zostało opublikowane. Sprawdź projekt i wprowadź potrzebne zmiany.`),
+      link: `/launches/${slug}`,
+      createdAt: now,
+    });
+  });
+
+  await audit(admin.id, approved ? "LAUNCH_APPROVED" : "LAUNCH_REJECTED", "showcase_entry", launchId, {
+    title: launch.title,
+    previousStatus: launch.reviewStatus,
+    nextStatus,
+    note: note || null,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/launches");
+  revalidatePath(`/launches/${slug}`);
+  revalidatePath("/");
+  revalidatePath("/dashboard");
+  revalidatePath("/feed");
+  revalidatePath("/profile");
 }

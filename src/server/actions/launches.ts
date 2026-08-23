@@ -169,13 +169,16 @@ export async function createLaunch(input: LaunchActionInput) {
       technologies: parsed.data.technologies,
       needs: parsed.data.needs,
       lookingForCollaborators: parsed.data.needs.includes("TEAM"),
+      reviewStatus: "PENDING",
+      reviewedAt: null,
+      reviewedBy: null,
+      reviewNote: null,
       createdAt: now,
       updatedAt: now,
     });
     if (checkedImages.images.length) {
       await tx.insert(showcaseImages).values(checkedImages.images.map((image, sortOrder) => ({ entryId: id, sortOrder, mimeType: "image/webp", imageBase64: image.base64, byteSize: image.byteSize, width: image.width, height: image.height, createdAt: now })));
     }
-    await tx.insert(socialPosts).values({ authorId: user.id, kind: "LAUNCH", projectId: parsed.data.projectId || null, launchId: id, body: `${parsed.data.title} - ${parsed.data.tagline}`.slice(0, 800), createdAt: now });
   });
 
   await revalidateLaunch(slug, user.id);
@@ -214,13 +217,17 @@ export async function updateLaunch(entryId: string, input: LaunchActionInput) {
       technologies: parsed.data.technologies,
       needs: parsed.data.needs,
       lookingForCollaborators: parsed.data.needs.includes("TEAM"),
+      reviewStatus: "PENDING",
+      reviewedAt: null,
+      reviewedBy: null,
+      reviewNote: null,
       updatedAt: new Date(),
     }).where(eq(showcaseEntries.id, entryId));
     if (input.replaceImages) {
       await tx.delete(showcaseImages).where(eq(showcaseImages.entryId, entryId));
       if (checkedImages.images.length) await tx.insert(showcaseImages).values(checkedImages.images.map((image, sortOrder) => ({ entryId, sortOrder, mimeType: "image/webp", imageBase64: image.base64, byteSize: image.byteSize, width: image.width, height: image.height })));
     }
-    await tx.update(socialPosts).set({ projectId: parsed.data.projectId || null, body: `${parsed.data.title} - ${parsed.data.tagline}`.slice(0, 800) }).where(eq(socialPosts.launchId, entryId));
+    await tx.delete(socialPosts).where(eq(socialPosts.launchId, entryId));
   });
   const slug = own[0].slug || entryId;
   await revalidateLaunch(slug, user.id);
@@ -251,8 +258,9 @@ export async function toggleLaunchVote(entryId: string) {
   if (!isUuid(entryId)) return { error: en ? "Invalid project." : "Nieprawidłowy projekt." };
   const rateError = await enforceUserRateLimit("action:launch:vote", user.id, 100, 60 * 60);
   if (rateError) return { error: rateError };
-  const entry = await db.select({ creatorId: showcaseEntries.creatorId, title: showcaseEntries.title, slug: showcaseEntries.slug }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
+  const entry = await db.select({ creatorId: showcaseEntries.creatorId, title: showcaseEntries.title, slug: showcaseEntries.slug, reviewStatus: showcaseEntries.reviewStatus }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
   if (!entry[0]) return { error: en ? "Project not found." : "Nie znaleziono projektu." };
+  if (entry[0].reviewStatus !== "APPROVED") return { error: en ? "This launch is not public yet." : "Ta Premiera nie jest jeszcze publiczna." };
   const existing = await db.select({ entryId: showcaseReactions.entryId }).from(showcaseReactions)
     .where(and(eq(showcaseReactions.entryId, entryId), eq(showcaseReactions.userId, user.id), eq(showcaseReactions.reaction, "APPLAUSE"))).limit(1);
   if (existing[0]) {
@@ -279,8 +287,9 @@ export async function addLaunchComment(entryId: string, input: { body: string; p
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? (en ? "Check the comment." : "Sprawdź komentarz.") };
   const rateError = await enforceUserRateLimit("action:launch:comment", user.id, 30, 60 * 60);
   if (rateError) return { error: rateError };
-  const entry = await db.select({ creatorId: showcaseEntries.creatorId, title: showcaseEntries.title, slug: showcaseEntries.slug }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
+  const entry = await db.select({ creatorId: showcaseEntries.creatorId, title: showcaseEntries.title, slug: showcaseEntries.slug, reviewStatus: showcaseEntries.reviewStatus }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
   if (!entry[0]) return { error: en ? "Project not found." : "Nie znaleziono projektu." };
+  if (entry[0].reviewStatus !== "APPROVED") return { error: en ? "This launch is not public yet." : "Ta Premiera nie jest jeszcze publiczna." };
 
   let parentAuthorId: string | null = null;
   let parentId: string | null = null;

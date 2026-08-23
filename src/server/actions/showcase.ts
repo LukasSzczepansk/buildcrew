@@ -71,6 +71,10 @@ export async function createShowcaseEntry(input: unknown) {
     status: data.status,
     lookingForCollaborators: data.lookingForCollaborators,
     lookingForText: data.lookingForText || null,
+    reviewStatus: "PENDING",
+    reviewedAt: null,
+    reviewedBy: null,
+    reviewNote: null,
   }).returning({ id: showcaseEntries.id });
 
   revalidatePath("/showcase");
@@ -87,9 +91,10 @@ export async function toggleShowcaseReaction(entryId: string, reaction: string) 
   const rateError = await enforceUserRateLimit("action:showcase:reaction", user.id, 80, 60 * 60);
   if (rateError) return { error: rateError };
 
-  const entries = await db.select({ id: showcaseEntries.id, creatorId: showcaseEntries.creatorId, projectId: showcaseEntries.projectId, crewId: showcaseEntries.crewId, title: showcaseEntries.title }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
+  const entries = await db.select({ id: showcaseEntries.id, creatorId: showcaseEntries.creatorId, projectId: showcaseEntries.projectId, crewId: showcaseEntries.crewId, title: showcaseEntries.title, reviewStatus: showcaseEntries.reviewStatus }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
   const entry = entries[0];
   if (!entry) return { error: "Project not found." };
+  if (entry.reviewStatus !== "APPROVED") return { error: "This project is not public yet." };
   if (await isEntryContributor(entry, user.id)) return { error: "You cannot react to your own team's project." };
 
   const existing = await db.select().from(showcaseReactions).where(and(eq(showcaseReactions.entryId, entryId), eq(showcaseReactions.userId, user.id), eq(showcaseReactions.reaction, parsedReaction.data))).limit(1);
@@ -114,9 +119,10 @@ export async function submitShowcaseFeedback(entryId: string, input: unknown) {
   const rateError = await enforceUserRateLimit("action:showcase:feedback", user.id, 20, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
-  const entries = await db.select({ creatorId: showcaseEntries.creatorId, projectId: showcaseEntries.projectId, crewId: showcaseEntries.crewId, title: showcaseEntries.title }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
+  const entries = await db.select({ creatorId: showcaseEntries.creatorId, projectId: showcaseEntries.projectId, crewId: showcaseEntries.crewId, title: showcaseEntries.title, reviewStatus: showcaseEntries.reviewStatus }).from(showcaseEntries).where(eq(showcaseEntries.id, entryId)).limit(1);
   const entry = entries[0];
   if (!entry) return { error: "Project not found." };
+  if (entry.reviewStatus !== "APPROVED") return { error: "This project is not public yet." };
   if (await isEntryContributor(entry, user.id)) return { error: "You cannot leave feedback on your own team's project." };
 
   await db.insert(showcaseFeedback).values({ entryId, userId: user.id, ...parsed.data, liked: parsed.data.liked || null, improve: parsed.data.improve || null })

@@ -111,7 +111,7 @@ async function enrichEntries(rows: (typeof showcaseEntries.$inferSelect)[], view
 
 export async function listShowcaseEntries(input: { tab?: ShowcaseTab; category?: string; viewerId?: string; challengeId?: string } = {}) {
   const tab = input.tab ?? "popular";
-  const conditions = [] as ReturnType<typeof eq>[];
+  const conditions = [eq(showcaseEntries.reviewStatus, "APPROVED")] as ReturnType<typeof eq>[];
   if (input.category) conditions.push(eq(showcaseEntries.category, input.category as ShowcaseCategory));
   if (input.challengeId) conditions.push(eq(showcaseEntries.challengeId, input.challengeId));
   const rows = await db.select().from(showcaseEntries)
@@ -125,7 +125,7 @@ export async function listShowcaseEntries(input: { tab?: ShowcaseTab; category?:
 
 export async function getShowcaseEntry(id: string, viewerId?: string) {
   if (!isUuid(id)) return null;
-  const rows = await db.select().from(showcaseEntries).where(eq(showcaseEntries.id, id)).limit(1);
+  const rows = await db.select().from(showcaseEntries).where(and(eq(showcaseEntries.id, id), eq(showcaseEntries.reviewStatus, "APPROVED"))).limit(1);
   if (!rows[0]) return null;
   return (await enrichEntries(rows, viewerId))[0] ?? null;
 }
@@ -149,10 +149,10 @@ export async function listShowcaseFeedback(entryId: string) {
 
 export async function listShowcaseForUser(userId: string) {
   if (!isUuid(userId)) return [];
-  const owned = await db.select().from(showcaseEntries).where(eq(showcaseEntries.creatorId, userId)).orderBy(desc(showcaseEntries.createdAt));
+  const owned = await db.select().from(showcaseEntries).where(and(eq(showcaseEntries.creatorId, userId), eq(showcaseEntries.reviewStatus, "APPROVED"))).orderBy(desc(showcaseEntries.createdAt));
   const projectMemberships = await db.select({ projectId: projectMembers.projectId }).from(projectMembers).where(eq(projectMembers.userId, userId));
   const projectIds = projectMemberships.map((row) => row.projectId);
-  const memberEntries = projectIds.length ? await db.select().from(showcaseEntries).where(inArray(showcaseEntries.projectId, projectIds)) : [];
+  const memberEntries = projectIds.length ? await db.select().from(showcaseEntries).where(and(inArray(showcaseEntries.projectId, projectIds), eq(showcaseEntries.reviewStatus, "APPROVED"))) : [];
   const unique = new Map([...owned, ...memberEntries].map((entry) => [entry.id, entry]));
   return enrichEntries(Array.from(unique.values()));
 }

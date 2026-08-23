@@ -1123,6 +1123,8 @@ export const showcaseStatusEnum = ["MVP", "LIVE", "EXPERIMENT"] as const;
 export type ShowcaseStatus = (typeof showcaseStatusEnum)[number];
 export const launchNeedEnum = ["FEEDBACK", "TESTERS", "TEAM", "USERS"] as const;
 export type LaunchNeed = (typeof launchNeedEnum)[number];
+export const launchReviewStatusEnum = ["PENDING", "APPROVED", "REJECTED"] as const;
+export type LaunchReviewStatus = (typeof launchReviewStatusEnum)[number];
 
 export const showcaseEntries = pgTable("showcase_entries", {
   id: uuidPk(),
@@ -1143,6 +1145,10 @@ export const showcaseEntries = pgTable("showcase_entries", {
   needs: text("needs").array().$type<LaunchNeed[]>().notNull().default(sql`'{}'::text[]`),
   lookingForCollaborators: boolean("looking_for_collaborators").notNull().default(false),
   lookingForText: text("looking_for_text"),
+  reviewStatus: text("review_status").$type<LaunchReviewStatus>().notNull().default("APPROVED"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewedBy: uuid("reviewed_by").references(() => users.id, { onDelete: "set null" }),
+  reviewNote: text("review_note"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -1150,6 +1156,7 @@ export const showcaseEntries = pgTable("showcase_entries", {
   uniqueIndex("showcase_entries_slug_idx").on(t.slug),
   index("showcase_entries_category_idx").on(t.category, t.createdAt),
   index("showcase_entries_challenge_idx").on(t.challengeId),
+  index("showcase_entries_review_status_idx").on(t.reviewStatus, t.createdAt),
 ]);
 
 export const showcaseReactionEnum = ["APPLAUSE", "IDEA", "POTENTIAL"] as const;
