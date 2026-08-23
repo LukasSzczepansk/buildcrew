@@ -17,7 +17,7 @@ import { listPublicBuildersForLanding } from "@/server/data/profiles";
 
 const SEO = {
   pl: {
-    title: "BuildCrew — znajdź programistę, designera lub zespół do projektu",
+    title: "BuildCrew - znajdź programistę, designera lub zespół do projektu",
     description: "Znajdź programistów, designerów, marketerów i innych ludzi do wspólnego tworzenia projektów. Dodaj projekt lub dołącz do istniejącego zespołu.",
   },
   en: {
@@ -107,6 +107,21 @@ export default async function LandingPage() {
           </div>
         </section>
 
+        <section className="border-y border-[#d8d8d0] bg-white dark:border-[#34342f] dark:bg-[#171715]">
+          <div className="mx-auto grid max-w-[1240px] gap-5 px-5 py-7 sm:px-8 md:grid-cols-[230px_minmax(0,1fr)] md:items-start lg:px-10">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-neutral-500">{c("Najczęstsze potrzeby", "Common goals")}</p>
+              <p className="mt-1 text-[13px] leading-5 text-neutral-500 dark:text-neutral-400">{c("Przejdź od razu do strony odpowiadającej temu, czego szukasz.", "Go straight to the path that matches what you need.")}</p>
+            </div>
+            <div className="grid border-t border-[#b9b9b1] sm:grid-cols-2 dark:border-neutral-600">
+              <IntentLink href="/znajdz-ludzi-do-projektu" title={c("Znajdź ludzi do projektu", "Find people for a project")} text={c("Programiści, designerzy, marketerzy i inni współtwórcy.", "Developers, designers, marketers and other collaborators.")} />
+              <IntentLink href="/gdzie-pokazac-swoj-projekt" title={c("Pokaż swój projekt", "Show your project")} text={c("Premiery, feedback i kontakt ze społecznością.", "Launches, feedback and community discovery.")} />
+              <IntentLink href="/znajdz-testerow-aplikacji" title={c("Znajdź testerów", "Find testers")} text={c("Pokaż aplikację i zaznacz, że szukasz osób do testów.", "Show your app and signal that you need testers.")} />
+              <IntentLink href="/platforma-do-wspolnych-projektow" title={c("Jak działa BuildCrew", "How BuildCrew works")} text={c("Ludzie, projekty, portfolio i Premiery w jednym miejscu.", "People, projects, portfolios and launches in one place.")} />
+            </div>
+          </div>
+        </section>
+
         <section className="border-y border-[#d8d8d0] bg-[#eef7d7] text-neutral-950 dark:border-[#34342f] dark:bg-[#1b2111] dark:text-neutral-100">
           <div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-5 px-5 py-7 sm:px-8 md:flex-row md:items-center lg:px-10">
             <div>
@@ -165,10 +180,13 @@ export default async function LandingPage() {
         <section className="border-y border-neutral-800 bg-[#151513] text-neutral-100"><div className="mx-auto grid max-w-[1240px] gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:px-10"><div><p className="text-[13px] text-neutral-400">BuildCrew</p><h2 className="mt-3 max-w-3xl text-[34px] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[42px]">{c("Poznawaj ludzi. Dziel się wiedzą i pomysłami. Budujcie razem. Pokazuj, co naprawdę zrobiłeś.", "Meet people. Share knowledge and ideas. Build together. Show what you actually made.")}</h2></div><Button asChild variant="secondary" size="lg"><Link href="/signup">{c("Dołącz do BuildCrew", "Join BuildCrew")}</Link></Button></div></section>
       </main>
 
-      <footer className="border-t border-[#d8d8d0] dark:border-[#34342f]"><div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-4 px-5 py-7 text-[12px] text-neutral-500 sm:flex-row sm:items-center sm:px-8 lg:px-10"><p>© {new Date().getFullYear()} BuildCrew</p><div className="flex flex-wrap items-center gap-5"><LanguageSwitcher compact /><Link href="/explore/projects" className="hover:underline">{c("Projekty", "Projects")}</Link><Link href="/znajdz-zespol" className="hover:underline">{c("Znajdź ludzi do projektu", "Find people for a project")}</Link><Link href="/znajdz-programiste" className="hover:underline">{c("Znajdź programistę", "Find a developer")}</Link><Link href="/o-nas" className="hover:underline">{c("O BuildCrew", "About")}</Link><Link href="/terms" className="hover:underline">{c("Regulamin", "Terms")}</Link><Link href="/privacy" className="hover:underline">{c("Prywatność", "Privacy")}</Link><Link href="/login" className="hover:underline">{c("Zaloguj się", "Log in")}</Link></div></div></footer>
+      <footer className="border-t border-[#d8d8d0] dark:border-[#34342f]"><div className="mx-auto flex max-w-[1240px] flex-col justify-between gap-4 px-5 py-7 text-[12px] text-neutral-500 sm:flex-row sm:items-center sm:px-8 lg:px-10"><p>© {new Date().getFullYear()} BuildCrew</p><div className="flex flex-wrap items-center gap-5"><LanguageSwitcher compact /><Link href="/explore/projects" className="hover:underline">{c("Projekty", "Projects")}</Link><Link href="/znajdz-ludzi-do-projektu" className="hover:underline">{c("Znajdź ludzi do projektu", "Find people for a project")}</Link><Link href="/znajdz-programiste" className="hover:underline">{c("Znajdź programistę", "Find a developer")}</Link><Link href="/o-nas" className="hover:underline">{c("O BuildCrew", "About")}</Link><Link href="/terms" className="hover:underline">{c("Regulamin", "Terms")}</Link><Link href="/privacy" className="hover:underline">{c("Prywatność", "Privacy")}</Link><Link href="/login" className="hover:underline">{c("Zaloguj się", "Log in")}</Link></div></div></footer>
     </div>
   );
 }
 
+function IntentLink({ href, title, text }: { href: string; title: string; text: string }) {
+  return <Link href={href} className="group border-b border-[#d8d8d0] py-4 pr-4 sm:odd:border-r sm:odd:pr-5 sm:even:pl-5 dark:border-neutral-700"><div className="flex items-center justify-between gap-3"><h3 className="text-[14px] font-semibold tracking-[-0.01em] group-hover:underline">{title}</h3><ArrowRight className="h-3.5 w-3.5 shrink-0 text-neutral-400" /></div><p className="mt-1 text-[12px] leading-5 text-neutral-500 dark:text-neutral-400">{text}</p></Link>;
+}
 function PreviewRow({ href, name, meta, stack }: { href: string; name: string; meta: string; stack: string }) { return <Link href={href} className="grid grid-cols-[1fr_auto] gap-4 border-b border-[#d8d8d0] py-4 transition-colors hover:bg-black/[0.025] dark:border-neutral-700 dark:hover:bg-white/[0.03]"><div><p className="text-[14px] font-semibold tracking-[-0.01em]">{name}</p><p className="mt-1 text-[12px] text-neutral-500 dark:text-neutral-400">{meta}</p></div><p className="max-w-[190px] self-end text-right text-[12px] text-neutral-500 dark:text-neutral-400">{stack}</p></Link>; }
 function ValueRow({ number, title, text }: { number: string; title: string; text: string }) { return <div className="grid gap-2 border-b border-[#d8d8d0] py-5 sm:grid-cols-[42px_210px_minmax(0,1fr)] sm:items-baseline dark:border-neutral-700"><span className="text-[12px] tabular-nums text-neutral-400">{number}</span><h3 className="text-[14px] font-semibold">{title}</h3><p className="max-w-xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">{text}</p></div>; }

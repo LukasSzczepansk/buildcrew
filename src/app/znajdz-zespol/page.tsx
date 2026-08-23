@@ -1,5 +1,5 @@
-import { IntentLanding, intentMetadata } from "@/components/seo/intent-landing";
-import { SEO_INTENT_PAGES } from "@/lib/seo-intent-pages";
-const config = SEO_INTENT_PAGES["znajdz-zespol"]!;
-export const metadata = intentMetadata(config);
-export default function Page() { return <IntentLanding config={config} />; }
+import { redirect } from "next/navigation";
+
+export default function LegacyFindTeamPage() {
+  redirect("/znajdz-ludzi-do-projektu");
+}

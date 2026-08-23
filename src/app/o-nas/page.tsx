@@ -5,7 +5,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { SITE_URL } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "O BuildCrew — platforma do wspólnego tworzenia projektów",
+  title: "O BuildCrew - platforma do wspólnego tworzenia projektów",
   description: "Dowiedz się, czym jest BuildCrew, dla kogo powstało i jak pomaga znaleźć ludzi do wspólnego budowania projektów.",
   alternates: { canonical: `${SITE_URL}/o-nas` },
   openGraph: { type: "website", siteName: "BuildCrew", title: "O BuildCrew", description: "BuildCrew łączy ludzi, którzy chcą wspólnie tworzyć projekty.", url: `${SITE_URL}/o-nas` },

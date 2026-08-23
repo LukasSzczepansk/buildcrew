@@ -75,12 +75,13 @@ function launchSelect() {
   } as const;
 }
 
-export async function listLaunches(input: { tab: LaunchTab; viewerId?: string; page?: number; category?: ShowcaseCategory }) {
+export async function listLaunches(input: { tab: LaunchTab; viewerId?: string; page?: number; category?: ShowcaseCategory; need?: LaunchNeed }) {
   const page = Math.max(1, Math.min(input.page ?? 1, 200));
   const start = periodStart(input.tab);
   const conditions = [eq(users.isSuspended, false), eq(showcaseEntries.reviewStatus, "APPROVED")];
   if (start) conditions.push(gte(showcaseEntries.createdAt, start));
   if (input.category) conditions.push(eq(showcaseEntries.category, input.category));
+  if (input.need) conditions.push(sql`${input.need} = any(${showcaseEntries.needs})` as unknown as ReturnType<typeof eq>);
 
   const order = input.tab === "new"
     ? [desc(showcaseEntries.createdAt)]
