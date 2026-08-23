@@ -95,6 +95,19 @@ export const deleteAccountSchema = z.object({
   confirmation: z.literal("DELETE ACCOUNT", { error: "Type exactly: DELETE ACCOUNT" }),
 });
 
+export const quickOnboardingSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(2, "Username must be at least 2 characters long.")
+    .max(24, "Username can be at most 24 characters long.")
+    .regex(/^[a-zA-Z0-9_]+$/, "Use letters, numbers and underscores only."),
+  role: z.enum(roleTypeEnum),
+  disciplines: z.array(z.enum(profileDisciplineEnum)).min(1, "Choose at least one area.").max(2, "Choose up to two areas."),
+  skills: z.array(z.string().trim().min(1).max(40)).min(1, "Choose at least one skill.").max(8, "Choose up to eight skills for now."),
+  lookingFor: z.array(z.enum(lookingForEnum)).min(1, "Choose at least one option.").max(8),
+});
+
 export const onboardingSchema = z.object({
   username: z
     .string()

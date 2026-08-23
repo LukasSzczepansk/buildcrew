@@ -4,12 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { authAccounts, profileInterests, profilePrivate, profileSkills, profiles } from "@/db/schema";
+import { profileInterests, profilePrivate, profileSkills, profiles } from "@/db/schema";
 import { emojiForSeed } from "@/lib/utils";
 import { consumePostAuthRedirect, getVerifiedCurrentUser } from "@/lib/auth";
 import { enforceUserRateLimit } from "@/lib/security";
 import { logEvent } from "@/lib/analytics";
-import { onboardingSchema, profileEditSchema } from "@/lib/validations";
+import { profileEditSchema, quickOnboardingSchema } from "@/lib/validations";
 import { ensureInterests, ensureSkills } from "@/server/data/lookups";
 import { z } from "zod";
 import { getRequestLocale } from "@/lib/site-server";
@@ -35,7 +35,7 @@ async function syncSkillsAndInterests(userId: string, skillNames: string[], inte
 }
 
 export async function completeOnboarding(
-  input: z.infer<typeof onboardingSchema>,
+  input: z.infer<typeof quickOnboardingSchema>,
 ): Promise<ProfileFormState> {
   const locale = await getRequestLocale();
   const user = await getVerifiedCurrentUser();
@@ -43,16 +43,11 @@ export async function completeOnboarding(
   const rateError = await enforceUserRateLimit("action:profile:onboarding", user.id, 10, 24 * 60 * 60);
   if (rateError) return { error: rateError };
 
-  const parsed = onboardingSchema.safeParse(input);
+  const parsed = quickOnboardingSchema.safeParse(input);
   if (!parsed.success) {
     return { error: appMessage(parsed.error.issues[0]?.message, locale, "Check the fields and try again.") };
   }
   const data = parsed.data;
-  const githubAccount = !data.githubUrl
-    ? await db.select({ profileUrl: authAccounts.providerProfileUrl }).from(authAccounts)
-        .where(and(eq(authAccounts.userId, user.id), eq(authAccounts.provider, "github"))).then((rows) => rows.find((row) => Boolean(row.profileUrl)) ?? null)
-    : null;
-  const resolvedGitHubUrl = data.githubUrl || githubAccount?.profileUrl || "";
 
   const existingUsername = await db
     .select({ userId: profiles.userId })
@@ -70,21 +65,10 @@ export async function completeOnboarding(
         username: data.username,
         role: data.role,
         disciplines: data.disciplines,
-        level: data.level,
-        weeklyHours: data.weeklyHours,
-        headline: data.headline || null,
-        country: data.country || null,
-        city: data.city || null,
-        languages: data.languages,
-        workModePreference: data.workModePreference,
         lookingFor: data.lookingFor,
-        goals: data.goals,
-        githubUrl: resolvedGitHubUrl || null,
-        portfolioUrl: data.portfolioUrl || null,
-        linkedinUrl: data.linkedinUrl || null,
         avatarEmoji: emojiForSeed(data.username),
         onboardingCompleted: true,
-        onboardingStep: 5,
+        onboardingStep: 3,
       })
       .onConflictDoUpdate({
         target: profiles.userId,
@@ -92,42 +76,29 @@ export async function completeOnboarding(
           username: data.username,
           role: data.role,
           disciplines: data.disciplines,
-          level: data.level,
-          weeklyHours: data.weeklyHours,
-          headline: data.headline || null,
-          country: data.country || null,
-          city: data.city || null,
-          languages: data.languages,
-          workModePreference: data.workModePreference,
           lookingFor: data.lookingFor,
-          goals: data.goals,
-          githubUrl: resolvedGitHubUrl || null,
-          portfolioUrl: data.portfolioUrl || null,
-          linkedinUrl: data.linkedinUrl || null,
           onboardingCompleted: true,
-          onboardingStep: 5,
+          onboardingStep: 3,
           updatedAt: new Date(),
         },
       });
 
-    await db
-      .insert(profilePrivate)
-      .values({ userId: user.id, discordUsername: data.discordUsername || null })
-      .onConflictDoUpdate({
-        target: profilePrivate.userId,
-        set: { discordUsername: data.discordUsername || null },
-      });
-
-    await syncSkillsAndInterests(user.id, data.skills, data.interests);
-    await logEvent("profile_created", user.id, { username: data.username, role: data.role, disciplines: data.disciplines });
+    await syncSkillsAndInterests(user.id, data.skills, []);
+    await logEvent("profile_created", user.id, {
+      username: data.username,
+      role: data.role,
+      disciplines: data.disciplines,
+      onboardingVersion: "quick-v1",
+    });
   } catch (err) {
     console.error(err);
     return { error: appMessage("Something went wrong. Please try again.", locale) };
   }
 
   revalidatePath("/dashboard");
+  revalidatePath("/profile");
   const nextPath = await consumePostAuthRedirect("/dashboard");
-  redirect(`/onboarding/recommendations?next=${encodeURIComponent(nextPath)}`);
+  redirect(nextPath);
 }
 
 export async function updateProfile(input: z.infer<typeof profileEditSchema>): Promise<ProfileFormState> {

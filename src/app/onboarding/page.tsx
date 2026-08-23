@@ -9,7 +9,7 @@ import { getRequestLocale } from "@/lib/site-server";
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
   return {
-    title: locale === "en" ? "Set up your profile - BuildCrew" : "Onboarding - BuildCrew",
+    title: locale === "en" ? "Quick setup - BuildCrew" : "Szybki start - BuildCrew",
     robots: { index: false, follow: false },
   };
 }
@@ -32,11 +32,11 @@ export default async function OnboardingPage() {
         <LanguageSwitcher />
       </div>
       <div className="mb-6 text-center">
-        <h1 className="text-[28px] font-semibold tracking-[-0.03em]">{en ? "Set up your profile for better matches" : "Ustaw profil pod dobre dopasowania"}</h1>
+        <h1 className="text-[28px] font-semibold tracking-[-0.03em]">{en ? "Three quick steps and you are in" : "Trzy krótkie kroki i jesteś w środku"}</h1>
         <p className="mx-auto mt-2 max-w-[560px] text-sm leading-5 text-[var(--bc-muted)]">
           {en
-            ? "Five short steps. Once you save it, we’ll immediately show you people and projects worth checking out."
-            : "Pięć krótkich kroków. Po zapisaniu od razu pokażemy Ci osoby i projekty warte sprawdzenia."}
+            ? "Add only the basics now. You can complete your bio, availability, links and portfolio later while using BuildCrew."
+            : "Na start podaj tylko podstawy. Bio, dostępność, linki i portfolio uzupełnisz później podczas korzystania z BuildCrew."}
         </p>
       </div>
       <OnboardingWizard />

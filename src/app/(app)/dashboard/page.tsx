@@ -75,16 +75,46 @@ export default async function DashboardPage() {
       <DashboardVisitMarker />
 
       {!completion.complete ? (
-        <section className="mb-6 rounded-[8px] border border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] px-4 py-3.5 sm:flex sm:items-center sm:justify-between sm:gap-5">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-[13px] font-semibold text-[var(--bc-ink)]">{en ? "Complete your profile for better matches" : "Uzupełnij profil, aby poprawić dopasowania"}</p>
-              <span className="text-[12px] font-semibold tabular-nums text-[var(--bc-ink)]">{completion.score}%</span>
+        <section className="mb-6 overflow-hidden rounded-[8px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
+          <div className="grid gap-4 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
+            <div className="min-w-0">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[13px] font-semibold text-[var(--bc-ink)]">
+                    {en ? `Your profile is ${completion.score}% ready` : `Twój profil jest gotowy w ${completion.score}%`}
+                  </p>
+                  <p className="mt-1 text-[12px] leading-5 text-[var(--bc-muted)]">
+                    {en
+                      ? "Add a few details so people can quickly understand what you do and whether you fit their project."
+                      : "Dodaj kilka szczegółów, żeby inni od razu wiedzieli, co potrafisz i czy pasujesz do ich projektu."}
+                  </p>
+                </div>
+                <span className="shrink-0 text-[12px] font-semibold tabular-nums text-[var(--bc-ink)] sm:hidden">{completion.score}%</span>
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--bc-surface-subtle)]">
+                <div className="h-full rounded-full bg-[var(--bc-accent-strong)]" style={{ width: `${completion.score}%` }} />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-[var(--bc-muted)]">
+                {completion.missing.slice(0, 3).map((item) => (
+                  <span key={item} className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/10 dark:bg-white/10"><div className="h-full rounded-full bg-[var(--bc-accent-strong)]" style={{ width: `${completion.score}%` }} /></div>
-            <p className="mt-2 text-[12px] leading-5 text-[var(--bc-muted)]">{en ? "Still useful to add:" : "Warto jeszcze dodać:"} <span className="font-medium text-[var(--bc-ink)]">{completion.missing.slice(0, 3).join(" · ")}</span></p>
+            <div className="flex items-center gap-3 sm:flex-col sm:items-end">
+              <span className="hidden text-[12px] font-semibold tabular-nums text-[var(--bc-ink)] sm:block">{completion.score}%</span>
+              <Button asChild size="sm" className="shrink-0"><Link href="/profile">{en ? "Continue profile" : "Dokończ profil"}</Link></Button>
+            </div>
           </div>
-          <Button asChild size="sm" className="mt-3 shrink-0 sm:mt-0"><Link href="/profile">{en ? "Complete profile" : "Uzupełnij profil"}</Link></Button>
+          {completion.score <= 40 ? (
+            <div className="border-t border-[var(--bc-line)] bg-[var(--bc-accent-soft)] px-4 py-2.5 text-[11px] leading-5 text-[var(--bc-muted)]">
+              {en
+                ? "You already have enough to use BuildCrew. Completing the profile is optional, but it improves recommendations and makes it easier for others to contact you."
+                : "Masz już wszystko, żeby korzystać z BuildCrew. Uzupełnianie profilu jest opcjonalne, ale poprawia dopasowania i ułatwia innym odezwanie się do Ciebie."}
+            </div>
+          ) : null}
         </section>
       ) : null}
 
