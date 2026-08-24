@@ -16,6 +16,20 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
+// The embed iframe's size is set by the third-party page embedding it, so we can't rely on
+// JS to measure and react to it (the /embed route's CSP also has no script-src, meaning
+// client components there never hydrate). Container queries let the optional rows hide
+// themselves in pure CSS once the iframe is too short to fit them, instead of scrolling.
+// The query container carries no padding of its own so these thresholds line up with the
+// iframe's actual height attribute rather than its content-box (height minus padding).
+const EMBED_FIT_STYLE = `
+  .embed-card { container-type: size; }
+  @container (max-height: 230px) { .embed-optional-tech { display: none; } }
+  @container (max-width: 260px) { .embed-optional-tech { display: none; } }
+  @container (max-height: 140px) { .embed-optional-badges { display: none; } }
+  @container (max-height: 100px) { .embed-optional-tagline { display: none; } }
+`;
+
 export default async function ProjectEmbedWidget({ params }: { params: Promise<{ id: string }> }) {
   const [{ id }, locale] = await Promise.all([params, getRequestLocale()]);
   const project = await getProjectById(id);
@@ -36,43 +50,50 @@ export default async function ProjectEmbedWidget({ params }: { params: Promise<{
   const totalSlots = project.roles.reduce((sum, role) => sum + role.slots, 0) + 1;
 
   return (
-    <div className="p-4 sm:p-5">
-      <a
-        href={publicUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-start justify-between gap-3 no-underline"
-      >
-        <div className="min-w-0">
-          <p className="truncate text-[15px] font-semibold leading-5 text-[var(--bc-ink)]">{project.name}</p>
-          {project.tagline ? (
-            <p className="mt-1 line-clamp-2 text-[13px] leading-[18px] text-[var(--bc-muted)]">{project.tagline}</p>
+    <>
+      <style>{EMBED_FIT_STYLE}</style>
+      <div className="embed-card h-dvh overflow-hidden">
+        <div className="flex h-full flex-col p-4 sm:p-5">
+          <a
+            href={publicUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-start justify-between gap-3 no-underline"
+          >
+            <div className="min-w-0">
+              <p className="truncate text-[15px] font-semibold leading-5 text-[var(--bc-ink)]">{project.name}</p>
+              {project.tagline ? (
+                <p className="embed-optional-tagline mt-1 line-clamp-2 text-[13px] leading-[18px] text-[var(--bc-muted)]">{project.tagline}</p>
+              ) : null}
+            </div>
+            <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--bc-faint)]" />
+          </a>
+
+          <div className="embed-optional-badges mt-3 flex flex-wrap items-center gap-1.5">
+            <Badge variant="secondary">{labels.stages[project.stage]}</Badge>
+            {project.lifecycleStatus === "COMPLETED" ? (
+              <Badge variant="success">{en ? "Completed" : "Ukończony"}</Badge>
+            ) : project.lifecycleStatus === "PAUSED" ? (
+              <Badge variant="outline">{en ? "Paused" : "Wstrzymany"}</Badge>
+            ) : null}
+          </div>
+
+          {project.technologies.length ? (
+            <div className="embed-optional-tech mt-3">
+              <TechnologyStack items={project.technologies} max={4} compact />
+            </div>
           ) : null}
+
+          <div className="mt-auto flex items-center justify-between border-t border-[var(--bc-line)] pt-3 text-[12px] text-[var(--bc-faint)]">
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" /> {crewSize}/{Math.max(totalSlots, crewSize)}
+            </span>
+            <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--bc-ink)] no-underline">
+              BuildCrew
+            </a>
+          </div>
         </div>
-        <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--bc-faint)]" />
-      </a>
-
-      <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <Badge variant="secondary">{labels.stages[project.stage]}</Badge>
-        {project.lifecycleStatus === "COMPLETED" ? (
-          <Badge variant="success">{en ? "Completed" : "Ukończony"}</Badge>
-        ) : project.lifecycleStatus === "PAUSED" ? (
-          <Badge variant="outline">{en ? "Paused" : "Wstrzymany"}</Badge>
-        ) : null}
       </div>
-
-      {project.technologies.length ? (
-        <TechnologyStack items={project.technologies} max={4} compact className="mt-3" />
-      ) : null}
-
-      <div className="mt-3 flex items-center justify-between border-t border-[var(--bc-line)] pt-3 text-[12px] text-[var(--bc-faint)]">
-        <span className="flex items-center gap-1">
-          <Users className="h-3 w-3" /> {crewSize}/{Math.max(totalSlots, crewSize)}
-        </span>
-        <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--bc-ink)] no-underline">
-          BuildCrew
-        </a>
-      </div>
-    </div>
+    </>
   );
 }
