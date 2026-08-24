@@ -28,6 +28,11 @@ const STATIC_PUBLIC_PAGES = [
   ["/privacy", 0.1, "yearly"],
 ] as const;
 
+// Reads live data from the database, so it must render per-request rather
+// than be statically generated at build time (no DB is reachable then, and
+// project/profile/launch listings would otherwise go stale between deploys).
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [projects, publicProfiles, launches] = await Promise.all([
     listProjectsForSitemap(),
