@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import * as React from "react";
-import { Check, Copy, Download, ExternalLink, Share2 } from "lucide-react";
+import { Check, Code2, Copy, Download, ExternalLink, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,7 +42,7 @@ export function ShareProjectButton({
   const copy = useCopy();
   const labels = labelsFor(locale);
   const [open, setOpen] = React.useState(false);
-  const [copied, setCopied] = React.useState<"link" | "text" | "discord" | null>(null);
+  const [copied, setCopied] = React.useState<"link" | "text" | "discord" | "embed" | null>(null);
   const [mode, setMode] = React.useState<ShareMode>({ type: "project" });
 
   const role = mode.type === "role" ? openRoles.find((item) => item.id === mode.roleId) : undefined;
@@ -72,6 +72,18 @@ export function ShareProjectButton({
     try {
       await navigator.clipboard.writeText(value);
       setCopied(kind);
+      window.setTimeout(() => setCopied(null), 1800);
+    } catch {
+      setCopied(null);
+    }
+  }
+
+  async function copyEmbedCode() {
+    const embedUrl = `${window.location.origin}/embed/projects/${projectId}`;
+    const snippet = `<iframe src="${embedUrl}" width="360" height="180" style="border:1px solid #DADAD3;border-radius:8px" loading="lazy" title="${projectName} - BuildCrew"></iframe>`;
+    try {
+      await navigator.clipboard.writeText(snippet);
+      setCopied("embed");
       window.setTimeout(() => setCopied(null), 1800);
     } catch {
       setCopied(null);
@@ -194,6 +206,12 @@ export function ShareProjectButton({
                     {copy("Pobierz grafikę PNG", "Download PNG image")}
                   </a>
                 </Button>
+                {mode.type === "project" ? (
+                  <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={copyEmbedCode}>
+                    {copied === "embed" ? <Check className="h-3.5 w-3.5" /> : <Code2 className="h-3.5 w-3.5" />}
+                    {copied === "embed" ? copy("Kod skopiowany", "Code copied") : copy("Kopiuj kod widżetu", "Copy widget embed code")}
+                  </Button>
+                ) : null}
               </div>
             </div>
           </div>
