@@ -31,13 +31,40 @@ const securityHeaders = [
   ...(isProd ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
 ];
 
+// The embeddable project widget is meant to be framed on third-party sites, so it
+// gets its own, more permissive framing policy instead of the site-wide DENY above.
+const embedCsp = [
+  "default-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+  "frame-ancestors *",
+  ...(isProd ? ["upgrade-insecure-requests"] : []),
+].join("; ");
+
+const embedHeaders = [
+  { key: "Content-Security-Policy", value: embedCsp },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+  ...(isProd ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }] : []),
+];
+
 const nextConfig: NextConfig = {
+  output: "standalone",
   poweredByHeader: false,
   experimental: {
     serverActions: { bodySizeLimit: "6mb" },
   },
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/embed/:path*", headers: embedHeaders },
+      { source: "/((?!embed/).*)", headers: securityHeaders },
+    ];
   },
   async redirects() {
     return [

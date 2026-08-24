@@ -1,0 +1,52 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: default
+      args:
+        DATABASE_URL: ${DATABASE_URL:-postgresql://buildcrew:buildcrew@db:5432/buildcrew}
+    ports:
+      - "80:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://buildcrew:buildcrew@db:5432/buildcrew}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # One-off: pushes the Drizzle schema into `db`. Run once (or after schema
+  # changes) before building `web`: `docker compose run --rm migrate`.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://buildcrew:buildcrew@db:5432/buildcrew}
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["tools"]
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: buildcrew
+      POSTGRES_PASSWORD: buildcrew
+      POSTGRES_DB: buildcrew
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U buildcrew"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  db_data:
