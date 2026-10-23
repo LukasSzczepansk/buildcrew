@@ -17,11 +17,17 @@ export function FilterBar({ filters, showSearch, searchPlaceholder }: { filters:
   const searchParams = useSearchParams();
   const [showMore, setShowMore] = React.useState(() => filters.slice(3).some((filter) => Boolean(searchParams.get(filter.key))));
 
-  function setParam(key: string, value: string | null) {
+  const searchTimer = React.useRef<number | undefined>(undefined);
+  React.useEffect(() => () => window.clearTimeout(searchTimer.current), []);
+
+  function setParam(key: string, value: string | null, replace = false) {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
     else params.delete(key);
-    router.push(`?${params.toString()}`);
+    params.delete("page"); // any filter change restarts pagination
+    const url = `?${params.toString()}`;
+    if (replace) router.replace(url, { scroll: false });
+    else router.push(url);
   }
 
   const activeCount = filters.filter((filter) => searchParams.get(filter.key)).length + (showSearch && searchParams.get("q") ? 1 : 0);
@@ -30,13 +36,14 @@ export function FilterBar({ filters, showSearch, searchPlaceholder }: { filters:
   const extraActiveCount = extraFilters.filter((filter) => searchParams.get(filter.key)).length;
 
   function renderFilter(filter: FilterDef) {
+    const options = filter.options.filter((option, index, all) => all.findIndex((other) => other.value === option.value) === index);
     return (
       <Select key={filter.key} value={searchParams.get(filter.key) ?? undefined} onValueChange={(value) => setParam(filter.key, value)}>
         <SelectTrigger className="h-10 w-auto min-w-[8.5rem] max-w-[12rem] gap-2 text-[13px]">
           <SelectValue placeholder={filter.label} />
         </SelectTrigger>
         <SelectContent>
-          {filter.options.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+          {options.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
         </SelectContent>
       </Select>
     );
@@ -52,7 +59,17 @@ export function FilterBar({ filters, showSearch, searchPlaceholder }: { filters:
               placeholder={searchPlaceholder ?? copy("Szukaj…", "Search…")}
               defaultValue={searchParams.get("q") ?? ""}
               className="h-10 bg-[var(--bc-surface)] pl-9 text-sm"
-              onKeyDown={(event) => { if (event.key === "Enter") setParam("q", (event.target as HTMLInputElement).value || null); }}
+              onChange={(event) => {
+                // Debounced live search: no need to press Enter, and typing does not flood the history.
+                const value = event.target.value.trim();
+                window.clearTimeout(searchTimer.current);
+                searchTimer.current = window.setTimeout(() => setParam("q", value || null, true), 450);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") return;
+                window.clearTimeout(searchTimer.current);
+                setParam("q", (event.target as HTMLInputElement).value.trim() || null);
+              }}
             />
           </div>
         ) : null}

@@ -15,7 +15,7 @@ const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className)} {...props} />
+  <DialogPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-50 bg-[#1c1b17]/45 backdrop-blur-[3px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className)} {...props} />
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
@@ -30,13 +30,13 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-xl -translate-x-1/2 -translate-y-1/2 gap-4 rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-6 shadow-[0_24px_64px_rgba(0,0,0,0.16)] duration-150 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-xl -translate-x-1/2 -translate-y-1/2 gap-4 rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-6 shadow-[var(--bc-shadow-lg)] duration-150 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           className,
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-[6px] p-1.5 text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--bc-accent)]">
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-[var(--bc-radius-sm)] p-1.5 text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--bc-accent)]">
           <X className="h-4 w-4" />
           <span className="sr-only">{copy("Zamknij", "Close")}</span>
         </DialogPrimitive.Close>

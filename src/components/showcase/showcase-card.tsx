@@ -93,7 +93,7 @@ export function ShowcaseCard({ entry, currentUserId }: { entry: ShowcaseCardData
 
         <div className="mt-3 grid grid-cols-3 gap-1.5">
           {reactions.map(({ key, Icon, label }) => (
-            <button key={key} disabled={pending === key} onClick={() => react(key)} className={`flex h-9 items-center justify-center gap-1.5 rounded-[6px] border text-[12px] transition-colors ${active.has(key) ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)]"}`} title={label}><Icon className="h-3.5 w-3.5" /><span className="font-semibold">{counts[key]}</span></button>
+            <button key={key} disabled={pending === key} onClick={() => react(key)} className={`flex h-9 items-center justify-center gap-1.5 rounded-[var(--bc-radius-sm)] border text-[12px] transition-colors ${active.has(key) ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)]"}`} title={label}><Icon className="h-3.5 w-3.5" /><span className="font-semibold">{counts[key]}</span></button>
           ))}
         </div>
 

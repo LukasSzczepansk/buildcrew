@@ -82,7 +82,7 @@ export function SocialPostComposer({
   })();
 
   return (
-    <section className="overflow-hidden rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)]">
+    <section className="overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)]">
       <button
         type="button"
         onClick={() => { setKind("QUESTION"); setExpanded(true); }}
@@ -103,7 +103,7 @@ export function SocialPostComposer({
                 type="button"
                 disabled={disabled}
                 onClick={() => choose(option.kind)}
-                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-[7px] border border-transparent px-2.5 text-[11px] font-medium text-[var(--bc-muted)] transition-colors hover:border-[var(--bc-line)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)] disabled:cursor-not-allowed disabled:opacity-35 sm:text-[12px]"
+                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-[var(--bc-radius)] border border-transparent px-2.5 text-[11px] font-medium text-[var(--bc-muted)] transition-colors hover:border-[var(--bc-line)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)] disabled:cursor-not-allowed disabled:opacity-35 sm:text-[12px]"
               >
                 {option.icon}<span>{option.label}</span>
               </button>

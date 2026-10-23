@@ -47,7 +47,7 @@ export default async function HelpPage() {
                       <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--bc-faint)]"><Avatar username={question.author?.username ?? "Builder"} seed={question.author?.userId ?? question.authorId} size="sm" className="h-6 w-6 text-[11px]" />{question.author?.username ?? "Builder"} · {timeAgo(question.createdAt, locale)}</span>
                     </div>
                   </div>
-                  <div className="shrink-0 rounded-[6px] bg-neutral-50 px-3 py-2 text-center dark:bg-neutral-800"><p className="text-lg font-semibold">{question.answerCount}</p><p className="text-[12px] text-[var(--bc-faint)]">{en ? (question.answerCount === 1 ? "answer" : (question.answerCount === 1 ? "odpowiedź" : "odpowiedzi")) : (question.answerCount === 1 ? "odpowiedź" : "odpowiedzi")}</p></div>
+                  <div className="shrink-0 rounded-[var(--bc-radius-sm)] bg-[var(--bc-surface-subtle)] px-3 py-2 text-center dark:bg-neutral-800"><p className="text-lg font-semibold">{question.answerCount}</p><p className="text-[12px] text-[var(--bc-faint)]">{en ? (question.answerCount === 1 ? "answer" : (question.answerCount === 1 ? "odpowiedź" : "odpowiedzi")) : (question.answerCount === 1 ? "odpowiedź" : "odpowiedzi")}</p></div>
                 </div>
               </div>
             </Link>

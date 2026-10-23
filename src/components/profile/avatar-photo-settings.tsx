@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { appMessage } from "@/lib/server-copy";
 import { cancelPendingProfileAvatar, removeApprovedProfileAvatar, submitProfileAvatar } from "@/server/actions/profile-avatar";
 
@@ -76,6 +77,7 @@ function formatDate(value: Date | string | null | undefined, locale: "pl" | "en"
 
 export function AvatarPhotoSettings({ username, initialState }: { username: string; initialState: AvatarState }) {
   const copy = useCopy();
+  const { confirm, dialog } = useConfirm();
   const locale = useLocale();
   const [state, setState] = React.useState(initialState);
   const [selectedDataUrl, setSelectedDataUrl] = React.useState<string | null>(null);
@@ -109,12 +111,13 @@ export function AvatarPhotoSettings({ username, initialState }: { username: stri
   }
 
   function cancelPending() { startTransition(async () => { const result = await cancelPendingProfileAvatar(); if (result.error) { toast.error(appMessage(result.error, locale)); return; } toast.success(copy("Oczekujące zdjęcie usunięte.", "Pending photo removed.")); setState((current) => ({ ...current, pending: null })); }); }
-  function removeApproved() { if (!window.confirm(copy("Usunąć zaakceptowane zdjęcie profilowe? Wrócą inicjały.", "Remove the approved profile photo? Your initials will be shown again."))) return; startTransition(async () => { const result = await removeApprovedProfileAvatar(); if (result.error) { toast.error(appMessage(result.error, locale)); return; } toast.success(copy("Zdjęcie profilowe usunięte.", "Profile photo removed.")); setState((current) => ({ ...current, approved: null })); }); }
+  async function removeApproved() { if (!(await confirm({ message: copy("Usunąć zaakceptowane zdjęcie profilowe? Wrócą inicjały.", "Remove the approved profile photo? Your initials will be shown again."), destructive: true }))) return; startTransition(async () => { const result = await removeApprovedProfileAvatar(); if (result.error) { toast.error(appMessage(result.error, locale)); return; } toast.success(copy("Zdjęcie profilowe usunięte.", "Profile photo removed.")); setState((current) => ({ ...current, approved: null })); }); }
 
   const currentPendingUrl = state.pending && !String(state.pending.id).startsWith("pending-") ? `/api/avatar/pending?v=${encodeURIComponent(String(new Date(state.pending.uploadedAt).getTime()))}` : null;
 
   return (
     <section className="border-t border-[var(--bc-line)] py-6">
+      {dialog}
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2"><div><h2 className="text-[16px] font-semibold tracking-[-0.01em]">{copy("Zdjęcie profilowe", "Profile photo")}</h2><p className="mt-1 max-w-[720px] text-[12px] leading-4 text-[var(--bc-faint)]">{copy("Opcjonalne. Nowe zdjęcie jest widoczne dopiero po ręcznej moderacji. Jeśli go nie dodasz, BuildCrew nadal używa inicjałów.", "Optional. A new photo becomes visible only after manual review. If you do not add one, BuildCrew continues to show your initials.")}</p></div><span className="text-[11px] font-medium uppercase tracking-[0.09em] text-[var(--bc-faint)]">JPG / PNG / WebP · {copy("do 8 MB", "up to 8 MB")}</span></div>
       <div className="grid gap-5 border-y border-[var(--bc-line)] py-5 md:grid-cols-[120px_minmax(0,1fr)]">
         <div className="flex items-start justify-center md:justify-start">{selectedPreview ? <img src={selectedPreview} alt={copy("Podgląd nowego zdjęcia profilowego", "New profile photo preview")} className="h-24 w-24 rounded-full border border-[var(--bc-line-strong)] object-cover" /> : currentPendingUrl ? <img src={currentPendingUrl} alt={copy("Zdjęcie oczekujące na moderację", "Photo pending review")} className="h-24 w-24 rounded-full border border-[var(--bc-line-strong)] object-cover" /> : <Avatar username={username} size="xl" />}</div>

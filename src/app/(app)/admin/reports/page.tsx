@@ -55,14 +55,14 @@ export default async function AdminReportsPage() {
                   <span className="text-[13px] text-neutral-400">{report.createdAt.toLocaleString(en ? "en-US" : "pl-PL")}</span>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-[6px] bg-neutral-50 p-3 dark:bg-neutral-800/50">
+                  <div className="rounded-[var(--bc-radius-sm)] bg-[var(--bc-surface-subtle)] p-3 dark:bg-neutral-800/50">
                     <p className="text-[13px] text-neutral-400">{en ? "Reporter" : "Zgłaszający"}</p>
                     <div className="mt-2 flex items-center gap-2.5">
                       <Avatar username={report.reporter?.username ?? (en ? "No profile" : "Brak profilu")} seed={report.reporter?.id ?? report.reporterId} size="sm" />
                       <div><p className="text-sm font-medium">{report.reporter?.username ?? (en ? "No profile" : "Brak profilu")}</p><p className="text-[13px] text-neutral-400">{report.reporter?.email}</p></div>
                     </div>
                   </div>
-                  <div className="rounded-[6px] bg-red-50/60 p-3 dark:bg-red-500/5">
+                  <div className="rounded-[var(--bc-radius-sm)] bg-red-50/60 p-3 dark:bg-red-500/5">
                     <p className="text-[13px] text-neutral-400">{en ? "Reported user" : "Zgłoszony użytkownik"}</p>
                     <div className="mt-2 flex items-center gap-2.5">
                       <Avatar username={report.reported?.username ?? (en ? "No profile" : "Brak profilu")} seed={report.reported?.id ?? report.reportedId} size="sm" />
@@ -73,13 +73,13 @@ export default async function AdminReportsPage() {
                     {report.targetType === "MESSAGE" && report.targetId ? <p className="mt-2 text-[11px] text-neutral-400">{en ? "Reported message ID" : "ID zgłoszonej wiadomości"}: {report.targetId}</p> : null}
                   </div>
                 </div>
-                {report.description ? <div className="mt-3 rounded-[6px] border border-neutral-200 p-3 text-sm dark:border-neutral-800"><p className="mb-1 text-[13px] font-medium uppercase tracking-wide text-neutral-400">{en ? "Report context" : "Kontekst zgłoszenia"}</p>{report.description}</div> : null}
+                {report.description ? <div className="mt-3 rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] p-3 text-sm"><p className="mb-1 text-[13px] font-medium uppercase tracking-wide text-neutral-400">{en ? "Report context" : "Kontekst zgłoszenia"}</p>{report.description}</div> : null}
               </div>
 
-              <form action={updateReportAction} className="w-full space-y-3 rounded-[6px] border border-neutral-200 p-4 xl:w-[360px] dark:border-neutral-800">
+              <form action={updateReportAction} className="w-full space-y-3 rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] p-4 xl:w-[360px]">
                 <input type="hidden" name="reportId" value={report.id} />
                 <label className="block text-[13px] font-medium text-neutral-500">{en ? "Status" : "Status"}</label>
-                <select name="status" defaultValue={report.status} className="h-10 w-full rounded-[6px] border border-neutral-200 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900">
+                <select name="status" defaultValue={report.status} className="h-10 w-full rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm dark:bg-neutral-900">
                   <option value="open">{en ? "Open" : "Otwarte"}</option>
                   <option value="in_review">{en ? "In progress" : "W trakcie"}</option>
                   <option value="resolved">{en ? "Resolved" : "Rozwiązane"}</option>

@@ -128,7 +128,7 @@ export function ProjectIdentityMark({
 
   return (
     <div
-      className={`inline-flex ${dimensions} shrink-0 items-center justify-center rounded-[8px] border border-[color-mix(in_srgb,var(--bc-accent)_36%,var(--bc-line))] bg-[color-mix(in_srgb,var(--bc-accent)_13%,var(--bc-surface))] text-[color-mix(in_srgb,var(--bc-accent)_72%,var(--bc-ink))]`}
+      className={`inline-flex ${dimensions} shrink-0 items-center justify-center rounded-[var(--bc-radius)] border border-[color-mix(in_srgb,var(--bc-accent)_36%,var(--bc-line))] bg-[color-mix(in_srgb,var(--bc-accent)_13%,var(--bc-surface))] text-[color-mix(in_srgb,var(--bc-accent)_72%,var(--bc-ink))]`}
       aria-hidden="true"
     >
       <Icon className={iconSize} strokeWidth={1.8} />

@@ -27,7 +27,7 @@ export function ActivityVisual({
   if (compact) {
     return (
       <div
-        className={cn("relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[10px] border border-white/10 text-white", className)}
+        className={cn("relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[var(--bc-radius-lg)] border border-white/10 text-white", className)}
         style={{ background: `linear-gradient(135deg, hsl(${hueA} 55% 28%), hsl(${hueB} 60% 43%))` }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,.18),transparent_44%)]" />
@@ -38,7 +38,7 @@ export function ActivityVisual({
 
   return (
     <div
-      className={cn("relative h-full min-h-[150px] overflow-hidden rounded-[10px] border border-black/5 text-white", className)}
+      className={cn("relative h-full min-h-[150px] overflow-hidden rounded-[var(--bc-radius-lg)] border border-black/5 text-white", className)}
       style={{ background: `linear-gradient(135deg, hsl(${hueA} 55% 24%), hsl(${hueB} 62% 40%))` }}
     >
       <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full border border-white/15 bg-white/5" />

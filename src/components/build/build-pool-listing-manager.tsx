@@ -22,6 +22,7 @@ import { COMMITMENT_OPTIONS, LEVEL_OPTIONS, ROLE_OPTIONS } from "@/lib/constants
 import { labelsFor } from "@/lib/constants-i18n";
 import { appMessage } from "@/lib/server-copy";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import type { BuildPoolListingStatus, Commitment, Level, RoleType } from "@/db/schema";
 import { deleteBuildPoolListing, saveBuildPoolListing, setBuildPoolListingStatus } from "@/server/actions/build-pool";
 
@@ -48,6 +49,7 @@ type Defaults = {
 export function BuildPoolListingManager({ listing, defaults, activeCrew = false }: { listing: Listing | null; defaults: Defaults; activeCrew?: boolean }) {
   const locale = useLocale();
   const copy = useCopy();
+  const { confirm, dialog } = useConfirm();
   const labels = labelsFor(locale);
   const statusLabels: Record<BuildPoolListingStatus, string> = { ACTIVE: copy("Aktywne", "Active"), PAUSED: copy("Wstrzymane", "Paused"), CLOSED: copy("Zamknięte", "Closed") };
   const [open, setOpen] = React.useState(false);
@@ -91,7 +93,7 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
   }
 
   async function handleDelete() {
-    if (!window.confirm(copy("Usunąć zgłoszenie z Build Pool?", "Delete your Build Pool listing?"))) return;
+    if (!(await confirm({ message: copy("Usunąć zgłoszenie z Build Pool?", "Delete your Build Pool listing?"), destructive: true }))) return;
     setPending(true);
     const result = await deleteBuildPoolListing();
     setPending(false);
@@ -100,7 +102,8 @@ export function BuildPoolListingManager({ listing, defaults, activeCrew = false 
   }
 
   return (
-    <section className="mb-6 border-y border-[#d8d8d0] py-5 dark:border-neutral-700">
+    <section className="mb-6 border-y border-[var(--bc-line)] py-5 dark:border-neutral-700">
+      {dialog}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">

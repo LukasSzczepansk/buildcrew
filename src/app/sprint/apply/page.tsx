@@ -56,8 +56,8 @@ export default async function SprintApplyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4f4ef] text-[#111111] dark:bg-[#11110f] dark:text-[#f4f4ef]">
-      <header className="border-b border-[#d8d8d0] bg-[#f4f4ef]/95 backdrop-blur dark:border-[#34342f] dark:bg-[#11110f]/95">
+    <div className="min-h-screen bg-[var(--bc-canvas)] text-[var(--bc-ink)] dark:bg-[#11110f] dark:text-[#f4f4ef]">
+      <header className="border-b border-[var(--bc-line)] bg-[var(--bc-canvas)]/95 backdrop-blur dark:border-[#34342f] dark:bg-[#11110f]/95">
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-5 sm:px-8">
           <Link href="/sprint" className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.02em]"><span className="h-4 w-[5px] bg-[#c8f169] ring-1 ring-black/10" />BuildCrew Sprint</Link>
           <div className="flex items-center gap-1.5"><LanguageSwitcher compact /><Button asChild variant="ghost" size="sm"><Link href="/sprint"><ArrowLeft className="h-4 w-4" /> {c("Wróć do Sprintu", "Back to Sprint")}</Link></Button></div>
@@ -138,7 +138,7 @@ export default async function SprintApplyPage() {
                 <MiniStep number="3" text={c("Dostajesz rekomendacje osób do wspólnej Crew.", "You get recommendations for people to build a Crew with.")} />
                 <MiniStep number="4" text={c("Po Team Reveal zaczynacie 30-dniowy build.", "After Team Reveal you start the 30-day build.")} />
               </ol>
-              <div className="mt-5 rounded-[7px] bg-[#eff6d8] p-3 text-xs leading-5 text-neutral-700 dark:bg-lime-400/10 dark:text-neutral-300">{c("Formularz możesz później edytować. Nie musisz znać odpowiedzi na wszystko idealnie już teraz.", "You can edit the form later. You don't need perfect answers right now.")}</div>
+              <div className="mt-5 rounded-[var(--bc-radius)] bg-[#eff6d8] p-3 text-xs leading-5 text-neutral-700 dark:bg-lime-400/10 dark:text-neutral-300">{c("Formularz możesz później edytować. Nie musisz znać odpowiedzi na wszystko idealnie już teraz.", "You can edit the form later. You don't need perfect answers right now.")}</div>
             </Card>
           </div>
         )}
@@ -152,7 +152,7 @@ function GateCard({ icon: Icon, title, text, href, action, secondaryHref, second
 }
 
 function MiniStep({ number, text }: { number: string; text: string }) {
-  return <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-950 text-[11px] font-semibold text-white dark:bg-[#c8f169] dark:text-neutral-950">{number}</span><span className="pt-0.5 leading-5 text-neutral-600 dark:text-neutral-300">{text}</span></li>;
+  return <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1c1b17] text-[11px] font-semibold text-white dark:bg-[#c8f169] dark:text-neutral-950">{number}</span><span className="pt-0.5 leading-5 text-neutral-600 dark:text-neutral-300">{text}</span></li>;
 }
 
 function participantStatusLabel(status: string) {

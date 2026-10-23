@@ -22,7 +22,7 @@ export function AdminNav() {
     { href: "/admin/activity", label: copy("Aktywność", "Activity"), icon: Activity, exact: false },
   ] as const;
   return (
-    <div className="mb-7 overflow-x-auto rounded-lg border border-neutral-300 bg-white p-1.5 dark:border-neutral-800 dark:bg-neutral-900">
+    <div className="mb-7 overflow-x-auto rounded-lg border border-neutral-300 bg-[var(--bc-surface)] p-1.5 dark:border-neutral-800 dark:bg-neutral-900">
       <nav className="flex min-w-max gap-1">
         {items.map((item) => {
           const active = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + "/");
@@ -32,9 +32,9 @@ export function AdminNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2 rounded-[6px] px-3.5 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-2 rounded-[var(--bc-radius-sm)] px-3.5 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-neutral-950 text-white dark:bg-white dark:text-neutral-950"
+                  ? "bg-[#1c1b17] text-white dark:bg-white dark:text-neutral-950"
                   : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white",
               )}
             >

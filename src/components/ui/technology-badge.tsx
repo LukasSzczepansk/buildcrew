@@ -168,7 +168,7 @@ export function TechnologyBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-ink)]",
+        "inline-flex items-center gap-1.5 rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-ink)]",
         compact ? "min-h-7 px-2 py-1 text-[12px]" : "min-h-8 px-2.5 py-1 text-[13px]",
         className,
       )}
@@ -203,7 +203,7 @@ export function TechnologyStack({
         <TechnologyBadge key={item} label={item} compact={compact} />
       ))}
       {remaining > 0 ? (
-        <span className={cn("inline-flex items-center rounded-[6px] border border-dashed border-[var(--bc-line)] text-[var(--bc-muted)]", compact ? "min-h-7 px-2 py-1 text-[12px]" : "min-h-8 px-2.5 py-1 text-[13px]")}>+{remaining}</span>
+        <span className={cn("inline-flex items-center rounded-[var(--bc-radius-sm)] border border-dashed border-[var(--bc-line)] text-[var(--bc-muted)]", compact ? "min-h-7 px-2 py-1 text-[12px]" : "min-h-8 px-2.5 py-1 text-[13px]")}>+{remaining}</span>
       ) : null}
     </div>
   );

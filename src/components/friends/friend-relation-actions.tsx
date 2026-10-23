@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { appMessage } from "@/lib/server-copy";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { cancelFriendRequest, removeFriend, respondToFriendRequest, sendFriendRequest } from "@/server/actions/friends";
 
 export type FriendRelationState =
@@ -18,6 +19,7 @@ export type FriendRelationState =
 export function FriendRelationActions({ targetUserId, state, compact = false }: { targetUserId: string; state: FriendRelationState; compact?: boolean }) {
   const copy = useCopy();
   const locale = useLocale();
+  const { confirm, dialog } = useConfirm();
   const [pending, setPending] = React.useState(false);
 
   async function run(action: () => Promise<{ error?: string; success?: boolean }>, success: string) {
@@ -35,7 +37,7 @@ export function FriendRelationActions({ targetUserId, state, compact = false }: 
   return (
     <div className="flex flex-wrap gap-2">
       {state.conversationId ? <Button asChild size={compact ? "sm" : "default"} className="gap-2"><Link href={`/messages/${state.conversationId}`}><MessageCircle className="h-4 w-4" /> {copy("Wiadomość", "Message")}</Link></Button> : null}
-      <Button size={compact ? "sm" : "default"} variant="outline" className="gap-2" disabled={pending} onClick={() => { if (!window.confirm(copy("Usunąć tę osobę z kontaktów? Historia czatu zostanie usunięta.", "Remove this person from your connections? The chat history will be deleted."))) return; void run(() => removeFriend(targetUserId), copy("Usunięto z kontaktów.", "Connection removed.")); }}><UserMinus className="h-4 w-4" /> {copy("Usuń", "Remove")}</Button>
+      <Button size={compact ? "sm" : "default"} variant="outline" className="gap-2" disabled={pending} onClick={async () => { if (!(await confirm({ message: copy("Usunąć tę osobę z kontaktów? Historia czatu zostanie usunięta.", "Remove this person from your connections? The chat history will be deleted."), destructive: true }))) return; void run(() => removeFriend(targetUserId), copy("Usunięto z kontaktów.", "Connection removed.")); }}><UserMinus className="h-4 w-4" /> {copy("Usuń", "Remove")}</Button>
     </div>
   );
 }

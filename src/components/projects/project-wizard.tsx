@@ -6,6 +6,7 @@ import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { labelsFor } from "@/lib/constants-i18n";
 import { appMessage } from "@/lib/server-copy";
 import {
@@ -180,6 +181,7 @@ export function ProjectWizard({
   const searchParams = useSearchParams();
   const locale = useLocale();
   const copy = useCopy();
+  const { confirm, dialog } = useConfirm();
   const crewId = searchParams.get("crewId") ?? undefined;
   const storageKey = `${DRAFT_KEY_PREFIX}:${draftKey}${sourceIdeaId ? `:idea:${sourceIdeaId}` : ""}`;
   const initialForm: FormState = {
@@ -291,8 +293,8 @@ export function ProjectWizard({
     setForm((current) => ({ ...current, roles: current.roles.filter((_, roleIndex) => roleIndex !== index) }));
   }
 
-  function clearDraft() {
-    if (hasUsefulDraft(form) && !window.confirm(copy("Wyczyścić cały zapisany szkic projektu?", "Clear the entire saved project draft?"))) return;
+  async function clearDraft() {
+    if (hasUsefulDraft(form) && !(await confirm({ message: copy("Wyczyścić cały zapisany szkic projektu?", "Clear the entire saved project draft?"), destructive: true }))) return;
     window.localStorage.removeItem(storageKey);
     setForm(initialForm);
     setStep(1);
@@ -371,6 +373,7 @@ export function ProjectWizard({
 
   return (
     <div className="mx-auto w-full max-w-[900px] pb-16">
+      {dialog}
       <div className="border-y border-[var(--bc-line)]">
         <div className="flex min-w-max overflow-x-auto">
           {(locale === "en" ? ["Basics", "Project", "Team", "Collaboration", "Preview"] : ["Podstawy", "Projekt", "Zespół", "Współpraca", "Podgląd"]).map((label, index) => {
@@ -736,7 +739,7 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
       </div>
 
       <Field label={copy("Kraj / baza projektu", "Project country / base")} description={copy("Opcjonalne. Przy projektach zdalnych pomaga zrozumieć strefę czasową i kontekst.", "Optional. For remote projects it helps people understand timezone and context.")}>
-        <select value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} className="h-10 w-full rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm">
+        <select value={form.country} onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))} className="h-10 w-full rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm">
           <option value="">{copy("Nie określono", "Not specified")}</option>
           {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{countryLabel(country)}</option>)}
         </select>
@@ -753,7 +756,7 @@ function CollaborationStep({ form, setForm }: { form: FormState; setForm: React.
       </Field>
 
       {form.needs.includes("FUNDING") ? (
-        <div className="grid gap-4 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-4 sm:grid-cols-2">
+        <div className="grid gap-4 rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-4 sm:grid-cols-2">
           <Field label={copy("Etap finansowania", "Funding stage")} compact>
             <Select value={form.fundingStage || undefined} onValueChange={(value) => setForm((current) => ({ ...current, fundingStage: value as FundingStage }))}>
               <SelectTrigger><SelectValue placeholder={copy("Wybierz etap", "Choose a stage")} /></SelectTrigger>
@@ -941,7 +944,7 @@ function ToggleButton({ active, disabled, onClick, children }: { active: boolean
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "min-h-9 rounded-[6px] border px-3 text-[13px] transition-colors disabled:cursor-not-allowed disabled:opacity-35",
+        "min-h-9 rounded-[var(--bc-radius-sm)] border px-3 text-[13px] transition-colors disabled:cursor-not-allowed disabled:opacity-35",
         active
           ? "border-[var(--bc-ink)] bg-[var(--bc-ink)] text-[var(--bc-surface)] dark:border-[var(--bc-accent)] dark:bg-[var(--bc-accent)] dark:text-neutral-950"
           : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]",

@@ -54,7 +54,7 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
   }
 
   return (
-    <article className="rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]">
+    <article className="rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]">
       <div className="grid gap-4 p-4 sm:p-5 xl:grid-cols-[230px_minmax(320px,1fr)_104px_170px] xl:items-center xl:gap-5">
         <div className="flex min-w-0 items-start gap-3.5">
           <Link href={`/builders/${person.userId}`} className="shrink-0"><Avatar username={person.username} seed={person.userId} className="h-14 w-14 text-[19px]" /></Link>
@@ -93,7 +93,7 @@ export function BuildPoolCard({ person, myCrewId }: { person: BuildPoolPerson; m
               <DialogFooter><Button onClick={handleSend} disabled={pending}>{pending ? copy("Wysyłanie…", "Sending…") : copy("Wyślij", "Send")}</Button></DialogFooter>
             </DialogContent>
           </Dialog>
-          <Link href={`/builders/${person.userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">{copy("Profil", "Profile")} <ArrowRight className="h-3.5 w-3.5" /></Link>
+          <Link href={`/builders/${person.userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-[var(--bc-radius)] border border-[var(--bc-line)] px-3 text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">{copy("Profil", "Profile")} <ArrowRight className="h-3.5 w-3.5" /></Link>
         </div>
       </div>
     </article>

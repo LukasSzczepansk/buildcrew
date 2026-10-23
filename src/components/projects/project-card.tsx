@@ -81,7 +81,7 @@ export function ProjectCard({
   const needs = project.needs ?? ["TEAMMATES"];
 
   return (
-    <article className="group overflow-hidden rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
+    <article className="bc-lift group overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[var(--bc-shadow-xs)]">
       <div className="grid lg:grid-cols-[minmax(0,1fr)_480px]">
         <div className="min-w-0 p-4 sm:p-5">
           <div className="flex items-start gap-4">
@@ -101,12 +101,12 @@ export function ProjectCard({
                   {project.name}
                 </Link>
                 {project.owner?.isDemo ? <span className="rounded-full border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}
-                <span className="inline-flex h-6 items-center gap-1.5 rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 text-[11px] font-medium text-[var(--bc-muted)]">
+                <span className="inline-flex h-6 items-center gap-1.5 rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 text-[11px] font-medium text-[var(--bc-muted)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent)]" />
                   {labels.stages[project.stage]}
                 </span>
                 {score !== null ? (
-                  <span className={`inline-flex h-6 items-center gap-1 rounded-[6px] border px-2 text-[11px] font-semibold ${strongMatch ? "border-[#b8db5a] bg-[#f1f8db] text-[#66890e] dark:border-[#759624] dark:bg-[#202810] dark:text-[#c8f169]" : "border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] text-[var(--bc-muted)]"}`}>
+                  <span className={`inline-flex h-6 items-center gap-1 rounded-[var(--bc-radius-sm)] border px-2 text-[11px] font-semibold ${strongMatch ? "border-[#b8db5a] bg-[#f1f8db] text-[#66890e] dark:border-[#759624] dark:bg-[#202810] dark:text-[#c8f169]" : "border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] text-[var(--bc-muted)]"}`}>
                     <Sparkles className="h-3 w-3" /> {matchLabel}
                   </span>
                 ) : null}
@@ -221,14 +221,14 @@ export function ProjectCard({
                 href={`/p/${project.id}`}
                 aria-label={`${en ? "Open public project page" : "Otwórz publiczną stronę projektu"} ${project.name}`}
                 title={en ? "Public link" : "Publiczny link"}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--bc-radius-sm)] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"
               >
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
 
               <Link
                 href={`/projects/${project.id}`}
-                className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-[var(--bc-ink)] px-3.5 text-[13px] font-medium text-[var(--bc-surface)] transition-opacity hover:opacity-85"
+                className="inline-flex h-9 items-center gap-1.5 rounded-[var(--bc-radius-sm)] bg-[var(--bc-ink)] px-3.5 text-[13px] font-medium text-[var(--bc-surface)] transition-opacity hover:opacity-85"
               >
                 {en ? "View" : "Zobacz"}
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -245,7 +245,7 @@ function IdentityChip({ label, index }: { label: string; index: number }) {
   const Icon = index === 0 ? Globe2 : Tags;
 
   return (
-    <span className="inline-flex h-6 items-center gap-1.5 rounded-[6px] border border-[var(--bc-line)] px-2 text-[11px] font-medium text-[var(--bc-muted)]">
+    <span className="inline-flex h-6 items-center gap-1.5 rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] px-2 text-[11px] font-medium text-[var(--bc-muted)]">
       <Icon className="h-3 w-3" aria-hidden="true" />
       {label}
     </span>

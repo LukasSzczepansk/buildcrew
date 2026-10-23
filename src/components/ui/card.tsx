@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)]", className)} {...props} />;
+  return <div className={cn("rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[var(--bc-shadow-xs)]", className)} {...props} />;
 }
 
 function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -10,7 +10,7 @@ function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement
 }
 
 function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-base font-semibold leading-6 tracking-[-0.01em] text-[var(--bc-ink)]", className)} {...props} />;
+  return <h3 className={cn("text-[17px] font-semibold leading-6 tracking-[-0.012em] text-[var(--bc-ink)]", className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {

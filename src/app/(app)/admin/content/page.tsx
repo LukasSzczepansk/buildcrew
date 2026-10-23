@@ -40,7 +40,7 @@ export default async function AdminContentPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Link href={`/help/${q.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-200 px-3 text-[13px] font-medium hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"><ExternalLink className="h-3.5 w-3.5" /> {en ? "Open" : "Otwórz"}</Link>
+                  <Link href={`/help/${q.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[var(--bc-line)] px-3 text-[13px] font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800"><ExternalLink className="h-3.5 w-3.5" /> {en ? "Open" : "Otwórz"}</Link>
                   <form action={deleteQuestionAdminAction}>
                     <input type="hidden" name="questionId" value={q.id} />
                     <ConfirmSubmit message={en ? "Delete this question together with all answers?" : "Usunąć to pytanie razem ze wszystkimi odpowiedziami?"} variant="destructive" size="sm"><Trash2 className="h-3.5 w-3.5" /> {en ? "Delete" : "Usuń"}</ConfirmSubmit>

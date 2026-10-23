@@ -33,10 +33,10 @@ export default async function AdminAvatarsPage() {
       </div>
 
       {rows.length ? (
-        <div className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+        <div className="divide-y divide-neutral-200 border-y border-[var(--bc-line)] dark:divide-neutral-800">
           {rows.map((item) => (
             <article key={item.id} className="grid gap-5 py-5 lg:grid-cols-[136px_minmax(0,1fr)_360px] lg:items-start">
-              <div className="overflow-hidden rounded-[8px] border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900">
+              <div className="overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface-2)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/api/admin/avatars/${item.id}`} alt={en ? `Profile photo of ${item.username}` : `Zdjęcie profilowe ${item.username}`} className="aspect-square w-full object-cover" />
               </div>
@@ -56,7 +56,7 @@ export default async function AdminAvatarsPage() {
                 <p className="mt-4 max-w-2xl text-[13px] leading-5 text-neutral-500">{en ? "Approve only neutral profile photos. Reject content that impersonates another person, is pornographic or graphic, exposes obvious sensitive data of third parties, or does not make sense as an avatar." : "Zatwierdzaj wyłącznie neutralne zdjęcia profilowe. Odrzucaj treści podszywające się pod inną osobę, pornograficzne lub drastyczne, ujawniające oczywiste dane wrażliwe osób trzecich albo nienadające się na avatar."}</p>
               </div>
 
-              <div className="space-y-3 border-t border-neutral-200 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0 dark:border-neutral-800">
+              <div className="space-y-3 border-t border-[var(--bc-line)] pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
                 <form action={moderateProfileAvatar}>
                   <input type="hidden" name="avatarId" value={item.id} />
                   <input type="hidden" name="decision" value="approve" />
@@ -74,7 +74,7 @@ export default async function AdminAvatarsPage() {
           ))}
         </div>
       ) : (
-        <div className="border-y border-neutral-200 py-14 text-center dark:border-neutral-800">
+        <div className="border-y border-[var(--bc-line)] py-14 text-center">
           <ImageIcon className="mx-auto h-5 w-5 text-neutral-300 dark:text-neutral-700" />
           <p className="mt-3 text-sm font-medium">{en ? "No photos to review" : "Brak zdjęć do sprawdzenia"}</p>
           <p className="mt-1 text-[13px] text-neutral-400">{en ? "New submissions will appear here automatically." : "Nowe zgłoszenia pojawią się tutaj automatycznie."}</p>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Geist, Instrument_Serif } from "next/font/google";
 import { Toaster } from "sonner";
 import { AnalyticsConsentBanner } from "@/components/analytics/analytics-consent-banner";
 import { ANALYTICS_CONSENT_BOOTSTRAP, GoogleAnalytics } from "@/components/analytics/google-analytics";
@@ -8,6 +9,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { getRequestLocale } from "@/lib/site-server";
 import { SITE_URL } from "@/lib/site-config";
 import "./globals.css";
+
+const fontUi = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-ui", display: "swap" });
+const fontDisplay = Instrument_Serif({ subsets: ["latin", "latin-ext"], weight: "400", style: ["normal", "italic"], variable: "--font-display", display: "swap" });
 
 const SEO = {
   pl: {
@@ -63,12 +67,12 @@ try {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const locale = await getRequestLocale();
   return (
-    <html lang={locale === "en" ? "en" : "pl"} suppressHydrationWarning>
+    <html lang={locale === "en" ? "en" : "pl"} className={`${fontUi.variable} ${fontDisplay.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: ANALYTICS_CONSENT_BOOTSTRAP }} />
       </head>
-      <body className="bg-[#f4f4ef] text-[#111111] antialiased dark:bg-[#11110f] dark:text-[#f4f4ef]">
+      <body className="antialiased">
         <LocaleProvider locale={locale}>
           <ThemeProvider>
             {children}

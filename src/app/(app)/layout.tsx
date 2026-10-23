@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { CommandPalette } from "@/components/layout/command-palette";
 import { LegalFooter } from "@/components/layout/legal-footer";
 import { getCurrentUser, isAdmin, isFounder } from "@/lib/auth";
 import { unreadMessagesCount } from "@/server/data/messages";
@@ -29,6 +30,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <LegalFooter className="mx-auto mt-10 w-full max-w-[1320px]" />
       </main>
       <MobileNav unreadMessages={unreadMessages} />
+      <CommandPalette />
     </div>
   );
 }

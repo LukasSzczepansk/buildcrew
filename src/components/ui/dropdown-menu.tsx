@@ -16,7 +16,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-[10rem] overflow-hidden rounded-[6px] border border-[#d8d8d0] bg-white p-1 text-neutral-900 shadow-[0_8px_24px_rgba(0,0,0,0.08)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100",
+        "z-50 min-w-[10rem] overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-1 text-[var(--bc-ink)] shadow-[var(--bc-shadow-lg)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         className,
       )}
       {...props}
@@ -46,7 +46,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-neutral-200 dark:bg-neutral-800", className)}
+    className={cn("-mx-1 my-1 h-px bg-[var(--bc-line)]", className)}
     {...props}
   />
 ));

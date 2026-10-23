@@ -4,38 +4,62 @@
 
 :root {
   color-scheme: light;
-  --bc-canvas: #f6f6f2;
-  --bc-surface: #ffffff;
-  --bc-surface-subtle: #fbfbf8;
-  --bc-surface-2: #f1f1eb;
-  --bc-surface-hover: #efefe8;
-  --bc-ink: #141414;
-  --bc-muted: #686861;
-  --bc-faint: #7f7f78;
-  --bc-line: #deded5;
-  --bc-line-strong: #c7c7bd;
+
+  /* Warm paper palette: slightly creamy neutrals instead of cold grey, ink is soft black, not #000. */
+  --bc-canvas: #f5f3ec;
+  --bc-surface: #fffdf8;
+  --bc-surface-subtle: #faf8f1;
+  --bc-surface-2: #f0ede3;
+  --bc-surface-hover: #ece9de;
+  --bc-ink: #1c1b17;
+  --bc-muted: #66645b;
+  --bc-faint: #85837a;
+  --bc-line: #e5e1d4;
+  --bc-line-strong: #cfcabb;
   --bc-accent: #c8f169;
-  --bc-accent-strong: #a9d43e;
-  --bc-accent-soft: #f0f8d9;
+  --bc-accent-strong: #a8cf3d;
+  --bc-accent-ink: #4d6a0e;
+  --bc-accent-soft: #eef6d3;
   --bc-danger: #b42318;
+
+  /* Depth: layered, low-contrast shadows tinted with the ink colour so surfaces feel lifted, not outlined. */
+  --bc-shadow-xs: 0 1px 1px rgba(40, 34, 12, 0.04);
+  --bc-shadow-sm: 0 1px 2px rgba(40, 34, 12, 0.05), 0 2px 6px -2px rgba(40, 34, 12, 0.06);
+  --bc-shadow-md: 0 2px 4px rgba(40, 34, 12, 0.04), 0 10px 24px -8px rgba(40, 34, 12, 0.12);
+  --bc-shadow-lg: 0 4px 8px rgba(40, 34, 12, 0.05), 0 24px 56px -12px rgba(40, 34, 12, 0.22);
+  --bc-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  --bc-radius-sm: 8px;
+  --bc-radius: 10px;
+  --bc-radius-lg: 14px;
+
+  --bc-font-ui: var(--font-ui), "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bc-font-display: var(--font-display), "Iowan Old Style", "Palatino Linotype", Georgia, serif;
 }
 
 .dark {
   color-scheme: dark;
-  --bc-canvas: #0e0f0d;
-  --bc-surface: #151613;
-  --bc-surface-subtle: #191a17;
-  --bc-surface-2: #1d1f1a;
-  --bc-surface-hover: #22231e;
-  --bc-ink: #f3f3ee;
-  --bc-muted: #adaea6;
-  --bc-faint: #92938b;
-  --bc-line: #2b2d28;
-  --bc-line-strong: #3b3d36;
+  --bc-canvas: #11110e;
+  --bc-surface: #181813;
+  --bc-surface-subtle: #1c1c17;
+  --bc-surface-2: #21211b;
+  --bc-surface-hover: #272720;
+  --bc-ink: #f2f0e8;
+  --bc-muted: #aeaca2;
+  --bc-faint: #918f85;
+  --bc-line: #2d2d26;
+  --bc-line-strong: #403f36;
   --bc-accent: #c8f169;
-  --bc-accent-strong: #d5f786;
+  --bc-accent-strong: #d3f585;
+  --bc-accent-ink: #d3f585;
   --bc-accent-soft: rgba(200, 241, 105, 0.1);
   --bc-danger: #f97066;
+
+  --bc-shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.3);
+  --bc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
+  --bc-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3), 0 10px 24px -8px rgba(0, 0, 0, 0.55);
+  --bc-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.35), 0 24px 56px -12px rgba(0, 0, 0, 0.7);
+  --bc-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 html,
@@ -45,6 +69,7 @@ body {
 
 html {
   background: var(--bc-canvas);
+  scroll-behavior: smooth;
 }
 
 body {
@@ -52,12 +77,27 @@ body {
   overflow-x: hidden;
   background: var(--bc-canvas);
   color: var(--bc-ink);
-  font-family: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--bc-font-ui);
   font-size: 15px;
-  line-height: 1.55;
-  font-feature-settings: "ss01" 1, "cv02" 1, "cv03" 1;
+  line-height: 1.6;
+  font-feature-settings: "cv11" 1, "ss01" 1;
   text-rendering: optimizeLegibility;
   @apply antialiased;
+}
+
+/* A barely-there paper grain removes the flat, "rendered" look of solid colour backgrounds. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.22  0 0 0 0 0.12  0 0 0 0.055 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+.dark body::before {
+  opacity: 0.18;
 }
 
 * {
@@ -67,7 +107,7 @@ body {
 
 ::selection {
   background: var(--bc-accent);
-  color: #111111;
+  color: #1c1b17;
 }
 
 button,
@@ -84,12 +124,18 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--bc-accent);
+  outline: 2px solid var(--bc-accent-strong);
   outline-offset: 2px;
 }
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* Slim, warm scrollbars instead of the default chunky grey ones. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bc-line-strong) transparent;
 }
 
 .bc-grid {
@@ -99,17 +145,29 @@ a {
 .bc-panel {
   border: 1px solid var(--bc-line);
   background: var(--bc-surface);
-  border-radius: 8px;
+  border-radius: var(--bc-radius-lg);
+  box-shadow: var(--bc-shadow-xs);
 }
 
 .bc-panel-subtle {
   border: 1px solid var(--bc-line);
   background: var(--bc-surface-subtle);
-  border-radius: 8px;
+  border-radius: var(--bc-radius-lg);
+}
+
+/* Interactive surfaces lift slightly on hover. Add to cards that are links. */
+.bc-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.bc-lift:hover {
+  transform: translateY(-1px);
+  border-color: var(--bc-line-strong);
+  box-shadow: var(--bc-shadow-md);
 }
 
 .bc-kicker {
-  color: var(--bc-accent-strong);
+  color: var(--bc-accent-ink);
   font-size: 12px;
   line-height: 16px;
   font-weight: 600;
@@ -117,18 +175,34 @@ a {
   text-transform: uppercase;
 }
 
+/* Editorial serif for headlines gives the product a human, designed voice next to the neutral UI sans. */
 .bc-section-title {
-  font-size: clamp(26px, 3vw, 40px);
+  font-family: var(--bc-font-display);
+  font-size: clamp(30px, 3.4vw, 46px);
   line-height: 1.05;
-  letter-spacing: -0.035em;
-  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-weight: 400;
 }
 
 .bc-page-title {
-  font-size: clamp(26px, 2.5vw, 32px);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-  font-weight: 650;
+  font-family: var(--bc-font-display);
+  font-size: clamp(28px, 2.8vw, 36px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 400;
+}
+
+/* All top-level page headings share the editorial serif. Unlayered, so it wins over utility weights. */
+h1 {
+  font-family: var(--bc-font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  font-synthesis: none;
+}
+
+.bc-display {
+  font-family: var(--bc-font-display);
+  font-weight: 400;
 }
 
 .bc-eyebrow-line {
@@ -143,6 +217,7 @@ a {
   top: 2px;
   bottom: 2px;
   width: 3px;
+  border-radius: 2px;
   background: var(--bc-accent);
 }
 
@@ -162,6 +237,24 @@ a {
   to { opacity: 1; }
 }
 
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .animate-fade-in {
   animation: fade-in 0.14s ease-out;
+}
+
+/* Page content eases in once instead of popping. */
+main > div {
+  animation: fade-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  main > div,
+  .animate-fade-in,
+  .bc-lift { animation: none !important; transition: none !important; }
+  .bc-lift:hover { transform: none; }
 }

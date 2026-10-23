@@ -93,7 +93,7 @@ export function ProjectEnglishContentForm({
       </div>
 
       {legacy ? (
-        <div className="mt-4 rounded-[8px] border border-amber-300 bg-amber-50 px-4 py-3 text-[12px] leading-5 text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
+        <div className="mt-4 rounded-[var(--bc-radius)] border border-amber-300 bg-amber-50 px-4 py-3 text-[12px] leading-5 text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100">
           <strong>This legacy project is hidden from global discovery until you translate it.</strong> Translate the fields below, including role notes and existing public updates. Saving this form marks the project as English and makes it discoverable on BuildCrew.com.
         </div>
       ) : null}

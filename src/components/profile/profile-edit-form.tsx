@@ -80,7 +80,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
   }
 
   return (
-    <section className="overflow-hidden rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
+    <section className="overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
       <div className="border-b border-[var(--bc-line)] px-5 pt-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
           <div>
@@ -121,7 +121,7 @@ export function ProfileEditForm({ initial }: { initial: EditableProfile }) {
             <FormSection title={copy("Lokalizacja i język", "Location and language")} hint={copy("Pomaga to dopasować osoby, z którymi realnie możesz współpracować.", "This helps match you with people you can realistically collaborate with.")}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label={copy("Kraj", "Country")}>
-                  <select value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} className="h-10 w-full rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm outline-none focus:border-[var(--bc-line-strong)]">
+                  <select value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} className="h-10 w-full rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm outline-none focus:border-[var(--bc-line-strong)]">
                     <option value="">{copy("Wybierz kraj", "Select country")}</option>
                     {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{countryLabel(country)}</option>)}
                   </select>
@@ -230,13 +230,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function ChoiceButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" onClick={onClick} className={cn("rounded-[7px] border px-3 py-2.5 text-sm font-medium transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{children}</button>;
+  return <button type="button" onClick={onClick} className={cn("rounded-[var(--bc-radius)] border px-3 py-2.5 text-sm font-medium transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{children}</button>;
 }
 
 function TagButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" onClick={onClick} className={cn("rounded-[6px] border px-2.5 py-1.5 text-[12px] font-medium transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{children}</button>;
+  return <button type="button" onClick={onClick} className={cn("rounded-[var(--bc-radius-sm)] border px-2.5 py-1.5 text-[12px] font-medium transition-colors", active ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]")}>{children}</button>;
 }
 
 function CheckRow({ checked, label, onChange }: { checked: boolean; label: string; onChange: () => void }) {
-  return <label className="flex cursor-pointer items-center gap-2 rounded-[6px] px-2 py-2 text-sm hover:bg-[var(--bc-surface-subtle)]"><Checkbox checked={checked} onCheckedChange={onChange} /><span>{label}</span></label>;
+  return <label className="flex cursor-pointer items-center gap-2 rounded-[var(--bc-radius-sm)] px-2 py-2 text-sm hover:bg-[var(--bc-surface-subtle)]"><Checkbox checked={checked} onCheckedChange={onChange} /><span>{label}</span></label>;
 }

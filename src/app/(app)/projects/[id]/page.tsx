@@ -30,6 +30,10 @@ import { getProfileByUserId } from "@/server/data/profiles";
 import { isBlockedEitherWay } from "@/server/data/moderation";
 import type { Level, RoleType } from "@/db/schema";
 import { refreshProjectRecruitmentAction } from "@/server/actions/projects";
+import { TeamGaps } from "@/components/projects/team-gaps";
+import { BuildCardShare } from "@/components/projects/build-card-share";
+import { TrialTaskPanel } from "@/components/projects/trial-task-panel";
+import { listActiveTrialTasksForProject, listMyTrialAttempts } from "@/server/data/trial-tasks";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const [{ id }, locale] = await Promise.all([params, getRequestLocale()]);
@@ -70,6 +74,9 @@ export default async function ProjectDetailPage({
   const isOwner = project.ownerId === user.id;
   const myMembership = project.members.find((member) => member.userId === user.id);
   const isMember = Boolean(myMembership);
+  // Trial tasks: candidates see the task for a role they could still join; the brief is revealed only after they start.
+  const trialTasks = project.lifecycleStatus === "ACTIVE" && !isOwner ? await listActiveTrialTasksForProject(project.id) : [];
+  const myTrialAttempts = trialTasks.length ? await listMyTrialAttempts(user.id, trialTasks.map((task) => task.id)) : [];
   const openSlots = project.openRoles.reduce((sum, role) => sum + Math.max(0, role.open ?? 0), 0);
   const freshness = getProjectFreshness(project.updatedAt, new Date(), locale);
   const staleRecruitment = project.lifecycleStatus === "ACTIVE" && openSlots > 0 && freshness.stale;
@@ -237,6 +244,9 @@ export default async function ProjectDetailPage({
 
           {project.lifecycleStatus === "COMPLETED" && credits.length ? (
             <ProjectSection title={en ? "Built by" : "Zbudowali"}>
+              {credits.find((credit) => credit.userId === user.id) ? (
+                <div className="mb-5"><BuildCardShare projectId={project.id} creditId={credits.find((credit) => credit.userId === user.id)!.id} projectName={project.name} /></div>
+              ) : null}
               <div className="border-y border-[var(--bc-line)]">
                 {credits.map((credit) => (
                   <div key={credit.id} className="grid gap-2 border-b border-[var(--bc-line)] py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-center">
@@ -282,6 +292,18 @@ export default async function ProjectDetailPage({
                         <p className="mt-2 text-[12px] text-[var(--bc-faint)]">
                           {role.open} {en ? (role.open === 1 ? "spot" : "spots") : (role.open === 1 ? "miejsce" : "miejsca")}
                         </p>
+
+                        {(() => {
+                          const task = trialTasks.find((item) => item.roleId === role.id);
+                          if (!task || alreadyMember || role.open <= 0) return null;
+                          const attempt = myTrialAttempts.find((item) => item.trialTaskId === task.id);
+                          return (
+                            <TrialTaskPanel
+                              task={{ id: task.id, title: task.title, timeLimitMinutes: task.timeLimitMinutes, brief: attempt ? task.brief : undefined }}
+                              attempt={attempt ? { id: attempt.id, status: attempt.status, dueAt: attempt.dueAt.toISOString(), submittedAt: attempt.submittedAt?.toISOString() ?? null, reviewNote: attempt.reviewNote } : null}
+                            />
+                          );
+                        })()}
                       </div>
 
                       <div className="flex items-start sm:justify-end">
@@ -374,6 +396,12 @@ export default async function ProjectDetailPage({
             </SideSection>
           ) : null}
 
+          {project.roles.length > 0 ? (
+            <SideSection title={en ? "Team completeness" : "Skład zespołu"}>
+              <TeamGaps roles={project.roles} isOwner={isOwner} locale={locale} />
+            </SideSection>
+          ) : null}
+
           <SideSection title={`${en ? "Team" : "Zespół"} · ${project.members.length}`}>
             <div className="space-y-1">
               {project.members.map((member) => (
@@ -416,7 +444,7 @@ export default async function ProjectDetailPage({
           {isOwner && project.members.some((member) => !member.isOwner) ? (
             <SideSection title={en ? "Collaboration checks" : "Potwierdzenie współpracy"}>
               <div className="space-y-3">
-                {project.members.filter((member) => !member.isOwner).map((member) => <div key={member.userId} className="rounded-[7px] border border-[var(--bc-line)] p-3"><p className="mb-2 text-[12px] font-semibold text-[var(--bc-ink)]">{member.profile?.username ?? (en ? "Team member" : "Członek zespołu")}</p><CollaborationCheckin projectId={project.id} memberId={member.userId} status={member.collaborationStatus} memberConfirmed={Boolean(member.memberConfirmedAt)} ownerConfirmed={Boolean(member.ownerConfirmedAt)} viewerRole="OWNER" compact joinedAt={member.joinedAt} /></div>)}
+                {project.members.filter((member) => !member.isOwner).map((member) => <div key={member.userId} className="rounded-[var(--bc-radius)] border border-[var(--bc-line)] p-3"><p className="mb-2 text-[12px] font-semibold text-[var(--bc-ink)]">{member.profile?.username ?? (en ? "Team member" : "Członek zespołu")}</p><CollaborationCheckin projectId={project.id} memberId={member.userId} status={member.collaborationStatus} memberConfirmed={Boolean(member.memberConfirmedAt)} ownerConfirmed={Boolean(member.ownerConfirmedAt)} viewerRole="OWNER" compact joinedAt={member.joinedAt} /></div>)}
               </div>
             </SideSection>
           ) : null}

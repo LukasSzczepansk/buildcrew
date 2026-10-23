@@ -43,7 +43,7 @@ export function CreateHackathonTeamForm({ hackathonId, minTeamSize, maxTeamSize 
         </div>
         <div>
           <Label>{copy("Rozmiar zespołu", "Team size")}</Label>
-          <select value={targetSize} onChange={(event) => setTargetSize(Number(event.target.value))} className="mt-1.5 h-10 w-full rounded-[6px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-3 text-sm">
+          <select value={targetSize} onChange={(event) => setTargetSize(Number(event.target.value))} className="mt-1.5 h-10 w-full rounded-[var(--bc-radius-sm)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-3 text-sm">
             {Array.from({ length: maxTeamSize - minTeamSize + 1 }, (_, index) => minTeamSize + index).map((size) => (
               <option value={size} key={size}>{size} {locale === "en" ? (size === 1 ? "person" : "people") : (size === 1 ? "osoba" : size < 5 ? "osoby" : "osób")}</option>
             ))}

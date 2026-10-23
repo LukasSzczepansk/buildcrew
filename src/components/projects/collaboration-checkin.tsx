@@ -49,7 +49,7 @@ export function CollaborationCheckin({
 
   if (status === "CONFIRMED") {
     return (
-      <div className={`flex items-center gap-2 ${compact ? "text-[12px]" : "rounded-[7px] border border-lime-300 bg-lime-50/70 px-3.5 py-3 text-[13px] dark:border-lime-700 dark:bg-lime-500/5"}`}>
+      <div className={`flex items-center gap-2 ${compact ? "text-[12px]" : "rounded-[var(--bc-radius)] border border-lime-300 bg-lime-50/70 px-3.5 py-3 text-[13px] dark:border-lime-700 dark:bg-lime-500/5"}`}>
         <CheckCircle2 className="h-4 w-4 shrink-0 text-lime-600" />
         <span><strong className="font-semibold">{copy("Potwierdzona współpraca.", "Confirmed collaboration.")}</strong>{compact ? "" : copy(" Obie strony potwierdziły, że współpraca faktycznie się rozpoczęła.", " Both sides confirmed that work actually started.")}</span>
         {!compact ? <Button type="button" variant="ghost" size="sm" className="ml-auto" disabled={pending} onClick={() => respond("ENDED")}>{copy("Zakończ współpracę", "End collaboration")}</Button> : null}
@@ -72,7 +72,7 @@ export function CollaborationCheckin({
   }
 
   return (
-    <div className={compact ? "space-y-2" : "rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-3.5"}>
+    <div className={compact ? "space-y-2" : "rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-3.5"}>
       <p className={`${compact ? "text-[12px]" : "text-[13px]"} font-semibold text-[var(--bc-ink)]`}>{otherConfirmed ? copy("Druga strona potwierdziła, że zaczęliście współpracować. Potwierdzasz?", "The other side says you started working together. Confirm?") : copy("Czy faktycznie zaczęliście razem pracować?", "Did you actually start working together?")}</p>
       {!compact ? <p className="mt-1 text-[12px] leading-5 text-[var(--bc-muted)]">{copy("Potwierdzona współpraca wzmacnia oba profile i odblokowuje rekomendacje oparte na realnej pracy.", "A confirmed collaboration strengthens both profiles and unlocks collaboration endorsements based on real work.")}</p> : null}
       <div className="mt-2 flex flex-wrap gap-2">

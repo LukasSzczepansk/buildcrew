@@ -12,7 +12,7 @@ export function LaunchVoteButton({ entryId, count, voted, canVote, returnTo, com
   const [pending, startTransition] = React.useTransition();
   const className = cn(
     "inline-flex shrink-0 items-center justify-center gap-1.5 border font-semibold tabular-nums transition-colors",
-    compact ? "h-10 min-w-[64px] rounded-[8px] px-2.5 text-[12px]" : "h-11 min-w-[92px] rounded-[8px] px-3 text-[13px]",
+    compact ? "h-10 min-w-[64px] rounded-[var(--bc-radius)] px-2.5 text-[12px]" : "h-11 min-w-[92px] rounded-[var(--bc-radius)] px-3 text-[13px]",
     state.voted ? "border-[var(--bc-accent-strong)] bg-[color-mix(in_srgb,var(--bc-accent)_18%,var(--bc-surface))] text-[var(--bc-ink)]" : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]",
   );
 

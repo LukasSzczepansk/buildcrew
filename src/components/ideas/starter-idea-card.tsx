@@ -33,7 +33,7 @@ export function StarterIdeaCard({ idea }: { idea: StarterIdea }) {
       </div>
 
       <div className="flex items-center gap-2 sm:flex-col sm:items-stretch">
-        <Link href="#add-idea" className="inline-flex h-9 items-center justify-center rounded-[6px] border border-[var(--bc-line-strong)] px-3 text-[13px] font-medium transition-colors hover:bg-[var(--bc-surface-subtle)]">
+        <Link href="#add-idea" className="inline-flex h-9 items-center justify-center rounded-[var(--bc-radius-sm)] border border-[var(--bc-line-strong)] px-3 text-[13px] font-medium transition-colors hover:bg-[var(--bc-surface-subtle)]">
           Add your own
         </Link>
         <span className="hidden text-center text-[11px] leading-4 text-[var(--bc-faint)] sm:block">Example content, not a real user account.</span>

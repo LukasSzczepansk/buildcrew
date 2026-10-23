@@ -28,12 +28,12 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <button className="relative flex h-10 w-10 items-center justify-center rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]" aria-label={copy("Powiadomienia", "Notifications")}>
+        <button className="relative flex h-10 w-10 items-center justify-center rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]" aria-label={copy("Powiadomienia", "Notifications")}>
           <Bell className="h-4.5 w-4.5" />
           {unread > 0 ? <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#7ea819] px-1 text-[11px] font-semibold text-white">{unread > 99 ? "99+" : unread}</span> : null}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[360px] rounded-[8px] border-[var(--bc-line)] bg-[var(--bc-surface)] p-0 shadow-[0_14px_36px_rgba(0,0,0,0.12)]">
+      <DropdownMenuContent align="end" className="w-[360px] rounded-[var(--bc-radius)] border-[var(--bc-line)] bg-[var(--bc-surface)] p-0 shadow-[0_14px_36px_rgba(0,0,0,0.12)]">
         <div className="flex items-center justify-between border-b border-[var(--bc-line)] px-4 py-3.5">
           <p className="text-sm font-semibold">{copy("Powiadomienia", "Notifications")}</p>
           {unread > 0 ? (
@@ -67,7 +67,7 @@ export function NotificationBell({ notifications }: { notifications: Notificatio
           ))}
         </div>
         <div className="border-t border-[var(--bc-line)] p-2.5">
-          <Link href="/notifications" onClick={() => setOpen(false)} className="block rounded-[7px] px-3 py-2 text-center text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">{copy("Zobacz wszystkie powiadomienia", "View all notifications")}</Link>
+          <Link href="/notifications" onClick={() => setOpen(false)} className="block rounded-[var(--bc-radius)] px-3 py-2 text-center text-[13px] font-medium text-[var(--bc-ink)] hover:bg-[var(--bc-surface-subtle)]">{copy("Zobacz wszystkie powiadomienia", "View all notifications")}</Link>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

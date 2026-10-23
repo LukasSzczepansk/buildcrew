@@ -62,7 +62,7 @@ export function ApplyDialog({
           <DialogDescription>{copy("To nie rozmowa o pracę. Autor projektu zobaczy Twój profil i krótką wiadomość o tym, co chcesz wnieść do wspólnego projektu.", "This is not a job application. The project owner will see your profile and a short note about what you want to contribute.")}</DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-[6px] bg-neutral-50 p-4 text-sm dark:bg-neutral-800/50">
+        <div className="rounded-[var(--bc-radius-sm)] bg-[var(--bc-surface-subtle)] p-4 text-sm dark:bg-neutral-800/50">
           <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{copy("Twój profil", "Your profile")}</p>
           <div className="flex flex-col gap-1.5">
             <p>

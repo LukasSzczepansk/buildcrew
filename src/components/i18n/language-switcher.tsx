@@ -27,7 +27,7 @@ export function LanguageSwitcher({ compact = false, className }: { compact?: boo
   }
 
   return (
-    <div className={cn("inline-flex items-center rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-0.5 text-[11px] font-semibold", className)} aria-label={locale === "en" ? "Language" : "Język"}>
+    <div className={cn("inline-flex items-center rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-0.5 text-[11px] font-semibold", className)} aria-label={locale === "en" ? "Language" : "Język"}>
       {(["pl", "en"] as const).map((item) => (
         <button
           key={item}

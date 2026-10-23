@@ -44,7 +44,7 @@ export function BuilderCard({ builder, action, matchScore, matchReasons = [], lo
   const insights = matchReasons.length ? matchReasons.slice(0, 2) : (builder.lookingFor.length > 0 ? builder.lookingFor.map((item) => locale === "en" ? labels.lookingFor[item] : LOOKING_FOR_LABELS[item]).slice(0, 2) : [en ? "Check the profile and your shared signals." : "Sprawdź profil i zobacz, co Was łączy."]);
 
   return (
-    <article className="group rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]">
+    <article className="bc-lift group rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[var(--bc-shadow-xs)]">
       <div className="grid gap-4 p-4 sm:p-5 xl:grid-cols-[240px_minmax(320px,1fr)_110px_250px] xl:items-center xl:gap-5 2xl:grid-cols-[240px_minmax(320px,1fr)_110px_390px]">
         <div className="flex min-w-0 items-start gap-3.5">
           <Link href={`/builders/${builder.userId}`} aria-label={`${en ? "Profile" : "Profil"} ${builder.username}`} className="shrink-0">
@@ -86,7 +86,7 @@ export function BuilderCard({ builder, action, matchScore, matchReasons = [], lo
 
         <div className="flex min-w-0 flex-wrap items-center gap-2 border-t border-[var(--bc-line)] pt-4 xl:justify-end 2xl:flex-nowrap xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
           {action}
-          <Link href={`/builders/${builder.userId}`} className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[7px] bg-neutral-950 px-3.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950">
+          <Link href={`/builders/${builder.userId}`} className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--bc-radius)] bg-[#1c1b17] px-3.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950">
             {en ? "View profile" : "Zobacz profil"} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>

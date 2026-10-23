@@ -22,7 +22,7 @@ export function FeedStoryCard({
   ctaLabel?: string;
 }) {
   return (
-    <article className="overflow-hidden rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
+    <article className="overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
       <div className="p-4 sm:p-5">
         <div className="flex items-center gap-3">
           <ActivityVisual compact title={title} label={eyebrow} kind={visualKind} />

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { appMessage } from "@/lib/server-copy";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { createSuggestedHackathonTeam, inviteToHackathonTeam, leaveHackathonTeam, pauseHackathonMatching, requestToJoinHackathonTeam, respondHackathonTeamInvite, respondHackathonTeamRequest } from "@/server/actions/hackathons";
 
 export function SuggestedTeamButton({ hackathonId }: { hackathonId: string }) {
@@ -38,13 +39,15 @@ export function HackathonRequestDecision({ requestId }: { requestId: string }) {
 }
 
 export function PauseHackathonMatchingButton({ hackathonId }: { hackathonId: string }) {
+  const { confirm, dialog } = useConfirm();
   const copy = useCopy(); const locale = useLocale(); const [pending, setPending] = React.useState(false);
-  async function run() { if (!window.confirm(copy("Wstrzymać widoczność w puli szukających teamu? Możesz wrócić później, zapisując preferencje ponownie.", "Pause your visibility in the team-finder pool? You can return later by saving your preferences again."))) return; setPending(true); const result = await pauseHackathonMatching(hackathonId); setPending(false); if (result?.error) toast.error(appMessage(result.error, locale)); else toast.success(copy("Szukanie teamu wstrzymane.", "Team search paused.")); }
-  return <Button size="sm" variant="ghost" onClick={run} disabled={pending}>{pending ? copy("Zapisywanie…", "Saving…") : copy("Wstrzymaj szukanie", "Pause search")}</Button>;
+  async function run() { if (!(await confirm(copy("Wstrzymać widoczność w puli szukających teamu? Możesz wrócić później, zapisując preferencje ponownie.", "Pause your visibility in the team-finder pool? You can return later by saving your preferences again.")))) return; setPending(true); const result = await pauseHackathonMatching(hackathonId); setPending(false); if (result?.error) toast.error(appMessage(result.error, locale)); else toast.success(copy("Szukanie teamu wstrzymane.", "Team search paused.")); }
+  return <><Button size="sm" variant="ghost" onClick={run} disabled={pending}>{pending ? copy("Zapisywanie…", "Saving…") : copy("Wstrzymaj szukanie", "Pause search")}</Button>{dialog}</>;
 }
 
 export function LeaveHackathonTeamButton({ teamId }: { teamId: string }) {
+  const { confirm, dialog } = useConfirm();
   const copy = useCopy(); const locale = useLocale(); const [pending, setPending] = React.useState(false);
-  async function run() { if (!window.confirm(copy("Opuścić ten team?", "Leave this team?"))) return; setPending(true); const result = await leaveHackathonTeam(teamId); setPending(false); if (result?.error) toast.error(appMessage(result.error, locale)); else toast.success(copy("Opuściłeś team.", "You left the team.")); }
-  return <Button size="sm" variant="ghost" onClick={run} disabled={pending}>{copy("Opuść team", "Leave team")}</Button>;
+  async function run() { if (!(await confirm({ message: copy("Opuścić ten team?", "Leave this team?"), destructive: true }))) return; setPending(true); const result = await leaveHackathonTeam(teamId); setPending(false); if (result?.error) toast.error(appMessage(result.error, locale)); else toast.success(copy("Opuściłeś team.", "You left the team.")); }
+  return <><Button size="sm" variant="ghost" onClick={run} disabled={pending}>{copy("Opuść team", "Leave team")}</Button>{dialog}</>;
 }

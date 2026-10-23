@@ -33,7 +33,7 @@ export function FeedProjectSpotlightCard({ project, locale }: { project: FeedPro
   const team = project.members.slice(0, 3);
 
   return (
-    <article className="overflow-hidden rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
+    <article className="overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
       <div className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -53,7 +53,7 @@ export function FeedProjectSpotlightCard({ project, locale }: { project: FeedPro
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           {project.technologies.slice(0, 5).map((technology) => (
-            <span key={technology} className="rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-1 text-[10px] font-medium text-[var(--bc-muted)] sm:text-[11px]">{technology}</span>
+            <span key={technology} className="rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-1 text-[10px] font-medium text-[var(--bc-muted)] sm:text-[11px]">{technology}</span>
           ))}
         </div>
 
@@ -73,7 +73,7 @@ export function FeedProjectSpotlightCard({ project, locale }: { project: FeedPro
         </div>
         <div className="ml-auto flex items-center gap-2">
           {project.viewerCanFollow ? <ProjectFollowButton projectId={project.id} initialFollowing={Boolean(project.viewerFollowing)} initialFollowers={project.followerCount ?? 0} compact /> : null}
-          <Link href={`/projects/${project.id}`} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] bg-[var(--bc-ink)] px-3.5 text-[12px] font-medium text-[var(--bc-surface)] transition-opacity hover:opacity-85">
+          <Link href={`/projects/${project.id}`} className="inline-flex h-9 items-center gap-1.5 rounded-[var(--bc-radius)] bg-[var(--bc-ink)] px-3.5 text-[12px] font-medium text-[var(--bc-surface)] transition-opacity hover:opacity-85">
             {en ? "View project" : "Zobacz projekt"}<ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>

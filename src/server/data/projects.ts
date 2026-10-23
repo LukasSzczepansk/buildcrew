@@ -94,7 +94,15 @@ export async function listProjects(filters: ProjectFilters = {}, viewerId?: stri
   if (filters.country) conditions.push(eq(projects.country, filters.country));
   if (filters.need) conditions.push(sql`${filters.need} = any(${projects.needs})` as unknown as ReturnType<typeof eq>);
   if (filters.search) {
-    conditions.push(sql`(${projects.name} ilike ${"%" + filters.search + "%"} or ${projects.tagline} ilike ${"%" + filters.search + "%"})` as unknown as ReturnType<typeof eq>);
+    // Escape LIKE wildcards so user input like "100%" or "a_b" is matched literally.
+    const pattern = "%" + filters.search.trim().replace(/[\\%_]/g, (char) => "\\" + char) + "%";
+    conditions.push(sql`(
+      ${projects.name} ilike ${pattern}
+      or ${projects.tagline} ilike ${pattern}
+      or ${projects.description} ilike ${pattern}
+      or array_to_string(${projects.interests}, ' ') ilike ${pattern}
+      or exists (select 1 from ${projectTechnologies} where ${projectTechnologies.projectId} = ${projects.id} and ${projectTechnologies.name} ilike ${pattern})
+    )` as unknown as ReturnType<typeof eq>);
   }
   if (filters.interest) {
     conditions.push(sql`${filters.interest} = any(${projects.interests})` as unknown as ReturnType<typeof eq>);

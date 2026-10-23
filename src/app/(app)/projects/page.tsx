@@ -93,7 +93,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
           {stageLinks.map((item) => {
             const active = item.stage ? params.stage === item.stage : !params.stage;
             const href = item.stage ? `/projects?stage=${item.stage}` : "/projects";
-            return <Link key={item.label} href={href} className={`rounded-[6px] px-3 py-2 transition-colors ${active ? "bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"}`}>{item.label}</Link>;
+            return <Link key={item.label} href={href} className={`rounded-[var(--bc-radius-sm)] px-3 py-2 transition-colors ${active ? "bg-[var(--bc-accent-soft)] text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"}`}>{item.label}</Link>;
           })}
         </div>
         <div className="flex gap-2">
@@ -126,8 +126,8 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
             {en ? "Try broader filters or meet people who are open to building something new." : "Poszerz filtry albo poznaj osoby otwarte na zbudowanie czegoś nowego."}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/builders" className="inline-flex h-9 items-center rounded-[6px] bg-[var(--bc-accent)] px-3.5 text-sm font-medium text-[#111]">{en ? "Find people" : "Znajdź ludzi"}</Link>
-            <Link href="/projects/new" className="inline-flex h-9 items-center rounded-[6px] border border-[var(--bc-line-strong)] px-3.5 text-sm font-medium">{en ? "Start a project" : "Dodaj projekt"}</Link>
+            <Link href="/builders" className="inline-flex h-9 items-center rounded-[var(--bc-radius-sm)] bg-[var(--bc-accent)] px-3.5 text-sm font-medium text-[#111]">{en ? "Find people" : "Znajdź ludzi"}</Link>
+            <Link href="/projects/new" className="inline-flex h-9 items-center rounded-[var(--bc-radius-sm)] border border-[var(--bc-line-strong)] px-3.5 text-sm font-medium">{en ? "Start a project" : "Dodaj projekt"}</Link>
           </div>
         </div>
       ) : (

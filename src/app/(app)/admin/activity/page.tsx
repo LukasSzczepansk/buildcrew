@@ -60,7 +60,7 @@ export default async function AdminActivityPage() {
                 <span>{eventLabels[item.eventType as keyof typeof eventLabels] ?? item.eventType}</span>
                 <span className="font-semibold">{item.count}</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+              <div className="h-2 overflow-hidden rounded-full bg-[var(--bc-surface-2)]">
                 <div className="h-full rounded-full bg-lime-600" style={{ width: `${Math.max(4, Math.round(item.count / max * 100))}%` }} />
               </div>
             </div>
@@ -87,7 +87,7 @@ export default async function AdminActivityPage() {
                 <span>Admin: {row.adminEmail ?? (en ? "deleted account" : "usunięte konto")}</span>
                 {row.targetId ? <span>ID: {row.targetId}</span> : null}
               </div>
-              {row.details ? <pre className="mt-2 overflow-x-auto rounded-lg bg-neutral-50 p-2 text-[12px] text-neutral-500 dark:bg-neutral-800/60">{JSON.stringify(row.details, null, 2)}</pre> : null}
+              {row.details ? <pre className="mt-2 overflow-x-auto rounded-lg bg-[var(--bc-surface-subtle)] p-2 text-[12px] text-neutral-500 dark:bg-neutral-800/60">{JSON.stringify(row.details, null, 2)}</pre> : null}
             </div>
           )) : <p className="p-10 text-center text-sm text-neutral-400">{en ? "No administrative actions." : "Brak działań administracyjnych."}</p>}
         </div>

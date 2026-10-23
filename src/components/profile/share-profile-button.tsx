@@ -16,7 +16,7 @@ export function ShareProfileButton({ userId, username }: { userId: string; usern
   return (
     <div className="flex gap-1">
       <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={share}><Share2 className="h-3.5 w-3.5" />{copy("Udostępnij profil", "Share profile")}</Button>
-      <a href={`/api/profiles/${userId}/share-card`} download={`${username}-buildcrew.png`} title={copy("Pobierz grafikę profilu", "Download profile graphic")} className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-[var(--bc-line)] text-[var(--bc-muted)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Download className="h-3.5 w-3.5" /></a>
+      <a href={`/api/profiles/${userId}/share-card`} download={`${username}-buildcrew.png`} title={copy("Pobierz grafikę profilu", "Download profile graphic")} className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] text-[var(--bc-muted)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Download className="h-3.5 w-3.5" /></a>
     </div>
   );
 }

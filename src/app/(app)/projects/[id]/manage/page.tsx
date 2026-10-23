@@ -13,6 +13,8 @@ import { labelsFor } from "@/lib/constants-i18n";
 import { getRequestLocale } from "@/lib/site-server";
 import { listApplicationsForProject } from "@/server/data/applications";
 import { getProjectById } from "@/server/data/projects";
+import { TrialTaskManager } from "@/components/projects/trial-task-manager";
+import { listRolesWithTrialTasks, listTrialAttemptsForProject } from "@/server/data/trial-tasks";
 
 export async function generateMetadata(): Promise<Metadata> { const locale = await getRequestLocale(); return { title: locale === "en" ? "Manage project - BuildCrew" : "Zarządzaj projektem - BuildCrew", robots: { index: false, follow: false } }; }
 
@@ -27,7 +29,7 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
   if (!project) notFound();
   if (project.ownerId !== user.id) redirect(`/projects/${id}`);
 
-  const applications = await listApplicationsForProject(id);
+  const [applications, trialRoles, trialAttempts] = await Promise.all([listApplicationsForProject(id), listRolesWithTrialTasks(id), listTrialAttemptsForProject(id)]);
   const pending = applications.filter((item) => item.status === "PENDING").length;
   const nonOwnerMembers = project.members.filter((member) => !member.isOwner).length;
 
@@ -71,6 +73,30 @@ export default async function ManageProjectPage({ params }: { params: Promise<{ 
             }))}
           />
           <div className="mt-6"><ExternalTeammateInvite projectId={id} roles={project.openRoles.map((role) => ({ id: role.id, roleType: role.roleType }))} /></div>
+
+          {project.lifecycleStatus === "ACTIVE" && trialRoles.length > 0 ? (
+            <div className="mt-10 border-t border-[var(--bc-line)] pt-8">
+              <TrialTaskManager
+                projectId={id}
+                roles={trialRoles.map((role) => ({ id: role.id, roleType: role.roleType, task: role.task ? { id: role.task.id, title: role.task.title, brief: role.task.brief, timeLimitMinutes: role.task.timeLimitMinutes } : null }))}
+                attempts={trialAttempts.map((attempt) => ({
+                  id: attempt.id,
+                  trialTaskId: attempt.trialTaskId,
+                  roleId: attempt.roleId,
+                  userId: attempt.userId,
+                  username: attempt.username,
+                  status: attempt.status,
+                  startedAt: attempt.startedAt.toISOString(),
+                  dueAt: attempt.dueAt.toISOString(),
+                  submittedAt: attempt.submittedAt?.toISOString() ?? null,
+                  submissionUrl: attempt.submissionUrl,
+                  submissionNote: attempt.submissionNote,
+                  addToPortfolio: attempt.addToPortfolio,
+                  reviewNote: attempt.reviewNote,
+                }))}
+              />
+            </div>
+          ) : null}
         </main>
 
         <aside className="space-y-6">

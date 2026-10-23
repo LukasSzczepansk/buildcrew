@@ -12,6 +12,10 @@ const PALETTES = [
   { bg: "#edf1d9", fg: "#1b1d16", ring: "#d1d8a8" },
 ] as const;
 
+// Usernames whose avatar endpoint already answered 404 in this tab. Skipping them avoids
+// hundreds of repeated failing requests when lists re-render or remount.
+const missingPhotos = new Set<string>();
+
 function avatarHash(value: string) {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
@@ -47,7 +51,9 @@ function Avatar({ username, seed, emoji: _legacyEmoji, className, size = "md", d
     lg: "h-16 w-16 text-[18px]",
     xl: "h-24 w-24 text-[28px]",
   };
-  const photoSrc = disablePhoto || !username?.trim() ? null : `/api/avatar/${encodeURIComponent(username.trim())}`;
+  const photoName = username?.trim() ?? "";
+  const [photoMissing, setPhotoMissing] = React.useState(() => missingPhotos.has(photoName));
+  const photoSrc = disablePhoto || !photoName || photoMissing ? null : `/api/avatar/${encodeURIComponent(photoName)}`;
 
   React.useEffect(() => setPhotoLoaded(false), [photoSrc]);
 
@@ -73,7 +79,9 @@ function Avatar({ username, seed, emoji: _legacyEmoji, className, size = "md", d
           aria-hidden="true"
           className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-150", photoLoaded ? "opacity-100" : "opacity-0")}
           onLoad={() => setPhotoLoaded(true)}
-          onError={() => setPhotoLoaded(false)}
+          onError={() => { missingPhotos.add(photoName); setPhotoMissing(true); setPhotoLoaded(false); }}
+          loading="lazy"
+          decoding="async"
           draggable={false}
         />
       ) : null}

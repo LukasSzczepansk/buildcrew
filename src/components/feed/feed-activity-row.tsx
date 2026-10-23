@@ -32,7 +32,7 @@ export function FeedActivityRow({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-3 rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3.5 py-3 transition-colors hover:border-[var(--bc-line-strong)] sm:px-4"
+      className="group flex items-center gap-3 rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3.5 py-3 transition-colors hover:border-[var(--bc-line-strong)] sm:px-4"
     >
       <Avatar username={username} seed={avatarEmoji || username} size="sm" className="h-9 w-9 shrink-0 text-[12px]" />
       <div className="min-w-0 flex-1">
