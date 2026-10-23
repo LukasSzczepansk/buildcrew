@@ -75,7 +75,7 @@ export default async function DashboardPage() {
       <DashboardVisitMarker />
 
       {!completion.complete ? (
-        <section className="mb-6 overflow-hidden rounded-[8px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
+        <section className="mb-6 overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
           <div className="grid gap-4 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
             <div className="min-w-0">
               <div className="flex items-center justify-between gap-4">
@@ -150,7 +150,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[8px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
+      <section className="overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
         <div className="grid gap-5 px-5 py-5 md:px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="bc-eyebrow-line min-w-0">
             <p className="bc-kicker">{en ? "Right now" : "Na teraz"}</p>

@@ -11,7 +11,7 @@ export function PortfolioGallery({ items, locale = "pl", compact = false }: { it
         const cover = item.images[0];
         const rest = item.images.slice(1, 4);
         return (
-          <article key={item.id} className="min-w-0 overflow-hidden rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+          <article key={item.id} className="min-w-0 overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             {cover ? (
               <a href={`/api/portfolio/images/${cover.id}`} target="_blank" rel="noopener noreferrer" className="group block overflow-hidden bg-[var(--bc-surface-subtle)]">
                 <img src={`/api/portfolio/images/${cover.id}`} alt={item.title} className="aspect-[16/10] w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.015]" loading="lazy" />

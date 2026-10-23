@@ -49,7 +49,7 @@ export function SocialFeedCard({ item, locale, viewerId }: { item: SocialFeedIte
   const badgeClass = badgeClasses(item.kind);
 
   return (
-    <article className="overflow-hidden rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
+    <article className="overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] transition-colors hover:border-[var(--bc-line-strong)]">
       <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -69,13 +69,13 @@ export function SocialFeedCard({ item, locale, viewerId }: { item: SocialFeedIte
         </div>
 
         {launchPost && item.launchId && item.launchTitle ? (
-          <Link href={href} className="group mt-4 flex items-center gap-3 rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-3 transition-colors hover:border-[var(--bc-line-strong)] sm:p-3.5">
+          <Link href={href} className="group mt-4 flex items-center gap-3 rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-3 transition-colors hover:border-[var(--bc-line-strong)] sm:p-3.5">
             <ActivityVisual compact title={item.launchTitle} label={eyebrow} kind="launch" />
             <div className="min-w-0 flex-1"><p className="truncate text-[13px] font-semibold text-[var(--bc-ink)] sm:text-[14px]">{item.launchTitle}</p>{item.launchTagline ? <p className="mt-0.5 bc-truncate-2 text-[11px] leading-4 text-[var(--bc-faint)] sm:text-[12px]">{item.launchTagline}</p> : null}</div>
             <span className="hidden shrink-0 text-[11px] font-semibold text-[var(--bc-accent-strong)] sm:inline">{en ? "View launch" : "Zobacz premierę"}</span>
           </Link>
         ) : projectPost && item.projectId && item.projectName ? (
-          <Link href={`/projects/${item.projectId}`} className="group mt-4 flex items-center gap-3 rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-3 transition-colors hover:border-[var(--bc-line-strong)] sm:p-3.5">
+          <Link href={`/projects/${item.projectId}`} className="group mt-4 flex items-center gap-3 rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-3 transition-colors hover:border-[var(--bc-line-strong)] sm:p-3.5">
             <ActivityVisual compact title={item.projectName} label={eyebrow} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-semibold text-[var(--bc-ink)] sm:text-[14px]">{item.projectName}</p>

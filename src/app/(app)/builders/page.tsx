@@ -76,6 +76,11 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
       return b.score - a.score;
     });
 
+  const PAGE_SIZE = 24;
+  const requestedPage = Math.max(1, Math.min(Number.parseInt(params.page ?? "1", 10) || 1, 50));
+  const visible = ranked.slice(0, requestedPage * PAGE_SIZE);
+  const hasMore = ranked.length > visible.length;
+
   const currentView = params.intent === "COFOUNDER" ? "cofounders" : params.group === "work" ? "work" : params.group === "build" ? "build" : "all";
 
   return (
@@ -125,10 +130,21 @@ export default async function BuildersPage({ searchParams }: { searchParams: Pro
             <span className="text-[13px] tabular-nums text-[var(--bc-faint)]">{ranked.length} {en ? (ranked.length === 1 ? "person" : "people") : (ranked.length === 1 ? "osoba" : "osób")}</span>
           </div>
           <div className="space-y-2.5">
-            {ranked.map(({ builder: b, score, reasons }) => (
+            {visible.map(({ builder: b, score, reasons }) => (
               <BuilderCard locale={locale} key={b.userId} matchScore={score} matchReasons={reasons} action={<><QuickInviteButton targetUserId={b.userId} projects={ownedProjects.filter((project) => project.lifecycleStatus === "ACTIVE").map((project) => ({ id: project.id, name: project.name }))} /><FollowButton targetUserId={b.userId} initialFollowing={followingIds.has(b.userId)} compact /></>} builder={{ userId: b.userId, username: b.username, headline: b.headline, avatarEmoji: b.avatarEmoji, role: b.role as RoleType | null, level: b.level as Level | null, weeklyHours: b.weeklyHours as Commitment | null, skills: b.skills, interests: b.interests, lookingFor: b.lookingFor, languages: b.languages, country: b.country, city: b.city, workModePreference: b.workModePreference, lastActiveAt: b.lastActiveAt, createdAt: b.createdAt }} />
             ))}
           </div>
+          {hasMore ? (
+            <div className="mt-5 flex justify-center">
+              <Link
+                href={withPage(params, requestedPage + 1)}
+                scroll={false}
+                className="rounded-[var(--bc-radius-sm)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-4 py-2 text-[13px] font-medium text-[var(--bc-ink)] transition-colors hover:bg-[var(--bc-surface-subtle)]"
+              >
+                {en ? `Show more (${ranked.length - visible.length} left)` : `Pokaż więcej (jeszcze ${ranked.length - visible.length})`}
+              </Link>
+            </div>
+          ) : null}
         </section>
       )}
     </div>
@@ -143,9 +159,16 @@ function SortLink({ href, active, children }: { href: string; active: boolean; c
   return <Link href={href} className={`rounded-[5px] border px-2.5 py-1.5 transition-colors ${active ? "border-[var(--bc-line-strong)] bg-[var(--bc-surface)] text-[var(--bc-ink)]" : "border-transparent text-[var(--bc-muted)] hover:border-[var(--bc-line)] hover:text-[var(--bc-ink)]"}`}>{children}</Link>;
 }
 
+function withPage(params: Record<string, string | undefined>, page: number) {
+  const next = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) if (value && key !== "page") next.set(key, value);
+  next.set("page", String(page));
+  return `/builders?${next.toString()}`;
+}
+
 function withSort(params: Record<string, string | undefined>, sort: string) {
   const next = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) if (value && key !== "sort") next.set(key, value);
+  for (const [key, value] of Object.entries(params)) if (value && key !== "sort" && key !== "page") next.set(key, value);
   next.set("sort", sort);
   return `/builders?${next.toString()}`;
 }

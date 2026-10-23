@@ -76,7 +76,7 @@ export default async function BuilderProfilePage({ params }: { params: Promise<{
               </div>
             </div>
             {profile.bio ? <p className="mt-5 max-w-[760px] text-[14px] leading-6 text-[var(--bc-muted)]">{profile.bio}</p> : null}
-            {profile.isFounder ? <div className="mt-4 max-w-[760px] rounded-[7px] border border-[#b6dc55] bg-[#C8F169]/25 px-3.5 py-3 text-[13px] leading-5 text-[var(--bc-ink)]"><strong className="font-semibold">{en ? "I’m building BuildCrew." : "Buduję BuildCrew."}</strong> {en ? "Have feedback, found a problem, or have an idea for the platform? Message me." : "Masz feedback, znalazłeś problem albo masz pomysł na platformę? Napisz do mnie."}</div> : null}
+            {profile.isFounder ? <div className="mt-4 max-w-[760px] rounded-[var(--bc-radius)] border border-[#b6dc55] bg-[#C8F169]/25 px-3.5 py-3 text-[13px] leading-5 text-[var(--bc-ink)]"><strong className="font-semibold">{en ? "I’m building BuildCrew." : "Buduję BuildCrew."}</strong> {en ? "Have feedback, found a problem, or have an idea for the platform? Message me." : "Masz feedback, znalazłeś problem albo masz pomysł na platformę? Napisz do mnie."}</div> : null}
           </section>
 
           {portfolio.length ? <ProfileSection title="Portfolio"><PortfolioGallery items={portfolio} locale={locale} /></ProfileSection> : null}

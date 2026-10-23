@@ -38,7 +38,7 @@ export default async function HackathonOrganizerSnapshotPage({ params }: { param
         </div>
       </div>
 
-      <section className="overflow-hidden rounded-[8px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
+      <section className="overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
         <div className="grid gap-5 px-5 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Organizer snapshot" : "Podgląd dla organizatora"}</p>

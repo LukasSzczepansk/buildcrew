@@ -12,7 +12,7 @@ export async function LaunchesHeader() {
   return (
     <header className="border-b border-[var(--bc-line)] bg-[var(--bc-surface)]/95 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href={startHref} className="flex shrink-0 items-center gap-2 text-[16px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]"><span className="flex h-8 w-8 items-center justify-center rounded-[6px] bg-neutral-950 text-[11px] font-semibold text-white dark:bg-white dark:text-neutral-950">BC</span><span className="hidden sm:inline">BuildCrew</span></Link>
+        <Link href={startHref} className="flex shrink-0 items-center gap-2 text-[16px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)]"><span className="flex h-8 w-8 items-center justify-center rounded-[var(--bc-radius-sm)] bg-[#1c1b17] text-[11px] font-semibold text-white dark:bg-white dark:text-neutral-950">BC</span><span className="hidden sm:inline">BuildCrew</span></Link>
         <nav className="hidden min-w-0 items-center gap-5 text-[13px] text-[var(--bc-muted)] md:flex">
           <Link href={startHref} className="hover:text-[var(--bc-ink)]">{en ? "Home" : "Start"}</Link>
           <Link href={user ? "/builders" : "/#people"} className="hover:text-[var(--bc-ink)]">{en ? "People" : "Ludzie"}</Link>

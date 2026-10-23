@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useCopy } from "@/components/i18n/locale-provider";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { addSocialPostComment, deleteSocialPost, toggleSocialPostLike, toggleSocialPostSave } from "@/server/actions/social-posts";
 
 export function SocialPostActions({
@@ -29,6 +30,7 @@ export function SocialPostActions({
   primaryLabel?: string;
 }) {
   const copy = useCopy();
+  const { confirm, dialog } = useConfirm();
   const [liked, setLiked] = React.useState(initialLiked);
   const [saved, setSaved] = React.useState(initialSaved);
   const [likeCount, setLikeCount] = React.useState(initialLikeCount);
@@ -84,8 +86,8 @@ export function SocialPostActions({
     });
   }
 
-  function remove() {
-    if (!window.confirm(copy("Usunąć ten post?", "Delete this post?"))) return;
+  async function remove() {
+    if (!(await confirm({ message: copy("Usunąć ten post?", "Delete this post?"), destructive: true }))) return;
     startTransition(async () => {
       const result = await deleteSocialPost(postId);
       if ("error" in result && result.error) { toast.error(result.error); return; }
@@ -96,14 +98,15 @@ export function SocialPostActions({
 
   return (
     <div className="border-t border-[var(--bc-line)] px-3 py-2.5 sm:px-4">
+      {dialog}
       <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
         <ActionButton onClick={like} disabled={pending} active={liked} ariaLabel={copy("Lubię", "Like")} icon={<Heart className="h-4 w-4" fill={liked ? "currentColor" : "none"} />} label={copy("Lubię", "Like")} count={likeCount} />
         <ActionButton onClick={() => setShowComment((value) => !value)} ariaLabel={copy("Komentarz", "Comment")} icon={<MessageCircle className="h-4 w-4" />} label={copy("Komentarz", "Comment")} count={commentCount} />
         <ActionButton onClick={share} ariaLabel={copy("Udostępnij", "Share")} icon={<Share2 className="h-4 w-4" />} label={copy("Udostępnij", "Share")} />
         <ActionButton onClick={save} disabled={pending} active={saved} ariaLabel={saved ? copy("Usuń z zapisanych", "Remove saved") : copy("Zapisz", "Save")} icon={<Bookmark className="h-4 w-4" fill={saved ? "currentColor" : "none"} />} label={saved ? copy("Zapisano", "Saved") : copy("Zapisz", "Save")} />
-        <a href={`/api/posts/${postId}/share-card`} download={`${postId}-buildcrew.png`} className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-[7px] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)] sm:inline-flex" title={copy("Pobierz grafikę", "Download graphic")}><Download className="h-3.5 w-3.5" /></a>
-        {canManage ? <button type="button" disabled={pending} onClick={remove} className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-[7px] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-danger)] sm:inline-flex" aria-label={copy("Usuń", "Delete")}><Trash2 className="h-3.5 w-3.5" /></button> : null}
-        {primaryHref && primaryLabel ? <Link href={primaryHref} className="ml-auto inline-flex h-8 shrink-0 items-center rounded-[7px] border border-[var(--bc-accent-strong)] px-2.5 text-[11px] font-semibold text-[var(--bc-accent-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--bc-accent)_10%,transparent)] sm:h-9 sm:px-3.5 sm:text-[12px]">{primaryLabel}</Link> : null}
+        <a href={`/api/posts/${postId}/share-card`} download={`${postId}-buildcrew.png`} className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-[var(--bc-radius)] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)] sm:inline-flex" title={copy("Pobierz grafikę", "Download graphic")}><Download className="h-3.5 w-3.5" /></a>
+        {canManage ? <button type="button" disabled={pending} onClick={remove} className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-[var(--bc-radius)] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-danger)] sm:inline-flex" aria-label={copy("Usuń", "Delete")}><Trash2 className="h-3.5 w-3.5" /></button> : null}
+        {primaryHref && primaryLabel ? <Link href={primaryHref} className="ml-auto inline-flex h-8 shrink-0 items-center rounded-[var(--bc-radius)] border border-[var(--bc-accent-strong)] px-2.5 text-[11px] font-semibold text-[var(--bc-accent-strong)] transition-colors hover:bg-[color-mix(in_srgb,var(--bc-accent)_10%,transparent)] sm:h-9 sm:px-3.5 sm:text-[12px]">{primaryLabel}</Link> : null}
       </div>
 
       {showComment ? (
@@ -134,7 +137,7 @@ function ActionButton({
   count?: number;
 }) {
   return (
-    <button type="button" onClick={onClick} disabled={disabled} aria-label={ariaLabel} className={`inline-flex h-8 min-w-8 shrink-0 items-center justify-center gap-1.5 rounded-[7px] px-2 text-[11px] font-medium transition-colors hover:bg-[var(--bc-surface-subtle)] sm:px-2.5 sm:text-[12px] ${active ? "text-[var(--bc-accent-strong)]" : "text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"}`}>
+    <button type="button" onClick={onClick} disabled={disabled} aria-label={ariaLabel} className={`inline-flex h-8 min-w-8 shrink-0 items-center justify-center gap-1.5 rounded-[var(--bc-radius)] px-2 text-[11px] font-medium transition-colors hover:bg-[var(--bc-surface-subtle)] sm:px-2.5 sm:text-[12px] ${active ? "text-[var(--bc-accent-strong)]" : "text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"}`}>
       {icon}<span className="hidden md:inline">{label}</span>{typeof count === "number" && count > 0 ? <span>{count}</span> : null}
     </button>
   );

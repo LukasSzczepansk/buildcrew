@@ -44,7 +44,7 @@ export function NotificationPreferencesForm({ initial }: { initial: Prefs }) {
   }
 
   return (
-    <section className="border-t border-[var(--bc-line)] pt-5">
+    <section id="notifications" className="scroll-mt-20 border-t border-[var(--bc-line)] pt-5">
       <div className="max-w-[720px]">
         <h2 className="text-[16px] font-semibold">{copy("Powiadomienia e-mail", "Email notifications")}</h2>
         <p className="mt-1 text-[13px] leading-5 text-[var(--bc-muted)]">{copy("Wysyłamy tylko wiadomości związane z realną aktywnością na koncie. Możesz wyłączyć dowolną kategorię.", "We only send emails tied to meaningful account activity. You can disable any category.")}</p>

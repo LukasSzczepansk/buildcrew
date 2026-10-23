@@ -59,7 +59,7 @@ export function LaunchListItem({ item, locale, canVote, rank }: { item: Item; lo
       <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-[118px_minmax(0,1fr)_132px] md:items-start">
         <Link
           href={href}
-          className="block overflow-hidden rounded-[10px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)]"
+          className="block overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)]"
         >
           {item.coverImage ? (
             <img

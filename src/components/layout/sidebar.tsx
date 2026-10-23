@@ -31,7 +31,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
   return (
     <aside className="sticky top-0 hidden h-dvh w-[236px] shrink-0 overflow-hidden border-r border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-3.5 py-4 lg:flex lg:flex-col xl:w-[248px] [@media(max-height:720px)]:py-3">
       <Link href="/dashboard" className="mb-5 flex items-center gap-3 px-1.5 text-[16px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)] [@media(max-height:720px)]:mb-3.5">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] bg-neutral-950 text-white dark:bg-white dark:text-neutral-950">BC</span>
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--bc-radius-sm)] bg-[#1c1b17] text-white dark:bg-white dark:text-neutral-950">BC</span>
         <span className="truncate">BuildCrew</span>
       </Link>
 
@@ -45,14 +45,14 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
               key={item.href}
               href={item.href}
               className={cn(
-                "group relative flex min-h-10 items-center gap-2.5 rounded-[8px] px-3 text-sm font-medium transition-colors [@media(max-height:720px)]:min-h-9",
-                active ? "bg-[var(--bc-surface)] text-[var(--bc-ink)]" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)]",
+                "group relative flex min-h-10 items-center gap-2.5 rounded-[var(--bc-radius)] px-3 text-sm font-medium transition-colors [@media(max-height:720px)]:min-h-9",
+                active ? "bg-[var(--bc-surface)] text-[var(--bc-ink)] shadow-[var(--bc-shadow-sm)] ring-1 ring-[var(--bc-line)]" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)]/70 hover:text-[var(--bc-ink)]",
               )}
             >
               {active ? <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-full bg-[var(--bc-accent)]" /> : null}
               <Icon className="h-[15px] w-[15px] shrink-0" strokeWidth={1.8} />
               <span className="min-w-0 flex-1">{item.label}</span>
-              {item.href === "/messages" && unreadMessages > 0 ? <span className="min-w-5 rounded-full bg-[var(--bc-accent)] px-1.5 py-0.5 text-center text-[11px] font-semibold text-neutral-950">{unreadMessages > 99 ? "99+" : unreadMessages}</span> : null}
+              {item.href === "/messages" && unreadMessages > 0 ? <span className="min-w-5 rounded-full bg-[var(--bc-accent)] px-1.5 py-0.5 text-center text-[11px] font-semibold text-[#1c1b17]">{unreadMessages > 99 ? "99+" : unreadMessages}</span> : null}
             </Link>
           );
         })}
@@ -63,15 +63,15 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
           <span className="text-[11px] text-[var(--bc-faint)]">{copy("Język", "Language")}</span>
           <LanguageSwitcher compact />
         </div>
-        <Link href="/help" className="flex min-h-9 items-center gap-2.5 rounded-[8px] px-3 text-[13px] text-[var(--bc-muted)] transition-colors hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)] [@media(max-height:720px)]:min-h-8">
+        <Link href="/help" className="flex min-h-9 items-center gap-2.5 rounded-[var(--bc-radius)] px-3 text-[13px] text-[var(--bc-muted)] transition-colors hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)] [@media(max-height:720px)]:min-h-8">
           <CircleHelp className="h-3.5 w-3.5" /> {copy("Pomoc", "Help")}
         </Link>
         {admin ? (
           <Link
             href="/admin"
             className={cn(
-              "mt-1 flex min-h-9 items-center gap-2.5 rounded-[8px] px-3 text-[13px] font-medium transition-colors [@media(max-height:720px)]:min-h-8",
-              pathname.startsWith("/admin") ? "bg-neutral-950 text-white dark:bg-white dark:text-neutral-950" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)]",
+              "mt-1 flex min-h-9 items-center gap-2.5 rounded-[var(--bc-radius)] px-3 text-[13px] font-medium transition-colors [@media(max-height:720px)]:min-h-8",
+              pathname.startsWith("/admin") ? "bg-[#1c1b17] text-white dark:bg-white dark:text-neutral-950" : "text-[var(--bc-muted)] hover:bg-[var(--bc-surface)] hover:text-[var(--bc-ink)]",
             )}
           >
             <ShieldCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
@@ -83,7 +83,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
       <div className="min-h-3 flex-1" />
 
       <div className="border-t border-[var(--bc-line)] pt-2.5">
-        <Link href="/profile" className="flex items-center gap-2.5 rounded-[8px] px-2 py-2 transition-colors hover:bg-[var(--bc-surface)]">
+        <Link href="/profile" className="flex items-center gap-2.5 rounded-[var(--bc-radius)] px-2 py-2 transition-colors hover:bg-[var(--bc-surface)]">
           <Avatar username={username} seed={avatarEmoji || username} size="sm" className={cn("h-9 w-9 shrink-0 text-[13px]", founder && "ring-2 ring-[#C8F169] ring-offset-2 ring-offset-[var(--bc-surface-subtle)]")} />
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-1.5">

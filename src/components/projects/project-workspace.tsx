@@ -643,7 +643,7 @@ export function ProjectWorkspace({
                       <a href={link.url} target="_blank" rel="noopener noreferrer" className="min-w-0 truncate text-sm font-medium text-[var(--bc-ink)] hover:underline">{link.label}</a>
                       <span className="text-[11px] text-[var(--bc-faint)]">{copy("Dodano", "Added")} {formatDate(link.createdAt, locale)}</span>
                       <div className="flex items-center justify-end gap-1">
-                        <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={copy(`Open ${link.label}`, `Open ${link.label}`)} className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><ExternalLink className="h-3.5 w-3.5" /></a>
+                        <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={copy(`Open ${link.label}`, `Open ${link.label}`)} className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--bc-radius-sm)] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><ExternalLink className="h-3.5 w-3.5" /></a>
                         {canDelete ? <IconDeleteButton label={copy("Usuń link", "Delete link")} onClick={() => run(() => deleteProjectWorkspaceLink(link.id))} /> : null}
                       </div>
                     </div>
@@ -1035,7 +1035,7 @@ function TaskRow({
       </select>
       <div className="flex items-center justify-end gap-1">
         {!task.assigneeId ? <button type="button" onClick={() => onAssign(viewerId)} className="mr-1 text-[11px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]">{copy("Przypisz mnie", "Assign me")}</button> : null}
-        <button type="button" aria-label={copy("Edytuj zadanie", "Edit task")} onClick={onBeginEdit} className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Pencil className="h-3.5 w-3.5" /></button>
+        <button type="button" aria-label={copy("Edytuj zadanie", "Edit task")} onClick={onBeginEdit} className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--bc-radius-sm)] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Pencil className="h-3.5 w-3.5" /></button>
         {canDelete ? <IconDeleteButton label={copy("Usuń zadanie", "Delete task")} onClick={onDelete} /> : null}
       </div>
     </div>
@@ -1189,7 +1189,7 @@ function ReactionButton({ active, label, count, icon, onClick }: { active: boole
 }
 
 function IconDeleteButton({ label, onClick }: { label: string; onClick: () => void }) {
-  return <button type="button" aria-label={label} onClick={onClick} className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-red-600"><Trash2 className="h-3.5 w-3.5" /></button>;
+  return <button type="button" aria-label={label} onClick={onClick} className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--bc-radius-sm)] text-[var(--bc-faint)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-red-600"><Trash2 className="h-3.5 w-3.5" /></button>;
 }
 
 function renderMentions(body: string) {
@@ -1219,4 +1219,4 @@ function activityLabel(value: string | null, locale: "pl" | "en") {
   return "";
 }
 
-const selectClass = "h-10 w-full rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm text-[var(--bc-ink)] outline-none focus:border-[var(--bc-line-strong)] focus:ring-2 focus:ring-[var(--bc-accent-soft)]";
+const selectClass = "h-10 w-full rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm text-[var(--bc-ink)] outline-none focus:border-[var(--bc-line-strong)] focus:ring-2 focus:ring-[var(--bc-accent-soft)]";

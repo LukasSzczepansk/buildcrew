@@ -13,13 +13,13 @@ export function HackathonIdentityMark({ name, coverImageUrl, className }: { name
       <div
         role="img"
         aria-label={`Event artwork ${name}`}
-        className={cn("h-14 w-14 shrink-0 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] bg-cover bg-center", className)}
+        className={cn("h-14 w-14 shrink-0 rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] bg-cover bg-center", className)}
         style={{ backgroundImage: `url(${JSON.stringify(coverImageUrl)})` }}
       />
     );
   }
   return (
-    <div className={cn("relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] text-[16px] font-semibold tracking-[-0.02em]", className)} aria-hidden="true">
+    <div className={cn("relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] text-[16px] font-semibold tracking-[-0.02em]", className)} aria-hidden="true">
       <span className="absolute inset-y-0 left-0 w-[4px] bg-[var(--bc-accent)]" />
       {initials(name)}
     </div>

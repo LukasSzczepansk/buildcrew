@@ -34,7 +34,7 @@ export function SprintCheckIn({ challengeId, latest }: { challengeId: string; la
       <p className="mt-1 text-sm leading-6 text-neutral-500">Krótki sygnał raz w tygodniu pomaga szybko wyłapać zespoły, które utknęły.</p>
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
         {OPTIONS.map((option) => (
-          <button key={option.value} type="button" onClick={() => setHealth(option.value)} className={`rounded-[8px] border p-3 text-left transition ${health === option.value ? "border-lime-500 bg-lime-300/30 ring-2 ring-lime-400/20 dark:bg-lime-400/10" : "border-neutral-200 hover:border-neutral-400 dark:border-neutral-700"}`}>
+          <button key={option.value} type="button" onClick={() => setHealth(option.value)} className={`rounded-[var(--bc-radius)] border p-3 text-left transition ${health === option.value ? "border-lime-500 bg-lime-300/30 ring-2 ring-lime-400/20 dark:bg-lime-400/10" : "border-[var(--bc-line)] hover:border-neutral-400"}`}>
             <span className="text-lg">{option.emoji}</span><p className="mt-2 text-sm font-semibold">{option.label}</p><p className="mt-1 text-xs leading-5 text-neutral-500">{option.text}</p>
           </button>
         ))}

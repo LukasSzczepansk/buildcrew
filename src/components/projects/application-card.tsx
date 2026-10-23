@@ -8,7 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TechnologyStack } from "@/components/ui/technology-badge";
-import type { Commitment, Level, RoleType } from "@/db/schema";
+import type { Commitment, Level, RoleType, TrialAttemptStatus } from "@/db/schema";
 import { useCopy, useLocale } from "@/components/i18n/locale-provider";
 import { labelsFor } from "@/lib/constants-i18n";
 import { appMessage } from "@/lib/server-copy";
@@ -18,6 +18,8 @@ export type ApplicationCardData = {
   id: string;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   message: string | null;
+  /** Best trial-task result of this applicant for this role, if the role has a trial task. */
+  trial?: TrialAttemptStatus;
   role: { roleType: RoleType };
   matchScore: number;
   reasons: string[];
@@ -47,6 +49,13 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
         <div className="min-w-0">
           <div className="flex flex-wrap items-baseline gap-x-2"><Link href={`/builders/${application.applicant.userId}`} className="font-semibold hover:underline">{application.applicant.username}</Link><span className="text-[13px] text-[var(--bc-muted)]">{labels.roles[application.role.roleType]}</span></div>
           <div className="mt-2"><TechnologyStack items={application.applicant.skills} max={4} compact className="gap-1.5" /></div>
+          {application.trial ? (
+            <p className="mt-2">
+              <Badge variant={application.trial === "PASSED" ? "success" : application.trial === "SUBMITTED" ? "warning" : "secondary"}>
+                {application.trial === "PASSED" ? copy("Mini-próba zaliczona", "Trial passed") : application.trial === "SUBMITTED" ? copy("Mini-próba czeka na ocenę", "Trial awaiting review") : application.trial === "FAILED" ? copy("Mini-próba niezaliczona", "Trial not passed") : copy("Mini-próba w trakcie", "Trial in progress")}
+              </Badge>
+            </p>
+          ) : null}
           <p className="mt-2 truncate text-[12px] text-[var(--bc-muted)]">{application.reasons[0] || application.message || copy("Sprawdź profil kandydata.", "Review the candidate profile.")}</p>
           <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{application.applicant.level ? labels.levels[application.applicant.level] : ""}{application.applicant.weeklyHours ? ` · ${labels.commitments[application.applicant.weeklyHours]}` : ""}</p>
         </div>

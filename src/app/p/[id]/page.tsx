@@ -45,7 +45,7 @@ export async function generateMetadata({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ share?: string; role?: string }>;
+  searchParams: Promise<{ share?: string; role?: string; card?: string }>;
 }): Promise<Metadata> {
   const [{ id }, query, locale] = await Promise.all([params, searchParams, getRequestLocale()]);
   const project = await getProjectById(id);
@@ -59,10 +59,15 @@ export async function generateMetadata({
   const openRoleLabels = project.lifecycleStatus === "ACTIVE" ? project.openRoles.slice(0, 2).map((role) => labels.roles[role.roleType]) : [];
   const baseUrl = siteUrlForLocale(locale);
   const publicUrl = `${baseUrl}/p/${project.id}`;
-  const shareUrl = roleLabel
+  const cardCredit = project.lifecycleStatus === "COMPLETED" && query.card ? (await listProjectCredits(project.id)).find((credit) => credit.id === query.card) : undefined;
+  const shareUrl = cardCredit
+    ? `${baseUrl}/p/${project.id}?card=${encodeURIComponent(cardCredit.id)}`
+    : roleLabel
     ? `${baseUrl}/p/${project.id}?share=role&role=${encodeURIComponent(requestedRole!.id)}`
     : publicUrl;
-  const imageUrl = roleLabel
+  const imageUrl = cardCredit
+    ? `${baseUrl}/api/projects/${project.id}/build-card?credit=${encodeURIComponent(cardCredit.id)}&v=${(project.completedAt ?? project.updatedAt).getTime()}`
+    : roleLabel
     ? `${baseUrl}/api/projects/${project.id}/share-card?variant=recruitment&role=${encodeURIComponent(requestedRole!.id)}&v=${project.updatedAt.getTime()}`
     : `${baseUrl}/api/projects/${project.id}/share-card?v=${project.updatedAt.getTime()}`;
   const title = locale === "en"
@@ -157,9 +162,9 @@ export default async function PublicProjectPage({
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+    <div className="min-h-screen bg-[var(--bc-surface-subtle)]">
       <JsonLd data={structuredData} />
-      <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
+      <header className="border-b border-[var(--bc-line)] bg-white/90 backdrop-blur dark:bg-neutral-950/90">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
             <span className="h-5 w-1 bg-[#C8F169]" aria-hidden="true" />
@@ -231,7 +236,7 @@ export default async function PublicProjectPage({
                   </div>
                 ) : null}
                 {project.ownerContribution ? (
-                  <div className="mt-6 rounded-lg bg-neutral-50 p-4 dark:bg-neutral-900">
+                  <div className="mt-6 rounded-lg bg-[var(--bc-surface-subtle)] p-4">
                     <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "What the project owner brings" : "Co wnosi autor pomysłu"}</p>
                     <p className="mt-1 text-sm">{project.ownerContribution}</p>
                   </div>
@@ -242,7 +247,7 @@ export default async function PublicProjectPage({
             {updates.length ? (
               <Card className="p-7 sm:p-8">
                 <div className="mb-4"><h2 className="text-lg font-semibold">{en ? "Project updates" : "Aktualizacje projektu"}</h2><p className="mt-1 text-sm text-neutral-500">{en ? "A short record of real progress, not a marketing feed." : "Krótka historia realnego postępu, a nie marketingowy feed."}</p></div>
-                <div className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+                <div className="divide-y divide-neutral-200 border-y border-[var(--bc-line)] dark:divide-neutral-800">
                   {updates.map((update) => <div key={update.id} className="grid gap-2 py-4 sm:grid-cols-[110px_minmax(0,1fr)]"><div><p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{en ? ({ PROGRESS: "Progress", ROLE: "Team", MILESTONE: "Milestone", LAUNCH: "Launch" } as const)[update.kind] : PROJECT_UPDATE_KIND_LABELS[update.kind]}</p><p className="mt-1 text-[11px] text-neutral-400">{update.createdAt.toLocaleDateString(en ? "en-US" : "pl-PL", { day: "2-digit", month: "short" })}</p></div><div><p className="text-sm leading-6 text-neutral-700 dark:text-neutral-300">{update.body}</p><p className="mt-1 text-[13px] text-neutral-400">{update.username}</p></div></div>)}
                 </div>
               </Card>
@@ -256,7 +261,7 @@ export default async function PublicProjectPage({
               {project.lifecycleStatus !== "COMPLETED" && project.roles.length ? (
                 <div className="space-y-3">
                   {project.roles.map((role) => (
-                    <div key={role.id} className={`flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between ${requestedRole?.id === role.id ? "border-[#b6dc55] bg-[#C8F169]/10" : "border-neutral-200 dark:border-neutral-800"}`}>
+                    <div key={role.id} className={`flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between ${requestedRole?.id === role.id ? "border-[#b6dc55] bg-[#C8F169]/10" : "border-[var(--bc-line)]"}`}>
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="font-medium">{labels.roles[role.roleType]}</p>
@@ -270,7 +275,7 @@ export default async function PublicProjectPage({
                     </div>
                   ))}
                 </div>
-              ) : project.lifecycleStatus === "COMPLETED" && credits.length ? <div className="divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">{credits.map((credit) => <div key={credit.id} className="flex items-center justify-between gap-4 py-3 text-sm"><span className="font-medium">{credit.usernameSnapshot}</span><span className="text-[13px] text-neutral-400">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Contributor" : "Współtwórca")}</span></div>)}</div> : <p className="text-sm text-neutral-500">{en ? "This team currently has no open roles." : "Ta ekipa nie ma obecnie otwartych ról."}</p>}
+              ) : project.lifecycleStatus === "COMPLETED" && credits.length ? <div className="divide-y divide-neutral-200 border-y border-[var(--bc-line)] dark:divide-neutral-800">{credits.map((credit) => <div key={credit.id} className="flex items-center justify-between gap-4 py-3 text-sm"><span className="font-medium">{credit.usernameSnapshot}</span><span className="text-[13px] text-neutral-400">{credit.isOwner ? (en ? "Owner" : "Autor") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Contributor" : "Współtwórca")}</span></div>)}</div> : <p className="text-sm text-neutral-500">{en ? "This team currently has no open roles." : "Ta ekipa nie ma obecnie otwartych ról."}</p>}
             </Card>
           </div>
 
@@ -290,7 +295,7 @@ export default async function PublicProjectPage({
                 {project.collaborationPace ? <PublicDetail label={en ? "Pace" : "Tempo"} value={labels.collaborationPaces[project.collaborationPace]} /> : null}
                 {project.duration ? <PublicDetail label={en ? "Horizon" : "Horyzont"} value={labels.durations[project.duration]} /> : null}
               </dl>
-              {project.needs.length ? <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              {project.needs.length ? <div className="mt-5 border-t border-[var(--bc-line)] pt-4">
                 <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Looking for" : "Szukamy"}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">{project.needs.map((need) => <Badge key={need} variant="outline">{intl.needs[need]}</Badge>)}</div>
                 {project.needs.includes("FUNDING") ? <div className="mt-3 space-y-1 text-[12px] leading-5 text-neutral-500">
@@ -301,7 +306,7 @@ export default async function PublicProjectPage({
               </div> : null}
 
               {project.repositoryUrl || project.demoUrl || project.designUrl || project.docsUrl ? (
-                <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+                <div className="mt-5 border-t border-[var(--bc-line)] pt-4">
                   <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">{en ? "Links" : "Linki"}</p>
                   <div className="mt-2 space-y-2 text-sm">
                     {project.repositoryUrl ? <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"><span>{en ? "Repository" : "Repozytorium"}</span><ExternalLink className="h-3.5 w-3.5" /></a> : null}

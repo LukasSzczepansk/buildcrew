@@ -199,7 +199,7 @@ export function HackathonManager({ events }: { events: HackathonAdminItem[] }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>{copy("Tryb", "Work mode")}</Label>
-              <select className="mt-1.5 h-10 w-full rounded-[6px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-3 text-sm" value={form.locationType} onChange={(e) => setForm({ ...form, locationType: e.target.value as HackathonLocationType })}>
+              <select className="mt-1.5 h-10 w-full rounded-[var(--bc-radius-sm)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)] px-3 text-sm" value={form.locationType} onChange={(e) => setForm({ ...form, locationType: e.target.value as HackathonLocationType })}>
                 {(Object.keys(labels.hackathonLocations) as HackathonLocationType[]).map((item) => <option key={item} value={item}>{labels.hackathonLocations[item]}</option>)}
               </select>
             </div>

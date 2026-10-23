@@ -215,7 +215,7 @@ export function OnboardingWizard() {
         <Progress value={(step / TOTAL_STEPS) * 100} />
       </div>
 
-      <div className="rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 sm:p-7">
+      <div className="rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 sm:p-7">
         {step === 1 ? (
           <StepShell
             title={copy("Zacznijmy od podstaw", "Let's start with the basics")}
@@ -354,13 +354,13 @@ function DisciplineTile({ active, title, description, onClick }: { active: boole
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "relative min-h-[82px] rounded-[6px] border p-3.5 text-left transition-[background-color,border-color,box-shadow]",
+        "relative min-h-[82px] rounded-[var(--bc-radius-sm)] border p-3.5 text-left transition-[background-color,border-color,box-shadow]",
         active
           ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)] ring-1 ring-[var(--bc-accent-strong)]"
           : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]",
       )}
     >
-      {active ? <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-neutral-950 text-[var(--bc-accent)]"><Check className="h-3.5 w-3.5" strokeWidth={3} /></span> : null}
+      {active ? <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-[#1c1b17] text-[var(--bc-accent)]"><Check className="h-3.5 w-3.5" strokeWidth={3} /></span> : null}
       <span className="block pr-7 text-sm font-semibold">{title}</span>
       <span className="mt-1 block text-[11px] leading-4 text-[var(--bc-muted)]">{description}</span>
     </button>
@@ -374,13 +374,13 @@ function SelectableTile({ active, label, onClick }: { active: boolean; label: st
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "relative min-h-11 rounded-[6px] border px-3 py-2.5 text-center text-sm font-medium transition-[background-color,border-color,box-shadow]",
+        "relative min-h-11 rounded-[var(--bc-radius-sm)] border px-3 py-2.5 text-center text-sm font-medium transition-[background-color,border-color,box-shadow]",
         active
           ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent)] text-neutral-950 ring-1 ring-[var(--bc-accent-strong)]"
           : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]",
       )}
     >
-      {active ? <span className="absolute right-1.5 top-1.5 grid h-4 w-4 place-items-center rounded-full bg-neutral-950 text-[var(--bc-accent)]"><Check className="h-2.5 w-2.5" strokeWidth={3} /></span> : null}
+      {active ? <span className="absolute right-1.5 top-1.5 grid h-4 w-4 place-items-center rounded-full bg-[#1c1b17] text-[var(--bc-accent)]"><Check className="h-2.5 w-2.5" strokeWidth={3} /></span> : null}
       {label}
     </button>
   );
@@ -393,7 +393,7 @@ function TagToggle({ active, label, onClick }: { active: boolean; label: string;
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "rounded-[6px] border px-2.5 py-1.5 text-[13px] font-medium transition-colors",
+        "rounded-[var(--bc-radius-sm)] border px-2.5 py-1.5 text-[13px] font-medium transition-colors",
         active
           ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent)] text-neutral-950"
           : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]",
@@ -411,13 +411,13 @@ function CheckTile({ checked, label, onChange }: { checked: boolean; label: stri
       onClick={onChange}
       aria-pressed={checked}
       className={cn(
-        "flex min-h-12 w-full items-center gap-3 rounded-[6px] border px-3 py-2.5 text-left transition-colors",
+        "flex min-h-12 w-full items-center gap-3 rounded-[var(--bc-radius-sm)] border px-3 py-2.5 text-left transition-colors",
         checked
           ? "border-[var(--bc-accent-strong)] bg-[var(--bc-accent-soft)]"
           : "border-[var(--bc-line)] hover:border-[var(--bc-line-strong)] hover:bg-[var(--bc-surface-subtle)]",
       )}
     >
-      <span className={cn("grid h-5 w-5 shrink-0 place-items-center rounded-[5px] border", checked ? "border-neutral-950 bg-neutral-950 text-[var(--bc-accent)]" : "border-[var(--bc-line-strong)]")}>{checked ? <Check className="h-3 w-3" strokeWidth={3} /> : null}</span>
+      <span className={cn("grid h-5 w-5 shrink-0 place-items-center rounded-[5px] border", checked ? "border-[#1c1b17] bg-[#1c1b17] text-[var(--bc-accent)]" : "border-[var(--bc-line-strong)]")}>{checked ? <Check className="h-3 w-3" strokeWidth={3} /> : null}</span>
       <span className="text-sm font-medium">{label}</span>
     </button>
   );

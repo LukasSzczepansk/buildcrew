@@ -21,14 +21,14 @@ export function FeedRightRail({
 
   return (
     <aside className="sticky top-4 space-y-4">
-      <section className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-4">
+      <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-[13px] font-semibold text-[var(--bc-ink)]">{en ? "Projects to explore" : "Projekty do odkrycia"}</h2>
           <Link href="/projects" className="text-[11px] font-medium text-[var(--bc-accent-strong)] hover:underline">{en ? "All" : "Wszystkie"}</Link>
         </div>
         <div className="mt-3 space-y-1">
           {projects.map((project) => (
-            <Link key={project.id} href={`/projects/${project.id}`} className="group flex items-center gap-3 rounded-[8px] px-1 py-2.5 hover:bg-[var(--bc-surface-subtle)]">
+            <Link key={project.id} href={`/projects/${project.id}`} className="group flex items-center gap-3 rounded-[var(--bc-radius)] px-1 py-2.5 hover:bg-[var(--bc-surface-subtle)]">
               <ActivityVisual compact title={project.name} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[12px] font-semibold text-[var(--bc-ink)]">{project.name}</p>
@@ -40,14 +40,14 @@ export function FeedRightRail({
         </div>
       </section>
 
-      <section className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-4">
+      <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-[13px] font-semibold text-[var(--bc-ink)]">{en ? "People to meet" : "Ludzie, których warto poznać"}</h2>
           <Link href="/builders" className="text-[11px] font-medium text-[var(--bc-accent-strong)] hover:underline">{en ? "All" : "Wszyscy"}</Link>
         </div>
         <div className="mt-3 space-y-1">
           {builders.map((builder) => (
-            <Link key={builder.userId} href={`/builders/${builder.userId}`} className="group flex items-center gap-3 rounded-[8px] px-1 py-2.5 hover:bg-[var(--bc-surface-subtle)]">
+            <Link key={builder.userId} href={`/builders/${builder.userId}`} className="group flex items-center gap-3 rounded-[var(--bc-radius)] px-1 py-2.5 hover:bg-[var(--bc-surface-subtle)]">
               <Avatar username={builder.username} seed={builder.avatarEmoji || builder.username} size="sm" className="h-9 w-9 text-[11px]" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[12px] font-semibold text-[var(--bc-ink)]">@{builder.username}</p>

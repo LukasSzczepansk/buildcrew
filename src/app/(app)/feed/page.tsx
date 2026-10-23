@@ -97,7 +97,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
               <Link
                 href="/feed?filter=saved"
                 aria-label={en ? "Saved posts" : "Zapisane posty"}
-                className={`mb-2 grid h-8 w-8 shrink-0 place-items-center rounded-[7px] border transition-colors ${savedOnly ? "border-[var(--bc-accent-strong)] bg-[color-mix(in_srgb,var(--bc-accent)_10%,transparent)] text-[var(--bc-accent-strong)]" : "border-[var(--bc-line)] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"}`}
+                className={`mb-2 grid h-8 w-8 shrink-0 place-items-center rounded-[var(--bc-radius)] border transition-colors ${savedOnly ? "border-[var(--bc-accent-strong)] bg-[color-mix(in_srgb,var(--bc-accent)_10%,transparent)] text-[var(--bc-accent-strong)]" : "border-[var(--bc-line)] text-[var(--bc-faint)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"}`}
               >
                 <Bookmark className="h-3.5 w-3.5" fill={savedOnly ? "currentColor" : "none"} />
               </Link>
@@ -162,7 +162,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
                   })}
                 </div>
               ) : (
-                <div className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-5 py-10 text-center">
+                <div className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-5 py-10 text-center">
                   <p className="text-[15px] font-semibold">{savedOnly ? (en ? "You have no saved posts yet." : "Nie masz jeszcze zapisanych postów.") : followingOnly ? (en ? "Your following feed is quiet for now." : "Na razie jest tu spokojnie.") : (en ? "Nothing new in the community yet." : "W społeczności nie ma jeszcze nowych wpisów.")}</p>
                   <p className="mx-auto mt-1 max-w-[520px] text-[12px] leading-5 text-[var(--bc-muted)]">{savedOnly ? (en ? "Save posts you want to return to." : "Zapisuj posty, do których chcesz wrócić.") : followingOnly ? (en ? "Follow builders and projects and their activity will appear here." : "Obserwuj ludzi i projekty, a ich aktywność pojawi się tutaj.") : (en ? "Meet people, follow projects or start a useful discussion." : "Poznaj ludzi, obserwuj projekty albo rozpocznij wartościową dyskusję.")}</p>
                   <div className="mt-4 flex flex-wrap justify-center gap-2"><Button asChild variant="outline" size="sm"><Link href="/builders">{en ? "Find people" : "Znajdź ludzi"}</Link></Button><Button asChild size="sm"><Link href="/projects">{en ? "Explore projects" : "Odkryj projekty"}</Link></Button></div>

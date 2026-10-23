@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export async function GET(_request: Request, { params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const row = await getApprovedAvatarByUsername(username);
-  if (!row) return new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
+  if (!row) return new Response(null, { status: 404, headers: { "Cache-Control": "private, max-age=300" } });
 
   const viewer = await getCurrentUser();
   if (!viewer && !row.publicProfile) {

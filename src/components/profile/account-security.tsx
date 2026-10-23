@@ -39,7 +39,7 @@ export function AccountSecurity({ hasPassword }: { hasPassword: boolean }) {
             </form>
           </>
         ) : (
-          <div className="mt-4 rounded-[6px] border border-lime-200 bg-lime-50 p-4 text-sm text-lime-900 dark:border-lime-500/20 dark:bg-lime-500/10 dark:text-lime-200">
+          <div className="mt-4 rounded-[var(--bc-radius-sm)] border border-lime-200 bg-lime-50 p-4 text-sm text-lime-900 dark:border-lime-500/20 dark:bg-lime-500/10 dark:text-lime-200">
             <p className="font-medium">{copy("To konto zostało utworzone przez Google.", "This account was created with Google.")}</p>
             <p className="mt-1 text-lime-700/80 dark:text-lime-300/80">
               {copy("Nie masz osobnego hasła BuildCrew. Jeśli chcesz je dodać, użyj opcji „Nie pamiętam hasła” i ustaw je przez link wysłany na Twój e-mail.", "You do not have a separate BuildCrew password. If you want to add one, use Forgot password and set it through the link sent to your email.")}

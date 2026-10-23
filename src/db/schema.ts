@@ -267,6 +267,9 @@ export type ProjectAsset = (typeof projectAssetEnum)[number];
 export const collaborationModeEnum = ["REMOTE", "HYBRID", "LOCAL"] as const;
 export type CollaborationMode = (typeof collaborationModeEnum)[number];
 
+export const collaborationTypeEnum = ["HOBBY", "OPEN_SOURCE", "PORTFOLIO", "PAID", "JOB", "INTERNSHIP", "COFOUNDER", "EQUITY"] as const;
+export type CollaborationType = (typeof collaborationTypeEnum)[number];
+
 export const collaborationPaceEnum = ["RELAXED", "REGULAR", "INTENSIVE"] as const;
 export type CollaborationPace = (typeof collaborationPaceEnum)[number];
 
@@ -627,6 +630,45 @@ export const applications = pgTable("applications", {
   uniqueIndex("applications_pending_unique_idx")
     .on(t.projectId, t.roleId, t.applicantId)
     .where(sql`${t.status} = 'PENDING'`),
+]);
+
+export const trialAttemptStatusEnum = ["STARTED", "SUBMITTED", "PASSED", "FAILED"] as const;
+export type TrialAttemptStatus = (typeof trialAttemptStatusEnum)[number];
+
+/** A short, time-boxed task a project owner attaches to an open role ("mini-proba"). One active task per role. */
+export const trialTasks = pgTable("trial_tasks", {
+  id: uuidPk(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  roleId: uuid("role_id").notNull().references(() => projectRoles.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  brief: text("brief").notNull(),
+  timeLimitMinutes: integer("time_limit_minutes").notNull().default(120),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("trial_tasks_role_active_idx").on(t.roleId).where(sql`${t.isActive}`),
+  index("trial_tasks_project_idx").on(t.projectId),
+  check("trial_tasks_time_limit_check", sql`${t.timeLimitMinutes} between 30 and 480`),
+]);
+
+/** One attempt per candidate per task. PASSED attempts can publish themselves to the candidate's portfolio. */
+export const trialTaskAttempts = pgTable("trial_task_attempts", {
+  id: uuidPk(),
+  trialTaskId: uuid("trial_task_id").notNull().references(() => trialTasks.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  status: text("status").$type<TrialAttemptStatus>().notNull().default("STARTED"),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+  dueAt: timestamp("due_at", { withTimezone: true }).notNull(),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+  submissionUrl: text("submission_url"),
+  submissionNote: text("submission_note"),
+  addToPortfolio: boolean("add_to_portfolio").notNull().default(true),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewNote: text("review_note"),
+  portfolioItemId: uuid("portfolio_item_id").references(() => portfolioItems.id, { onDelete: "set null" }),
+}, (t) => [
+  uniqueIndex("trial_task_attempts_task_user_idx").on(t.trialTaskId, t.userId),
+  index("trial_task_attempts_user_idx").on(t.userId, t.startedAt),
 ]);
 
 export const projectInvites = pgTable("project_invites", {
@@ -1271,6 +1313,8 @@ export const notificationTypeEnum = [
   "HACKATHON_TEAM_INVITE",
   "HACKATHON_TEAM_REQUEST",
   "HACKATHON_TEAM_JOINED",
+  "TRIAL_TASK_SUBMITTED",
+  "TRIAL_TASK_REVIEWED",
   "SYSTEM_ANNOUNCEMENT",
 ] as const;
 export type NotificationType = (typeof notificationTypeEnum)[number];
@@ -1388,6 +1432,10 @@ export const analyticsEventTypeEnum = [
   "hackathon_team_created",
   "hackathon_team_invite_sent",
   "hackathon_team_joined",
+  "trial_task_created",
+  "trial_attempt_started",
+  "trial_attempt_submitted",
+  "trial_attempt_reviewed",
 ] as const;
 export type AnalyticsEventType = (typeof analyticsEventTypeEnum)[number];
 

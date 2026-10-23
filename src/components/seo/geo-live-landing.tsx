@@ -260,7 +260,7 @@ function LaunchPreviewList({ launches }: { launches: LaunchPreview[] }) {
       <div className="border-t border-[var(--bc-line-strong)]">
         {launches.map((launch) => (
           <article key={launch.id} className="grid gap-3 border-b border-[var(--bc-line)] py-4 sm:grid-cols-[64px_minmax(0,1fr)_minmax(170px,0.55fr)_auto] sm:items-center">
-            <Link href={`/launches/${encodeURIComponent(launch.slug)}`} className="hidden overflow-hidden rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] sm:block">
+            <Link href={`/launches/${encodeURIComponent(launch.slug)}`} className="hidden overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] sm:block">
               {launch.coverImage ? <img src={`/api/launches/images/${launch.coverImage.id}`} alt="" loading="lazy" className="aspect-square w-full object-cover" /> : <div className="grid aspect-square place-items-center text-[13px] font-semibold text-[var(--bc-faint)]">{launch.title.slice(0, 2).toUpperCase()}</div>}
             </Link>
             <div className="min-w-0">

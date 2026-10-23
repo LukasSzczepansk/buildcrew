@@ -100,7 +100,7 @@ export default async function ProfilePage() {
         </form>
       </div>
 
-      <section className="overflow-hidden rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      <section className="overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_330px]">
           <div className="flex min-w-0 flex-col gap-5 p-5 sm:flex-row sm:items-center sm:p-6">
             <div className="relative w-fit shrink-0">
@@ -122,8 +122,8 @@ export default async function ProfilePage() {
               </div>
               {profile.skills.length ? (
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {profile.skills.slice(0, 6).map((skill) => <span key={skill} className="rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2.5 py-1 text-[11px] font-medium text-[var(--bc-muted)]">{skill}</span>)}
-                  {profile.skills.length > 6 ? <span className="rounded-[6px] border border-[var(--bc-line)] px-2.5 py-1 text-[11px] font-medium text-[var(--bc-faint)]">+{profile.skills.length - 6}</span> : null}
+                  {profile.skills.slice(0, 6).map((skill) => <span key={skill} className="rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2.5 py-1 text-[11px] font-medium text-[var(--bc-muted)]">{skill}</span>)}
+                  {profile.skills.length > 6 ? <span className="rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] px-2.5 py-1 text-[11px] font-medium text-[var(--bc-faint)]">+{profile.skills.length - 6}</span> : null}
                 </div>
               ) : null}
             </div>
@@ -154,7 +154,7 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      <nav className="sticky top-2 z-20 mt-3 flex gap-1 overflow-x-auto rounded-[10px] border border-[var(--bc-line)] bg-[color:var(--bc-surface)]/95 p-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur-sm" aria-label={en ? "Profile sections" : "Sekcje profilu"}>
+      <nav className="sticky top-2 z-20 mt-3 flex gap-1 overflow-x-auto rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[color:var(--bc-surface)]/95 p-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur-sm" aria-label={en ? "Profile sections" : "Sekcje profilu"}>
         <ProfileNavLink href="#overview" icon={UserRound}>{en ? "Overview" : "Przegląd"}</ProfileNavLink>
         <ProfileNavLink href="#portfolio" icon={Images}>Portfolio</ProfileNavLink>
         <ProfileNavLink href="#launches" icon={Rocket}>{en ? "Launches" : "Premiery"}</ProfileNavLink>
@@ -165,7 +165,7 @@ export default async function ProfilePage() {
       <section id="overview" className="scroll-mt-24 pt-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(290px,0.8fr)]">
           <div className="space-y-4">
-            <section className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
+            <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-[16px] font-semibold tracking-[-0.015em]">{en ? "About" : "O mnie"}</h2>
                 <Button asChild variant="outline" size="sm"><a href="#edit-profile">{en ? "Edit" : "Edytuj"}</a></Button>
@@ -191,7 +191,7 @@ export default async function ProfilePage() {
               </div>
             </section>
 
-            <section className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
+            <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-[16px] font-semibold tracking-[-0.015em]">Portfolio {portfolio.length ? `(${portfolio.length})` : ""}</h2>
@@ -209,7 +209,7 @@ export default async function ProfilePage() {
             </section>
 
             {completedCredits.length ? (
-              <section className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
+              <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
                 <div className="flex items-center justify-between gap-4"><h2 className="text-[16px] font-semibold">{en ? "Built" : "Zbudowane"}</h2><span className="text-[11px] text-[var(--bc-faint)]">{completedCredits.length}</span></div>
                 <div className="mt-3 divide-y divide-[var(--bc-line)]">
                   {completedCredits.slice(0, 4).map((credit) => <Link key={credit.creditId} href={`/projects/${credit.projectId}`} className="grid gap-1 py-3 first:pt-0 last:pb-0 hover:text-[var(--bc-ink)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><p className="text-sm font-medium">{credit.projectName}</p><p className="mt-0.5 bc-truncate-2 text-[12px] leading-4 text-[var(--bc-muted)]">{credit.outcome || credit.tagline}</p></div><span className="text-[11px] text-[var(--bc-faint)]">{credit.isOwner ? (en ? "Owner" : "Właściciel") : credit.roleType ? labels.roles[credit.roleType] : (en ? "Collaborator" : "Współtwórca")}</span></Link>)}
@@ -219,7 +219,7 @@ export default async function ProfilePage() {
           </div>
 
           <aside className="space-y-4">
-            <section className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
+            <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
               <div className="flex items-center justify-between gap-3"><h2 className="text-[15px] font-semibold">{en ? "Basic information" : "Podstawowe informacje"}</h2><Button asChild variant="ghost" size="sm"><a href="#edit-profile">{en ? "Edit" : "Edytuj"}</a></Button></div>
               <dl className="mt-3 space-y-2.5 text-[12px]">
                 <InfoRow label={en ? "Username" : "Nick"} value={profile.username} />
@@ -233,12 +233,12 @@ export default async function ProfilePage() {
               </dl>
             </section>
 
-            <section className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
+            <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
               <div className="flex items-center justify-between gap-3"><h2 className="text-[15px] font-semibold">{en ? "Links" : "Linki"}</h2><Button asChild variant="ghost" size="sm"><a href="#edit-profile">{en ? "Edit" : "Edytuj"}</a></Button></div>
-              {profileLinks.length ? <div className="mt-3 space-y-1.5">{profileLinks.map(({ label, value, icon: Icon }) => <a key={label} href={value} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-[7px] px-2 py-2 text-[12px] text-[var(--bc-muted)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Icon className="h-3.5 w-3.5" /><span className="min-w-0 flex-1 truncate">{label}</span><ExternalLink className="h-3 w-3 text-[var(--bc-faint)]" /></a>)}</div> : <p className="mt-3 text-[12px] text-[var(--bc-faint)]">{en ? "Add GitHub, LinkedIn or portfolio." : "Dodaj GitHub, LinkedIn albo zewnętrzne portfolio."}</p>}
+              {profileLinks.length ? <div className="mt-3 space-y-1.5">{profileLinks.map(({ label, value, icon: Icon }) => <a key={label} href={value} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-[var(--bc-radius)] px-2 py-2 text-[12px] text-[var(--bc-muted)] hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Icon className="h-3.5 w-3.5" /><span className="min-w-0 flex-1 truncate">{label}</span><ExternalLink className="h-3 w-3 text-[var(--bc-faint)]" /></a>)}</div> : <p className="mt-3 text-[12px] text-[var(--bc-faint)]">{en ? "Add GitHub, LinkedIn or portfolio." : "Dodaj GitHub, LinkedIn albo zewnętrzne portfolio."}</p>}
             </section>
 
-            <section className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
+            <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
               <h2 className="text-[15px] font-semibold">{en ? "Quick actions" : "Szybkie akcje"}</h2>
               <div className="mt-3 grid gap-2">
                 <Button asChild className="justify-center gap-2 bg-[var(--bc-accent-soft)] text-[var(--bc-ink)] hover:bg-[var(--bc-accent)]"><a href="#edit-profile"><Pencil className="h-3.5 w-3.5" /> {en ? "Edit profile" : "Edytuj profil"}</a></Button>
@@ -251,7 +251,7 @@ export default async function ProfilePage() {
       </section>
 
       <section id="launches" className="scroll-mt-24 pt-4">
-        <div className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)] sm:p-6">
+        <div className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)] sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-[17px] font-semibold tracking-[-0.015em]">{en ? "Launches" : "Premiery"}</h2><p className="mt-1 text-[12px] text-[var(--bc-muted)]">{en ? "Projects you publicly showed to the BuildCrew community." : "Projekty, które publicznie pokazałeś społeczności BuildCrew."}</p></div><Button asChild size="sm"><Link href="/launches/new">{en ? "Show project" : "Pokaż projekt"}</Link></Button></div>
           {launches.length ? <div className="mt-4 divide-y divide-[var(--bc-line)] border-y border-[var(--bc-line)]">{launches.map((launch) => <Link key={launch.id} href={`/launches/${launch.slug}`} className="grid gap-2 py-3.5 hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div className="min-w-0"><p className="truncate text-[13px] font-semibold">{launch.title}</p><p className="mt-0.5 truncate text-[11px] text-[var(--bc-faint)]">{launch.tagline}</p></div><span className="text-[10px] text-[var(--bc-faint)]">▲ {launch.voteCount} · {launch.commentCount} {en ? "comments" : "komentarzy"}</span></Link>)}</div> : <div className="mt-4 rounded-[9px] border border-dashed border-[var(--bc-line-strong)] bg-[var(--bc-surface-subtle)] px-5 py-7 text-center"><Rocket className="mx-auto h-5 w-5 text-[var(--bc-faint)]" /><p className="mt-2 text-[13px] font-medium">{en ? "You have not shown a project yet" : "Nie pokazałeś jeszcze żadnego projektu"}</p><p className="mx-auto mt-1 max-w-md text-[11px] leading-5 text-[var(--bc-faint)]">{en ? "Publish a launch to get feedback, testers or new collaborators." : "Opublikuj premierę, żeby zdobyć feedback, testerów albo nowych współtwórców."}</p></div>}
         </div>
@@ -289,7 +289,7 @@ export default async function ProfilePage() {
       </section>
 
       <section id="settings" className="scroll-mt-24 pt-4">
-        <div className="rounded-[12px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)] sm:px-6">
+        <div className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-5 shadow-[0_1px_2px_rgba(0,0,0,0.025)] sm:px-6">
           <div className="flex items-center gap-2 border-b border-[var(--bc-line)] py-5">
             <Wrench className="h-4 w-4 text-[var(--bc-muted)]" />
             <div><h2 className="text-[16px] font-semibold">{en ? "Profile settings" : "Ustawienia profilu"}</h2><p className="mt-0.5 text-[12px] text-[var(--bc-faint)]">{en ? "Photo, notifications and account security." : "Zdjęcie, powiadomienia i bezpieczeństwo konta."}</p></div>
@@ -304,7 +304,7 @@ export default async function ProfilePage() {
 }
 
 function ProfileNavLink({ href, icon: Icon, children }: { href: string; icon: typeof UserRound; children: ReactNode }) {
-  return <a href={href} className="inline-flex shrink-0 items-center gap-2 rounded-[7px] px-3 py-2 text-[12px] font-medium text-[var(--bc-muted)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Icon className="h-3.5 w-3.5" />{children}</a>;
+  return <a href={href} className="inline-flex shrink-0 items-center gap-2 rounded-[var(--bc-radius)] px-3 py-2 text-[12px] font-medium text-[var(--bc-muted)] transition-colors hover:bg-[var(--bc-surface-subtle)] hover:text-[var(--bc-ink)]"><Icon className="h-3.5 w-3.5" />{children}</a>;
 }
 
 function SummaryBox({ icon: Icon, title, children }: { icon: typeof BriefcaseBusiness; title: string; children: ReactNode }) {

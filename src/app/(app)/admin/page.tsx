@@ -92,7 +92,7 @@ export default async function AdminPage() {
 
                   <Link
                     href={`/launches/${launch.slug}`}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-[7px] border border-[var(--bc-line)] px-3 text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-[var(--bc-radius)] border border-[var(--bc-line)] px-3 text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)]"
                   >
                     {en ? "Preview" : "Podgląd"}
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -109,7 +109,7 @@ export default async function AdminPage() {
                       name="note"
                       maxLength={600}
                       placeholder={en ? "Useful especially when rejecting..." : "Przydatne szczególnie przy odrzuceniu..."}
-                      className="h-9 w-full rounded-[7px] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-[12px] outline-none focus:border-[var(--bc-line-strong)]"
+                      className="h-9 w-full rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-[12px] outline-none focus:border-[var(--bc-line-strong)]"
                     />
                   </label>
                   <div className="flex shrink-0 gap-2">
@@ -152,7 +152,7 @@ export default async function AdminPage() {
         <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[var(--bc-accent-soft)] text-[#7ea819]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--bc-radius)] bg-[var(--bc-accent-soft)] text-[#7ea819]">
                 <BellRing className="h-4.5 w-4.5" />
               </span>
               <div>
@@ -161,7 +161,7 @@ export default async function AdminPage() {
               </div>
             </div>
 
-            <div className="mt-4 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-4">
+            <div className="mt-4 rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-4">
               <p className="font-semibold">Nowość w BuildCrew - Premiery 🚀</p>
               <p className="mt-2 text-[13px] leading-5 text-[var(--bc-muted)]">
                 Masz projekt, aplikację, stronę, grę, SaaS albo coś, nad czym dopiero pracujesz?
@@ -201,7 +201,7 @@ export default async function AdminPage() {
           </div>
           <Link href="/admin/activity" className="hidden text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline sm:inline">{en ? "Full events" : "Wszystkie zdarzenia"}</Link>
         </div>
-        <div className="grid gap-px overflow-hidden rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-px overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-line)] sm:grid-cols-2 xl:grid-cols-5">
           <FunnelStat icon={Users} value={data.activeUsers7d} label={en ? "active people" : "aktywnych osób"} helper={en ? `+${data.newUsers7d} new accounts` : `+${data.newUsers7d} nowych kont`} />
           <FunnelStat icon={UserPlus} value={data.projectApplications7d} label={en ? "project applications" : "aplikacji do projektów"} helper={en ? "real intent to join" : "realna chęć dołączenia"} />
           <FunnelStat icon={UserRoundCheck} value={data.acceptedApplications7d} label={en ? "team acceptances" : "zaakceptowanych aplikacji"} helper={data.projectApplications7d > 0 ? (en ? `${Math.round((data.acceptedApplications7d / data.projectApplications7d) * 100)}% of applications` : `${Math.round((data.acceptedApplications7d / data.projectApplications7d) * 100)}% aplikacji`) : (en ? "no applications" : "brak aplikacji")} />

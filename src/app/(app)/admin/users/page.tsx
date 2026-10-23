@@ -37,7 +37,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px] text-left text-sm">
-            <thead className="bg-neutral-50 text-[13px] uppercase tracking-wide text-neutral-400 dark:bg-neutral-900/60"><tr>
+            <thead className="bg-[var(--bc-surface-subtle)] text-[13px] uppercase tracking-wide text-neutral-400"><tr>
               <th className="px-5 py-3">{en ? "User" : "Użytkownik"}</th><th className="px-4 py-3">{en ? "Role" : "Rola"}</th><th className="px-4 py-3">{en ? "Projects" : "Projekty"}</th><th className="px-4 py-3">{en ? "Applications" : "Aplikacje"}</th><th className="px-4 py-3">{en ? "Reports" : "Zgłoszenia"}</th><th className="px-4 py-3">Status</th><th className="px-5 py-3 text-right">{en ? "Actions" : "Akcje"}</th>
             </tr></thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">

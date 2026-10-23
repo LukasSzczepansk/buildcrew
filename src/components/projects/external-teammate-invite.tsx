@@ -29,7 +29,7 @@ export function ExternalTeammateInvite({ projectId, roles }: { projectId: string
     });
   }
   return (
-    <section className="rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-4">
+    <section className="rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-4">
       <div className="flex items-start gap-2"><MailPlus className="mt-0.5 h-4 w-4 text-[var(--bc-muted)]" /><div><p className="text-[13px] font-semibold">{copy("Zaproś osobę spoza BuildCrew", "Invite someone outside BuildCrew")}</p><p className="mt-1 text-[11px] leading-4 text-[var(--bc-faint)]">{copy("Wyślemy bezpieczny link do projektu. Zaproszenie wygasa po 14 dniach.", "We will send a secure project link. The invitation expires after 14 days.")}</p></div></div>
       <div className="mt-4 space-y-2.5">
         <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />

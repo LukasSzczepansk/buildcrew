@@ -239,7 +239,7 @@ export function ChallengeJoinPanel({
                   onChange={(event) => setSkillDraft(event.target.value)}
                   onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addSkill(); } }}
                   placeholder={copy("np. React", "e.g. React")}
-                  className="h-10 min-w-0 flex-1 rounded-[6px] border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-400/20 dark:border-neutral-700 dark:bg-neutral-900"
+                  className="h-10 min-w-0 flex-1 rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-400/20 dark:bg-neutral-900"
                 />
                 <datalist id="sprint-skills">{ALL_SKILLS.map((skill) => <option key={skill} value={skill} />)}</datalist>
                 <Button type="button" variant="outline" onClick={addSkill} disabled={!skillDraft.trim() || form.skills.length >= 5}><Plus className="h-4 w-4" /></Button>
@@ -285,7 +285,7 @@ export function ChallengeJoinPanel({
             </Field>
             {form.ideaStatus !== "JOIN_OTHER" ? (
               <Field title={form.ideaStatus === "HAS_IDEA" ? copy("Opisz pomysł w 2–3 zdaniach", "Describe the idea in 2–3 sentences") : copy("Jakie pomysły chodzą Ci po głowie?", "What kinds of ideas are you considering?")}>
-                <textarea value={form.ideaDescription ?? ""} onChange={(event) => setForm({ ...form, ideaDescription: event.target.value })} maxLength={600} rows={4} className="w-full resize-none rounded-[6px] border border-neutral-200 bg-white p-3 text-sm outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-400/20 dark:border-neutral-700 dark:bg-neutral-900" placeholder={copy("Krótko: problem, dla kogo i co miałoby powstać.", "Briefly: the problem, who it's for, and what you'd build.")} />
+                <textarea value={form.ideaDescription ?? ""} onChange={(event) => setForm({ ...form, ideaDescription: event.target.value })} maxLength={600} rows={4} className="w-full resize-none rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-3 text-sm outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-400/20 dark:bg-neutral-900" placeholder={copy("Krótko: problem, dla kogo i co miałoby powstać.", "Briefly: the problem, who it's for, and what you'd build.")} />
               </Field>
             ) : null}
             <Field title={copy("Z jakimi rolami najbardziej chcesz się połączyć?", "Which roles would you most like on your Crew?")} hint={copy("Opcjonalnie, maksymalnie 4.", "Optional, up to 4.")}>
@@ -300,7 +300,7 @@ export function ChallengeJoinPanel({
               <div className="grid gap-2 sm:grid-cols-2">{SPRINT_GOALS.map((value) => <Choice key={value} selected={form.sprintGoals.includes(value)} onClick={() => setForm({ ...form, sprintGoals: toggleValue(form.sprintGoals, value, 2) })}>{goalLabel(value, locale)}</Choice>)}</div>
             </Field>
 
-            <div className="grid gap-5 rounded-[8px] border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50">
+            <div className="grid gap-5 rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] p-4">
               <SliderField label={copy("Eksperymentować", "Experiment")} opposite={copy("Jasny plan", "Clear plan")} value={form.planningStyle} onChange={(value) => setForm({ ...form, planningStyle: value })} />
               <SliderField label={copy("Spokojne tempo", "Steady pace")} opposite={copy("Szybkie tempo", "Fast pace")} value={form.paceStyle} onChange={(value) => setForm({ ...form, paceStyle: value })} />
               <SliderField label={copy("Luźny side-project", "Casual side project")} opposite={copy("Poważny projekt", "Serious project")} value={form.projectStyle} onChange={(value) => setForm({ ...form, projectStyle: value })} />
@@ -311,21 +311,21 @@ export function ChallengeJoinPanel({
                 <Choice selected={form.mode === "FIND_CREW"} onClick={() => setForm({ ...form, mode: "FIND_CREW" })}><span className="font-semibold">{copy("Znajdź mi ekipę", "Find me a Crew")}</span><span className="mt-1 block text-xs font-normal text-neutral-500">{copy("BuildCrew dobierze pasujące osoby.", "BuildCrew will suggest matching people.")}</span></Choice>
                 <Choice disabled={!crews.length} selected={form.mode === "HAS_CREW"} onClick={() => crews.length && setForm({ ...form, mode: "HAS_CREW" })}><span className="font-semibold">{copy("Mam już Crew", "I already have a Crew")}</span><span className="mt-1 block text-xs font-normal text-neutral-500">{crews.length ? copy("Zapisz istniejącą ekipę.", "Register your existing team.") : copy("Nie należysz jeszcze do żadnej Crew.", "You don't belong to a Crew yet.")}</span></Choice>
               </div>
-              {form.mode === "HAS_CREW" && crews.length ? <select className="mt-3 h-10 w-full rounded-[6px] border border-neutral-200 bg-white px-3 text-sm dark:border-neutral-700 dark:bg-neutral-900" value={form.crewId} onChange={(event) => setForm({ ...form, crewId: event.target.value })}>{crews.map((crew) => <option key={crew.id} value={crew.id}>{crew.label}</option>)}</select> : null}
+              {form.mode === "HAS_CREW" && crews.length ? <select className="mt-3 h-10 w-full rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface)] px-3 text-sm dark:bg-neutral-900" value={form.crewId} onChange={(event) => setForm({ ...form, crewId: event.target.value })}>{crews.map((crew) => <option key={crew.id} value={crew.id}>{crew.label}</option>)}</select> : null}
             </Field>
 
-            <div className="rounded-[8px] border border-neutral-200 p-4 dark:border-neutral-700">
+            <div className="rounded-[var(--bc-radius)] border border-[var(--bc-line)] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400">{copy("Podsumowanie", "Summary")}</p>
               <p className="mt-2 text-sm font-semibold">{ROLE_LABELS[form.role]} · {labels.levels[form.level]}</p>
               <p className="mt-1 text-sm text-neutral-500">{form.skills.join(" · ")} · {COMMITMENT_LABELS[form.weeklyHours]}</p>
             </div>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-[8px] border border-neutral-200 p-4 text-sm leading-6 dark:border-neutral-700">
+            <label className="flex cursor-pointer items-start gap-3 rounded-[var(--bc-radius)] border border-[var(--bc-line)] p-4 text-sm leading-6">
               <input type="checkbox" checked={form.commitmentAccepted} onChange={(event) => setForm({ ...form, commitmentAccepted: event.target.checked })} className="mt-1 h-4 w-4 accent-lime-500" />
               <span>{copy("Rozumiem, że Sprint wymaga aktywnego udziału przez cały okres programu i deklaruję realną dostępność podaną wyżej.", "I understand the Sprint requires active participation throughout the program and the availability above is realistic.")}</span>
             </label>
 
-            <div className={cn("flex items-start gap-3 rounded-[8px] border p-4 text-sm leading-6", form.sprintTermsAccepted ? "border-lime-500/60 bg-lime-300/15 dark:border-lime-400/30 dark:bg-lime-400/5" : "border-neutral-200 dark:border-neutral-700")}>
+            <div className={cn("flex items-start gap-3 rounded-[var(--bc-radius)] border p-4 text-sm leading-6", form.sprintTermsAccepted ? "border-lime-500/60 bg-lime-300/15 dark:border-lime-400/30 dark:bg-lime-400/5" : "border-[var(--bc-line)]")}>
               <input id="sprint-terms-accepted" type="checkbox" checked={form.sprintTermsAccepted} onChange={(event) => setForm({ ...form, sprintTermsAccepted: event.target.checked })} className="mt-1 h-4 w-4 shrink-0 accent-lime-500" />
               <p>
                 <label htmlFor="sprint-terms-accepted" className="cursor-pointer">{copy("Akceptuję ", "I accept ")}</label>
@@ -352,7 +352,7 @@ function Field({ title, hint, children }: { title: string; hint?: string; childr
 }
 
 function Choice({ selected, onClick, disabled, compact, children }: { selected: boolean; onClick: () => void; disabled?: boolean; compact?: boolean; children: React.ReactNode }) {
-  return <button type="button" aria-pressed={selected} disabled={disabled} onClick={onClick} className={cn("relative rounded-[7px] border text-left text-sm transition disabled:cursor-not-allowed disabled:opacity-40", compact ? "px-3 py-2" : "min-h-12 p-3", selected ? "border-lime-500 bg-lime-300/45 font-medium text-neutral-950 ring-2 ring-lime-400/20 dark:bg-lime-400/15 dark:text-lime-100" : "border-neutral-200 bg-white hover:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-neutral-500")}>{selected ? <Check className="absolute right-2 top-2 h-3.5 w-3.5" /> : null}<span className={selected ? "pr-4" : undefined}>{children}</span></button>;
+  return <button type="button" aria-pressed={selected} disabled={disabled} onClick={onClick} className={cn("relative rounded-[var(--bc-radius)] border text-left text-sm transition disabled:cursor-not-allowed disabled:opacity-40", compact ? "px-3 py-2" : "min-h-12 p-3", selected ? "border-lime-500 bg-lime-300/45 font-medium text-neutral-950 ring-2 ring-lime-400/20 dark:bg-lime-400/15 dark:text-lime-100" : "border-[var(--bc-line)] bg-[var(--bc-surface)] hover:border-neutral-400 dark:bg-neutral-900 dark:hover:border-neutral-500")}>{selected ? <Check className="absolute right-2 top-2 h-3.5 w-3.5" /> : null}<span className={selected ? "pr-4" : undefined}>{children}</span></button>;
 }
 
 function SliderField({ label, opposite, value, onChange }: { label: string; opposite: string; value: number; onChange: (value: number) => void }) {
@@ -360,7 +360,7 @@ function SliderField({ label, opposite, value, onChange }: { label: string; oppo
 }
 
 function SummaryCell({ label, value }: { label: string; value: string }) {
-  return <div className="bg-white p-4 dark:bg-[#171715]"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">{label}</p><p className="mt-1.5 text-sm font-medium">{value}</p></div>;
+  return <div className="bg-[var(--bc-surface)] p-4 dark:bg-[#171715]"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">{label}</p><p className="mt-1.5 text-sm font-medium">{value}</p></div>;
 }
 
 function stepTitle(step: number, locale: "pl" | "en") {

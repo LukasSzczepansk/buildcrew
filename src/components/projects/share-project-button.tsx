@@ -156,7 +156,7 @@ export function ShareProjectButton({
             </div>
           ) : null}
 
-          <div className="overflow-hidden rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-canvas)]">
+          <div className="overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-canvas)]">
             <Image
               src={imageUrl}
               alt={`${copy("Podgląd grafiki udostępniania projektu", "Project share image preview")} ${projectName}`}
@@ -226,7 +226,7 @@ function ModeButton({ active, onClick, children }: { active: boolean; onClick: (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-[6px] border px-3 py-2 text-[13px] font-medium transition-colors ${
+      className={`rounded-[var(--bc-radius-sm)] border px-3 py-2 text-[13px] font-medium transition-colors ${
         active
           ? "border-[var(--bc-ink)] bg-[var(--bc-ink)] text-[var(--bc-surface)]"
           : "border-[var(--bc-line)] bg-[var(--bc-surface)] text-[var(--bc-muted)] hover:border-[var(--bc-line-strong)] hover:text-[var(--bc-ink)]"
