@@ -12,7 +12,7 @@ import { isBlockedEitherWay } from "@/server/data/moderation";
 import { getMembershipCrewForUser } from "@/server/data/crews";
 import { createNotification } from "@/server/services/notifications";
 
-const MAX_CREW_SIZE = 4;
+const MAX_CREW_SIZE = 8;
 
 function isUniqueViolation(error: unknown) {
   return Boolean(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "23505");
@@ -173,7 +173,7 @@ export async function inviteToCrew(crewId: string, inviteeId: string, message: s
   if (!crew || crew.status !== "FORMING") return { error: "The crew is no longer active." };
   const members = await db.select().from(crewMembers).where(eq(crewMembers.crewId, crewId));
   if (!members.some((m) => m.userId === user.id)) return { error: "You are not a member of this crew." };
-  if (members.length >= MAX_CREW_SIZE) return { error: "The crew has reached the maximum size of 4 people." };
+  if (members.length >= MAX_CREW_SIZE) return { error: "The crew has reached the maximum size of 8 people." };
   if (members.some((m) => m.userId === inviteeId)) return { error: "This person is already in a crew." };
   if (await getMembershipCrewForUser(inviteeId)) return { error: "This person is already in another crew." };
   if (await isBlockedEitherWay(user.id, inviteeId)) return { error: "This person cannot be invited." };
