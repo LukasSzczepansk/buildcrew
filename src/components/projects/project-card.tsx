@@ -81,8 +81,8 @@ export function ProjectCard({
   const needs = project.needs ?? ["TEAMMATES"];
 
   return (
-    <article className="bc-lift group overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[var(--bc-shadow-xs)]">
-      <div className="grid lg:grid-cols-[minmax(0,1fr)_480px]">
+    <article className="bc-lift group @container overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[var(--bc-shadow-xs)]">
+      <div className="grid @[56rem]:grid-cols-[minmax(0,1fr)_420px]">
         <div className="min-w-0 p-4 sm:p-5">
           <div className="flex items-start gap-4">
             <ProjectIdentityMark
@@ -100,7 +100,7 @@ export function ProjectCard({
                 >
                   {project.name}
                 </Link>
-                {project.owner?.isDemo ? <span className="rounded-full border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}
+                {project.owner?.isDemo ? <span className="rounded-full border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}
                 <span className="inline-flex h-6 items-center gap-1.5 rounded-[var(--bc-radius-sm)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 text-[11px] font-medium text-[var(--bc-muted)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent)]" />
                   {labels.stages[project.stage]}
@@ -141,7 +141,7 @@ export function ProjectCard({
           </div>
         </div>
 
-        <div className="border-t border-[var(--bc-line)] lg:border-l lg:border-t-0">
+        <div className="border-t border-[var(--bc-line)] @[56rem]:border-l @[56rem]:border-t-0">
           <div className="flex h-full flex-col justify-center gap-4 p-4 sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
@@ -165,7 +165,7 @@ export function ProjectCard({
                 </div>
 
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {needs.slice(0, 3).map((need) => <span key={need} className="rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-1 text-[10px] font-medium text-[var(--bc-muted)]">{intl.needs[need]}</span>)}
+                  {needs.slice(0, 3).map((need) => <span key={need} className="rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-1 text-[11px] font-medium text-[var(--bc-muted)]">{intl.needs[need]}</span>)}
                 </div>
 
                 <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-[var(--bc-muted)]">

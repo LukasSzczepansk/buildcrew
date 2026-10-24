@@ -45,51 +45,56 @@ export function BuilderCard({ builder, action, matchScore, matchReasons = [], lo
 
   return (
     <article className="bc-lift group rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[var(--bc-shadow-xs)]">
-      <div className="grid gap-4 p-4 sm:p-5 xl:grid-cols-[240px_minmax(320px,1fr)_110px_250px] xl:items-center xl:gap-5 2xl:grid-cols-[240px_minmax(320px,1fr)_110px_390px]">
-        <div className="flex min-w-0 items-start gap-3.5">
-          <Link href={`/builders/${builder.userId}`} aria-label={`${en ? "Profile" : "Profil"} ${builder.username}`} className="shrink-0">
-            <Avatar username={builder.username} seed={builder.userId} className="h-14 w-14 text-[19px]" />
-          </Link>
-          <div className="min-w-0 flex-1">
-            <div className="flex min-w-0 items-center gap-2">
-              <Link href={`/builders/${builder.userId}`} className="truncate text-[17px] font-semibold tracking-[-0.018em] text-[var(--bc-ink)] hover:underline">{builder.username}</Link>
-              {builder.isDemo ? <span className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}
-              {isNew ? <span className="rounded-[5px] border border-[var(--bc-line)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--bc-muted)]">{en ? "New" : "Nowy"}</span> : null}
+      <div className="p-4 sm:p-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex min-w-0 items-start gap-3.5">
+            <Link href={`/builders/${builder.userId}`} aria-label={`${en ? "Profile" : "Profil"} ${builder.username}`} className="shrink-0">
+              <Avatar username={builder.username} seed={builder.userId} className="h-14 w-14 text-[19px]" />
+            </Link>
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <Link href={`/builders/${builder.userId}`} className="truncate text-[18px] font-semibold tracking-[-0.018em] text-[var(--bc-ink)] hover:underline">{builder.username}</Link>
+                {isNew ? <span className="rounded-full bg-[var(--bc-accent-soft)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--bc-accent-ink)]">{en ? "New" : "Nowy"}</span> : null}
+                {builder.isDemo ? <span className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">BuildCrew Lab</span> : null}
+              </div>
+              <p className="mt-0.5 truncate text-[14px] text-[var(--bc-muted)]">{builder.headline || (builder.role ? labels.roles[builder.role] : "Builder")}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--bc-muted)]">
+                <span className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${activityColor}`} />{activityLabel(builder.lastActiveAt, locale)}</span>
+                {opportunityStatus ? <span className="font-medium text-[var(--bc-ink)]">{opportunityStatus}</span> : null}
+                {builder.weeklyHours ? <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" aria-hidden="true" />{labels.commitments[builder.weeklyHours]}</span> : null}
+                {(builder.city || builder.country) ? <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3 text-[var(--bc-faint)]" aria-hidden="true" />{locationLabel(builder.city, builder.country)}</span> : null}
+                {builder.languages?.length ? <span className="inline-flex items-center gap-1"><Globe2 className="h-3 w-3" aria-hidden="true" />{builder.languages.slice(0, 2).join(", ")}</span> : null}
+              </div>
             </div>
-            <p className="mt-0.5 truncate text-sm text-[var(--bc-muted)]">{builder.headline || (builder.role ? labels.roles[builder.role] : "Builder")}</p>
-            <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-[var(--bc-muted)]">
-              <span className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${activityColor}`} />{activityLabel(builder.lastActiveAt, locale)}</span>
-              {opportunityStatus ? <span className="font-medium text-[var(--bc-ink)]">{opportunityStatus}</span> : null}
-              {builder.weeklyHours ? <span className="inline-flex items-center gap-1"><Clock3 className="h-3 w-3" />{labels.commitments[builder.weeklyHours]}</span> : null}
-              {builder.level ? <span className="hidden 2xl:inline">{labels.levels[builder.level]}</span> : null}
-              {(builder.city || builder.country) ? <span className="inline-flex items-center gap-1.5 font-medium text-[var(--bc-ink)]"><MapPin className="h-3 w-3 text-[var(--bc-faint)]" />{locationLabel(builder.city, builder.country)}</span> : null}
-              {builder.languages?.length ? <span className="inline-flex items-center gap-1"><Globe2 className="h-3 w-3" />{builder.languages.slice(0, 2).join(", ")}</span> : null}
+          </div>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-2 md:justify-end">
+            {score !== null ? (
+              <span
+                className={`inline-flex h-10 items-center gap-1.5 rounded-[var(--bc-radius)] px-3 text-[13px] font-semibold tabular-nums ${strongMatch ? "bg-[var(--bc-accent)] text-[#1c1b17]" : "border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] text-[var(--bc-ink)]"}`}
+                title={matchLabel ?? undefined}
+              >
+                {score}% <span className="font-medium opacity-80">{en ? "match" : "dopasowania"}</span>
+              </span>
+            ) : null}
+            {action}
+            <Link href={`/builders/${builder.userId}`} className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--bc-radius)] bg-[#1c1b17] px-3.5 text-sm font-medium text-white shadow-[var(--bc-shadow-sm)] transition-colors hover:bg-[#33312a] dark:bg-[#f2f0e8] dark:text-[#1c1b17]">
+              {en ? "View profile" : "Zobacz profil"} <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {builder.skills.length > 0 || insights.length > 0 ? (
+          <div className="mt-4 grid gap-4 border-t border-[var(--bc-line)] pt-4 md:grid-cols-2">
+            {builder.skills.length > 0 ? <TechnologyStack items={builder.skills} max={5} compact className="content-start gap-1.5" /> : <div />}
+            <div className="min-w-0">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Why connect" : "Dlaczego warto"}</p>
+              <ul className="mt-1.5 space-y-1 text-[13px] leading-5 text-[var(--bc-muted)]">
+                {insights.map((reason) => <li key={reason} className="flex gap-2"><span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[var(--bc-accent-strong)]" aria-hidden="true" /><span>{reason}</span></li>)}
+              </ul>
             </div>
           </div>
-        </div>
-
-        <div className="min-w-0 border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
-          {builder.skills.length > 0 ? <TechnologyStack items={builder.skills} max={5} compact className="gap-1.5" /> : null}
-          <div className="mt-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-faint)]">{en ? "Why connect" : "Dlaczego warto"}</p>
-            <p className="mt-1.5 text-[13px] leading-[19px] text-[var(--bc-muted)]">{insights.join(" · ")}</p>
-          </div>
-        </div>
-
-        {score !== null ? (
-          <div className="min-w-0 border-t border-[var(--bc-line)] pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-faint)]">{en ? "Match" : "Dopasowanie"}</p>
-            <p className={`mt-1.5 text-[15px] font-semibold leading-5 ${strongMatch ? "text-[#789f16] dark:text-[var(--bc-accent)]" : "text-[var(--bc-ink)]"}`}>{matchLabel}</p>
-            <p className="mt-1 text-[11px] tabular-nums text-[var(--bc-faint)]">{score}% · {en ? "based on profile signals" : "na podstawie profilu"}</p>
-          </div>
-        ) : <div className="hidden xl:block" />}
-
-        <div className="flex min-w-0 flex-wrap items-center gap-2 border-t border-[var(--bc-line)] pt-4 xl:justify-end 2xl:flex-nowrap xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
-          {action}
-          <Link href={`/builders/${builder.userId}`} className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--bc-radius)] bg-[#1c1b17] px-3.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950">
-            {en ? "View profile" : "Zobacz profil"} <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
+        ) : null}
       </div>
     </article>
   );

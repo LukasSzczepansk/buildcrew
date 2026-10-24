@@ -35,7 +35,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
         <span className="truncate">BuildCrew</span>
       </Link>
 
-      <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--bc-faint)]">{copy("Główne", "Main")}</p>
+      <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--bc-faint)]">{copy("Główne", "Main")}</p>
       <nav className="space-y-1">
         {primaryItems.map((item) => {
           const active = isActive(item.href);
@@ -50,7 +50,7 @@ export function Sidebar({ username, avatarEmoji, admin = false, founder = false,
               )}
             >
               {active ? <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-full bg-[var(--bc-accent)]" /> : null}
-              <Icon className="h-[15px] w-[15px] shrink-0" strokeWidth={1.8} />
+              <Icon className="h-4 w-4 shrink-0" strokeWidth={1.8} />
               <span className="min-w-0 flex-1">{item.label}</span>
               {item.href === "/messages" && unreadMessages > 0 ? <span className="min-w-5 rounded-full bg-[var(--bc-accent)] px-1.5 py-0.5 text-center text-[11px] font-semibold text-[#1c1b17]">{unreadMessages > 99 ? "99+" : unreadMessages}</span> : null}
             </Link>

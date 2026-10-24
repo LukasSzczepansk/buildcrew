@@ -121,7 +121,7 @@ function OwnedProjects({ projects, pendingByProject, locale, labels }: {
                   <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--bc-faint)]">
                     <span className="inline-flex items-center gap-1.5"><UsersRound className="h-3.5 w-3.5" strokeWidth={1.7} />{memberCount} {en ? (memberCount === 1 ? "person" : "people") : (memberCount === 1 ? "osoba" : "osoby")}</span>
                     {openRoleCount > 0 ? <span>{en ? "Looking for:" : "Szukamy:"} <span className="text-[var(--bc-muted)]">{openRoleNames}{openRoleCount > 2 ? ` +${openRoleCount - 2}` : ""}</span></span> : <span>{en ? "Team complete" : "Zespół kompletny"}</span>}
-                    {openSlots === 1 ? <span className="rounded-[5px] bg-[#C8F169] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-neutral-950">{en ? "Last spot" : "Ostatnie miejsce"}</span> : null}
+                    {openSlots === 1 ? <span className="rounded-[5px] bg-[#C8F169] px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-neutral-950">{en ? "Last spot" : "Ostatnie miejsce"}</span> : null}
                     {openRoleCount > 0 ? <span className={staleRecruitment ? "font-medium text-amber-700 dark:text-amber-300" : ""}>{freshness.shortLabel}</span> : null}
                   </div>
                 </div>

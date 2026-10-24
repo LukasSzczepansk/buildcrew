@@ -32,7 +32,7 @@ export function FeedRightRail({
               <ActivityVisual compact title={project.name} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[12px] font-semibold text-[var(--bc-ink)]">{project.name}</p>
-                <p className="mt-0.5 truncate text-[10px] text-[var(--bc-faint)]">{project.technologies.slice(0, 2).join(" · ") || project.tagline}</p>
+                <p className="mt-0.5 truncate text-[11px] text-[var(--bc-faint)]">{project.technologies.slice(0, 2).join(" · ") || project.tagline}</p>
               </div>
               <ArrowRight className="h-3.5 w-3.5 shrink-0 text-[var(--bc-faint)]" />
             </Link>
@@ -51,7 +51,7 @@ export function FeedRightRail({
               <Avatar username={builder.username} seed={builder.avatarEmoji || builder.username} size="sm" className="h-9 w-9 text-[11px]" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[12px] font-semibold text-[var(--bc-ink)]">@{builder.username}</p>
-                <p className="mt-0.5 truncate text-[10px] text-[var(--bc-faint)]">{builder.role ? labels.roles[builder.role] : builder.headline || (en ? "Builder" : "Builder")}{locationLabel(builder.city, builder.country) ? ` · ${locationLabel(builder.city, builder.country)}` : ""}</p>
+                <p className="mt-0.5 truncate text-[11px] text-[var(--bc-faint)]">{builder.role ? labels.roles[builder.role] : builder.headline || (en ? "Builder" : "Builder")}{locationLabel(builder.city, builder.country) ? ` · ${locationLabel(builder.city, builder.country)}` : ""}</p>
               </div>
             </Link>
           ))}

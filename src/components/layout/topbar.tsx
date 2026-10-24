@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { NotificationBell } from "@/components/layout/notification-bell";
+import { SearchTrigger } from "@/components/layout/search-trigger";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
 import { listNotifications } from "@/server/data/notifications";
@@ -21,6 +22,7 @@ export async function Topbar({ title, subtitle }: { title?: string; subtitle?: s
           {subtitle ? <p className="mt-1.5 max-w-[680px] text-sm leading-5 text-[var(--bc-muted)]">{subtitle}</p> : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
+          <SearchTrigger />
           <Button asChild size="sm" className="hidden sm:inline-flex"><Link href="/projects/new">{en ? "Create project" : "Dodaj projekt"}</Link></Button>
           <Button asChild size="icon" variant="secondary" className="sm:hidden" aria-label={en ? "Create project" : "Dodaj projekt"}><Link href="/projects/new"><Plus className="h-4 w-4" /></Link></Button>
           <LanguageSwitcher compact className="hidden sm:inline-flex" />

@@ -99,7 +99,7 @@ export default async function LaunchesPage({ searchParams }: { searchParams: Pro
         </nav>
 
         {result.items.length ? (
-          <section>
+          <section className="mt-5 space-y-3">
             {result.items.map((item, index) => (
               <LaunchListItem
                 key={item.id}
@@ -145,7 +145,7 @@ export default async function LaunchesPage({ searchParams }: { searchParams: Pro
                     </Link>
                   ) : null}
                 </div>
-                <section>
+                <section className="space-y-3">
                   {fallback.items.slice(0, 4).map((item) => (
                     <LaunchListItem key={item.id} item={item} locale={locale} canVote={Boolean(user)} />
                   ))}

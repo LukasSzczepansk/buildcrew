@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Bell, MessageCircle, Users2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
 import { DashboardVisitMarker } from "@/components/dashboard/dashboard-visit-marker";
+import { AttentionList, NextActionCard, ProfileProgress, QuickLinks } from "@/components/dashboard/dashboard-blocks";
 import { ProjectCard } from "@/components/projects/project-card";
 import { BuilderCard } from "@/components/builders/builder-card";
-import { Button } from "@/components/ui/button";
 import { SocialFeedCard } from "@/components/feed/social-feed-card";
 import { getCurrentUser } from "@/lib/auth";
 import { getRequestLocale } from "@/lib/site-server";
@@ -69,157 +69,154 @@ export default async function DashboardPage() {
     .slice(0, 3);
   const completion = getProfileCompletion(profile, locale);
 
+  // One headline for the whole page: the most urgent thing first, matches last.
+  const next = (() => {
+    if (attention.pendingApplications > 0) {
+      const n = attention.pendingApplications;
+      return {
+        title: en ? `${n} ${n === 1 ? "person is" : "people are"} waiting for your decision` : `${n} ${n === 1 ? "osoba czeka" : "osoby czekają"} na Twoją decyzję`,
+        description: en ? "Review the applications to your projects and build your team." : "Przejrzyj zgłoszenia do swoich projektów i zbuduj zespół.",
+        primary: { href: "/my-projects", label: en ? "Review applications" : "Zobacz zgłoszenia" },
+      };
+    }
+    if (attention.unreadMessages > 0) {
+      const n = attention.unreadMessages;
+      return {
+        title: en ? `You have ${n} unread ${n === 1 ? "message" : "messages"}` : `Masz ${n} ${n === 1 ? "nieprzeczytaną wiadomość" : "nieprzeczytane wiadomości"}`,
+        description: en ? "Someone is waiting for your reply." : "Ktoś czeka na Twoją odpowiedź.",
+        primary: { href: "/messages", label: en ? "Open messages" : "Otwórz wiadomości" },
+      };
+    }
+    if (!completion.complete && completion.score < 80) {
+      return {
+        title: en ? "Finish your profile to get better matches" : "Dokończ profil, żeby dostać lepsze dopasowania",
+        description: en ? `Your profile is ${completion.score}% ready. It takes a minute and helps people find you.` : `Profil jest gotowy w ${completion.score}%. To minuta, a dzięki temu łatwiej Cię znaleźć.`,
+        primary: { href: "/profile", label: en ? "Complete profile" : "Dokończ profil" },
+      };
+    }
+    if (matchingBuilders.length > 0 || fallbackProjects.length > 0) {
+      return {
+        title: en
+          ? `${matchingBuilders.length} ${matchingBuilders.length === 1 ? "person" : "people"} and ${fallbackProjects.length} ${fallbackProjects.length === 1 ? "project" : "projects"} match you`
+          : `${matchingBuilders.length} ${matchingBuilders.length === 1 ? "osoba" : "osoby"} i ${fallbackProjects.length} ${fallbackProjects.length === 1 ? "projekt" : "projekty"} pasują do Ciebie`,
+        description: en ? "Picked from your skills, availability and interests." : "Dobrane po Twoich umiejętnościach, dostępności i zainteresowaniach.",
+        primary: { href: "/builders", label: en ? "Find people" : "Znajdź ludzi" },
+      };
+    }
+    return {
+      title: en ? "No matches yet. Explore people or add a project." : "Brak dopasowań. Odkryj ludzi albo dodaj projekt.",
+      description: undefined,
+      primary: { href: "/builders", label: en ? "Find people" : "Znajdź ludzi" },
+    };
+  })();
+
   return (
     <div>
-      <Topbar title={en ? "Home" : "Start"} subtitle={en ? `Hi ${profile.username}. Discover people, projects and professional opportunities around what you build.` : `Cześć ${profile.username}. Odkrywaj ludzi, projekty i możliwości wokół tego, co budujesz.`} />
+      <Topbar title={en ? "Home" : "Start"} subtitle={en ? `Hi ${profile.username}. Here is what is new around you.` : `Cześć ${profile.username}. Oto co nowego wokół Ciebie.`} />
       <DashboardVisitMarker />
 
-      {!completion.complete ? (
-        <section className="mb-6 overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
-          <div className="grid gap-4 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
-            <div className="min-w-0">
-              <div className="flex items-center justify-between gap-4">
+      <NextActionCard
+        eyebrow={en ? "Right now" : "Na teraz"}
+        title={next.title}
+        description={next.description}
+        primary={next.primary}
+        secondary={next.primary.href === "/projects/new" ? undefined : { href: "/projects/new", label: en ? "Add project" : "Dodaj projekt" }}
+      />
+
+      <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+        {/* Main column */}
+        <div className="min-w-0 space-y-10">
+          {sinceLastVisit.items.length > 0 ? (
+            <section className="rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] shadow-[var(--bc-shadow-xs)]">
+              <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--bc-line)] px-5 py-4">
                 <div>
-                  <p className="text-[13px] font-semibold text-[var(--bc-ink)]">
-                    {en ? `Your profile is ${completion.score}% ready` : `Twój profil jest gotowy w ${completion.score}%`}
-                  </p>
-                  <p className="mt-1 text-[12px] leading-5 text-[var(--bc-muted)]">
-                    {en
-                      ? "Add a few details so people can quickly understand what you do and whether you fit their project."
-                      : "Dodaj kilka szczegółów, żeby inni od razu wiedzieli, co potrafisz i czy pasujesz do ich projektu."}
-                  </p>
+                  <p className="bc-kicker">{en ? "Since your last visit" : "Od ostatniej wizyty"}</p>
+                  <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.01em] text-[var(--bc-ink)]">{sinceLastVisit.count} {en ? (sinceLastVisit.count === 1 ? "new item" : "new items") : (sinceLastVisit.count === 1 ? "nowa rzecz" : "nowe rzeczy")}</h2>
                 </div>
-                <span className="shrink-0 text-[12px] font-semibold tabular-nums text-[var(--bc-ink)] sm:hidden">{completion.score}%</span>
+                {sinceLastVisit.lastVisitedAt ? <p className="text-[12px] text-[var(--bc-faint)]">{en ? "since" : "od"} {sinceLastVisit.lastVisitedAt.toLocaleString(en ? "en-US" : "pl-PL", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p> : null}
               </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--bc-surface-subtle)]">
-                <div className="h-full rounded-full bg-[var(--bc-accent-strong)]" style={{ width: `${completion.score}%` }} />
-              </div>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-[var(--bc-muted)]">
-                {completion.missing.slice(0, 3).map((item) => (
-                  <span key={item} className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--bc-accent-strong)]" />
-                    {item}
-                  </span>
+              <div className="divide-y divide-[var(--bc-line)]">
+                {sinceLastVisit.items.slice(0, 4).map((item) => (
+                  <Link key={item.id} href={item.link ?? "/notifications"} className="grid gap-1 px-5 py-3.5 transition-colors hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-4">
+                    <div className="min-w-0">
+                      <p className="text-[14px] font-medium text-[var(--bc-ink)]">{item.title}</p>
+                      {item.body ? <p className="mt-0.5 bc-truncate-2 text-[13px] leading-5 text-[var(--bc-muted)]">{item.body}</p> : null}
+                    </div>
+                    <span className="shrink-0 text-[12px] text-[var(--bc-faint)]">{item.createdAt.toLocaleTimeString(en ? "en-US" : "pl-PL", { hour: "2-digit", minute: "2-digit" })}</span>
+                  </Link>
                 ))}
               </div>
-            </div>
-            <div className="flex items-center gap-3 sm:flex-col sm:items-end">
-              <span className="hidden text-[12px] font-semibold tabular-nums text-[var(--bc-ink)] sm:block">{completion.score}%</span>
-              <Button asChild size="sm" className="shrink-0"><Link href="/profile">{en ? "Continue profile" : "Dokończ profil"}</Link></Button>
-            </div>
-          </div>
-          {completion.score <= 40 ? (
-            <div className="border-t border-[var(--bc-line)] bg-[var(--bc-accent-soft)] px-4 py-2.5 text-[11px] leading-5 text-[var(--bc-muted)]">
-              {en
-                ? "You already have enough to use BuildCrew. Completing the profile is optional, but it improves recommendations and makes it easier for others to contact you."
-                : "Masz już wszystko, żeby korzystać z BuildCrew. Uzupełnianie profilu jest opcjonalne, ale poprawia dopasowania i ułatwia innym odezwanie się do Ciebie."}
-            </div>
+              {sinceLastVisit.count > 4 ? <div className="border-t border-[var(--bc-line)] px-5 py-3"><Link href="/notifications" className="text-[13px] font-medium text-[var(--bc-ink)] hover:underline">{en ? "View all new items →" : "Zobacz wszystkie nowe →"}</Link></div> : null}
+            </section>
           ) : null}
-        </section>
-      ) : null}
 
-      {sinceLastVisit.items.length > 0 ? (
-        <section className="mb-6 border-y border-[var(--bc-line)] bg-[var(--bc-surface)]">
-          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--bc-line)] px-4 py-3.5">
-            <div>
-              <p className="bc-kicker">{en ? "Since your last visit" : "Od ostatniej wizyty"}</p>
-              <h2 className="mt-1 text-[16px] font-semibold text-[var(--bc-ink)]">{sinceLastVisit.count} {en ? (sinceLastVisit.count === 1 ? "new item" : "new items") : (sinceLastVisit.count === 1 ? "nowa rzecz" : "nowe rzeczy")}</h2>
-            </div>
-            {sinceLastVisit.lastVisitedAt ? <p className="text-[11px] text-[var(--bc-faint)]">{en ? "since" : "od"} {sinceLastVisit.lastVisitedAt.toLocaleString(en ? "en-US" : "pl-PL", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p> : null}
-          </div>
-          <div className="divide-y divide-[var(--bc-line)]">
-            {sinceLastVisit.items.slice(0, 4).map((item) => (
-              <Link key={item.id} href={item.link ?? "/notifications"} className="grid gap-1 px-4 py-3 transition-colors hover:bg-[var(--bc-surface-subtle)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-4">
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-[var(--bc-ink)]">{item.title}</p>
-                  {item.body ? <p className="mt-0.5 bc-truncate-2 text-[12px] leading-5 text-[var(--bc-muted)]">{item.body}</p> : null}
-                </div>
-                <span className="shrink-0 text-[11px] text-[var(--bc-faint)]">{item.createdAt.toLocaleTimeString(en ? "en-US" : "pl-PL", { hour: "2-digit", minute: "2-digit" })}</span>
-              </Link>
-            ))}
-          </div>
-          {sinceLastVisit.count > 4 ? <div className="border-t border-[var(--bc-line)] px-4 py-2.5"><Link href="/notifications" className="text-[12px] font-medium text-[var(--bc-ink)] hover:underline">{en ? "View all new items →" : "Zobacz wszystkie nowe →"}</Link></div> : null}
-        </section>
-      ) : null}
+          {matchingBuilders.length > 0 ? (
+            <section>
+              <SectionHeading title={en ? "People worth meeting" : "Ludzie, których warto poznać"} href="/builders" label={en ? "All people" : "Wszyscy ludzie"} />
+              <div className="mt-4 space-y-3">
+                {matchingBuilders.map(({ builder, match }) => (
+                  <BuilderCard locale={locale} key={builder.userId} matchScore={match.score} matchReasons={match.reasons} builder={{ userId: builder.userId, username: builder.username, headline: builder.headline, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, languages: builder.languages, country: builder.country, city: builder.city, workModePreference: builder.workModePreference, lastActiveAt: builder.lastActiveAt, createdAt: builder.createdAt }} />
+                ))}
+              </div>
+            </section>
+          ) : null}
 
-      <section className="mb-6 border-y border-[var(--bc-line)]">
-        <div className="grid sm:grid-cols-3">
-          <AttentionItem en={en} href="/messages" icon={<MessageCircle className="h-3.5 w-3.5" />} value={attention.unreadMessages} label={en ? "new messages" : "nowe wiadomości"} empty={en ? "No new messages" : "Brak nowych wiadomości"} />
-          <AttentionItem en={en} href="/notifications" icon={<Bell className="h-3.5 w-3.5" />} value={attention.unreadNotifications} label={en ? "notifications" : "powiadomienia"} empty={en ? "Notifications checked" : "Powiadomienia sprawdzone"} />
-          <AttentionItem en={en} href="/my-projects" icon={<Users2 className="h-3.5 w-3.5" />} value={attention.pendingApplications} label={en ? "new applications" : "nowe zgłoszenia"} empty={en ? "No new applications" : "Brak nowych zgłoszeń"} />
-        </div>
-      </section>
+          <section>
+            <SectionHeading title={en ? "Open projects" : "Otwarte projekty"} href="/projects" label={en ? "All projects" : "Wszystkie projekty"} />
+            {fallbackProjects.length > 0 ? (
+              <div className="mt-4 space-y-3">{fallbackProjects.map(({ project, match }) => <ProjectCard key={project.id} project={project} locale={locale} matchScore={match.score} matchReasons={match.reasons} />)}</div>
+            ) : (
+              <p className="mt-4 rounded-[var(--bc-radius-lg)] border border-dashed border-[var(--bc-line-strong)] px-5 py-8 text-center text-sm text-[var(--bc-muted)]">{en ? "No open projects yet." : "Brak otwartych projektów."}</p>
+            )}
+          </section>
 
-      <section className="overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line-strong)] bg-[var(--bc-surface)]">
-        <div className="grid gap-5 px-5 py-5 md:px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-          <div className="bc-eyebrow-line min-w-0">
-            <p className="bc-kicker">{en ? "Right now" : "Na teraz"}</p>
-            <h2 className="mt-2 max-w-[760px] text-[clamp(24px,2.4vw,32px)] font-semibold leading-[1.12] tracking-[-0.03em] text-[var(--bc-ink)]">
-              {matchingBuilders.length > 0 || fallbackProjects.length > 0
-                ? (en ? `You have ${matchingBuilders.length} ${matchingBuilders.length === 1 ? "person" : "people"} and ${fallbackProjects.length} ${fallbackProjects.length === 1 ? "project" : "projects"} worth checking.` : `Masz ${matchingBuilders.length} ${matchingBuilders.length === 1 ? "osobę" : "osoby"} i ${fallbackProjects.length} ${fallbackProjects.length === 1 ? "projekt" : "projekty"}, które warto sprawdzić.`)
-                : (en ? "No new matches yet. Explore people or create a project." : "Brak nowych dopasowań. Odkryj ludzi albo utwórz projekt.")}
-            </h2>
-          </div>
-
-          <div className="flex flex-wrap gap-2 lg:justify-end">
-            <Button asChild variant="secondary" size="sm"><Link href="/builders"><Users2 className="h-3.5 w-3.5" /> {en ? "Find people" : "Znajdź ludzi"}</Link></Button>
-            <Button asChild variant="outline" size="sm"><Link href="/projects">{en ? "Projects" : "Projekty"}</Link></Button>
-            <Button asChild variant="ghost" size="sm"><Link href="/projects/new">{en ? "Create project" : "Dodaj projekt"}</Link></Button>
-          </div>
+          {socialFeed.length > 0 ? (
+            <section>
+              <SectionHeading title={en ? "Latest from the community" : "Najnowsze w społeczności"} href="/feed" label={en ? "Open community" : "Zobacz społeczność"} />
+              <div className="mt-4 space-y-3">
+                {socialFeed.map((item) => <SocialFeedCard key={`social-${item.id}`} item={item} locale={locale} viewerId={user.id} />)}
+              </div>
+            </section>
+          ) : null}
         </div>
 
-      </section>
-
-      {matchingBuilders.length > 0 ? (
-        <section className="mt-8">
-          <SectionHeading title={en ? "People worth meeting" : "Ludzie, których warto poznać"} href="/builders" label={en ? "All people" : "Wszyscy ludzie"} />
-          <div className="mt-3 space-y-2.5">
-            {matchingBuilders.map(({ builder, match }) => (
-              <BuilderCard locale={locale} key={builder.userId} matchScore={match.score} matchReasons={match.reasons} builder={{ userId: builder.userId, username: builder.username, headline: builder.headline, avatarEmoji: builder.avatarEmoji, role: builder.role as RoleType | null, level: builder.level as Level | null, weeklyHours: builder.weeklyHours as Commitment | null, skills: builder.skills, interests: builder.interests, lookingFor: builder.lookingFor, languages: builder.languages, country: builder.country, city: builder.city, workModePreference: builder.workModePreference, lastActiveAt: builder.lastActiveAt, createdAt: builder.createdAt }} />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {socialFeed.length > 0 ? (
-        <section className="mt-8">
-          <SectionHeading title={en ? "Latest from the community" : "Najnowsze w społeczności"} href="/feed" label={en ? "Open community" : "Zobacz społeczność"} />
-          <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{en ? "A quick preview of discussions, knowledge and build updates from the community." : "Krótki podgląd dyskusji, wiedzy i aktualizacji z budowania w społeczności."}</p>
-          <div className="mt-4 space-y-3">
-            {socialFeed.map((item) => <SocialFeedCard key={`social-${item.id}`} item={item} locale={locale} viewerId={user.id} />)}
-          </div>
-        </section>
-      ) : null}
-
-      <section className="mt-8">
-        <SectionHeading title={en ? "Open projects" : "Otwarte projekty"} href="/projects" label={en ? "All projects" : "Wszystkie projekty"} />
-        {fallbackProjects.length > 0 ? <div className="mt-3 space-y-2.5">{fallbackProjects.map(({ project, match }) => <ProjectCard key={project.id} project={project} locale={locale} matchScore={match.score} matchReasons={match.reasons} />)}</div> : <div className="mt-3 border-y border-[var(--bc-line)] py-7 text-sm text-[var(--bc-muted)]">{en ? "No open projects." : "Brak otwartych projektów."}</div>}
-      </section>
-
-
-
-      <section className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[var(--bc-line)] pt-5">
-        <Link href="/network" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--bc-ink)] hover:underline"><Users2 className="h-3.5 w-3.5" /> {en ? "My network" : "Moja sieć"} <ArrowRight className="h-3.5 w-3.5" /></Link>
-        <Link href="/my-projects" className="inline-flex items-center gap-1.5 text-[13px] text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline">{en ? "My projects" : "Moje projekty"}</Link>
-      </section>
+        {/* Side rail: sits above the lists on small screens, beside them on wide ones */}
+        <aside className="order-first space-y-4 xl:sticky xl:top-6 xl:order-none">
+          <AttentionList
+            title={en ? "Inbox" : "Do ogarnięcia"}
+            allClear={en ? "All clear" : "Wszystko ogarnięte"}
+            rows={[
+              { href: "/messages", icon: "messages", label: en ? "Messages" : "Wiadomości", value: attention.unreadMessages },
+              { href: "/notifications", icon: "notifications", label: en ? "Notifications" : "Powiadomienia", value: attention.unreadNotifications },
+              { href: "/my-projects", icon: "applications", label: en ? "Applications" : "Zgłoszenia", value: attention.pendingApplications },
+            ]}
+          />
+          {!completion.complete ? (
+            <ProfileProgress
+              title={en ? "Your profile" : "Twój profil"}
+              score={completion.score}
+              missing={completion.missing}
+              cta={en ? "Continue profile" : "Dokończ profil"}
+              hint={completion.score <= 40 ? (en ? "Optional, but it improves recommendations and makes it easier for others to contact you." : "Opcjonalne, ale poprawia dopasowania i ułatwia innym kontakt.") : undefined}
+            />
+          ) : null}
+          <QuickLinks
+            links={[
+              { href: "/network", label: en ? "My network" : "Moja sieć" },
+              { href: "/my-projects", label: en ? "My projects" : "Moje projekty" },
+            ]}
+          />
+        </aside>
+      </div>
     </div>
-  );
-}
-
-function AttentionItem({ href, icon, value, label, empty, en }: { href: string; icon: React.ReactNode; value: number; label: string; empty: string; en: boolean }) {
-  return (
-    <Link href={href} className="flex min-h-[74px] items-center gap-3 border-b border-[var(--bc-line)] px-4 py-3 transition-colors hover:bg-[var(--bc-surface-subtle)] xl:border-b-0 xl:border-r xl:last:border-r-0">
-      <span className="text-[var(--bc-muted)]">{icon}</span>
-      <div><p className="text-[14px] font-semibold tabular-nums text-[var(--bc-ink)]">{value > 0 ? `${value} ${label}` : empty}</p><p className="mt-0.5 text-[10px] text-[var(--bc-faint)]">{value > 0 ? (en ? "Needs attention" : "Wymaga uwagi") : (en ? "All clear" : "Wszystko ogarnięte")}</p></div>
-    </Link>
   );
 }
 
 function SectionHeading({ title, href, label }: { title: string; href: string; label: string }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <h2 className="text-[20px] font-semibold leading-7 tracking-[-0.018em]">{title}</h2>
-      <Link href={href} className="hidden shrink-0 items-center gap-1.5 text-[12px] font-medium text-[var(--bc-muted)] hover:text-[var(--bc-ink)] hover:underline sm:inline-flex">{label} <ArrowRight className="h-3.5 w-3.5" /></Link>
+    <div className="flex items-baseline justify-between gap-4">
+      <h2 className="text-[22px] font-semibold leading-7 tracking-[-0.02em]">{title}</h2>
+      <Link href={href} className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-[var(--bc-muted)] transition-colors hover:text-[var(--bc-ink)]">{label} <ArrowRight className="h-3.5 w-3.5" /></Link>
     </div>
   );
 }

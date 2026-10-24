@@ -24,7 +24,7 @@ export function PortfolioGallery({ items, locale = "pl", compact = false }: { it
                 {item.images.length > 1 ? <span className="shrink-0 text-[11px] text-[var(--bc-faint)]">{item.images.length} {en ? "screens" : "screenów"}</span> : null}
               </div>
               {item.description ? <p className="bc-truncate-3 mt-2 text-[13px] leading-5 text-[var(--bc-muted)]">{item.description}</p> : null}
-              {item.tools.length ? <div className="mt-3 flex flex-wrap gap-1.5">{item.tools.slice(0, 8).map((tool) => <span key={tool} className="rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-1 text-[10px] font-medium text-[var(--bc-muted)]">{tool}</span>)}</div> : null}
+              {item.tools.length ? <div className="mt-3 flex flex-wrap gap-1.5">{item.tools.slice(0, 8).map((tool) => <span key={tool} className="rounded-[5px] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2 py-1 text-[11px] font-medium text-[var(--bc-muted)]">{tool}</span>)}</div> : null}
               {item.projectId && item.projectName ? <Link href={`/p/${item.projectId}`} className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--bc-ink)] hover:underline">{en ? "BuildCrew project:" : "Projekt BuildCrew:"} {item.projectName}<ExternalLink className="h-3 w-3" /></Link> : null}
             </div>
           </article>

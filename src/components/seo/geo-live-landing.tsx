@@ -124,7 +124,7 @@ export function GeoLiveLanding({
             </div>
           </div>
           <aside className="border-l-2 border-[var(--bc-accent)] pl-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--bc-faint)]">{config.answerLabel ?? "Krótka odpowiedź"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--bc-faint)]">{config.answerLabel ?? "Krótka odpowiedź"}</p>
             <p className="mt-2 text-[15px] leading-6 text-[var(--bc-ink)]">{config.answer}</p>
           </aside>
         </section>
@@ -266,7 +266,7 @@ function LaunchPreviewList({ launches }: { launches: LaunchPreview[] }) {
             <div className="min-w-0">
               <Link href={`/launches/${encodeURIComponent(launch.slug)}`} className="text-[14px] font-semibold hover:underline">{launch.title}</Link>
               <p className="mt-0.5 line-clamp-1 text-[12px] text-[var(--bc-muted)]">{launch.tagline}</p>
-              <p className="mt-1 text-[10px] text-[var(--bc-faint)]">przez {launch.username}</p>
+              <p className="mt-1 text-[11px] text-[var(--bc-faint)]">przez {launch.username}</p>
             </div>
             <div className="min-w-0 text-[11px] text-[var(--bc-muted)]">
               {launch.needs.length ? <p className="truncate">{launch.needs.slice(0, 2).map((need) => launchNeedLabel(need, "pl")).join(" · ")}</p> : <p className="truncate">{launch.technologies.slice(0, 3).join(" · ") || "Projekt społeczności"}</p>}

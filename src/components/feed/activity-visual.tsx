@@ -46,7 +46,7 @@ export function ActivityVisual({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,.18),transparent_34%)]" />
       <div className="relative flex h-full min-h-[150px] flex-col justify-between p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
-          <span className="rounded-full border border-white/20 bg-black/15 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] sm:text-[10px]">{label || "BuildCrew"}</span>
+          <span className="rounded-full border border-white/20 bg-black/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] sm:text-[11px]">{label || "BuildCrew"}</span>
           <Icon className="h-4 w-4 opacity-80 sm:h-5 sm:w-5" />
         </div>
         <div>
