@@ -23,6 +23,8 @@ export type ApplicationCardData = {
   role: { roleType: RoleType };
   matchScore: number;
   reasons: string[];
+  /** Team-aware fit details (see lib/team-fit.ts). */
+  fit?: { cautions: string[]; completeness: { filled: number; total: number; afterFilled: number }; newSkills: string[] };
   applicant: { userId: string; username: string; avatarEmoji: string; level: Level | null; weeklyHours: Commitment | null; skills: string[] };
 };
 
@@ -56,12 +58,26 @@ export function ApplicationCard({ application }: { application: ApplicationCardD
               </Badge>
             </p>
           ) : null}
-          <p className="mt-2 truncate text-[12px] text-[var(--bc-muted)]">{application.reasons[0] || application.message || copy("Sprawdź profil kandydata.", "Review the candidate profile.")}</p>
+          {application.reasons.length ? (
+            <ul className="mt-2 space-y-0.5 text-[12px] text-[var(--bc-muted)]">
+              {application.reasons.slice(0, 3).map((reason) => <li key={reason} className="flex gap-1.5"><Check className="mt-0.5 h-3 w-3 shrink-0 text-[var(--bc-accent-ink)]" aria-hidden="true" /><span>{reason}</span></li>)}
+            </ul>
+          ) : (
+            <p className="mt-2 truncate text-[12px] text-[var(--bc-muted)]">{application.message || copy("Sprawdź profil kandydata.", "Review the candidate profile.")}</p>
+          )}
+          {application.fit?.cautions.length ? (
+            <ul className="mt-1.5 space-y-0.5 text-[12px] text-amber-700 dark:text-amber-300">
+              {application.fit.cautions.map((caution) => <li key={caution} className="flex gap-1.5"><span aria-hidden="true">!</span><span>{caution}</span></li>)}
+            </ul>
+          ) : null}
+          {application.fit && application.fit.completeness.total > 0 && status === "PENDING" && application.fit.completeness.afterFilled > application.fit.completeness.filled ? (
+            <p className="mt-2 text-[12px] text-[var(--bc-faint)]">{copy("Skład zespołu po przyjęciu", "Team after accepting")}: <span className="font-semibold tabular-nums text-[var(--bc-ink)]">{application.fit.completeness.filled}/{application.fit.completeness.total} → {application.fit.completeness.afterFilled}/{application.fit.completeness.total}</span></p>
+          ) : null}
           <p className="mt-1 text-[12px] text-[var(--bc-faint)]">{application.applicant.level ? labels.levels[application.applicant.level] : ""}{application.applicant.weeklyHours ? ` · ${labels.commitments[application.applicant.weeklyHours]}` : ""}</p>
         </div>
       </div>
 
-      <div><p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Dopasowanie", "Match")}</p><p className="mt-1 text-[22px] font-semibold text-[#94bf28]">{application.matchScore}%</p></div>
+      <div><p className="text-[11px] uppercase tracking-[0.08em] text-[var(--bc-faint)]">{copy("Do zespołu", "Team fit")}</p><p className="mt-1 text-[22px] font-semibold text-[#94bf28]">{application.matchScore}%</p></div>
 
       <div className="flex shrink-0 items-center gap-2">
         {status === "PENDING" ? <><Button size="sm" className="gap-1" onClick={() => respond("ACCEPTED")} disabled={pending}><Check className="h-3.5 w-3.5" /> {copy("Akceptuj", "Accept")}</Button><Button size="sm" variant="outline" onClick={() => respond("REJECTED")} disabled={pending} aria-label={copy("Odrzuć", "Decline")}><X className="h-3.5 w-3.5" /></Button></> : <Badge variant={status === "ACCEPTED" ? "success" : "destructive"}>{status === "ACCEPTED" ? copy("Zaakceptowano", "Accepted") : copy("Odrzucono", "Declined")}</Badge>}

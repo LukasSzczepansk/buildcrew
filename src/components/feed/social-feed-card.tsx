@@ -63,7 +63,7 @@ export function SocialFeedCard({ item, locale, viewerId }: { item: SocialFeedIte
         </div>
 
         <div className="mt-4">
-          <span className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] sm:text-[10px] ${badgeClass}`}>{eyebrow}</span>
+          <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] sm:text-[11px] ${badgeClass}`}>{eyebrow}</span>
           <Link href={href} className="mt-2.5 block text-[17px] font-semibold tracking-[-0.02em] text-[var(--bc-ink)] hover:underline sm:text-[19px]">{title}</Link>
           <p className="mt-2 whitespace-pre-wrap text-[13px] leading-[1.55] text-[var(--bc-muted)] sm:text-[14px] sm:leading-6">{item.body}</p>
         </div>

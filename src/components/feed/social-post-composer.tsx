@@ -116,7 +116,7 @@ export function SocialPostComposer({
         <div className="border-t border-[var(--bc-line)] px-4 py-4 sm:px-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="rounded-full bg-[color-mix(in_srgb,var(--bc-accent)_15%,transparent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-accent-strong)]">
+              <span className="rounded-full bg-[color-mix(in_srgb,var(--bc-accent)_15%,transparent)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--bc-accent-strong)]">
                 {kind === "UPDATE" ? copy("Aktualizacja", "Update") : options.find((option) => option.kind === kind)?.label}
               </span>
             </div>
@@ -135,7 +135,7 @@ export function SocialPostComposer({
 
           <Textarea className="mt-3 min-h-[104px] resize-none" value={body} maxLength={800} onChange={(event) => setBody(event.target.value)} placeholder={placeholder} autoFocus />
           <div className="mt-3 flex items-center justify-between gap-3">
-            <span className="text-[10px] text-[var(--bc-faint)]">{body.length}/800</span>
+            <span className="text-[11px] text-[var(--bc-faint)]">{body.length}/800</span>
             <div className="flex items-center gap-2">
               {projects.length && kind !== "UPDATE" ? <Button type="button" size="sm" variant="ghost" onClick={() => setKind("UPDATE")}><Megaphone className="h-3.5 w-3.5" />{copy("Aktualizacja projektu", "Project update")}</Button> : null}
               <Button size="sm" onClick={submit} disabled={pending || body.trim().length < 20 || (needsProject && !projectId)}>{pending ? copy("Publikowanie…", "Publishing…") : copy("Opublikuj", "Publish")}</Button>

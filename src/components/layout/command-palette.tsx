@@ -29,8 +29,17 @@ export function CommandPalette() {
         setOpen((value) => !value);
       }
     }
+    function onOpen() {
+      setQuery("");
+      setActive(0);
+      setOpen(true);
+    }
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("bc:command-palette", onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("bc:command-palette", onOpen);
+    };
   }, []);
 
   const base: Command[] = React.useMemo(() => [

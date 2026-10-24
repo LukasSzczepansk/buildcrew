@@ -19,7 +19,7 @@ export function UserRoleBadge({
         title="Founder BuildCrew"
         className={cn(
           "inline-flex items-center gap-1 rounded-[5px] border border-[#b6dc55] bg-[#C8F169] font-semibold uppercase tracking-[0.08em] text-neutral-950",
-          compact ? "h-5 px-1.5 text-[10px]" : "h-6 px-2 text-[11px]",
+          compact ? "h-5 px-1.5 text-[11px]" : "h-6 px-2 text-[11px]",
           className,
         )}
       >
@@ -35,7 +35,7 @@ export function UserRoleBadge({
         title="Administrator BuildCrew"
         className={cn(
           "inline-flex items-center gap-1 rounded-[5px] border border-[#1c1b17] bg-[#1c1b17] font-semibold uppercase tracking-[0.08em] text-white dark:border-white dark:bg-white dark:text-neutral-950",
-          compact ? "h-5 px-1.5 text-[10px]" : "h-6 px-2 text-[11px]",
+          compact ? "h-5 px-1.5 text-[11px]" : "h-6 px-2 text-[11px]",
           className,
         )}
       >
@@ -51,7 +51,7 @@ export function UserRoleBadge({
         title="Moderator BuildCrew"
         className={cn(
           "inline-flex items-center gap-1 rounded-[5px] border border-[var(--bc-line-strong)] bg-[var(--bc-surface-subtle)] font-semibold uppercase tracking-[0.08em] text-[var(--bc-muted)]",
-          compact ? "h-5 px-1.5 text-[10px]" : "h-6 px-2 text-[11px]",
+          compact ? "h-5 px-1.5 text-[11px]" : "h-6 px-2 text-[11px]",
           className,
         )}
       >

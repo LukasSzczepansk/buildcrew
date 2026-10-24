@@ -49,56 +49,62 @@ export function LaunchListItem({ item, locale, canVote, rank }: { item: Item; lo
   const metaTime = relativeTimeLabel(new Date(item.createdAt), locale);
 
   return (
-    <article className="border-b border-[var(--bc-line)] py-5 first:border-t sm:py-6">
+    <article className="bc-lift group rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-4 shadow-[var(--bc-shadow-xs)] sm:p-5">
       {rank === 1 ? (
-        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--bc-faint)]">
+        <p className="mb-3 inline-flex rounded-full bg-[var(--bc-accent)] px-2.5 py-0.5 text-[12px] font-semibold text-[#1c1b17]">
           {en ? "#1 this week" : "#1 tego tygodnia"}
         </p>
       ) : null}
 
-      <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-[118px_minmax(0,1fr)_132px] md:items-start">
+      <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-[168px_minmax(0,1fr)_auto] md:items-center md:gap-5">
         <Link
           href={href}
-          className="block overflow-hidden rounded-[var(--bc-radius-lg)] border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)]"
+          className="block overflow-hidden rounded-[var(--bc-radius)] border border-[var(--bc-line)] bg-[var(--bc-surface-2)]"
         >
           {item.coverImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={`/api/launches/images/${item.coverImage.id}`}
               alt=""
               loading="lazy"
-              className="aspect-[4/3] w-full object-cover object-top"
+              className="aspect-[16/10] w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
             />
           ) : (
-            <div className="grid aspect-[4/3] place-items-center text-[20px] font-semibold tracking-[-0.04em] text-[var(--bc-faint)]">
+            <div className="grid aspect-[16/10] place-items-center text-[24px] font-semibold tracking-[-0.04em] text-[var(--bc-faint)]">
               {item.title.slice(0, 2).toUpperCase()}
             </div>
           )}
         </Link>
 
         <div className="min-w-0">
-          <Link href={href} className="group block">
-            <h2 className="truncate text-[18px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)] group-hover:underline">
+          <Link href={href} className="block">
+            <h2 className="truncate text-[19px] font-semibold tracking-[-0.025em] text-[var(--bc-ink)] group-hover:underline">
               {item.title}
             </h2>
-            <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[var(--bc-muted)]">
+            <p className="mt-1 line-clamp-2 text-[14px] leading-6 text-[var(--bc-muted)]">
               {item.tagline}
             </p>
           </Link>
 
-          <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[10px] text-[var(--bc-faint)] sm:text-[11px]">
-            <span className="rounded-[999px] border border-[var(--bc-line)] px-2 py-0.5">
+          <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[12px]">
+            {primaryNeed ? (
+              <span className="rounded-full border border-[var(--bc-accent-strong)]/50 bg-[var(--bc-accent-soft)] px-2.5 py-0.5 font-medium text-[var(--bc-accent-ink)]">
+                {launchNeedLabel(primaryNeed, locale)}
+              </span>
+            ) : null}
+            <span className="rounded-full border border-[var(--bc-line)] bg-[var(--bc-surface-subtle)] px-2.5 py-0.5 text-[var(--bc-muted)]">
               {launchCategoryLabel(item.category, locale)}
             </span>
             {item.technologies.slice(0, 3).map((tech) => (
-              <span key={tech} className="rounded-[999px] border border-[var(--bc-line)] px-2 py-0.5">
+              <span key={tech} className="rounded-full border border-[var(--bc-line)] px-2.5 py-0.5 text-[var(--bc-muted)]">
                 {tech}
               </span>
             ))}
           </div>
 
-          <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 text-[11px] text-[var(--bc-faint)]">
+          <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-[var(--bc-faint)]">
             <div className="flex min-w-0 items-center gap-2">
-              <Avatar username={item.username} seed={item.avatarEmoji || item.creatorId} size="sm" className="h-5 w-5 text-[8px]" />
+              <Avatar username={item.username} seed={item.avatarEmoji || item.creatorId} size="sm" className="h-5 w-5 text-[10px]" />
               {authorHref ? (
                 <Link href={authorHref} className="truncate hover:text-[var(--bc-ink)] hover:underline">
                   {item.username}
@@ -109,35 +115,18 @@ export function LaunchListItem({ item, locale, canVote, rank }: { item: Item; lo
               {item.creatorCount > 1 ? <span>+ {item.creatorCount - 1}</span> : null}
             </div>
             <span className="inline-flex items-center gap-1">
-              <Clock3 className="h-3 w-3" />
+              <Clock3 className="h-3 w-3" aria-hidden="true" />
               {metaTime}
             </span>
           </div>
         </div>
 
-        <div className="flex min-w-0 items-start justify-between gap-4 md:flex-col md:items-end md:justify-between md:self-stretch">
-          <div className="min-w-0 md:text-right">
-            {primaryNeed ? (
-              <>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--bc-accent-strong)]">
-                  {en ? "Looking for" : "Szukam"}
-                </p>
-                <p className="mt-1 text-[15px] font-semibold tracking-[-0.02em] text-[var(--bc-ink)]">
-                  {launchNeedLabel(primaryNeed, locale)}
-                </p>
-              </>
-            ) : (
-              <p className="text-[12px] text-[var(--bc-faint)]">&nbsp;</p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4 self-end text-[12px] text-[var(--bc-faint)] md:mt-6">
-            <LaunchVoteButton entryId={item.id} count={item.voteCount} voted={item.viewerVoted} canVote={canVote} returnTo={href} compact />
-            <Link href={href + "#discussion"} className="inline-flex items-center gap-1.5 hover:text-[var(--bc-ink)]">
-              <MessageCircle className="h-3.5 w-3.5" />
-              <span>{item.commentCount}</span>
-            </Link>
-          </div>
+        <div className="flex items-center gap-4 text-[13px] text-[var(--bc-muted)] md:flex-col md:gap-3">
+          <LaunchVoteButton entryId={item.id} count={item.voteCount} voted={item.viewerVoted} canVote={canVote} returnTo={href} compact />
+          <Link href={href + "#discussion"} className="inline-flex items-center gap-1.5 hover:text-[var(--bc-ink)]" aria-label={en ? `${item.commentCount} comments` : `Komentarze: ${item.commentCount}`}>
+            <MessageCircle className="h-4 w-4" aria-hidden="true" />
+            <span className="tabular-nums">{item.commentCount}</span>
+          </Link>
         </div>
       </div>
     </article>

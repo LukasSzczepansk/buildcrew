@@ -136,7 +136,7 @@ export function TasksMock({ tasks, className }: { tasks: { title: string; done?:
             {task.done ? <Check className="h-3 w-3 text-[#1c1b17]" strokeWidth={3} /> : null}
           </span>
           <span className={cn("min-w-0 flex-1 truncate text-[13px]", task.done ? "text-[var(--bc-faint)] line-through" : "text-[var(--bc-ink)]")}>{task.title}</span>
-          <Initials name={task.who} className="h-6 w-6 text-[9px]" />
+          <Initials name={task.who} className="h-6 w-6 text-[10px]" />
         </div>
       ))}
     </div>

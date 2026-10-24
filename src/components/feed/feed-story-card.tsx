@@ -27,7 +27,7 @@ export function FeedStoryCard({
         <div className="flex items-center gap-3">
           <ActivityVisual compact title={title} label={eyebrow} kind={visualKind} />
           <div className="min-w-0 flex-1">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-accent-strong)] sm:text-[10px]">{eyebrow}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--bc-accent-strong)] sm:text-[11px]">{eyebrow}</p>
             <Link href={href} className="mt-0.5 block truncate text-[14px] font-semibold text-[var(--bc-ink)] hover:underline sm:text-[15px]">{title}</Link>
             {meta ? <p className="mt-0.5 truncate text-[11px] text-[var(--bc-faint)]">{meta}</p> : null}
           </div>

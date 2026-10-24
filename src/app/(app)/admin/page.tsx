@@ -75,7 +75,7 @@ export default async function AdminPage() {
                     <p className="mt-2 line-clamp-3 text-[12px] leading-5 text-[var(--bc-faint)]">{launch.description}</p>
 
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-[var(--bc-faint)]">
-                      <Avatar username={launch.username} seed={launch.avatarEmoji || launch.creatorId} size="sm" className="h-6 w-6 text-[9px]" />
+                      <Avatar username={launch.username} seed={launch.avatarEmoji || launch.creatorId} size="sm" className="h-6 w-6 text-[10px]" />
                       <span className="font-medium text-[var(--bc-ink)]">{launch.username}</span>
                       <span>·</span>
                       <span>{formatDate(launch.createdAt, en)}</span>
@@ -84,7 +84,7 @@ export default async function AdminPage() {
                     {launch.technologies.length ? (
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         {launch.technologies.slice(0, 6).map((tech) => (
-                          <span key={tech} className="rounded-full border border-[var(--bc-line)] px-2 py-0.5 text-[10px] text-[var(--bc-muted)]">{tech}</span>
+                          <span key={tech} className="rounded-full border border-[var(--bc-line)] px-2 py-0.5 text-[11px] text-[var(--bc-muted)]">{tech}</span>
                         ))}
                       </div>
                     ) : null}

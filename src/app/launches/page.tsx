@@ -21,10 +21,24 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function LaunchesPage({ searchParams }: { searchParams: Promise<{ tab?: string; page?: string }> }) {
   const [user, locale, params] = await Promise.all([getCurrentUser(), getRequestLocale(), searchParams]);
   const en = locale === "en";
-  const tab = normalizeLaunchTab(params.tab);
+  let tab = normalizeLaunchTab(params.tab);
   const page = Math.max(1, Number(params.page) || 1);
-  const result = await listLaunches({ tab, page, viewerId: user?.id });
+  let result = await listLaunches({ tab, page, viewerId: user?.id });
+  // Nobody asked for a specific tab and the default (today) is empty: show the newest launches instead of an empty page.
+  if (!params.tab && !result.items.length) {
+    tab = "new";
+    result = await listLaunches({ tab, page, viewerId: user?.id });
+  }
   const fallback = result.items.length ? null : await listLaunches({ tab: "new", page: 1, viewerId: user?.id });
+  // The selected tab is empty, but launches exist elsewhere: say so honestly instead of claiming nobody showed anything.
+  const hasLaunchesElsewhere = Boolean(fallback && fallback.items.length);
+  const emptyTabCopy = {
+    today: { pl: "Dziś jeszcze nic nowego", en: "Nothing new today yet" },
+    week: { pl: "W tym tygodniu jeszcze nic nowego", en: "Nothing new this week yet" },
+    new: { pl: "Brak premier", en: "No launches yet" },
+    popular: { pl: "Brak premier z głosami", en: "No launches with votes yet" },
+  } as const;
+  const emptyCopy = emptyTabCopy[tab as keyof typeof emptyTabCopy] ?? emptyTabCopy.new;
   const tabs = [
     { key: "today", pl: "Dzisiaj", en: "Today" },
     { key: "week", pl: "Ten tydzień", en: "This week" },
@@ -85,7 +99,7 @@ export default async function LaunchesPage({ searchParams }: { searchParams: Pro
         </nav>
 
         {result.items.length ? (
-          <section>
+          <section className="mt-5 space-y-3">
             {result.items.map((item, index) => (
               <LaunchListItem
                 key={item.id}
@@ -104,12 +118,14 @@ export default async function LaunchesPage({ searchParams }: { searchParams: Pro
                   <Rocket className="h-6 w-6" />
                 </div>
                 <h2 className="mt-4 text-[24px] font-semibold tracking-[-0.03em] text-[var(--bc-ink)]">
-                  {en ? "No launches here yet" : "Jeszcze nikt tutaj nic nie pokazał"}
+                  {hasLaunchesElsewhere ? (en ? emptyCopy.en : emptyCopy.pl) : (en ? "No launches here yet" : "Jeszcze nikt tutaj nic nie pokazał")}
                 </h2>
                 <p className="mt-2 text-[13px] leading-6 text-[var(--bc-muted)] sm:text-sm">
-                  {en
-                    ? "Your project does not have to be finished. Show it to the community, collect feedback and find first testers."
-                    : "Twój projekt nie musi być skończony. Pokaż go społeczności, zbierz feedback albo znajdź pierwszych testerów."}
+                  {hasLaunchesElsewhere
+                    ? (en ? "Be the first to show something here, or check the latest launches below." : "Pokaż coś jako pierwszy albo zobacz ostatnie premiery poniżej.")
+                    : en
+                      ? "Your project does not have to be finished. Show it to the community, collect feedback and find first testers."
+                      : "Twój projekt nie musi być skończony. Pokaż go społeczności, zbierz feedback albo znajdź pierwszych testerów."}
                 </p>
                 <Button asChild size="sm" className="mt-5">
                   <Link href={user ? "/launches/new" : "/login?next=/launches/new"}>{en ? "Show project" : "Pokaż projekt"}</Link>
@@ -129,7 +145,7 @@ export default async function LaunchesPage({ searchParams }: { searchParams: Pro
                     </Link>
                   ) : null}
                 </div>
-                <section>
+                <section className="space-y-3">
                   {fallback.items.slice(0, 4).map((item) => (
                     <LaunchListItem key={item.id} item={item} locale={locale} canVote={Boolean(user)} />
                   ))}

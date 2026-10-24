@@ -360,7 +360,7 @@ function SliderField({ label, opposite, value, onChange }: { label: string; oppo
 }
 
 function SummaryCell({ label, value }: { label: string; value: string }) {
-  return <div className="bg-[var(--bc-surface)] p-4 dark:bg-[#171715]"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">{label}</p><p className="mt-1.5 text-sm font-medium">{value}</p></div>;
+  return <div className="bg-[var(--bc-surface)] p-4 dark:bg-[#171715]"><p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-400">{label}</p><p className="mt-1.5 text-sm font-medium">{value}</p></div>;
 }
 
 function stepTitle(step: number, locale: "pl" | "en") {
