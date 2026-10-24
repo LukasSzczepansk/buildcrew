@@ -44,6 +44,7 @@ export function ShareProjectButton({
   const [open, setOpen] = React.useState(false);
   const [copied, setCopied] = React.useState<"link" | "text" | "discord" | "embed" | null>(null);
   const [mode, setMode] = React.useState<ShareMode>({ type: "project" });
+  const [embedOpen, setEmbedOpen] = React.useState(false);
 
   const role = mode.type === "role" ? openRoles.find((item) => item.id === mode.roleId) : undefined;
   const roleLabel = role ? labels.roles[role.roleType] : null;
@@ -78,11 +79,14 @@ export function ShareProjectButton({
     }
   }
 
-  async function copyEmbedCode() {
+  function getEmbedSnippet() {
     const embedUrl = `${window.location.origin}/embed/projects/${projectId}`;
-    const snippet = `<iframe src="${embedUrl}" width="360" height="180" style="border:1px solid #DADAD3;border-radius:8px" loading="lazy" title="${projectName} - BuildCrew"></iframe>`;
+    return `<iframe src="${embedUrl}" width="360" height="180" style="border:1px solid #DADAD3;border-radius:8px" loading="lazy" title="${projectName} - BuildCrew"></iframe>`;
+  }
+
+  async function copyEmbedCode() {
     try {
-      await navigator.clipboard.writeText(snippet);
+      await navigator.clipboard.writeText(getEmbedSnippet());
       setCopied("embed");
       window.setTimeout(() => setCopied(null), 1800);
     } catch {
@@ -178,6 +182,12 @@ export function ShareProjectButton({
                   {copied === "discord" ? <Check className="h-3.5 w-3.5" /> : null}
                   {copied === "discord" ? copy("Skopiowano", "Copied") : copy("Dla Discorda", "For Discord")}
                 </Button>
+                {mode.type === "project" ? (
+                  <Button type="button" size="sm" variant="outline" onClick={() => setEmbedOpen((v) => !v)}>
+                    <Code2 className="h-3.5 w-3.5" />
+                    {copy("Osadź widżet", "Share as embed")}
+                  </Button>
+                ) : null}
               </div>
               <button
                 type="button"
@@ -187,6 +197,25 @@ export function ShareProjectButton({
                 <ExternalLink className="h-3.5 w-3.5" />
                 {copy("Otwórz systemowe udostępnianie", "Open system share")}
               </button>
+
+              {embedOpen && mode.type === "project" ? (
+                <div className="mt-3 rounded-[8px] border border-[var(--bc-line)] bg-[var(--bc-canvas)] p-3">
+                  <p className="text-[12px] text-[var(--bc-muted)]">
+                    {copy("Wklej ten kod na swojej stronie, aby osadzić widżet projektu.", "Paste this code on your site to embed the project widget.")}
+                  </p>
+                  <textarea
+                    readOnly
+                    value={getEmbedSnippet()}
+                    onFocus={(event) => event.currentTarget.select()}
+                    rows={3}
+                    className="mt-2 w-full resize-none rounded-[6px] border border-[var(--bc-line)] bg-[var(--bc-surface)] p-2 font-mono text-[12px] text-[var(--bc-ink)]"
+                  />
+                  <Button type="button" size="sm" variant="outline" className="mt-2 w-full justify-start" onClick={copyEmbedCode}>
+                    {copied === "embed" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied === "embed" ? copy("Kod skopiowany", "Code copied") : copy("Kopiuj kod widżetu", "Copy embed code")}
+                  </Button>
+                </div>
+              ) : null}
             </div>
 
             <div className="border-t border-[var(--bc-line)] pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
@@ -206,12 +235,6 @@ export function ShareProjectButton({
                     {copy("Pobierz grafikę PNG", "Download PNG image")}
                   </a>
                 </Button>
-                {mode.type === "project" ? (
-                  <Button type="button" variant="outline" size="sm" className="w-full justify-start" onClick={copyEmbedCode}>
-                    {copied === "embed" ? <Check className="h-3.5 w-3.5" /> : <Code2 className="h-3.5 w-3.5" />}
-                    {copied === "embed" ? copy("Kod skopiowany", "Code copied") : copy("Kopiuj kod widżetu", "Copy widget embed code")}
-                  </Button>
-                ) : null}
               </div>
             </div>
           </div>
